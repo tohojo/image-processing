@@ -46,6 +46,8 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionOpen_image"/>
+    <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
    <addaction name="menuFile"/>
@@ -80,6 +82,9 @@
        <property name="text">
         <string>No image loaded</string>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+       </property>
       </widget>
      </item>
     </layout>
@@ -106,6 +111,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionOpen_image">
+   <property name="text">
+    <string>&amp;Open image</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
  </widget>

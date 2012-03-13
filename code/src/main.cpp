@@ -10,5 +10,6 @@ int main(int argc, char *argv[])
 
   ProcessingGUI ui;
   ui.show();
+  
   return app.exec();
 }

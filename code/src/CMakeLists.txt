@@ -1,4 +1,8 @@
-set(image-processing_SOURCES main.cpp processing-gui.cpp)
+set(image-processing_SOURCES
+  main.cpp
+  processing-gui.cpp
+  util.cpp
+  headers/util.h)
 set(image-processing_HEADERS headers/processing-gui.h)
 set(image-processing_FORMS ui/processing-gui.ui)
 
@@ -13,5 +17,4 @@ include_directories(headers/)
 add_executable(image-processing ${image-processing_SOURCES}
   ${image-processing_HEADERS_MOC}
   ${image-processing_FORMS_HEADERS})
-#target_link_libraries(image-processing ${OpenCV_LIBS})
-target_link_libraries(image-processing ${QT_LIBRARIES})
+target_link_libraries(image-processing ${QT_LIBRARIES} ${OpenCV_LIBS})
