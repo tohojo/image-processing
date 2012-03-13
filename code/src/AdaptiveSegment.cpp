@@ -29,7 +29,7 @@ int main( int argc, char** argv)
   printf("Threshold before: %d\n", threshold);
   adaptThreshold(grey, &threshold);
   printf("Threshold after: %d\n", threshold);
-  
+
 
   Mat dst;
   if(darkbg)
@@ -56,7 +56,6 @@ void adaptThreshold(Mat I, int* threshold)
     Scalar mean_above = mean(I, above);
     Scalar mean_below = mean(I, below);
     *threshold = cvRound(((mean_above[0]+mean_below[0])/2));
-    
-  } while(old_threshold != *threshold);
+
+} while(old_threshold != *threshold);
 }
-    
