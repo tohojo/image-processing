@@ -1,0 +1,85 @@
+%        File: tohojo-common.sty
+% vim:filetype=tex
+%
+\ProvidesPackage{tohojo-common}
+\usepackage{t1enc}
+%\usepackage[british,danish]{babel}
+\usepackage[danish,british]{babel}
+\selectlanguage{british}
+\usepackage[english]{varioref}
+\usepackage[xetex]{hyperref}
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=black, 
+filecolor=black, urlcolor=black, bookmarksdepth=subsubsection}
+%\def\reftextafter     {p\aa{} n\ae ste side}%
+\usepackage[sectionbib]{natbib}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{fancyhdr}
+\usepackage[hang,small,bf]{caption}
+\setlength{\captionmargin}{1.5cm}
+\setcounter{secnumdepth}{0}
+\setcounter{tocdepth}{3}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5ex plus 0.5ex minus 0.2ex}
+\setlength{\footskip}{1cm}
+\usepackage{xcolor}
+\usepackage{xltxtra}
+\usepackage{fontspec}
+\usepackage{eso-pic}
+\usepackage{mdwlist}
+\usepackage{lastpage}
+\usepackage{timestamp}
+\usepackage{multicol}
+\usepackage[normalem]{ulem}
+\usepackage{pdfpages}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{framed}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{arrows,positioning,intersections}
+\heavyrulewidth=.1em
+\usepackage[fixlanguage]{babelbib}
+\selectbiblanguage{british}
+\bibpunct{[}{]}{;}{a}{,}{,}
+\renewcommand{\cite}{\citep}
+
+\includepdfset{pagecommand={\thispagestyle{plain}}}
+
+\renewenvironment{thebibliography}[1]
+     {\section{\refname%
+        \@mkboth{\MakeUppercase\bibname}{\MakeUppercase\bibname}
+     }%
+      \list{\@biblabel{\@arabic\c@enumiv}}%
+           {\settowidth\labelwidth{\@biblabel{#1}}%
+            \leftmargin\labelwidth
+            \advance\leftmargin\labelsep
+            \@openbib@code
+            \usecounter{enumiv}%
+            \let\p@enumiv\@empty
+            \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+      \sloppy
+      \clubpenalty4000
+      \@clubpenalty \clubpenalty
+      \widowpenalty4000%
+      \sfcode`\.\@m}
+     {\def\@noitemerr
+       {\@latex@warning{Empty `thebibliography' environment}}%
+      \endlist}
+
+\setmainfont[Mapping=tex-text]{Gentium Basic}
+\setromanfont[Mapping=tex-text]{Gentium Basic}
+%\setmonofont[Scale=0.95,Mapping=tex-text]{DejaVu Sans Mono}
+\setsansfont[Mapping=tex-text]{PT Sans}
+\frenchspacing
+
+%\renewcommand{\familydefault}{\sfdefault}
+
+
+%\definecolor{sec}{rgb}{0.22,0.45,0.71}
+%\definecolor{subsec}{rgb}{0.32,0.51,0.75}
+\addtokomafont{section}{\LARGE\raggedright}
+\addtokomafont{subsection}{\Large\raggedright}
+\addtokomafont{subsubsection}{\large\mdseries\raggedright}
+%\addtokomafont{subsection}{\color{subsec}}
+

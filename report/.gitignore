@@ -1,0 +1,12 @@
+*.log
+*.aux
+*.out
+*.toc
+*.lof
+*.lot
+*.lol
+*.blg
+*.bbl
+image-processing.pdf
+*.synctex.gz
+*.backup
