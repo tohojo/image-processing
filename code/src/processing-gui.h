@@ -4,6 +4,8 @@
 #include <QtGui/QApplication>
 #include <cv.h>
 #include "ui_processing-gui.h"
+#include "processor.h"
+#include "null_processor.h"
 
 using namespace cv;
 
@@ -17,7 +19,7 @@ public:
 
 private:
   Mat input_image;
-  Mat output_image;
+  Processor *current_processor;
   QGraphicsScene *input_scene;
   QGraphicsScene *output_scene;
 
@@ -25,6 +27,9 @@ private slots:
   void zoom_output(int value);
   void open_image();
   void update_output();
+
+signals:
+  void image_changed();
 };
 
 #endif

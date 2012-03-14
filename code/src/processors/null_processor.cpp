@@ -12,4 +12,5 @@ NullProcessor::~NullProcessor()
 void NullProcessor::process()
 {
   output_image = input_image;
+  emit updated();
 }

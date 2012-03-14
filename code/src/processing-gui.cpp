@@ -18,6 +18,10 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   output_scene = new QGraphicsScene(this);
   output_view->setScene(output_scene);
 
+  current_processor = new NullProcessor(this);
+  connect(this, SIGNAL(image_changed()), current_processor, SLOT(process()));
+  connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));
+
   connect(action_open_image, SIGNAL(activated()), this, SLOT(open_image()));
   connect(output_zoom, SIGNAL(sliderMoved(int)), this, SLOT(zoom_output(int)));
 }
@@ -25,6 +29,7 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
 ProcessingGUI::~ProcessingGUI()
 {
   delete output_scene;
+  delete current_processor;
 }
 
 void ProcessingGUI::zoom_output(int value)
@@ -37,7 +42,7 @@ void ProcessingGUI::zoom_output(int value)
 void ProcessingGUI::update_output()
 {
   output_scene->clear();
-  QImage img = Util::mat_to_qimage(output_image);
+  QImage img = Util::mat_to_qimage(current_processor->get_output());
   QGraphicsPixmapItem *image = output_scene->addPixmap(QPixmap::fromImage(img));
   output_scene->setSceneRect(image->boundingRect());
   output_view->ensureVisible(image->boundingRect());
@@ -51,10 +56,11 @@ void ProcessingGUI::open_image()
                                                   tr("Images (*.png *.jpg *.jpeg *.tif)"));
   if(!filename.isNull()) {
     QFileInfo fileinfo = QFileInfo(filename);
-    output_image = input_image = Util::load_image(filename);
+    input_image = Util::load_image(filename);
+    current_processor->set_input(input_image);
     QImage qImg = Util::mat_to_qimage(input_image);
     input_view->setImage(qImg);
     input_filename->setText(fileinfo.fileName());
-    update_output();
+    emit image_changed();
   }
 }

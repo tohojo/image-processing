@@ -10,7 +10,7 @@ class NullProcessor : public Processor
   Q_OBJECT
 
 public:
-  NullProcessor(QObject *parent);
+  NullProcessor(QObject *parent = 0);
   ~NullProcessor();
 
 public slots:
