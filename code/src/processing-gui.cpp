@@ -15,8 +15,6 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
 {
   setupUi(this);
 
-  //input_scene = new QGraphicsScene(this);
-  //input_view->setScene(input_scene);
   output_scene = new QGraphicsScene(this);
   output_view->setScene(output_scene);
 
@@ -26,7 +24,6 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
 
 ProcessingGUI::~ProcessingGUI()
 {
-  delete input_scene;
   delete output_scene;
 }
 
