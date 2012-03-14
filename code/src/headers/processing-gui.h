@@ -16,10 +16,15 @@ public:
   ~ProcessingGUI();
 
 private:
-  Mat currentImage;
+  Mat input_image;
+  Mat output_image;
+  QGraphicsScene *input_scene;
+  QGraphicsScene *output_scene;
 
 private slots:
+  void zoom_output(int value);
   void open_image();
+  void update_output();
 };
 
 #endif

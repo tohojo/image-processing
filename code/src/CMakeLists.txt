@@ -14,7 +14,8 @@ qt4_wrap_ui(image-processing_FORMS_HEADERS ${image-processing_FORMS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(headers/)
 
-add_executable(image-processing ${image-processing_SOURCES}
+add_executable(image-processing
   ${image-processing_HEADERS_MOC}
-  ${image-processing_FORMS_HEADERS})
+  ${image-processing_FORMS_HEADERS}
+  ${image-processing_SOURCES})
 target_link_libraries(image-processing ${QT_LIBRARIES} ${OpenCV_LIBS})

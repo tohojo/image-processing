@@ -1,7 +1,6 @@
 /**
  * Utility functions for conversion between opencv and qt formats etc.
  */
-
 #include "util.h"
 
 QImage Util::mat_to_qimage(Mat img)
@@ -25,11 +24,11 @@ QImage Util::mat_to_qimage(Mat img)
     // Convert grey-scale picture into 8-bit indexed colour.
     QVector<QRgb> colorTable;
     for(int i=0; i < 256; i++)
-      colorTable.push_back(qRgb(i,i,i));
+      colorTable.append(qRgb(i,i,i));
     QImage qImage = QImage(img_buffer, size.width, size.height, QImage::Format_Indexed8);
+    qImage.setColorTable(colorTable);
     qDebug("QImage pixel values: %d, %d",
            qImage.pixelIndex(10, 0), qImage.pixelIndex(123,0));
-    qImage.setColorTable(colorTable);
     return qImage;
   } else {
     qFatal("Could not process image of depth %d with %d channels",
