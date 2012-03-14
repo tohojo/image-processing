@@ -56,10 +56,7 @@ void ProcessingGUI::open_image()
     QFileInfo fileinfo = QFileInfo(filename);
     output_image = input_image = Util::load_image(filename);
     QImage qImg = Util::mat_to_qimage(input_image);
-    QImage scaled = qImg.scaled(inputImage->width(), inputImage->height(),
-                                Qt::KeepAspectRatio);
-    QPixmap pixmap = QPixmap::fromImage(scaled);
-    inputImage->setPixmap(pixmap);
+    inputImage->setImage(qImg);
     update_output();
   }
 }

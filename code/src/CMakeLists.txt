@@ -1,9 +1,12 @@
 set(image-processing_SOURCES
   main.cpp
   processing-gui.cpp
+  resizingimagelabel.cpp
   util.cpp
   headers/util.h)
-set(image-processing_HEADERS headers/processing-gui.h)
+set(image-processing_HEADERS
+  headers/processing-gui.h
+  headers/resizingimagelabel.h)
 set(image-processing_FORMS ui/processing-gui.ui)
 
 # QT4-specific preprocessor headers
