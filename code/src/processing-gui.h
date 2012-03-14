@@ -23,6 +23,9 @@ private:
   QGraphicsScene *input_scene;
   QGraphicsScene *output_scene;
 
+public slots:
+  void set_processor(Processor *proc);
+
 private slots:
   void zoom_output(int value);
   void open_image();

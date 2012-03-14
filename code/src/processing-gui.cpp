@@ -19,9 +19,7 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   output_scene = new QGraphicsScene(this);
   output_view->setScene(output_scene);
 
-  current_processor = new AdaptiveSegment(this);
-  connect(this, SIGNAL(image_changed()), current_processor, SLOT(process()));
-  connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));
+  set_processor(new AdaptiveSegment(this));
 
   connect(action_open_image, SIGNAL(activated()), this, SLOT(open_image()));
   connect(output_zoom, SIGNAL(sliderMoved(int)), this, SLOT(zoom_output(int)));
@@ -64,4 +62,16 @@ void ProcessingGUI::open_image()
     input_filename->setText(fileinfo.fileName());
     emit image_changed();
   }
+}
+
+void ProcessingGUI::set_processor(Processor *proc)
+{
+  //  Processor *old = current_processor;
+  current_processor = proc;
+  //  if(old)
+  //    delete old;
+  connect(this, SIGNAL(image_changed()), current_processor, SLOT(process()));
+  connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));
+  m_properties->addObject(current_processor);
+
 }
