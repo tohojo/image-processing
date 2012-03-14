@@ -15,6 +15,9 @@ public:
 
 public slots:
   void process();
+
+private:
+  void adaptThreshold(Mat I, int *threshold);
 };
 
 #endif

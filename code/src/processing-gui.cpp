@@ -9,6 +9,7 @@
 
 #include "processing-gui.h"
 #include "util.h"
+#include "adaptive_segment.h"
 
 ProcessingGUI::ProcessingGUI(QWidget *parent)
   : QMainWindow(parent)
@@ -18,7 +19,7 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   output_scene = new QGraphicsScene(this);
   output_view->setScene(output_scene);
 
-  current_processor = new NullProcessor(this);
+  current_processor = new AdaptiveSegment(this);
   connect(this, SIGNAL(image_changed()), current_processor, SLOT(process()));
   connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));
 
