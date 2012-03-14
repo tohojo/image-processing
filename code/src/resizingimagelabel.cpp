@@ -23,8 +23,10 @@ void ResizingImageLabel::setImage(QImage img)
 
 void ResizingImageLabel::updatePixmap()
 {
-  QImage scaled = image.scaled(width(), height(), Qt::KeepAspectRatio);
-  setPixmap(QPixmap::fromImage(scaled));
+  if(!image.isNull()) {
+    QImage scaled = image.scaled(width(), height(), Qt::KeepAspectRatio);
+    setPixmap(QPixmap::fromImage(scaled));
+  }
 }
 
 void ResizingImageLabel::resizeEvent(QResizeEvent *event)
