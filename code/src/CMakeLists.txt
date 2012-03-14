@@ -1,12 +1,12 @@
 set(image-processing_SOURCES
   main.cpp
   processing-gui.cpp
-  resizingimagelabel.cpp
+  widgets/resizingimagelabel.cpp
   util.cpp
-  headers/util.h)
+  util.h)
 set(image-processing_HEADERS
-  headers/processing-gui.h
-  headers/resizingimagelabel.h)
+  processing-gui.h
+  widgets/resizingimagelabel.h)
 set(image-processing_FORMS ui/processing-gui.ui)
 
 # QT4-specific preprocessor headers
@@ -15,7 +15,8 @@ qt4_wrap_ui(image-processing_FORMS_HEADERS ${image-processing_FORMS})
 
 # make sure the compiler can find the generated _ui* files
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(headers/)
+include_directories(processors/)
+include_directories(widgets/)
 
 include_directories (${image-processing_SOURCE_DIR}/lib/QPropertyEditor)
 link_directories (${image-processing_BINARY_DIR}/lib/QPropertyEditor) 
