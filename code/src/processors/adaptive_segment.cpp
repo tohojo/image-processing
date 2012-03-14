@@ -3,6 +3,7 @@
 AdaptiveSegment::AdaptiveSegment(QObject *parent)
   : Processor(parent), m_adapt(true), m_background(LIGHT)
 {
+  m_threshold = 0;
 }
 
 AdaptiveSegment::~AdaptiveSegment()
@@ -14,35 +15,35 @@ void AdaptiveSegment::process()
   if(input_image.empty()) return;
   
   Scalar m = mean(input_image);
-  int threshold = cvRound(m[0]);
+  m_threshold = cvRound(m[0]);
 
   if(m_adapt) {
-    qDebug("Threshold before: %d", threshold);
-    adaptThreshold(input_image, &threshold);
-    qDebug("Threshold after: %d", threshold);
+    qDebug("Threshold before: %d", m_threshold);
+    adaptThreshold();
+    qDebug("Threshold after: %d", m_threshold);
   }
 
 
   if(m_background == DARK)
-    output_image = input_image < threshold;
+    output_image = input_image < m_threshold;
   else
-    output_image = input_image >= threshold;
+    output_image = input_image >= m_threshold;
 
   emit updated();
 }
 
-void AdaptiveSegment::adaptThreshold(Mat I, int* threshold)
+void AdaptiveSegment::adaptThreshold()
 {
   int old_threshold;
   do {
-    old_threshold = *threshold;
-    Mat above = I >= *threshold;
-    Mat below = I < *threshold;
-    Scalar mean_above = mean(I, above);
-    Scalar mean_below = mean(I, below);
-    *threshold = cvRound(((mean_above[0]+mean_below[0])/2));
+    old_threshold = m_threshold;
+    Mat above = input_image >= m_threshold;
+    Mat below = input_image < m_threshold;
+    Scalar mean_above = mean(input_image, above);
+    Scalar mean_below = mean(input_image, below);
+    m_threshold = cvRound(((mean_above[0]+mean_below[0])/2));
 
-} while(old_threshold != *threshold);
+} while(old_threshold != m_threshold);
 }
 
 

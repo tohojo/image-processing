@@ -9,10 +9,11 @@ class AdaptiveSegment : public Processor
 {
   Q_OBJECT
 
-  Q_PROPERTY(QString Name READ name DESIGNABLE true USER true)
+  Q_PROPERTY(QString Name READ name USER true)
 
   Q_PROPERTY(bool AdaptThreshold READ adapt WRITE setAdapt DESIGNABLE true USER true)
   Q_PROPERTY(Background BackgroundColour READ background WRITE setBackground DESIGNABLE true USER true)
+  Q_PROPERTY(int Threshold READ threshold USER true)
   Q_ENUMS(Background)
 
 public:
@@ -28,12 +29,15 @@ public:
   Background background() const {return m_background;}
   void setBackground(const Background bg);
 
+  int threshold() const {return m_threshold;}
+
 public slots:
   void process();
 
 private:
-  void adaptThreshold(Mat I, int *threshold);
+  void adaptThreshold();
   bool m_adapt;
+  int m_threshold;
   Background m_background;
 };
 
