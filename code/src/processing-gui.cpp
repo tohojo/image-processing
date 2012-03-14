@@ -38,8 +38,8 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
 ProcessingGUI::~ProcessingGUI()
 {
   delete output_scene;
-  delete processor_model;
   delete processor_selection;
+  delete processor_model;
   if(current_processor != NULL)
     delete current_processor;
 }
