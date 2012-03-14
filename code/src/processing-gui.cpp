@@ -38,7 +38,10 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
 ProcessingGUI::~ProcessingGUI()
 {
   delete output_scene;
-  delete current_processor;
+  delete processor_model;
+  delete processor_selection;
+  if(current_processor != NULL)
+    delete current_processor;
 }
 
 void ProcessingGUI::zoom_output(int value)
