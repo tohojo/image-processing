@@ -18,7 +18,7 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   output_scene = new QGraphicsScene(this);
   output_view->setScene(output_scene);
 
-  connect(actionOpen_image, SIGNAL(activated()), this, SLOT(open_image()));
+  connect(action_open_image, SIGNAL(activated()), this, SLOT(open_image()));
   connect(output_zoom, SIGNAL(sliderMoved(int)), this, SLOT(zoom_output(int)));
 }
 

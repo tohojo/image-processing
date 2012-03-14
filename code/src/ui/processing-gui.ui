@@ -93,7 +93,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionOpen_image"/>
+    <addaction name="action_open_image"/>
     <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
@@ -185,7 +185,7 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="actionOpen_image">
+  <action name="action_open_image">
    <property name="text">
     <string>&amp;Open image</string>
    </property>
