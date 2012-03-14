@@ -13,7 +13,7 @@ AdaptiveSegment::~AdaptiveSegment()
 void AdaptiveSegment::process()
 {
   if(input_image.empty()) return;
-  
+
   Scalar m = mean(input_image);
   m_threshold = cvRound(m[0]);
 
@@ -43,7 +43,7 @@ void AdaptiveSegment::adaptThreshold()
     Scalar mean_below = mean(input_image, below);
     m_threshold = cvRound(((mean_above[0]+mean_below[0])/2));
 
-} while(old_threshold != m_threshold);
+  } while(old_threshold != m_threshold);
 }
 
 
