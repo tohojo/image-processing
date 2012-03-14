@@ -6,6 +6,7 @@
 #include "ui_processing-gui.h"
 #include "processor.h"
 #include "null_processor.h"
+#include "processor_model.h"
 
 using namespace cv;
 
@@ -22,6 +23,8 @@ private:
   Processor *current_processor;
   QGraphicsScene *input_scene;
   QGraphicsScene *output_scene;
+  ProcessorModel *processor_model;
+  QItemSelectionModel *processor_selection;
 
 public slots:
   void set_processor(Processor *proc);
@@ -30,6 +33,7 @@ private slots:
   void zoom_output(int value);
   void open_image();
   void update_output();
+  void new_processor(const QModelIndex & current);
 
 signals:
   void image_changed();

@@ -17,7 +17,7 @@ class AdaptiveSegment : public Processor
 
 public:
   enum Background { DARK, LIGHT };
-  AdaptiveSegment(QObject *parent);
+  AdaptiveSegment(QObject *parent = 0);
   ~AdaptiveSegment();
 
   static const QString name() {return "Adaptive segmenting";}

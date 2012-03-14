@@ -4,6 +4,7 @@ set(image-processing_SOURCES
   widgets/resizingimagelabel.cpp
   processors/adaptive_segment.cpp
   processors/null_processor.cpp
+  processors/processor_model.cpp
   util.cpp
   util.h)
 set(image-processing_HEADERS
@@ -11,7 +12,8 @@ set(image-processing_HEADERS
   widgets/resizingimagelabel.h
   processors/processor.h
   processors/adaptive_segment.h
-  processors/null_processor.h)
+  processors/null_processor.h
+  processors/processor_model.h)
 set(image-processing_FORMS ui/processing-gui.ui)
 
 # QT4-specific preprocessor headers

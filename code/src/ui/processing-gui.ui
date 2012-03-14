@@ -110,7 +110,7 @@
    <widget class="QWidget" name="dockWidgetContents">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QListWidget" name="functionView"/>
+      <widget class="QListView" name="processor_view"/>
      </item>
     </layout>
    </widget>

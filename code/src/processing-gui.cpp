@@ -16,10 +16,20 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
 {
   setupUi(this);
 
+  current_processor = NULL;
+
   output_scene = new QGraphicsScene(this);
   output_view->setScene(output_scene);
 
-  set_processor(new AdaptiveSegment(this));
+  processor_model = new ProcessorModel();
+  processor_selection = new QItemSelectionModel(processor_model);
+  processor_view->setModel(processor_model);
+  processor_view->setSelectionModel(processor_selection);
+  connect(processor_selection, SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+          this, SLOT(new_processor(const QModelIndex&)));
+
+  // Start out by selection first index.
+  processor_selection->setCurrentIndex(processor_model->index(0), QItemSelectionModel::SelectCurrent);
 
   connect(action_open_image, SIGNAL(activated()), this, SLOT(open_image()));
   connect(output_zoom, SIGNAL(sliderMoved(int)), this, SLOT(zoom_output(int)));
@@ -66,12 +76,20 @@ void ProcessingGUI::open_image()
 
 void ProcessingGUI::set_processor(Processor *proc)
 {
-  //  Processor *old = current_processor;
+  if(current_processor != NULL)
+    delete current_processor;
   current_processor = proc;
-  //  if(old)
-  //    delete old;
   connect(this, SIGNAL(image_changed()), current_processor, SLOT(process()));
   connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));
+  m_properties->clear();
   m_properties->addObject(current_processor);
 
+  current_processor->set_input(input_image);
+  current_processor->process();
+}
+
+void ProcessingGUI::new_processor(const QModelIndex & current)
+{
+  int row = current.row();
+  set_processor(processor_model->get_processor(row));
 }
