@@ -67,3 +67,8 @@ void QPropertyEditorWidget::unregisterCustomPropertyCB(UserTypeCB callback)
 	m_model->unregisterCustomPropertyCB(callback);
 }
 
+void QPropertyEditorWidget::clear()
+{
+  m_model->clear();
+}
+

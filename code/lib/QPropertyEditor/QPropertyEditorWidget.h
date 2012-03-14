@@ -110,6 +110,8 @@ public:
 	 */
 	void unregisterCustomPropertyCB(UserTypeCB callback);
 
+        void clear();
+
 private:
 	/// The Model for this view
 	QPropertyModel*			m_model;
