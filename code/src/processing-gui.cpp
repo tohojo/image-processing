@@ -56,7 +56,8 @@ void ProcessingGUI::open_image()
     QFileInfo fileinfo = QFileInfo(filename);
     output_image = input_image = Util::load_image(filename);
     QImage qImg = Util::mat_to_qimage(input_image);
-    inputImage->setImage(qImg);
+    input_view->setImage(qImg);
+    input_filename->setText(fileinfo.fileName());
     update_output();
   }
 }
