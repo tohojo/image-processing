@@ -164,7 +164,7 @@
   </widget>
   <widget class="QDockWidget" name="dockWidget_4">
    <property name="windowTitle">
-    <string>Output parameters</string>
+    <string>Properties</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
@@ -172,7 +172,7 @@
    <widget class="QWidget" name="dockWidgetContents_4">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QTableView" name="parametersView"/>
+      <widget class="QPropertyEditorWidget" name="m_properties"/>
      </item>
     </layout>
    </widget>
@@ -199,6 +199,11 @@
    <class>ResizingImageLabel</class>
    <extends>QLabel</extends>
    <header>resizingimagelabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QPropertyEditorWidget</class>
+   <extends>QTreeView</extends>
+   <header>QPropertyEditorWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

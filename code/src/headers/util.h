@@ -7,11 +7,10 @@
 
 using namespace cv;
 
-class Util
+namespace Util
 {
-public:
-  static const QImage mat_to_qimage (Mat img);
-  static Mat load_image(QString filename);
-};
+  const QImage mat_to_qimage (Mat img);
+  Mat load_image(QString filename);
+}
 
 #endif

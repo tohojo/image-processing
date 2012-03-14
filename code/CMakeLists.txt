@@ -10,5 +10,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Werror")
 endif()
 
+add_subdirectory(lib)
 add_subdirectory(src)
 

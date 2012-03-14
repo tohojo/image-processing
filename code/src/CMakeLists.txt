@@ -17,8 +17,11 @@ qt4_wrap_ui(image-processing_FORMS_HEADERS ${image-processing_FORMS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(headers/)
 
+include_directories (${image-processing_SOURCE_DIR}/lib/QPropertyEditor)
+link_directories (${image-processing_BINARY_DIR}/lib/QPropertyEditor) 
+
 add_executable(image-processing
   ${image-processing_HEADERS_MOC}
   ${image-processing_FORMS_HEADERS}
   ${image-processing_SOURCES})
-target_link_libraries(image-processing ${QT_LIBRARIES} ${OpenCV_LIBS})
+target_link_libraries(image-processing ${QT_LIBRARIES} ${OpenCV_LIBS} QPropertyEditor)
