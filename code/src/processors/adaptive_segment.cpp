@@ -25,9 +25,9 @@ void AdaptiveSegment::process()
 
 
   if(m_background == DARK)
-    output_image = input_image < m_threshold;
-  else
     output_image = input_image >= m_threshold;
+  else
+    output_image = input_image < m_threshold;
 
   emit updated();
 }
