@@ -51,7 +51,7 @@ void ProcessingGUI::open_image()
 {
   QString filename = QFileDialog::getOpenFileName(this, tr("Select image"),
                                                   QDir::currentPath(),
-                                                  tr("Images (*.png *.jpg *.jpeg)"));
+                                                  tr("Images (*.png *.jpg *.jpeg *.tif)"));
   if(!filename.isNull()) {
     QFileInfo fileinfo = QFileInfo(filename);
     output_image = input_image = Util::load_image(filename);
