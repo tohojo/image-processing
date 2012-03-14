@@ -7,6 +7,8 @@ namespace Util {
 
   const QImage mat_to_qimage(Mat img)
   {
+    if(img.empty()) return QImage();
+
     if(img.depth() == CV_8U && img.channels() == 1) {
       // Convert grey-scale picture into 8-bit indexed colour.
       QVector<QRgb> colorTable;
