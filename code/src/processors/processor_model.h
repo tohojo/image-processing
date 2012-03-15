@@ -2,6 +2,7 @@
 #define PROCESSOR_MODEL_H
 
 #include <QAbstractListModel>
+#include <QVector>
 #include "processor.h"
 
 class ProcessorModel : public QAbstractListModel
@@ -15,6 +16,10 @@ public:
   QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
   QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
 
-  Processor * get_processor(int index);
+  Processor * get_processor(int index) const;
+
+private:
+  QVector<Processor *> m_processors;
+  void create_processors();
 };
 #endif

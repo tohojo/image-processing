@@ -20,7 +20,7 @@ public:
   void set_input(const Mat img) {input_image = img;}
   const Mat get_output() {return output_image;}
 
-  static const QString name() {return "Processor";}
+  virtual QString name() {return "Processor";}
 
 public slots:
   virtual void process() {};

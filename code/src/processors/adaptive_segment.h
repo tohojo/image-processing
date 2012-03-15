@@ -9,8 +9,6 @@ class AdaptiveSegment : public Processor
 {
   Q_OBJECT
 
-  Q_PROPERTY(QString Name READ name USER true)
-
   Q_PROPERTY(bool AdaptThreshold READ adapt WRITE setAdapt DESIGNABLE true USER true)
   Q_PROPERTY(Background BackgroundColour READ background WRITE setBackground DESIGNABLE true USER true)
   Q_PROPERTY(int Threshold READ threshold USER true)
@@ -21,7 +19,7 @@ public:
   AdaptiveSegment(QObject *parent = 0);
   ~AdaptiveSegment();
 
-  static const QString name() {return "Adaptive segmenting";}
+  QString name() {return "Adaptive segmenting";}
 
   bool adapt() const {return m_adapt;}
   void setAdapt(const bool adapt);

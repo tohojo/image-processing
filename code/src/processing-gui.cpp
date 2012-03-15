@@ -79,8 +79,11 @@ void ProcessingGUI::open_image()
 
 void ProcessingGUI::set_processor(Processor *proc)
 {
-  if(current_processor != NULL)
-    delete current_processor;
+  if(current_processor != NULL) {
+    current_processor->disconnect();
+    disconnect(this, 0, current_processor, 0);
+  }
+
   current_processor = proc;
   connect(this, SIGNAL(image_changed()), current_processor, SLOT(process()));
   connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));

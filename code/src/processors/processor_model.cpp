@@ -4,6 +4,7 @@
 
 ProcessorModel::ProcessorModel() : QAbstractListModel()
 {
+  create_processors();
 }
 
 ProcessorModel::~ProcessorModel()
@@ -13,20 +14,15 @@ ProcessorModel::~ProcessorModel()
 int ProcessorModel::rowCount(  const QModelIndex & parent) const
 {
   if(!parent.isValid())
-    return 2;
+    return m_processors.count();
   return 0;
 }
 
 QVariant ProcessorModel::data(const QModelIndex & index, int role) const
 {
   if(role == Qt::DisplayRole) {
-    if(index.row() == 0) {
-      return QVariant(NullProcessor::name());
-    } else if(index.row() == 1) {
-      return QVariant(AdaptiveSegment::name());
-    }
+    return get_processor(index.row())->name();
   }
-
   return QVariant();
 }
 
@@ -38,12 +34,13 @@ QVariant ProcessorModel::headerData ( int section, Qt::Orientation orientation,
   return QVariant();
 }
 
-Processor * ProcessorModel::get_processor(int index)
+Processor * ProcessorModel::get_processor(int index) const
 {
-  switch(index) {
-  case 1:
-    return new AdaptiveSegment();
-  default:
-    return new NullProcessor();
-  }
+  return m_processors.at(index);
+}
+
+void ProcessorModel::create_processors()
+{
+  m_processors.append(new NullProcessor());
+  m_processors.append(new AdaptiveSegment());
 }
