@@ -1,16 +1,16 @@
-#include "adaptive_segment.h"
+#include "segmenting.h"
 
-AdaptiveSegment::AdaptiveSegment(QObject *parent)
+Segmenting::Segmenting(QObject *parent)
   : Processor(parent), m_adapt(true), m_background(LIGHT)
 {
   m_threshold = 0;
 }
 
-AdaptiveSegment::~AdaptiveSegment()
+Segmenting::~Segmenting()
 {
 }
 
-void AdaptiveSegment::process()
+void Segmenting::process()
 {
   if(input_image.empty()) return;
 
@@ -32,7 +32,7 @@ void AdaptiveSegment::process()
   emit updated();
 }
 
-void AdaptiveSegment::adaptThreshold()
+void Segmenting::adaptThreshold()
 {
   int old_threshold;
   do {
@@ -47,13 +47,13 @@ void AdaptiveSegment::adaptThreshold()
 }
 
 
-void AdaptiveSegment::setAdapt(const bool adapt)
+void Segmenting::setAdapt(const bool adapt)
 {
   m_adapt = adapt;
   process();
 }
 
-void AdaptiveSegment::setBackground(const Background bg)
+void Segmenting::setBackground(const Background bg)
 {
   m_background = bg;
   process();

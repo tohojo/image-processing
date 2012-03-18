@@ -1,6 +1,6 @@
 #include "processor_model.h"
 #include "null_processor.h"
-#include "adaptive_segment.h"
+#include "segmenting.h"
 
 ProcessorModel::ProcessorModel() : QAbstractListModel()
 {
@@ -42,5 +42,5 @@ Processor * ProcessorModel::get_processor(int index) const
 void ProcessorModel::create_processors()
 {
   m_processors.append(new NullProcessor());
-  m_processors.append(new AdaptiveSegment());
+  m_processors.append(new Segmenting());
 }

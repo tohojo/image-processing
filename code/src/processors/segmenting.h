@@ -1,11 +1,11 @@
-#ifndef ADAPTIVE_SEGMENT_H
-#define ADAPTIVE_SEGMENT_H
+#ifndef SEGMENTING_H
+#define SEGMENTING_H
 
 #include "processor.h"
 
 using namespace cv;
 
-class AdaptiveSegment : public Processor
+class Segmenting : public Processor
 {
   Q_OBJECT
 
@@ -16,10 +16,10 @@ class AdaptiveSegment : public Processor
 
 public:
   enum Background { DARK, LIGHT };
-  AdaptiveSegment(QObject *parent = 0);
-  ~AdaptiveSegment();
+  Segmenting(QObject *parent = 0);
+  ~Segmenting();
 
-  QString name() {return "Adaptive segmenting";}
+  QString name() {return "Segmenting";}
 
   bool adapt() const {return m_adapt;}
   void setAdapt(const bool adapt);

@@ -9,7 +9,6 @@
 
 #include "processing-gui.h"
 #include "util.h"
-#include "adaptive_segment.h"
 
 ProcessingGUI::ProcessingGUI(QWidget *parent)
   : QMainWindow(parent)

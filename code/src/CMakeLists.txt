@@ -2,7 +2,7 @@ set(image-processing_SOURCES
   main.cpp
   processing-gui.cpp
   widgets/resizingimagelabel.cpp
-  processors/adaptive_segment.cpp
+  processors/segmenting.cpp
   processors/null_processor.cpp
   processors/processor_model.cpp
   util.cpp
@@ -11,7 +11,7 @@ set(image-processing_HEADERS
   processing-gui.h
   widgets/resizingimagelabel.h
   processors/processor.h
-  processors/adaptive_segment.h
+  processors/segmenting.h
   processors/null_processor.h
   processors/processor_model.h)
 set(image-processing_FORMS ui/processing-gui.ui)
