@@ -63,7 +63,7 @@ namespace Util {
    * Works by subtracting one, setting all bits to 1, then adding
    * 1 to make the number a power of two.
    */
-  uint32_t nearest_smaller_pow (uint32_t num)
+  uint32_t nearest_pow (uint32_t num, bool smaller)
   {
     uint32_t n = num > 0 ? num - 1 : 0;
 
@@ -74,6 +74,6 @@ namespace Util {
     n |= n >> 16;
     n++;
 
-    return (n==num) ? n : n >> 1;
+    return (n==num) ? n : ((smaller) ? n >> 1 : n);
   }
 }

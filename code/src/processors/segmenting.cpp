@@ -71,8 +71,8 @@ void Segmenting::adaptThreshold()
 void Segmenting::splitMerge()
 {
   Size size = input_image.size();
-  uint32_t new_h = Util::nearest_smaller_pow(size.height);
-  uint32_t new_w = Util::nearest_smaller_pow(size.width);
+  uint32_t new_h = Util::nearest_pow(size.height, true);
+  uint32_t new_w = Util::nearest_pow(size.width, true);
   uint32_t new_x = (size.width-new_w)/2;
   uint32_t new_y = (size.height-new_h)/2;
   qDebug("h,w,x,y = %d,%d,%d,%d", new_h, new_w, new_x, new_y);
