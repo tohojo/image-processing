@@ -56,4 +56,24 @@ namespace Util {
     qDebug("Loading file: %s", bytes.constData());
     return imread(bytes.constData(), 0);
   }
+
+  /**
+   * Find the nearest power of two smaller than the number given.
+   * Works by subtracting one, setting all bits to 1, then adding
+   * 1 to make the number a power of two.
+   */
+  static uint32_t
+  nearest_smaller_pow (uint32_t num)
+  {
+    uint32_t n = num > 0 ? num - 1 : 0;
+
+    n |= n >> 1;
+    n |= n >> 2;
+    n |= n >> 4;
+    n |= n >> 8;
+    n |= n >> 16;
+    n++;
+
+    return n >> 1;
+  }
 }
