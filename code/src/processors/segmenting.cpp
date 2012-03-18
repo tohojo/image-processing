@@ -70,15 +70,25 @@ void Segmenting::adaptThreshold()
 
 void Segmenting::splitMerge()
 {
+  /**
+   * We need to have image dimensions be a power of two, so we can
+   * keep subdividing it when doing the split part. To ensure this,
+   * create a new image that is the nearest larger power of two in
+   * each dimension, and copy the original image into it. Use the old
+   * image dimensions as an ROI when doing the segmentation
+   * afterwards.
+   */
   Size size = input_image.size();
-  uint32_t new_h = Util::nearest_pow(size.height, true);
-  uint32_t new_w = Util::nearest_pow(size.width, true);
-  uint32_t new_x = (size.width-new_w)/2;
-  uint32_t new_y = (size.height-new_h)/2;
-  qDebug("h,w,x,y = %d,%d,%d,%d", new_h, new_w, new_x, new_y);
-  Mat roi(input_image, Rect(new_x, new_y, new_w, new_h));
+  uint32_t new_h = Util::nearest_pow(size.height);
+  uint32_t new_w = Util::nearest_pow(size.width);
+  uint32_t new_x = (new_w-size.width)/2;
+  uint32_t new_y = (new_h-size.height)/2;
 
-  output_image = roi;
+  Mat resized = Mat::zeros(new_h, new_w, input_image.type());
+  Mat roi(resized, Rect(new_x, new_y, size.width, size.height));
+  input_image.copyTo(roi);
+
+  output_image = resized;
 }
 
 
