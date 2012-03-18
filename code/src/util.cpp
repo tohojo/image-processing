@@ -35,10 +35,11 @@ namespace Util {
         }
         qDebug("Three random pixels: %d, %d, %d",
                img_buffer[10], img_buffer[123], img_buffer[124234]);
+
+        qImage = QImage(img_buffer, size.width, size.height, QImage::Format_Indexed8);
+
         qDebug("QImage pixel values: %d, %d",
                qImage.pixelIndex(10, 0), qImage.pixelIndex(123,0));
-
-        QImage qImage = QImage(img_buffer, size.width, size.height, QImage::Format_Indexed8);
       }
       qImage.setColorTable(colorTable);
       return qImage;
