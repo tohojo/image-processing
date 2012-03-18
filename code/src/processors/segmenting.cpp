@@ -1,9 +1,12 @@
 #include "segmenting.h"
+#include "util.h"
 
 Segmenting::Segmenting(QObject *parent)
-  : Processor(parent), m_adapt(true), m_background(LIGHT)
+  : Processor(parent)
 {
   m_threshold = 0;
+  m_background = LIGHT;
+  m_mode = GLOBAL_THRESHOLD;
 }
 
 Segmenting::~Segmenting()
@@ -14,10 +17,30 @@ void Segmenting::process()
 {
   if(input_image.empty()) return;
 
+  switch(m_mode) {
+  case GLOBAL_THRESHOLD:
+    qDebug("Global threshold mode");
+    thresholdSegment(false);
+    break;
+  case ADAPTIVE_THRESHOLD:
+    qDebug("Adaptive threshold mode");
+    thresholdSegment(true);
+    break;
+  case SPLIT_MERGE:
+    qDebug("Split and merge mode");
+    splitMerge();
+    break;
+  }
+
+  emit updated();
+}
+
+void Segmenting::thresholdSegment(bool adapt) {
+
   Scalar m = mean(input_image);
   m_threshold = cvRound(m[0]);
 
-  if(m_adapt) {
+  if(adapt) {
     qDebug("Threshold before: %d", m_threshold);
     adaptThreshold();
     qDebug("Threshold after: %d", m_threshold);
@@ -29,7 +52,6 @@ void Segmenting::process()
   else
     output_image = input_image < m_threshold;
 
-  emit updated();
 }
 
 void Segmenting::adaptThreshold()
@@ -46,10 +68,23 @@ void Segmenting::adaptThreshold()
   } while(old_threshold != m_threshold);
 }
 
-
-void Segmenting::setAdapt(const bool adapt)
+void Segmenting::splitMerge()
 {
-  m_adapt = adapt;
+  Size size = input_image.size();
+  uint32_t new_h = Util::nearest_smaller_pow(size.height);
+  uint32_t new_w = Util::nearest_smaller_pow(size.width);
+  uint32_t new_x = (size.width-new_w)/2;
+  uint32_t new_y = (size.height-new_h)/2;
+  qDebug("h,w,x,y = %d,%d,%d,%d", new_h, new_w, new_x, new_y);
+  Mat roi(input_image, Rect(new_x, new_y, new_w, new_h));
+
+  output_image = roi;
+}
+
+
+void Segmenting::setMode(const Mode mode)
+{
+  m_mode = mode;
   process();
 }
 

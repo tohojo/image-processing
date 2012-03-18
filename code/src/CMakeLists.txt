@@ -24,6 +24,7 @@ qt4_wrap_ui(image-processing_FORMS_HEADERS ${image-processing_FORMS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(processors/)
 include_directories(widgets/)
+include_directories(./)
 
 include_directories (${image-processing_SOURCE_DIR}/lib/QPropertyEditor)
 link_directories (${image-processing_BINARY_DIR}/lib/QPropertyEditor) 
