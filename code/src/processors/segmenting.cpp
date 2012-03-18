@@ -5,7 +5,7 @@ Segmenting::Segmenting(QObject *parent)
   : Processor(parent)
 {
   m_threshold = 0;
-  m_background = LIGHT;
+  m_dark_bg = false;
   m_mode = GLOBAL_THRESHOLD;
 }
 
@@ -47,7 +47,7 @@ void Segmenting::thresholdSegment(bool adapt) {
   }
 
 
-  if(m_background == DARK)
+  if(m_dark_bg)
     output_image = input_image >= m_threshold;
   else
     output_image = input_image < m_threshold;
@@ -88,8 +88,8 @@ void Segmenting::setMode(const Mode mode)
   process();
 }
 
-void Segmenting::setBackground(const Background bg)
+void Segmenting::setDarkBG(const bool bg)
 {
-  m_background = bg;
+  m_dark_bg = bg;
   process();
 }
