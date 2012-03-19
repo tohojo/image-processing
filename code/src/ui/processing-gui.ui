@@ -51,6 +51,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="processButton">
+            <property name="text">
+             <string>Re-process</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>

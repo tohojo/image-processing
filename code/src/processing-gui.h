@@ -34,6 +34,7 @@ private slots:
   void open_image();
   void update_output();
   void new_processor(const QModelIndex & current);
+  void setProgress(int value);
 
 signals:
   void image_changed();

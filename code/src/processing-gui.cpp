@@ -85,8 +85,10 @@ void ProcessingGUI::set_processor(Processor *proc)
 
   current_processor = proc;
   connect(this, SIGNAL(image_changed()), current_processor, SLOT(process()));
+  connect(processButton, SIGNAL(clicked()), current_processor, SLOT(process()));
   connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));
   connect(current_processor, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)));
+  connect(current_processor, SIGNAL(progress(int)), this, SLOT(setProgress(int)));
   m_properties->clear();
   m_properties->addObject(current_processor);
 
@@ -98,4 +100,12 @@ void ProcessingGUI::new_processor(const QModelIndex & current)
 {
   int row = current.row();
   set_processor(processor_model->get_processor(row));
+}
+
+void ProcessingGUI::setProgress(int value)
+{
+  if(value < 100)
+    processButton->setEnabled(false);
+  else
+    processButton->setEnabled(true);
 }
