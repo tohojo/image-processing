@@ -7,6 +7,7 @@ Segmenting::Segmenting(QObject *parent)
   m_threshold = 0;
   m_dark_bg = false;
   m_mode = GLOBAL_THRESHOLD;
+  m_delta = 10;
 }
 
 Segmenting::~Segmenting()
@@ -85,10 +86,80 @@ void Segmenting::splitMerge()
   uint32_t new_y = (new_h-size.height)/2;
 
   Mat resized = Mat::zeros(new_h, new_w, input_image.type());
-  Mat roi(resized, Rect(new_x, new_y, size.width, size.height));
+  Rect imgRect = Rect(new_x, new_y, size.width, size.height);
+  Mat roi(resized, imgRect);
   input_image.copyTo(roi);
 
+  QVector<Mat> regions = splitRegions(resized, resized);
+
+  qDebug("Regions returned: %d", regions.size());
+  foreach(Mat m, regions) {
+    Size s = m.size();
+    Size ws; Point p;
+    m.locateROI(ws, p);
+    qDebug("Region size: %dx%d", s.width, s.height);
+    qDebug(" Offset: %d,%d", p.x, p.y);
+  }
+
   output_image = resized;
+}
+
+/**
+ * Function to split a region into multiple homogeneous regions (no
+ * item varies more from the region average than the delta parameter).
+ */
+QVector<Mat> Segmenting::splitRegions(Mat region, Mat image) const
+{
+  QVector<Mat> output;
+  QVector<Rect> rects;
+  // Split into four regions.
+  Size size = region.size();
+  if(size.width == 1 && size.height == 1) {
+    output.append(region);
+    return output;
+  }
+
+  int mid_x = size.width/2;
+  int mid_y = size.height/2;
+
+  qDebug("Image size: %dx%d", image.size().width, image.size().height);
+
+  rects.append(Rect(0, 0, mid_x, mid_y));
+  if(size.width > 1)
+    rects.append(Rect(mid_x, 0, mid_x, mid_y));
+  if(size.width > 1)
+    rects.append(Rect(0, mid_y, mid_x, mid_y));
+  if(size.width > 1 && size.height > 1)
+    rects.append(Rect(mid_x, mid_y, mid_x, mid_y));
+
+  int value = 0;
+  foreach(Rect rect, rects) {
+    qDebug("Rect: %dx%d %d,%d", rect.width, rect.height, rect.x, rect.y);
+    Mat newReg(region, rect);
+    if(isHomogeneous(newReg)) {
+      output.append(newReg);
+      newReg.setTo(value);
+      value += 50;
+    } else {
+      output += splitRegions(newReg, image);
+    }
+  }
+
+  qDebug("Returning %d regions", output.size());
+
+  return output;
+}
+
+bool Segmenting::isHomogeneous(Mat region) const
+{
+  Size s = region.size();
+  if(s.height == 1 && s.width == 1) return true;
+  double r_min, r_max;
+  Scalar r_mean = mean(region);
+  double r_meanVal = r_mean[0];
+  minMaxLoc(region, &r_min, &r_max);
+
+  return (r_max-r_meanVal < m_delta && r_meanVal-r_min < m_delta);
 }
 
 
@@ -101,5 +172,12 @@ void Segmenting::setMode(const Mode mode)
 void Segmenting::setDarkBG(const bool bg)
 {
   m_dark_bg = bg;
+  process();
+}
+
+void Segmenting::setDelta(const int delta)
+{
+  m_delta = delta;
+
   process();
 }
