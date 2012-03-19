@@ -17,7 +17,7 @@ Segmenting::~Segmenting()
 void Segmenting::process()
 {
   if(input_image.empty()) return;
-
+  emit progress(0);
   switch(m_mode) {
   case GLOBAL_THRESHOLD:
     qDebug("Global threshold mode");
@@ -33,6 +33,7 @@ void Segmenting::process()
     break;
   }
 
+  emit progress(100);
   emit updated();
 }
 
@@ -42,9 +43,13 @@ void Segmenting::thresholdSegment(bool adapt) {
   m_threshold = cvRound(m[0]);
 
   if(adapt) {
+    emit progress(30);
     qDebug("Threshold before: %d", m_threshold);
     adaptThreshold();
+    emit progress(70);
     qDebug("Threshold after: %d", m_threshold);
+  } else {
+    emit progress(50);
   }
 
 
@@ -86,11 +91,14 @@ void Segmenting::splitMerge()
   uint32_t new_y = (new_h-size.height)/2;
 
   Mat resized = Mat::zeros(new_h, new_w, input_image.type());
+  emit progress(5);
   Rect imgRect = Rect(new_x, new_y, size.width, size.height);
   Mat roi(resized, imgRect);
   input_image.copyTo(roi);
+  emit progress(10);
 
-  QVector<Mat> regions = splitRegions(resized, resized);
+
+  QVector<Mat> regions = splitRegions(resized, resized, true);
 
   qDebug("Regions returned: %d", regions.size());
   foreach(Mat m, regions) {
@@ -108,7 +116,7 @@ void Segmenting::splitMerge()
  * Function to split a region into multiple homogeneous regions (no
  * item varies more from the region average than the delta parameter).
  */
-QVector<Mat> Segmenting::splitRegions(Mat region, Mat image) const
+QVector<Mat> Segmenting::splitRegions(Mat region, Mat image, bool topLevel) const
 {
   QVector<Mat> output;
   QVector<Rect> rects;
@@ -132,6 +140,9 @@ QVector<Mat> Segmenting::splitRegions(Mat region, Mat image) const
   if(size.width > 1 && size.height > 1)
     rects.append(Rect(mid_x, mid_y, mid_x, mid_y));
 
+  int c_rects = rects.size();
+  int c = 0;
+  float progress_scale = 80;
   int value = 0;
   foreach(Rect rect, rects) {
     qDebug("Rect: %dx%d %d,%d", rect.width, rect.height, rect.x, rect.y);
@@ -143,6 +154,8 @@ QVector<Mat> Segmenting::splitRegions(Mat region, Mat image) const
     } else {
       output += splitRegions(newReg, image);
     }
+    if(topLevel)
+      emit progress(qRound(progress_scale * (++c/(float)c_rects)));
   }
 
   qDebug("Returning %d regions", output.size());

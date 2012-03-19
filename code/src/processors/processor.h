@@ -27,6 +27,7 @@ public slots:
 
 signals:
   void updated();
+  void progress(int value) const;
 
 protected:
   Mat input_image;

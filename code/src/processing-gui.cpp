@@ -86,6 +86,7 @@ void ProcessingGUI::set_processor(Processor *proc)
   current_processor = proc;
   connect(this, SIGNAL(image_changed()), current_processor, SLOT(process()));
   connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));
+  connect(current_processor, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)));
   m_properties->clear();
   m_properties->addObject(current_processor);
 

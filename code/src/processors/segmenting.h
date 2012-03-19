@@ -40,7 +40,7 @@ private:
   void thresholdSegment(bool adapt);
   void adaptThreshold();
   void splitMerge();
-  QVector<Mat> splitRegions(Mat region, Mat image) const;
+  QVector<Mat> splitRegions(Mat region, Mat image, bool topLevel = false) const;
   bool isHomogeneous(Mat region) const;
   int m_threshold;
   bool m_dark_bg;
