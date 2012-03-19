@@ -178,19 +178,21 @@ bool Segmenting::isHomogeneous(Mat region) const
 
 void Segmenting::setMode(const Mode mode)
 {
+  if(m_mode == mode) return;
   m_mode = mode;
   process();
 }
 
 void Segmenting::setDarkBG(const bool bg)
 {
+  if(m_dark_bg == bg) return;
   m_dark_bg = bg;
   process();
 }
 
 void Segmenting::setDelta(const int delta)
 {
+  if(m_delta == delta) return;
   m_delta = delta;
-
   process();
 }
