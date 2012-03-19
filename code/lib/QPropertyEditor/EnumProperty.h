@@ -57,6 +57,7 @@ public:
 private slots:
 	/** slot that is being called by the editor widget */
 	void valueChanged(const QString item);
+  void editingFinished();
 
 private:
 	/** QStringList with possible enum values */

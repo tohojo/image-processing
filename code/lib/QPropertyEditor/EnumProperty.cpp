@@ -70,8 +70,8 @@ QWidget* EnumProperty::createEditor(QWidget* parent, const QStyleOptionViewItem&
 	QComboBox* editor = new QComboBox(parent);
 	editor->addItems(m_enum);
 	
-	connect(editor, SIGNAL(currentIndexChanged(const QString)), 
-		this, SLOT(valueChanged(const QString)));
+	connect(editor, SIGNAL(editingFinished()), 
+		this, SLOT(editingFinished()));
 	return editor;
 }
 
@@ -116,4 +116,15 @@ QVariant EnumProperty::editorData(QWidget *editor)
 /////////////////////////////////////////////////////////////////////////////////////////////
 void EnumProperty::valueChanged(const QString item){
 	setValue(QVariant(item));
+}
+
+void EnumProperty::editingFinished()
+{
+  if( QObject::sender() )
+    {
+      QVariant value_editor;
+      QComboBox *sender = static_cast<QComboBox *>( QObject::sender() );
+      value_editor = sender->itemData(sender->currentIndex());
+      setValue(value_editor);
+    }
 }

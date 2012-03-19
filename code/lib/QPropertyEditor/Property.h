@@ -138,6 +138,8 @@ private slots:
 	 */
 	void setValue(int value);
 
+  void editingFinished();
+
 protected:
 	QObject*	m_propertyObject;
 	QString		m_hints;	

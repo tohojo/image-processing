@@ -68,14 +68,14 @@ QWidget* Property::createEditor(QWidget *parent, const QStyleOptionViewItem& /*o
 		editor = new QSpinBox(parent);
 		editor->setProperty("minimum", -INT_MAX);
 		editor->setProperty("maximum", INT_MAX);
-		connect(editor, SIGNAL(valueChanged(int)), this, SLOT(setValue(int)));
+		connect(editor, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
 		break;
 	case QMetaType::Float:	
 	case QVariant::Double:	
 		editor = new QDoubleSpinBox(parent);
 		editor->setProperty("minimum", -INT_MAX);
 		editor->setProperty("maximum", INT_MAX);
-		connect(editor, SIGNAL(valueChanged(double)), this, SLOT(setValue(double)));
+		connect(editor, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
 		break;			
 	default:
 		return editor;
@@ -145,4 +145,26 @@ void Property::setValue(double value)
 void Property::setValue(int value)
 {
 	setValue(QVariant(value));
+}
+
+void Property::editingFinished()
+{
+  if( QObject::sender() )
+    {
+      QVariant value_editor;
+
+      switch(value().type())
+        {
+        case QVariant::Int:
+          value_editor = static_cast<QSpinBox *>( QObject::sender() )->value();
+          break;
+        case QMetaType::Float:
+        case QVariant::Double:
+          value_editor = static_cast<QDoubleSpinBox *>( QObject::sender() )->value();
+          break;
+        }
+
+      if (m_propertyObject)
+        m_propertyObject->setProperty(qPrintable(objectName()), value_editor);
+    }
 }
