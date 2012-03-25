@@ -56,6 +56,20 @@ void Region::add(const Mat &m, bool mask)
   if(bound_max < max) bound_max = max;
 }
 
+void Region::add(const Region &other)
+{
+  points += other.points;
+  if(other.bound_min < bound_min) bound_min = other.bound_min;
+  if(bound_max < other.bound_max) bound_max = other.bound_max;
+}
+
+void Region::add(RPoint p)
+{
+  points.insert(p);
+  if(p < bound_min) bound_min = p;
+  if(bound_max < p) bound_max = p;
+}
+
 Mat Region::toMask()
 {
   // Create a new matrix large enough to hold the rectangle up to the

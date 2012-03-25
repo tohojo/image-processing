@@ -35,6 +35,8 @@ public:
   bool adjacentTo(const Region &other) const;
   Mat toMask();
   void add(const Mat &m, bool mask = false);
+  void add(const Region &other);
+  void add(RPoint p);
 
 private:
   RPoint bound_min;
