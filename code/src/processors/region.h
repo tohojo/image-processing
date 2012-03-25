@@ -39,6 +39,8 @@ public:
   void add(const Region &other);
   void add(RPoint p);
 
+  bool contains(const RPoint p) const;
+
 private:
   RPoint bound_min;
   RPoint bound_max;

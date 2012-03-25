@@ -93,3 +93,9 @@ bool Region::adjacentTo(const Region &other) const
   if(other.bound_max < bound_min || bound_max < other.bound_min) return false;
   return true;
 }
+
+bool Region::contains(const RPoint p) const
+{
+  if(p < bound_min || bound_max < p) return false;
+  return points.contains(p);
+}
