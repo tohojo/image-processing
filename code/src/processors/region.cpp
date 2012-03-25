@@ -88,10 +88,50 @@ Mat Region::toMask()
   return m;
 }
 
+/**
+ * Check whether another region is adjacent to this one.
+ *
+ * Region b is adjacent to region a if, for at least one point p in a,
+ * b contains a point that is a 4-neighbour of p. This definition
+ * unfortunately makes it nontrivial to check adjacency. The strategy
+ * is as follows:
+ *
+ * 1. If the bounding boxes of the regions are entirely disjoint,
+ * return false immediately.
+ *
+ * 2. Otherwise, go through each possible x coordinate in the region
+ * and find the maximum and minimum y coordinates for this x
+ * coordinate. Check each neighbour of these points for membership in
+ * the other region. Return true as soon as a match is found.
+ *
+ * 3. If still not match is found, check the minimum and maximum x
+ * coordinates and check if any points with (x_min-1) respectively
+ * (x_max+1) exist in the other region. If they do, check these for
+ * adjacency, and return true if they are.
+ *
+ * 4. If the above steps do not find an adjacency, non exists, and so
+ * return false.
+ *
+ * This relies on the fact that the points in the region are sorted
+ * (by the operator< of RPoint), and so it is easy to get at the
+ * points closest to a specific point. Most of this comes from the use
+ * of QMap.
+ **/
 bool Region::adjacentTo(const Region &other) const
 {
-  if(other.bound_max < bound_min || bound_max < other.bound_min) return false;
-  return true;
+  // If the bounding rectangles are entirely disjoint, the regions
+  // cannot be adjacent. Note that a < comparison on the points
+  // themselves are not enough, because two points can have equal x
+  // coordinates and still be < each other.
+  //
+  // Return false immediately as an optimisation.
+  if((other.bound_max.x() < bound_min.x() && other.bound_max.y() < bound_min.y()) ||
+     (bound_max.x() < other.bound_min.x() && bound_max.y() < other.bound_min.y()))
+    return false;
+
+  
+
+  return false;
 }
 
 bool Region::contains(const RPoint p) const
