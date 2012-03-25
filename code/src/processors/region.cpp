@@ -16,6 +16,11 @@ Region::Region(const Mat &m, bool mask)
   add(m, mask);
 }
 
+Region::Region(const Region &r)
+{
+  add(r);
+}
+
 Region::~Region()
 {
 }

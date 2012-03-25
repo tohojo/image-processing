@@ -30,6 +30,7 @@ class Region
 public:
   Region();
   Region(const Mat &m, bool mask = false);
+  Region(const Region &r);
   ~Region();
 
   bool adjacentTo(const Region &other) const;
