@@ -1,4 +1,4 @@
-#include <QtCore/QMutableMapIterator>
+#include <QtCore/QMutableListIterator>
 #include "segmenting.h"
 #include "util.h"
 
@@ -99,7 +99,7 @@ void Segmenting::splitMerge()
   emit progress(10);
 
 
-  QMultiMap<int, Mat> regionMap = splitRegions(resized, true);
+  QList<Mat> regionMap = splitRegions(resized, true);
 
   qDebug("Regions returned: %d", regionMap.size());
 
@@ -114,14 +114,14 @@ void Segmenting::splitMerge()
  * Function to split a region into multiple homogeneous regions (no
  * item varies more from the region average than the delta parameter).
  */
-QMultiMap<int, Mat> Segmenting::splitRegions(Mat region, bool topLevel) const
+QList<Mat> Segmenting::splitRegions(Mat region, bool topLevel) const
 {
-  QMultiMap<int, Mat> output;
-  QVector<Rect> rects;
+  QList<Mat> output;
+  QList<Rect> rects;
   // Split into four regions.
   Size size = region.size();
   if(size.width == 1 && size.height == 1) {
-    appendToMap(output, region);
+    output.append(region);
     return output;
   }
 
@@ -145,7 +145,7 @@ QMultiMap<int, Mat> Segmenting::splitRegions(Mat region, bool topLevel) const
     qDebug("Rect: %dx%d %d,%d", rect.width, rect.height, rect.x, rect.y);
     Mat newReg(region, rect);
     if(isHomogeneous(newReg)) {
-      appendToMap(output, newReg);
+      output.append(newReg);
       newReg.setTo(value);
       value += 50;
     } else {
@@ -157,27 +157,16 @@ QMultiMap<int, Mat> Segmenting::splitRegions(Mat region, bool topLevel) const
 
   qDebug("Returning %d regions", output.size());
 
-  return output;
+  return mergeRegions(output);
 }
 
-void Segmenting::appendToMap(QMultiMap<int, Mat> &map, Mat item) const
-{
-  Size s; Point p;
-  item.locateROI(s,p);
-  map.insert(p.x, item);
-}
-
-QList<Mat> Segmenting::mergeRegions(QMultiMap<int, Mat> regions) const
+QList<Mat> Segmenting::mergeRegions(QList<Mat> regions) const
 {
   QList<Mat> output;
 
-  QMultiMap<int, Mat>::iterator i;
-  QMutableMapIterator<int, Mat> j(regions);
-  int c_regions = regions.size();
-  float progress_scale = 40;
-  int progress_offset = 50;
-  int k;
-  for(k = 0, i = regions.begin(); i != regions.end(); ++i, k++) {
+  QList<Mat>::iterator i;
+  QMutableListIterator<Mat> j(regions);
+  for(i = regions.begin(); i != regions.end(); ++i) {
     Mat newMat;
     Mat current = (*i);
     j.toFront();
@@ -186,13 +175,12 @@ QList<Mat> Segmenting::mergeRegions(QMultiMap<int, Mat> regions) const
       if(regionsAdjacent(current, test)) {
         newMat = merge(current, test);
         if(isHomogeneous(newMat)) {
-          //          current = newMat;
-          //          j.remove();
+          current = newMat;
+          j.remove();
         }
       }
     }
     output.append(current);
-    emit progress(progress_offset + qRound(progress_scale * (k/(double)c_regions)));
   }
   return output;
 }
@@ -203,7 +191,10 @@ bool Segmenting::regionsAdjacent(Mat one, Mat two) const
   Point ofs_one, ofs_two;
   one.locateROI(s_one, ofs_one);
   two.locateROI(s_two, ofs_two);
-  return false;
+  return (ofs_two.x == ofs_one.x + s_one.width ||
+          ofs_two.y == ofs_one.y + s_one.height ||
+          ofs_one.x == ofs_two.x + s_two.width ||
+          ofs_one.y == ofs_two.y + s_two.height);
 }
 
 Mat Segmenting::merge(Mat one, Mat two) const

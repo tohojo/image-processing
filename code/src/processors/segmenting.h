@@ -1,7 +1,7 @@
 #ifndef SEGMENTING_H
 #define SEGMENTING_H
 
-#include <QtCore/QMultiMap>
+#include <QtCore/QList>
 #include "processor.h"
 
 using namespace cv;
@@ -41,12 +41,11 @@ private:
   void thresholdSegment(bool adapt);
   void adaptThreshold();
   void splitMerge();
-  QMultiMap<int, Mat> splitRegions(Mat region, bool topLevel = false) const;
-  QList<Mat> mergeRegions(QMultiMap<int, Mat> regions) const;
+  QList<Mat> splitRegions(Mat region, bool topLevel = false) const;
+  QList<Mat> mergeRegions(QList<Mat> regions) const;
   bool isHomogeneous(Mat region) const;
   bool regionsAdjacent(Mat one, Mat two) const;
   Mat merge(Mat one, Mat two) const;
-  void appendToMap(QMultiMap<int, Mat> &map, Mat item) const;
   int m_threshold;
   bool m_dark_bg;
   Mode m_mode;
