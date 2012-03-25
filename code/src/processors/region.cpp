@@ -41,7 +41,7 @@ void Region::add(const Mat &m, bool mask)
           RPoint pt(j,i);
           if(pt < min) min = pt;
           if(max < pt) max = pt;
-          points.insert(pt);
+          points.insert(pt, 0);
         }
       }
     }
@@ -52,7 +52,7 @@ void Region::add(const Mat &m, bool mask)
     bound_max = RPoint(r.x+s.width, r.y+s.height);
     for(int i = 0; i < s.width; i++) {
       for(int j = 0; j < s.height; i++) {
-        points.insert(RPoint(i,j));
+        points.insert(RPoint(i,j), 0);
       }
     }
   }
@@ -63,14 +63,14 @@ void Region::add(const Mat &m, bool mask)
 
 void Region::add(const Region &other)
 {
-  points += other.points;
+  points.unite(other.points);
   if(other.bound_min < bound_min) bound_min = other.bound_min;
   if(bound_max < other.bound_max) bound_max = other.bound_max;
 }
 
 void Region::add(RPoint p)
 {
-  points.insert(p);
+  points.insert(p, 0);
   if(p < bound_min) bound_min = p;
   if(bound_max < p) bound_max = p;
 }
@@ -80,9 +80,9 @@ Mat Region::toMask()
   // Create a new matrix large enough to hold the rectangle up to the
   // max of the bounds.
   Mat m = Mat::zeros(bound_max.y()-1, bound_max.x()-1, CV_8UC1);
-  QSet<RPoint>::iterator i;
+  QMap<RPoint, char>::iterator i;
   for(i = points.begin(); i != points.end(); ++i) {
-    m.at<uchar>(i->x(), i->y()) = 255;
+    m.at<uchar>(i.key().x(), i.key().y()) = 255;
   }
 
   return m;

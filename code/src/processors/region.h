@@ -21,7 +21,7 @@
 
 #include "rpoint.h"
 #include <cv.h>
-#include <QtCore/QSet>
+#include <QtCore/QMap>
 
 using namespace cv;
 
@@ -44,6 +44,6 @@ public:
 private:
   RPoint bound_min;
   RPoint bound_max;
-  QSet<RPoint> points;
+  QMap<RPoint, char> points;
 };
 #endif
