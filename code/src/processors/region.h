@@ -42,6 +42,7 @@ public:
   bool contains(const RPoint p) const;
 
 private:
+  bool adjacentPoint(const RPoint p, const Region &other) const;
   RPoint bound_min;
   RPoint bound_max;
   QMap<RPoint, char> points;

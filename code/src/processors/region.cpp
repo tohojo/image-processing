@@ -97,7 +97,7 @@ Mat Region::toMask()
  * is as follows:
  *
  * 1. If the bounding boxes of the regions are entirely disjoint,
- * return false immediately.
+ * they cannot be adjacent, and so return false immediately.
  *
  * 2. Otherwise, go through each possible x coordinate in the region
  * and find the maximum and minimum y coordinates for this x
@@ -109,29 +109,88 @@ Mat Region::toMask()
  * (x_max+1) exist in the other region. If they do, check these for
  * adjacency, and return true if they are.
  *
- * 4. If the above steps do not find an adjacency, non exists, and so
+ * 4. If the above steps do not find an adjacency, none exists, and so
  * return false.
  *
  * This relies on the fact that the points in the region are sorted
  * (by the operator< of RPoint), and so it is easy to get at the
  * points closest to a specific point. Most of this comes from the use
  * of QMap.
+ *
+ * TODO: This case:
+ * Maybe it *is* better to make a pixel matrix?
+ *
+ * +-+-+
+ * |a|a|
+ * +-+-+
+ * |a|
+ * +-+-+
+ * |a|b|
+ * +-+-+
+ * |a|
+ * +-+
  **/
 bool Region::adjacentTo(const Region &other) const
 {
-  // If the bounding rectangles are entirely disjoint, the regions
-  // cannot be adjacent. Note that a < comparison on the points
-  // themselves are not enough, because two points can have equal x
-  // coordinates and still be < each other.
+  // We'll be using this for iterating over points in the region.
+  QMap<RPoint, char>::const_iterator i; RPoint p;
+
+  // Step 1. Check if regions are entirely disjoint.
   //
-  // Return false immediately as an optimisation.
+  // Note that a < comparison on the points themselves are not enough,
+  // because two points can have equal x coordinates and still be <
+  // each other.
   if((other.bound_max.x() < bound_min.x() && other.bound_max.y() < bound_min.y()) ||
      (bound_max.x() < other.bound_min.x() && bound_max.y() < other.bound_min.y()))
     return false;
 
-  
+  // Step 2. Check the min and max y coordinates for each x coordinate
+  // in the region.
+  QList<RPoint> possibleNeighbours;
+  for(i = points.constBegin(); i != points.constEnd(); ) {
+    RPoint minY = i.key(); // The first point for a given x coordinate
+    RPoint nextX(minY.x()+1, 0);
+    i = points.lowerBound(nextX); // If not found this will be
+                                  // points.constEnd(), ending the
+                                  // loop
+    RPoint maxY = (i-1).key();
+    if(adjacentPoint(minY, other) || adjacentPoint(maxY, other)) return true;
+  }
+
+  // Step 3. Check if any points with (x_min-1) or (x_max+1) exists in
+  // the other region. If so, check all points with x_min and x_max
+  // coordinates.
+
+  // x_min
+  if(other.bound_max.x() >= bound_min.x()-1) {
+    // Start at the beginning, keep looping while the x coordinate
+    // stays the same. The RPoint variable p is used to cut down on
+    // the number of method calls.
+    for(i = points.constBegin(), p = i.key();
+        p.x() == bound_min.x() && i != points.constEnd();
+        p = (++i).key()) {
+      if(adjacentPoint(i.key(), other)) return true;
+    }
+  }
+
+  // x_max
+  if(other.bound_min.x() <= bound_max.x()+1) {
+    for(i = points.constEnd(), p = i.key();
+        p.x() == bound_max.x() && i != points.constBegin();
+        p = (--i).key()) {
+      if(adjacentPoint(p, other)) return true;
+    }
+  }
 
   return false;
+}
+
+bool Region::adjacentPoint(const RPoint p, const Region &other) const
+{
+  return (other.contains(RPoint(p.x()-1, p.y())) ||
+          other.contains(RPoint(p.x()+1, p.y())) ||
+          other.contains(RPoint(p.x(), p.y()-1)) ||
+          other.contains(RPoint(p.x(), p.y()+1)));
 }
 
 bool Region::contains(const RPoint p) const
