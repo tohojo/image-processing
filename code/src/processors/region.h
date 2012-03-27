@@ -57,7 +57,7 @@ namespace ImageProcessing {
     RPoint bound_min;
     RPoint bound_max;
     QList<RPoint> points;
-    QList<int> xcoords;
+    QMap<int, int> ycoords;
   };
 
 }

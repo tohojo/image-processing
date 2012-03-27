@@ -46,7 +46,6 @@ Region::Region(const Mat &m, bool mask)
         }
       }
     }
-    qSort(points.begin(), points.end()); // we have to sort, since it's built y-then-x
     bound_min = points.first();
     bound_max = points.last();
   } else {
@@ -55,15 +54,16 @@ Region::Region(const Mat &m, bool mask)
 
     // do first column, then middle ones, then last column, so
     // preserve sorted order.
-    for(int j = 0; j < s.height; j++) {
-      points.append(RPoint(0,j));
+    int i;
+    for(i = 0; i < s.width; i++) {
+      points.append(RPoint(p.x+i,p.y));
     }
-    for(int i = 1; i < s.width-1; i++) {
-      points.append(RPoint(i, 0));
-      points.append(RPoint(i, s.height-1));
+    for(i = 1; i < s.height-1; i++) {
+      points.append(RPoint(p.x, p.y+i));
+      points.append(RPoint(p.x+s.width-1, p.y+i));
     }
-    for(int j = 0; j < s.height; j++) {
-      points.append(RPoint(s.width-1,j));
+    for(i = 0; i < s.width; i++) {
+      points.append(RPoint(p.x+i,p.y+s.height-1));
     }
   }
 }
