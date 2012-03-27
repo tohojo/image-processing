@@ -25,26 +25,32 @@
 
 using namespace cv;
 
-class Region
-{
-public:
-  Region();
-  Region(const Mat &m, bool mask = false);
-  Region(const Region &r);
-  ~Region();
+namespace ImageProcessing {
 
-  bool adjacentTo(const Region &other) const;
-  Mat toMask();
-  void add(const Mat &m, bool mask = false);
-  void add(const Region &other);
-  void add(RPoint p);
+  class Region
+  {
+  public:
+    Region();
+    Region(const Mat &m, bool mask = false);
+    Region(const Region &r);
+    ~Region();
 
-  bool contains(const RPoint p) const;
+    bool adjacentTo(const Region &other) const;
+    Mat toMask() const;
+    void add(const Mat &m, bool mask = false);
+    void add(const Region &other);
+    void add(RPoint p);
 
-private:
-  bool adjacentPoint(const RPoint p, const Region &other) const;
-  RPoint bound_min;
-  RPoint bound_max;
-  QMap<RPoint, char> points;
-};
+    bool isEmpty() const;
+
+    bool contains(const RPoint p) const;
+
+  private:
+    bool adjacentPoint(const RPoint p, const Region &other) const;
+    RPoint bound_min;
+    RPoint bound_max;
+    QMap<RPoint, char> points;
+  };
+
+}
 #endif

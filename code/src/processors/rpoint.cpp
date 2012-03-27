@@ -7,6 +7,8 @@
 
 #include "rpoint.h"
 
+using namespace ImageProcessing;
+
 RPoint::RPoint()
 {
   m_x = m_y = 0;

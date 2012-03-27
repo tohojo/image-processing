@@ -7,6 +7,8 @@
 
 #include "region.h"
 
+using namespace ImageProcessing;
+
 Region::Region()
 {
 }
@@ -51,7 +53,7 @@ void Region::add(const Mat &m, bool mask)
     bound_min = RPoint(r.x, r.y);
     bound_max = RPoint(r.x+s.width, r.y+s.height);
     for(int i = 0; i < s.width; i++) {
-      for(int j = 0; j < s.height; i++) {
+      for(int j = 0; j < s.height; j++) {
         points.insert(RPoint(i,j), 0);
       }
     }
@@ -75,13 +77,18 @@ void Region::add(RPoint p)
   if(bound_max < p) bound_max = p;
 }
 
-Mat Region::toMask()
+bool Region::isEmpty() const
+{
+  return (bound_max == RPoint() && bound_min == RPoint());
+}
+
+Mat Region::toMask() const
 {
   // Create a new matrix large enough to hold the rectangle up to the
   // max of the bounds.
   Mat m = Mat::zeros(bound_max.y()-1, bound_max.x()-1, CV_8UC1);
-  QMap<RPoint, char>::iterator i;
-  for(i = points.begin(); i != points.end(); ++i) {
+  QMap<RPoint, char>::const_iterator i;
+  for(i = points.constBegin(); i != points.constEnd(); ++i) {
     m.at<uchar>(i.key().x(), i.key().y()) = 255;
   }
 
