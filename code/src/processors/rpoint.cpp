@@ -26,9 +26,9 @@ RPoint::~RPoint()
 
 bool RPoint::operator <(const RPoint& other) const
 {
-  if(m_x < other.x())
+  if(m_y < other.y())
     return true;
-  if(m_x == other.x() && m_y < other.y())
+  if(m_y == other.y() && m_x < other.x())
     return true;
   return false;
 }
