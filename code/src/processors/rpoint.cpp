@@ -33,3 +33,8 @@ bool RPoint::operator <(const RPoint& other) const
   return false;
 }
 
+RPoint RPoint::operator+(const RPoint& other) const
+{
+  return RPoint(m_x+other.m_x, m_y+other.m_y);
+}
+
