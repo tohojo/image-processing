@@ -21,7 +21,8 @@
 
 #include "rpoint.h"
 #include <cv.h>
-#include <QtCore/QVector>
+#include <QtCore/QList>
+#include <QtCore/QMap>
 
 using namespace cv;
 
