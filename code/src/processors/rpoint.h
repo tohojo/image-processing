@@ -18,7 +18,6 @@ namespace ImageProcessing {
     ~RPoint();
 
     bool operator<(const RPoint& other) const;
-    bool operator>(const RPoint& other) const;
     inline bool operator==(const RPoint& other) const
     {
       return (m_x == other.x() && m_y == other.y());
