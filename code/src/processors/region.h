@@ -21,12 +21,19 @@
 
 #include "rpoint.h"
 #include <cv.h>
-#include <QtCore/QMap>
+#include <QtCore/QVector>
 
 using namespace cv;
 
 namespace ImageProcessing {
 
+  /**
+   * Class to represent a region of an image.
+   *
+   * Stores the points representing the outline of the region, i.e.
+   * all points that have a (4-way) neighbouring point that is not
+   * inside the region.
+   **/
   class Region
   {
   public:
@@ -49,7 +56,8 @@ namespace ImageProcessing {
     bool adjacentPoint(const RPoint p, const Region &other) const;
     RPoint bound_min;
     RPoint bound_max;
-    QMap<RPoint, char> points;
+    QList<RPoint> points;
+    QList<int> xcoords;
   };
 
 }

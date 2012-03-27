@@ -15,7 +15,57 @@ Region::Region()
 
 Region::Region(const Mat &m, bool mask)
 {
-  add(m, mask);
+  qDebug("Region(Mat,bool) constructor");
+
+  Size s; Point p;
+  RPoint min, max;
+  // Get the position in the parent matrix if one exists, and use that
+  // as an offset for computing the actual points. Allows to use a
+  // sub-region matrix to create a matrix from.
+  m.locateROI(s,p);
+
+  // We don't want reallocations as we're adding stuff, so reserve
+  // space for a rectangle going all the way around the region, plus
+  // some extra for odd paths.
+  points.reserve(qRound((s.width+s.height)*2.5));
+  if(mask) {
+    for(int i = 0; i < s.height; i++) {
+      const uchar *ptr = m.ptr<uchar>(i);
+      for(int j = 0; j < s.width; j++) {
+        if(ptr[j] && // if the point is set
+           // and it is an edge point
+           (i == 0 || // edges of regions
+            j == 0 ||
+            i == s.height-1 ||
+            j == s.width-1 ||
+            !ptr[j-1] || !ptr[j+1] // before or after x-value not set
+            !m.at(j,i-1) || !m.at(j,i+1) // before or after y-value not set
+            )
+           ) {
+          points.append(RPoint(j+p.x,i+p.y);
+        }
+      }
+    }
+    qSort(points.begin(), points.end()); // we have to sort, since it's built y-then-x
+    bound_min = points.first();
+    bound_max = points.last();
+  } else {
+    bound_min = RPoint(r.x, r.y);
+    bound_max = RPoint(r.x+s.width, r.y+s.height);
+
+    // do first column, then middle ones, then last column, so
+    // preserve sorted order.
+    for(int j = 0; j < s.height; j++) {
+      points.append(RPoint(0,j));
+    }
+    for(int i = 1; i < s.width-1; i++) {
+      points.append(RPoint(i, 0));
+      points.append(RPoint(i, s.height-1));
+    }
+    for(int j = 0; j < s.height; j++) {
+      points.append(RPoint(s.width-1,j));
+    }
+  }
 }
 
 Region::Region(const Region &r)
@@ -25,42 +75,6 @@ Region::Region(const Region &r)
 
 Region::~Region()
 {
-}
-
-void Region::add(const Mat &m, bool mask)
-{
-  Size s; Point r;
-  RPoint min, max;
-  // Get the position in the parent matrix if one exists, and use that
-  // as an offset for computing the actual points. Allows to use a
-  // sub-region matrix to create a matrix from.
-  m.locateROI(s,r);
-  if(mask) {
-    for(int i = 0; i < s.height; i++) {
-      const uchar *ptr = m.ptr<uchar>(i);
-      for(int j = 0; j < s.width; j++) {
-        if(ptr[j]) {
-          RPoint pt(j,i);
-          if(pt < min) min = pt;
-          if(max < pt) max = pt;
-          points.insert(pt, 0);
-        }
-      }
-    }
-  } else {
-    min = RPoint(r.x, r.y);
-    max = RPoint(r.x+s.width, r.y+s.height);
-    bound_min = RPoint(r.x, r.y);
-    bound_max = RPoint(r.x+s.width, r.y+s.height);
-    for(int i = 0; i < s.width; i++) {
-      for(int j = 0; j < s.height; j++) {
-        points.insert(RPoint(i,j), 0);
-      }
-    }
-  }
-
-  if(min < bound_min) bound_min = min;
-  if(bound_max < max) bound_max = max;
 }
 
 void Region::add(const Region &other)
