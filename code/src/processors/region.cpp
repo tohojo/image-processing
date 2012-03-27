@@ -38,19 +38,19 @@ Region::Region(const Mat &m, bool mask)
             j == 0 ||
             i == s.height-1 ||
             j == s.width-1 ||
-            !ptr[j-1] || !ptr[j+1] // before or after x-value not set
-            !m.at(j,i-1) || !m.at(j,i+1) // before or after y-value not set
+            (!ptr[j-1]) || (!ptr[j+1]) || // before or after x-value not set
+            (!m.at<int>(j,i-1)) || (!m.at<int>(j,i+1)) // before or after y-value not set
             )
            ) {
-          points.append(RPoint(j+p.x,i+p.y);
+          points.append(RPoint(j+p.x,i+p.y));
         }
       }
     }
     bound_min = points.first();
     bound_max = points.last();
   } else {
-    bound_min = RPoint(r.x, r.y);
-    bound_max = RPoint(r.x+s.width, r.y+s.height);
+    bound_min = RPoint(p.x, p.y);
+    bound_max = RPoint(p.x+s.width, p.y+s.height);
 
     // do first column, then middle ones, then last column, so
     // preserve sorted order.
@@ -66,11 +66,16 @@ Region::Region(const Mat &m, bool mask)
       points.append(RPoint(p.x+i,p.y+s.height-1));
     }
   }
+
+  buildYMap();
 }
 
 Region::Region(const Region &r)
 {
-  add(r);
+  bound_min = r.bound_min;
+  bound_max = r.bound_max;
+  points = r.points; // Qt implicit sharing makes this safe.
+  ycoords = r.ycoords;
 }
 
 Region::~Region()
@@ -79,21 +84,19 @@ Region::~Region()
 
 void Region::add(const Region &other)
 {
-  points.unite(other.points);
-  if(other.bound_min < bound_min) bound_min = other.bound_min;
-  if(bound_max < other.bound_max) bound_max = other.bound_max;
+  if(!adjacentTo(other)) return;
+  // TODO: Add this
 }
 
 void Region::add(RPoint p)
 {
-  points.insert(p, 0);
-  if(p < bound_min) bound_min = p;
-  if(bound_max < p) bound_max = p;
+  if(contains(p)) return;
+  // TODO: Add this
 }
 
 bool Region::isEmpty() const
 {
-  return (bound_max == RPoint() && bound_min == RPoint());
+  return points.size() == 0;
 }
 
 Mat Region::toMask() const
@@ -101,9 +104,27 @@ Mat Region::toMask() const
   // Create a new matrix large enough to hold the rectangle up to the
   // max of the bounds.
   Mat m = Mat::zeros(bound_max.y()-1, bound_max.x()-1, CV_8UC1);
-  QMap<RPoint, char>::const_iterator i;
-  for(i = points.constBegin(); i != points.constEnd(); ++i) {
-    m.at<uchar>(i.key().x(), i.key().y()) = 255;
+
+  // Build up the array line by line, by going through all possible
+  // points in the bounding rectangle. Keep an array that for each
+  // x-value keeps track of whether or not, on the last row, this
+  // x-value was in the bounding set, and whether or not this x-value
+  // is currently inside the region.
+
+  char *xmap = new char[bound_max.x()-bound_min.x()];
+  for(int i = bound_min.y(); i <= bound_max.y(); i++) {
+    for(int j = bound_min.x(); j <= bound_max.x(); j++) {
+      RPoint p(j,i);
+      if(inBoundary(p)) {
+        xmap[j] |= 1;
+      } else {
+        if(xmap[j] & 1 && contains(p)) {
+          xmap[j] |= 2;
+        }
+        xmap[j] &= (~1);
+      }
+      if(xmap[j] & 3) m.at<uchar>(j, i) = 255;
+    }
   }
 
   return m;
@@ -112,50 +133,16 @@ Mat Region::toMask() const
 /**
  * Check whether another region is adjacent to this one.
  *
- * Region b is adjacent to region a if, for at least one point p in a,
- * b contains a point that is a 4-neighbour of p. This definition
- * unfortunately makes it nontrivial to check adjacency. The strategy
- * is as follows:
+ * Region b is adjacent to region a if, for at least one point p in
+ * the boundary of a, the boundary of b contains a point that is a
+ * 4-neighbour of p. Since regions contain only boundary points, it is
+ * straight-forward to check for this.
  *
- * 1. If the bounding boxes of the regions are entirely disjoint,
- * they cannot be adjacent, and so return false immediately.
- *
- * 2. Otherwise, go through each possible x coordinate in the region
- * and find the maximum and minimum y coordinates for this x
- * coordinate. Check each neighbour of these points for membership in
- * the other region. Return true as soon as a match is found.
- *
- * 3. If still not match is found, check the minimum and maximum x
- * coordinates and check if any points with (x_min-1) respectively
- * (x_max+1) exist in the other region. If they do, check these for
- * adjacency, and return true if they are.
- *
- * 4. If the above steps do not find an adjacency, none exists, and so
- * return false.
- *
- * This relies on the fact that the points in the region are sorted
- * (by the operator< of RPoint), and so it is easy to get at the
- * points closest to a specific point. Most of this comes from the use
- * of QMap.
- *
- * TODO: This case:
- * Maybe it *is* better to make a pixel matrix?
- *
- * +-+-+
- * |a|a|
- * +-+-+
- * |a|
- * +-+-+
- * |a|b|
- * +-+-+
- * |a|
- * +-+
+ * As an optimisation, if the bounding regions are entirely disjoint,
+ * to not check all the points.
  **/
 bool Region::adjacentTo(const Region &other) const
 {
-  // We'll be using this for iterating over points in the region.
-  QMap<RPoint, char>::const_iterator i; RPoint p;
-
   // Step 1. Check if regions are entirely disjoint.
   //
   // Note that a < comparison on the points themselves are not enough,
@@ -165,57 +152,83 @@ bool Region::adjacentTo(const Region &other) const
      (bound_max.x() < other.bound_min.x() && bound_max.y() < other.bound_min.y()))
     return false;
 
-  // Step 2. Check the min and max y coordinates for each x coordinate
-  // in the region.
-  QList<RPoint> possibleNeighbours;
-  for(i = points.constBegin(); i != points.constEnd(); ) {
-    RPoint minY = i.key(); // The first point for a given x coordinate
-    RPoint nextX(minY.x()+1, 0);
-    i = points.lowerBound(nextX); // If not found this will be
-                                  // points.constEnd(), ending the
-                                  // loop
-    RPoint maxY = (i-1).key();
-    if(adjacentPoint(minY, other) || adjacentPoint(maxY, other)) return true;
+  for(int i = 0; i < points.size(); i++) {
+    if(adjacentPoint(points[i], other)) return true;
   }
-
-  // Step 3. Check if any points with (x_min-1) or (x_max+1) exists in
-  // the other region. If so, check all points with x_min and x_max
-  // coordinates.
-
-  // x_min
-  if(other.bound_max.x() >= bound_min.x()-1) {
-    // Start at the beginning, keep looping while the x coordinate
-    // stays the same. The RPoint variable p is used to cut down on
-    // the number of method calls.
-    for(i = points.constBegin(), p = i.key();
-        p.x() == bound_min.x() && i != points.constEnd();
-        p = (++i).key()) {
-      if(adjacentPoint(i.key(), other)) return true;
-    }
-  }
-
-  // x_max
-  if(other.bound_min.x() <= bound_max.x()+1) {
-    for(i = points.constEnd(), p = i.key();
-        p.x() == bound_max.x() && i != points.constBegin();
-        p = (--i).key()) {
-      if(adjacentPoint(p, other)) return true;
-    }
-  }
-
   return false;
 }
 
 bool Region::adjacentPoint(const RPoint p, const Region &other) const
 {
-  return (other.contains(RPoint(p.x()-1, p.y())) ||
-          other.contains(RPoint(p.x()+1, p.y())) ||
-          other.contains(RPoint(p.x(), p.y()-1)) ||
-          other.contains(RPoint(p.x(), p.y()+1)));
+  return (other.inBoundary(p+RPoint(-1, 0)) ||
+          other.inBoundary(p+RPoint(+1, 0)) ||
+          other.inBoundary(p+RPoint(0, -1)) ||
+          other.inBoundary(p+RPoint(0, 1)));
 }
 
+/**
+ * Checks whether a given point is contained in the region.
+ *
+ * If the point is outside the region bounds, it is obviously not
+ * contained, so return false straight away. Likewise, if the point is
+ * contained in the bounding set, it is obviously contained in the
+ * region, and so return true straight away.
+ *
+ * Otherwise, try extending a line from the points in each x and y
+ * direction. These lines each has to hit a point in the boundary set.
+ * If they do not (i.e. the lines cross the bounding rectangle before
+ * a match is found), the point is not in the region.
+ */
 bool Region::contains(const RPoint p) const
 {
   if(p < bound_min || bound_max < p) return false;
-  return points.contains(p);
+  if(inBoundary(p)) return true;
+  // keep track of each direction
+  bool x_plus = false, x_minus = false, y_plus = false, y_minus = false;
+
+  // Loop until we've found a match in each direction
+  for(int i = 1; !x_plus && !x_minus && !y_plus && !y_minus; i++) {
+    if(!x_plus && inBoundary(p+RPoint(i,0))) x_plus = true;
+    if(!x_minus && inBoundary(p+RPoint(-i,0))) x_minus = true;
+    if(!y_plus && inBoundary(p+RPoint(0,i))) y_plus = true;
+    if(!y_minus && inBoundary(p+RPoint(0,-i))) y_minus = true;
+
+    // If we moved outside the bounding box, the point is not in the
+    // region.
+    if(p.x()-i < bound_min.x() && p.x()+i > bound_max.x() &&
+       p.y()-i < bound_min.y() && p.y()+i > bound_max.y()) return false;
+  }
+  return true;
+}
+
+/**
+ * Checks whether a given point is part of the bounding set.
+ *
+ * This uses the sorted nature of the points to do a smarter lookup
+ * than a naive points.contains().
+ */
+bool Region::inBoundary(const RPoint p) const
+{
+  // If no points with this y coordinate are in the region, this point
+  // is not.
+  if(!ycoords.contains(p.y())) return false;
+  for(int i = ycoords.value(p.y()); i < points.size() && i == p.y(); i++) {
+    if(points[i] == p) return true;
+  }
+  return false;
+}
+
+void Region::buildYMap()
+{
+  ycoords.clear();
+  if(points.size() == 0) return;
+  int i, current;
+  current = points[0].y();
+  ycoords.insert(current, 0);
+  for(i = 0; i < points.size(); i++) {
+    if(current != points[i].y()) {
+      current = points[i].y();
+      ycoords.insert(current, i);
+    }
+  }
 }

@@ -52,9 +52,11 @@ namespace ImageProcessing {
     bool isEmpty() const;
 
     bool contains(const RPoint p) const;
+    bool inBoundary(const RPoint p) const;
 
   private:
     bool adjacentPoint(const RPoint p, const Region &other) const;
+    void buildYMap();
     RPoint bound_min;
     RPoint bound_max;
     QList<RPoint> points;
