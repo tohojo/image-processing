@@ -99,11 +99,11 @@ void Segmenting::splitMerge()
   emit progress(10);
 
 
-  QList<Mat> regionMap = splitRegions(resized, true);
+  QList<IP::Region> regionMap = splitRegions(resized, true);
 
   qDebug("Regions returned: %d", regionMap.size());
 
-  QList<Mat> regions = mergeRegions(regionMap);
+  QList<IP::Region> regions = mergeRegions(regionMap, resized);
 
   qDebug("Regions returned: %d", regions.size());
 
@@ -114,14 +114,14 @@ void Segmenting::splitMerge()
  * Function to split a region into multiple homogeneous regions (no
  * item varies more from the region average than the delta parameter).
  */
-QList<Mat> Segmenting::splitRegions(Mat region, bool topLevel) const
+QList<IP::Region> Segmenting::splitRegions(Mat image, bool topLevel) const
 {
-  QList<Mat> output;
+  QList<IP::Region> output;
   QList<Rect> rects;
   // Split into four regions.
-  Size size = region.size();
+  Size size = image.size();
   if(size.width == 1 && size.height == 1) {
-    output.append(region);
+    output.append(IP::Region(image));
     return output;
   }
 
@@ -143,9 +143,9 @@ QList<Mat> Segmenting::splitRegions(Mat region, bool topLevel) const
   int value = 0;
   foreach(Rect rect, rects) {
     qDebug("Rect: %dx%d %d,%d", rect.width, rect.height, rect.x, rect.y);
-    Mat newReg(region, rect);
+    Mat newReg(image, rect);
     if(isHomogeneous(newReg)) {
-      output.append(newReg);
+      output.append(IP::Region(newReg));
       newReg.setTo(value);
       value += 50;
     } else {
@@ -157,25 +157,26 @@ QList<Mat> Segmenting::splitRegions(Mat region, bool topLevel) const
 
   qDebug("Returning %d regions", output.size());
 
-  return mergeRegions(output);
+  return output;
 }
 
-QList<Mat> Segmenting::mergeRegions(QList<Mat> regions) const
+QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) const
 {
-  QList<Mat> output;
+  QList<IP::Region> output;
 
-  QList<Mat>::iterator i;
-  QMutableListIterator<Mat> j(regions);
+  QList<IP::Region>::iterator i;
+  QMutableListIterator<IP::Region> j(regions);
   for(i = regions.begin(); i != regions.end(); ++i) {
-    Mat newMat;
-    Mat current = (*i);
+    IP::Region current = (*i);
+    IP::Region newReg;
     j.toFront();
     while(j.hasNext()) {
-      Mat test = j.value();
-      if(regionsAdjacent(current, test)) {
-        newMat = merge(current, test);
-        if(isHomogeneous(newMat)) {
-          current = newMat;
+      IP::Region test = j.value();
+      if(current.adjacentTo(test)) {
+        newReg.add(current);
+        newReg.add(test);
+        if(isHomogeneous(newReg, img)) {
+          current = newReg;
           j.remove();
         }
       }
@@ -185,37 +186,26 @@ QList<Mat> Segmenting::mergeRegions(QList<Mat> regions) const
   return output;
 }
 
-bool Segmenting::regionsAdjacent(Mat one, Mat two) const
+bool Segmenting::isHomogeneous(const IP::Region region, const Mat img) const
 {
-  Size s_one, s_two;
-  Point ofs_one, ofs_two;
-  one.locateROI(s_one, ofs_one);
-  two.locateROI(s_two, ofs_two);
-  return (ofs_two.x == ofs_one.x + s_one.width ||
-          ofs_two.y == ofs_one.y + s_one.height ||
-          ofs_one.x == ofs_two.x + s_two.width ||
-          ofs_one.y == ofs_two.y + s_two.height);
-}
-
-Mat Segmenting::merge(Mat one, Mat two) const
-{
-  Size s_one, s_two;
-  Point ofs_one, ofs_two;
-  one.locateROI(s_one, ofs_one);
-  two.locateROI(s_two, ofs_two);
-  return one;
-}
-
-bool Segmenting::isHomogeneous(Mat region) const
-{
-  Size s = region.size();
-  if(s.height == 1 && s.width == 1) return true;
-  double r_min, r_max;
-  Scalar r_mean = mean(region);
-  double r_meanVal = r_mean[0];
-  minMaxLoc(region, &r_min, &r_max);
+  double r_min, r_max, r_meanVal;
+  Scalar r_mean;
+  if(!region.isEmpty()) {
+    Mat mask = region.toMask();
+    minMaxLoc(img, &r_min, &r_max, 0, 0, mask);
+    r_mean = mean(img, mask);
+  } else {
+    minMaxLoc(img, &r_min, &r_max);
+    r_mean = mean(img);
+  }
+  r_meanVal = r_mean[0];
 
   return (r_max-r_meanVal < m_delta && r_meanVal-r_min < m_delta);
+}
+
+bool Segmenting::isHomogeneous(const Mat mat) const
+{
+  return isHomogeneous(IP::Region(), mat);
 }
 
 

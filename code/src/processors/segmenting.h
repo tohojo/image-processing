@@ -3,8 +3,11 @@
 
 #include <QtCore/QList>
 #include "processor.h"
+#include "region.h"
+#include "rpoint.h"
 
 using namespace cv;
+namespace IP = ImageProcessing;
 
 class Segmenting : public Processor
 {
@@ -41,11 +44,10 @@ private:
   void thresholdSegment(bool adapt);
   void adaptThreshold();
   void splitMerge();
-  QList<Mat> splitRegions(Mat region, bool topLevel = false) const;
-  QList<Mat> mergeRegions(QList<Mat> regions) const;
-  bool isHomogeneous(Mat region) const;
-  bool regionsAdjacent(Mat one, Mat two) const;
-  Mat merge(Mat one, Mat two) const;
+  QList<IP::Region> splitRegions(Mat image, bool topLevel = false) const;
+  QList<IP::Region> mergeRegions(QList<IP::Region> regions, Mat img) const;
+  bool isHomogeneous(const IP::Region region, const Mat img) const;
+  bool isHomogeneous(const Mat mat) const;
   int m_threshold;
   bool m_dark_bg;
   Mode m_mode;
