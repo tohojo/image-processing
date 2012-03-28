@@ -158,12 +158,12 @@ bool Region::adjacentTo(const Region &other) const
   return false;
 }
 
-bool Region::adjacentPoint(const RPoint p, const Region &other) const
+bool Region::adjacentPoint(const RPoint p) const
 {
-  return (other.inBoundary(p+RPoint(-1, 0)) ||
-          other.inBoundary(p+RPoint(+1, 0)) ||
-          other.inBoundary(p+RPoint(0, -1)) ||
-          other.inBoundary(p+RPoint(0, 1)));
+  return (inBoundary(p+RPoint(-1, 0)) ||
+          inBoundary(p+RPoint(+1, 0)) ||
+          inBoundary(p+RPoint(0, -1)) ||
+          inBoundary(p+RPoint(0, 1)));
 }
 
 /**

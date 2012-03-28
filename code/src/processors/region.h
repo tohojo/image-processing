@@ -56,7 +56,7 @@ namespace ImageProcessing {
     bool interior(const RPoint p) const;
 
   private:
-    bool adjacentPoint(const RPoint p, const Region &other) const;
+    bool adjacentPoint(const RPoint p) const;
     void buildYMap();
     RPoint bound_min;
     RPoint bound_max;
