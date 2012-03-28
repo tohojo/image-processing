@@ -175,6 +175,7 @@ QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) c
         if(isHomogeneous(newReg, img)) {
           current = newReg;
           regions.removeAt(j);
+          j--;
         }
       }
     }
