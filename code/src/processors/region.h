@@ -53,6 +53,7 @@ namespace ImageProcessing {
 
     bool contains(const RPoint p) const;
     bool inBoundary(const RPoint p) const;
+    bool interior(const RPoint p) const;
 
   private:
     bool adjacentPoint(const RPoint p, const Region &other) const;

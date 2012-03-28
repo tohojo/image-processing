@@ -169,36 +169,15 @@ bool Region::adjacentPoint(const RPoint p, const Region &other) const
 /**
  * Checks whether a given point is contained in the region.
  *
- * If the point is outside the region bounds, it is obviously not
- * contained, so return false straight away. Likewise, if the point is
- * contained in the bounding set, it is obviously contained in the
- * region, and so return true straight away.
+ * A point is in the region if it is in the boundary or the interior.
+ * As an optimisation, check if the point is entirely outside the
+ * bounding box first.
  *
- * Otherwise, try extending a line from the points in each x and y
- * direction. These lines each has to hit a point in the boundary set.
- * If they do not (i.e. the lines cross the bounding rectangle before
- * a match is found), the point is not in the region.
  */
 bool Region::contains(const RPoint p) const
 {
   if(p < bound_min || bound_max < p) return false;
-  if(inBoundary(p)) return true;
-  // keep track of each direction
-  bool x_plus = false, x_minus = false, y_plus = false, y_minus = false;
-
-  // Loop until we've found a match in each direction
-  for(int i = 1; !x_plus && !x_minus && !y_plus && !y_minus; i++) {
-    if(!x_plus && inBoundary(p+RPoint(i,0))) x_plus = true;
-    if(!x_minus && inBoundary(p+RPoint(-i,0))) x_minus = true;
-    if(!y_plus && inBoundary(p+RPoint(0,i))) y_plus = true;
-    if(!y_minus && inBoundary(p+RPoint(0,-i))) y_minus = true;
-
-    // If we moved outside the bounding box, the point is not in the
-    // region.
-    if(p.x()-i < bound_min.x() && p.x()+i > bound_max.x() &&
-       p.y()-i < bound_min.y() && p.y()+i > bound_max.y()) return false;
-  }
-  return true;
+  return inBoundary(p) || interior(p);
 }
 
 /**
@@ -218,6 +197,38 @@ bool Region::inBoundary(const RPoint p) const
   return false;
 }
 
+/**
+ * Check if a point is in the interior of the region.
+ *
+ * Try extending a line from the points in each x and y direction.
+ * These lines each has to hit a point in the boundary set. If they do
+ * not (i.e. the lines cross the bounding rectangle before a match is
+ * found), the point is not in the interior.
+ */
+bool Region::interior(const RPoint p) const
+{
+  // keep track of each direction
+  bool x_plus = false, x_minus = false, y_plus = false, y_minus = false;
+
+  // Loop until we've found a match in each direction
+  for(int i = 1; !x_plus && !x_minus && !y_plus && !y_minus; i++) {
+    if(!x_plus && inBoundary(p+RPoint(i,0))) x_plus = true;
+    if(!x_minus && inBoundary(p+RPoint(-i,0))) x_minus = true;
+    if(!y_plus && inBoundary(p+RPoint(0,i))) y_plus = true;
+    if(!y_minus && inBoundary(p+RPoint(0,-i))) y_minus = true;
+
+    // If we moved outside the bounding box, the point is not in the
+    // interior.
+    if(p.x()-i < bound_min.x() && p.x()+i > bound_max.x() &&
+       p.y()-i < bound_min.y() && p.y()+i > bound_max.y()) return false;
+  }
+  return true;
+}
+
+/**
+ * Build up the map of Y coordinates to points list positions.
+ * The map is used for efficient lookup of points.
+ */
 void Region::buildYMap()
 {
   ycoords.clear();
