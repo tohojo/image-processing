@@ -88,10 +88,22 @@ void Region::add(const Region &other)
   // TODO: Add this
 }
 
+/**
+ * Add a single point to the region. The point must be adjacent to the
+ * region.
+ *
+ * Works by first adding the point to the boundary, then checking if
+ * each of its 8-neighbours has become interior from this addition and
+ * removes them if they have.
+ */
 void Region::add(RPoint p)
 {
   if(contains(p)) return;
-  // TODO: Add this
+  if(!adjacentPoint(p)) return;
+  insert(p);
+  for(int i = -1; i <= 1; i++)
+    for(int j = -1; j <= 1; j++)
+      if(i != 0 || j != 0) removeInterior(p+RPoint(i,j));
 }
 
 bool Region::isEmpty() const
