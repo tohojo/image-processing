@@ -85,7 +85,31 @@ Region::~Region()
 void Region::add(const Region &other)
 {
   if(!adjacentTo(other)) return;
-  // TODO: Add this
+  // Keep track of points that might become interior, and check them
+  // afterwards.
+  QList<RPoint> checkPoints;
+  int i;
+
+  // Go through each region and find the points that are adjacent to
+  // the other region; i.e. the points that are on the shared border.
+  // There are the points that may become interior points after the
+  // merge, so we need to check them when we have merged the regions.
+  for(i = 0; i < other.points.size(); i++) {
+    if(adjacentPoint(other.points[i])) checkPoints.append(other.points[i]);
+  }
+  for(i = 0; i < points.size(); i++) {
+    if(other.adjacentPoint(points[i])) checkPoints.append(other.points[i]);
+  }
+
+  for(i = 0; i < other.points.size(); i++) {
+    RPoint p = other.points[i];
+    if(p < bound_min) bound_min = p;
+    if(bound_max < p) bound_max = p;
+    insert(p);
+  }
+  for(i = 0; i < checkPoints.size(); i++) {
+    removeInterior(checkPoints[i]);
+  }
 }
 
 /**
