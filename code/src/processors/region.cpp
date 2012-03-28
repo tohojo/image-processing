@@ -243,3 +243,76 @@ void Region::buildYMap()
     }
   }
 }
+
+/**
+ * Insert point into region, preserving ordering of points list, and y
+ * coord map.
+ */
+void Region::insert(RPoint p)
+{
+  QMap<int, int>::iterator i;
+  i = ycoords.lowerBound(p.y());
+  if(i == ycoords.end()) {
+    // p.y() is the new largest y, so insert at end
+    ycoords.insert(p.y(), points.size());
+    points.append(p);
+  } else if (i.key() > p.y()) {
+    // No point with this y coordinate exists, but y-value greater
+    // than p.y() found, insert just before this.
+    int pos = i.value();
+    points.insert(pos, p);
+    shiftYMap(i, 1);
+    ycoords.insert(p.y(), pos);
+  } else {
+    // Found point(s) with same y-value
+    int pos = i.value();
+    while(points[pos] < p) pos++;
+    points.insert(pos,p);
+    shiftYMap(++i, 1); // Shift only those after this y
+  }
+}
+
+/**
+ * Remove a point that is both in the interior and the boundary from
+ * the boundary.
+ */
+void Region::removeInterior(RPoint p)
+{
+  if(inBoundary(p) && interior(p)) {
+    QMap<int, int>::iterator i, j;
+    i = ycoords.lowerBound(p.y());
+    j = i+1;
+    int pos = i.value();
+    while(points[pos] < p) pos++;
+    if(pos == i.value() && (j == ycoords.end() || j.value() == pos+1)) {
+      // This point is being pointed to in the YMap, and is the only
+      // on with its y coordinate, so remove it from the map.
+      //
+      // Note that if this happens in the middle of the region, we
+      // will probably end up with a disjoint region. We do not try to
+      // detect this, or worry about it much here, but instead assumes
+      // that regions are being created and extended in a sane way.
+      ycoords.erase(i);
+    }
+
+    // We remove the point, and shift all positions in the map *after*
+    // this y coordinate. This is sufficient, because if the point is
+    // being pointed to by the map, removing it will automatically
+    // make the pointed valid for the next point with the same y
+    // coordinate. If no such next point exists, we already removed
+    // this y coordinate from the map as above.
+    points.removeAt(pos);
+    shiftYMap(j, -1);
+  }
+}
+
+/**
+ * Shift the values of the ymap, starting at an iterator, by a value
+ * (defaults to 1). Used after a point is inserted.
+ */
+void Region::shiftYMap(QMap<int, int>::iterator i, int shift)
+{
+  for(; i != ycoords.end(); ++i) {
+    i.value() += shift;
+  }
+}
