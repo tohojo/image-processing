@@ -204,6 +204,11 @@ bool Region::inBoundary(const RPoint p) const
  * These lines each has to hit a point in the boundary set. If they do
  * not (i.e. the lines cross the bounding rectangle before a match is
  * found), the point is not in the interior.
+ *
+ * It is important that the search for a point in the boundary does
+ * not include the tested point itself, so it can be used to check if
+ * a point in the boundary is also in the interior (which can happen
+ * when points are added).
  */
 bool Region::interior(const RPoint p) const
 {
