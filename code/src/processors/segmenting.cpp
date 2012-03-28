@@ -163,21 +163,18 @@ QList<IP::Region> Segmenting::splitRegions(Mat image, bool topLevel) const
 QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) const
 {
   QList<IP::Region> output;
-
-  QList<IP::Region>::iterator i;
-  QMutableListIterator<IP::Region> j(regions);
-  for(i = regions.begin(); i != regions.end(); ++i) {
-    IP::Region current = (*i);
+  int i,j;
+  for(i = 0; i < regions.size(); ++i) {
+    IP::Region current = regions[i];
     IP::Region newReg;
-    j.toFront();
-    while(j.hasNext()) {
-      IP::Region test = j.value();
+    for(j = i+1; j < regions.size(); j++) {
+      IP::Region test = regions[j];
       if(current.adjacentTo(test)) {
-        newReg.add(current);
+        newReg = IP::Region(current);
         newReg.add(test);
         if(isHomogeneous(newReg, img)) {
           current = newReg;
-          j.remove();
+          regions.removeAt(j);
         }
       }
     }
