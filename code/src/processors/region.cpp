@@ -151,7 +151,7 @@ Mat Region::toMask() const
   // x-value was in the bounding set, and whether or not this x-value
   // is currently inside the region.
 
-  char *xmap = new char[bound_max.x()-bound_min.x()];
+  char *xmap = new char[bound_max.x()-bound_min.x()+1];
   for(int i = bound_min.y(); i <= bound_max.y(); i++) {
     for(int j = bound_min.x(); j <= bound_max.x(); j++) {
       RPoint p(j,i);
@@ -166,6 +166,7 @@ Mat Region::toMask() const
       if(xmap[j] & 3) m.at<uchar>(j, i) = 255;
     }
   }
+  free(xmap);
 
   return m;
 }
