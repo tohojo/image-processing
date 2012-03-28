@@ -73,10 +73,10 @@ Region::Region(const Mat &m, bool mask)
 
 Region::Region(const Region &r)
 {
-  bound_min = r.bound_min;
-  bound_max = r.bound_max;
-  points = r.points; // Qt implicit sharing makes this safe.
-  ycoords = r.ycoords;
+  bound_min = RPoint(r.bound_min);
+  bound_max = RPoint(r.bound_max);
+  points = QList<RPoint>(r.points);
+  ycoords = QMap<int, int>(r.ycoords);
 }
 
 Region::~Region()
@@ -125,6 +125,7 @@ void Region::add(const Region &other)
  */
 void Region::add(RPoint p)
 {
+  p = RPoint(p);
   if(contains(p)) return;
   if(!adjacentPoint(p)) return;
   insert(p);
