@@ -139,12 +139,12 @@ bool Region::isEmpty() const
   return points.size() == 0;
 }
 
-Mat Region::toMask() const
+Mat Region::toMask(Mat img) const
 {
   // Create a new matrix large enough to hold the rectangle up to the
   // max of the bounds.
-  Mat m = Mat::zeros(bound_max.y()-1, bound_max.x()-1, CV_8UC1);
-
+  Size s = img.size();
+  Mat m = Mat::zeros(s, img.type());
   // Build up the array line by line, by going through all possible
   // points in the bounding rectangle. Keep an array that for each
   // x-value keeps track of whether or not, on the last row, this
