@@ -101,6 +101,8 @@ void Region::add(RPoint p)
   if(contains(p)) return;
   if(!adjacentPoint(p)) return;
   insert(p);
+  if(p < bound_min) bound_min = p;
+  if(bound_max < p) bound_max = p;
   for(int i = -1; i <= 1; i++)
     for(int j = -1; j <= 1; j++)
       if(i != 0 || j != 0) removeInterior(p+RPoint(i,j));
