@@ -309,9 +309,13 @@ void Region::insert(RPoint p)
   } else {
     // Found point(s) with same y-value
     int pos = i.value();
-    while(points[pos] < p) pos++;
-    points.insert(pos,p);
-    shiftYMap(++i, 1); // Shift only those after this y
+    while(pos < points.size() && points[pos] < p) pos++;
+    if(pos == points.size()) {
+      points.append(p);
+    } else {
+      points.insert(pos,p);
+      shiftYMap(++i, 1); // Shift only those after this y
+    }
   }
 }
 
