@@ -23,6 +23,7 @@ Region::Region(const Mat &m, bool mask)
   // as an offset for computing the actual points. Allows to use a
   // sub-region matrix to create a matrix from.
   m.locateROI(s,p);
+  s = m.size();
 
   // We don't want reallocations as we're adding stuff, so reserve
   // space for a rectangle going all the way around the region, plus
