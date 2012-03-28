@@ -188,7 +188,7 @@ bool Segmenting::isHomogeneous(const IP::Region region, const Mat img) const
   double r_min, r_max, r_meanVal;
   Scalar r_mean;
   if(!region.isEmpty()) {
-    Mat mask = region.toMask();
+    Mat mask = region.toMask(img);
     minMaxLoc(img, &r_min, &r_max, 0, 0, mask);
     r_mean = mean(img, mask);
   } else {
