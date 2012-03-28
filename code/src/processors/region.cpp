@@ -153,7 +153,7 @@ bool Region::adjacentTo(const Region &other) const
     return false;
 
   for(int i = 0; i < points.size(); i++) {
-    if(adjacentPoint(points[i], other)) return true;
+    if(other.adjacentPoint(points[i])) return true;
   }
   return false;
 }
