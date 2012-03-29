@@ -175,20 +175,21 @@ Mat Region::toMask(Mat img) const
   char *xmap = new char[bound_max.x()-bound_min.x()+1];
   for(int i = bound_min.y(); i <= bound_max.y(); i++) {
     for(int j = bound_min.x(); j <= bound_max.x(); j++) {
-      if(i == bound_min.y()) xmap[j]=0; // init vars
+      int idx = j-bound_min.x(); // index for xmap
+      if(i == bound_min.y()) xmap[idx]=0; // init vars
       RPoint p(j,i);
       if(inBoundary(p)) {
-        xmap[j] |= 1;
+        xmap[idx] |= 1;
       } else {
-        if(xmap[j] & 1 && contains(p)) {
-          xmap[j] |= 2;
+        if((xmap[idx] & 1) && contains(p)) {
+          xmap[idx] |= 2;
         }
-        xmap[j] &= (~1);
+        xmap[idx] &= (~1);
       }
-      if(xmap[j] & 3) m.at<uchar>(j, i) = 255;
+      if(xmap[idx] & 3) m.at<uchar>(j, i) = 255;
     }
   }
-  free(xmap);
+  delete[] xmap;
 
   return m;
 }
