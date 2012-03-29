@@ -20,6 +20,7 @@ public:
 
 private:
   Mat input_image;
+  bool m_inprogress;
   Processor *current_processor;
   QGraphicsScene *input_scene;
   QGraphicsScene *output_scene;
@@ -35,6 +36,7 @@ private slots:
   void update_output();
   void new_processor(const QModelIndex & current);
   void setProgress(int value);
+  void process_button_clicked();
 
 signals:
   void image_changed();

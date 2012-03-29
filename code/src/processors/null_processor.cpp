@@ -9,9 +9,18 @@ NullProcessor::~NullProcessor()
 {
 }
 
-void NullProcessor::process()
+void NullProcessor::run()
 {
-  output_image = input_image;
-  emit progress(100);
-  emit updated();
+  forever {
+    if(abort) return;
+    mutex.lock();
+    output_image = input_image;
+    emit progress(100);
+    emit updated();
+
+    if(!restart)
+      condition.wait(&mutex);
+    restart = false;
+    mutex.unlock();
+  }
 }

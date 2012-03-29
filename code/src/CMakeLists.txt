@@ -2,6 +2,7 @@ set(image-processing_SOURCES
   main.cpp
   processing-gui.cpp
   widgets/resizingimagelabel.cpp
+  processors/processor.cpp
   processors/segmenting.cpp
   processors/null_processor.cpp
   processors/processor_model.cpp

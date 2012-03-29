@@ -16,6 +16,7 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   setupUi(this);
 
   current_processor = NULL;
+  m_inprogress = false;
 
   output_scene = new QGraphicsScene(this);
   output_view->setScene(output_scene);
@@ -26,6 +27,7 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   processor_view->setSelectionModel(processor_selection);
   connect(processor_selection, SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
           this, SLOT(new_processor(const QModelIndex&)));
+  connect(processButton, SIGNAL(clicked()), this, SLOT(process_button_clicked()));
 
   // Start out by selection first index.
   processor_selection->setCurrentIndex(processor_model->index(0), QItemSelectionModel::SelectCurrent);
@@ -85,7 +87,6 @@ void ProcessingGUI::set_processor(Processor *proc)
 
   current_processor = proc;
   connect(this, SIGNAL(image_changed()), current_processor, SLOT(process()));
-  connect(processButton, SIGNAL(clicked()), current_processor, SLOT(process()));
   connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));
   connect(current_processor, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)));
   connect(current_processor, SIGNAL(progress(int)), this, SLOT(setProgress(int)));
@@ -104,8 +105,22 @@ void ProcessingGUI::new_processor(const QModelIndex & current)
 
 void ProcessingGUI::setProgress(int value)
 {
-  if(value < 100)
-    processButton->setEnabled(false);
-  else
-    processButton->setEnabled(true);
+  if(value < 100) {
+    m_inprogress = true;
+    processButton->setText(tr("Cancel processing"));
+  } else {
+    m_inprogress = false;
+    processButton->setText(tr("Re-process"));
+  }
+}
+
+void ProcessingGUI::process_button_clicked()
+{
+  if(m_inprogress) {
+    current_processor->cancel();
+    setProgress(100);
+    progressBar->setValue(100);
+  } else {
+    current_processor->process();
+  }
 }

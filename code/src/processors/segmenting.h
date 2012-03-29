@@ -26,21 +26,19 @@ public:
 
   QString name() {return "Segmenting";}
 
-  bool darkBG() const {return m_dark_bg;}
+  bool darkBG() {QMutexLocker locker(&mutex); return m_dark_bg;}
   void setDarkBG(const bool bg);
 
-  Mode mode() const {return m_mode;}
+  Mode mode() {QMutexLocker locker(&mutex); return m_mode;}
   void setMode(const Mode mode);
 
-  int threshold() const {return m_threshold;}
+  int threshold() {QMutexLocker locker(&mutex); return m_threshold;}
 
-  int delta() const {return m_delta;}
+  int delta() {QMutexLocker locker(&mutex); return m_delta;}
   void setDelta(const int delta);
 
-public slots:
-  void process();
-
 private:
+  void run();
   void thresholdSegment(bool adapt);
   void adaptThreshold();
   void splitMerge();
