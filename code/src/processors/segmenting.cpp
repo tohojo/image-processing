@@ -8,7 +8,7 @@ Segmenting::Segmenting(QObject *parent)
   m_threshold = 0;
   m_dark_bg = false;
   m_mode = GLOBAL_THRESHOLD;
-  m_delta = 10;
+  m_delta = 50;
 }
 
 Segmenting::~Segmenting()
