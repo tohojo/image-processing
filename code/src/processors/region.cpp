@@ -139,8 +139,13 @@ void Region::add(const Region &other)
 void Region::add(RPoint p)
 {
   p = RPoint(p);
-  if(contains(p)) return;
-  if(!adjacentPoint(p)) return;
+  if(isEmpty()) {
+    bound_min = p;
+    bound_max = p;
+    insert(p);
+    return;
+  }
+  if(contains(p) || !adjacentPoint(p)) return;
   insert(p);
   if(p < bound_min) bound_min = p;
   if(bound_max < p) bound_max = p;
@@ -217,7 +222,7 @@ bool Region::adjacentTo(const Region &other) const
 bool Region::adjacentPoint(const RPoint p) const
 {
   return (inBoundary(p+RPoint(-1, 0)) ||
-          inBoundary(p+RPoint(+1, 0)) ||
+          inBoundary(p+RPoint(1, 0)) ||
           inBoundary(p+RPoint(0, -1)) ||
           inBoundary(p+RPoint(0, 1)));
 }
@@ -232,7 +237,9 @@ bool Region::adjacentPoint(const RPoint p) const
  */
 bool Region::contains(const RPoint p) const
 {
-  if(p < bound_min || bound_max < p) return false;
+  if(p < bound_min || bound_max < p) {
+    return false;}
+
   return inBoundary(p) || interior(p);
 }
 
@@ -247,7 +254,7 @@ bool Region::inBoundary(const RPoint p) const
   // If no points with this y coordinate are in the region, this point
   // is not.
   if(!ycoords.contains(p.y())) return false;
-  for(int i = ycoords.value(p.y()); i < points.size() && i == p.y(); i++) {
+  for(int i = ycoords.value(p.y()); i < points.size() && points[i].y() == p.y(); i++) {
     if(points[i] == p) return true;
   }
   return false;
@@ -272,7 +279,7 @@ bool Region::interior(const RPoint p) const
   bool x_plus = false, x_minus = false, y_plus = false, y_minus = false;
 
   // Loop until we've found a match in each direction
-  for(int i = 1; !x_plus && !x_minus && !y_plus && !y_minus; i++) {
+  for(int i = 1; !x_plus || !x_minus || !y_plus || !y_minus; i++) {
     if(!x_plus && inBoundary(p+RPoint(i,0))) x_plus = true;
     if(!x_minus && inBoundary(p+RPoint(-i,0))) x_minus = true;
     if(!y_plus && inBoundary(p+RPoint(0,i))) y_plus = true;
