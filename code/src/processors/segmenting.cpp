@@ -156,29 +156,48 @@ QList<IP::Region> Segmenting::splitRegions(Mat image, bool topLevel) const
   return output;
 }
 
+
+/**
+ * Merge the regions into as few possible homogeneous regions as
+ * possible.
+ *
+ * The merge strategy consists of taking one region from the input,
+ * and iteratively try merging it with every other region until no
+ * more regions can be merged in. Merged regions are also removed from
+ * the input.
+ *
+ * This process continues until no more regions are left in the input.
+ */
 QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) const
 {
   QList<IP::Region> output;
-  int i,j;
+  QList<IP::Region> input(regions);
+  int i, current_size;
+  int input_size = input.size();
   float progress_scale = 45;
   int progress_offset = 50;
-  for(i = 0; i < regions.size(); ++i) {
-    IP::Region current(regions[i]);
-    IP::Region newReg;
-    for(j = i+1; j < regions.size(); j++) {
-      IP::Region test(regions[j]);
-      if(current.adjacentTo(test)) {
-        newReg = IP::Region(current);
-        newReg.add(test);
-        if(isHomogeneous(newReg, img)) {
-          current = newReg;
-          regions.removeAt(j);
-          j--;
+
+  while(!input.empty()) {
+    IP::Region current = input.takeFirst();
+    do {
+      current_size = input.size();
+      
+      for(i = 0; i < input.size(); i++) {
+        IP::Region test(input[i]);
+        if(current.adjacentTo(test)) {
+          IP::Region newReg(current);
+          newReg.add(test);
+          if(isHomogeneous(newReg, img)) {
+            current = newReg;
+            input.removeAt(i);
+            i--;
+          }
         }
       }
-    }
+    } while(current_size != input.size()); // Keep looping until no more regions are merged
     output.append(current);
-    emit progress(progress_offset + qRound(progress_scale * (i/(float)regions.size())));
+    emit progress(progress_offset +
+                  qRound(progress_scale * ((input_size-input.size())/(float)input_size)));
   }
   return output;
 }
