@@ -140,13 +140,10 @@ QList<IP::Region> Segmenting::splitRegions(Mat image, bool topLevel) const
   int c = 0;
   float progress_scale = 40;
   int progress_offset = 10;
-  int value = 0;
   foreach(Rect rect, rects) {
     Mat newReg(image, rect);
     if(isHomogeneous(newReg)) {
       output.append(IP::Region(newReg));
-      newReg.setTo(value);
-      value += 50;
     } else {
       output += splitRegions(newReg);
     }
