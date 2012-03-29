@@ -107,6 +107,8 @@ void Segmenting::splitMerge()
 
   qDebug("Regions returned: %d", regions.size());
 
+  colourRegions(regions, resized);
+
   output_image = resized;
 }
 
@@ -179,6 +181,21 @@ QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) c
     emit progress(progress_offset + qRound(progress_scale * (i/(float)regions.size())));
   }
   return output;
+}
+
+void Segmenting::colourRegions(QList<IP::Region> regions, Mat img) const
+{
+  img.setTo(255);
+  int colour;
+  float progress_scale = 5;
+  int progress_offset = 95;
+  for(int i = 0; i<regions.size(); i++) {
+    Mat mask = regions[i].toMask(img);
+    img.setTo(colour, mask);
+    colour += 30;
+    if(colour > 200) colour = 0;
+    emit progress(progress_offset + qRound(progress_scale * (i/(float)regions.size())));
+  }
 }
 
 bool Segmenting::isHomogeneous(const IP::Region region, const Mat img) const

@@ -46,6 +46,7 @@ private:
   void splitMerge();
   QList<IP::Region> splitRegions(Mat image, bool topLevel = false) const;
   QList<IP::Region> mergeRegions(QList<IP::Region> regions, Mat img) const;
+  void colourRegions(QList<IP::Region> regions, Mat img) const;
   bool isHomogeneous(const IP::Region region, const Mat img) const;
   bool isHomogeneous(const Mat mat) const;
   int m_threshold;
