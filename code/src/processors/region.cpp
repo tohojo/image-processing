@@ -43,8 +43,13 @@ Region::Region(const Mat &m, bool mask)
             )
            ) {
           RPoint pt(j+p.x,i+p.y);
+          if(isEmpty()) {
+            bound_min = pt;
+            bound_max = pt;
+          } else {
+            updateBounds(pt);
+          }
           points.append(pt);
-          updateBounds(pt);
         }
       }
     }
