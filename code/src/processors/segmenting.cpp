@@ -15,30 +15,44 @@ Segmenting::~Segmenting()
 {
 }
 
-void Segmenting::process()
+void Segmenting::run()
 {
-  if(input_image.empty()) return;
-  emit progress(0);
-  switch(m_mode) {
-  case GLOBAL_THRESHOLD:
-    qDebug("Global threshold mode");
-    thresholdSegment(false);
-    break;
-  case ADAPTIVE_THRESHOLD:
-    qDebug("Adaptive threshold mode");
-    thresholdSegment(true);
-    break;
-  case SPLIT_MERGE:
-    qDebug("Split and merge mode");
-    splitMerge();
-    break;
+  forever {
+    mutex.lock();
+    Mode m = m_mode;
+    bool isEmpty = input_image.empty();
+    mutex.unlock();
+    if(!isEmpty) {
+      emit progress(0);
+      switch(m) {
+      case GLOBAL_THRESHOLD:
+        qDebug("Global threshold mode");
+        thresholdSegment(false);
+        break;
+      case ADAPTIVE_THRESHOLD:
+        qDebug("Adaptive threshold mode");
+        thresholdSegment(true);
+        break;
+      case SPLIT_MERGE:
+        qDebug("Split and merge mode");
+        splitMerge();
+        break;
+      }
+      if(abort) return;
+      if(!restart) {
+        emit progress(100);
+        emit updated();
+      }
+    }
+    mutex.lock();
+    if(!restart)
+      condition.wait(&mutex);
+    mutex.unlock();
   }
-
-  emit progress(100);
-  emit updated();
 }
 
 void Segmenting::thresholdSegment(bool adapt) {
+  QMutexLocker locker(&mutex);
 
   Scalar m = mean(input_image);
   m_threshold = cvRound(m[0]);
@@ -85,6 +99,7 @@ void Segmenting::splitMerge()
    * image dimensions as an ROI when doing the segmentation
    * afterwards.
    */
+  mutex.lock();
   Size size = input_image.size();
   uint32_t new_h = Util::nearest_pow(size.height);
   uint32_t new_w = Util::nearest_pow(size.width);
@@ -96,20 +111,27 @@ void Segmenting::splitMerge()
   Rect imgRect = Rect(new_x, new_y, size.width, size.height);
   Mat roi(resized, imgRect);
   input_image.copyTo(roi);
+  mutex.unlock();
   emit progress(10);
 
+  if(abort || restart) return;
 
   QList<IP::Region> regionMap = splitRegions(resized, true);
 
+  if(abort || restart) return;
   qDebug("Regions returned: %d", regionMap.size());
 
   QList<IP::Region> regions = mergeRegions(regionMap, resized);
 
+  if(abort || restart) return;
   qDebug("Regions returned: %d", regions.size());
 
   colourRegions(regions, resized);
+  if(abort || restart) return;
 
+  mutex.lock();
   output_image = resized;
+  mutex.unlock();
 }
 
 /**
@@ -149,6 +171,7 @@ QList<IP::Region> Segmenting::splitRegions(Mat image, bool topLevel) const
     } else {
       output += splitRegions(newReg);
     }
+    if(abort || restart) break;
     if(topLevel)
       emit progress(progress_offset + qRound(progress_scale * (++c/(float)c_rects)));
   }
@@ -183,6 +206,7 @@ QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) c
       current_size = input.size();
 
       for(i = 0; i < input.size(); i++) {
+        if(abort || restart) return output;
         IP::Region test(input[i]);
         if(current.adjacentTo(test)) {
           IP::Region newReg(current);
@@ -242,21 +266,21 @@ bool Segmenting::isHomogeneous(const Mat mat) const
 
 void Segmenting::setMode(const Mode mode)
 {
+  QMutexLocker locker(&mutex);
   if(m_mode == mode) return;
   m_mode = mode;
-  process();
 }
 
 void Segmenting::setDarkBG(const bool bg)
 {
+  QMutexLocker locker(&mutex);
   if(m_dark_bg == bg) return;
   m_dark_bg = bg;
-  process();
 }
 
 void Segmenting::setDelta(const int delta)
 {
+  QMutexLocker locker(&mutex);
   if(m_delta == delta) return;
   m_delta = delta;
-  process();
 }

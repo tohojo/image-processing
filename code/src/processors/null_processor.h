@@ -15,8 +15,8 @@ public:
 
   QString name() {return "No processing";}
 
-public slots:
-  void process();
+private:
+  void run();
 };
 
 #endif
