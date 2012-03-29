@@ -44,6 +44,9 @@ int main(int argc, char *argv[])
   printf("(5,5) == (5,5): %s\n",
          RPoint(5,5) == RPoint(5,5) ? "true" : "false");
   printf("\n");
+
+  printf("(0,1)+(1,0): "); (RPoint(0,1)+RPoint(1,0)).print(); printf("\n");
+  printf("(0,1)+(-1,0): "); (RPoint(0,1)+RPoint(-1,0)).print(); printf("\n");
   return 0;
 }
 
