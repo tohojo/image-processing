@@ -83,6 +83,16 @@ Region::~Region()
 {
 }
 
+Region& Region::operator=(const Region &other)
+{
+  bound_min = RPoint(other.bound_min);
+  bound_max = RPoint(other.bound_max);
+  points = QList<RPoint>(other.points);
+  ycoords = QMap<int, int>(other.ycoords);
+
+  return *this;
+}
+
 void Region::add(const Region &other)
 {
   if(!adjacentTo(other)) return;

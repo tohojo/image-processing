@@ -15,10 +15,12 @@ namespace ImageProcessing {
   public:
     RPoint();
     RPoint(int x, int y);
+    RPoint(const RPoint &other);
     ~RPoint();
 
     bool operator<(const RPoint& other) const;
     RPoint operator+(const RPoint& other) const;
+    RPoint& operator=(const RPoint &other);
     inline bool operator==(const RPoint& other) const
     {
       return (m_x == other.x() && m_y == other.y());

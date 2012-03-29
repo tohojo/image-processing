@@ -43,6 +43,8 @@ namespace ImageProcessing {
     Region(const Region &r);
     ~Region();
 
+    Region& operator=(const Region& other);
+
     bool adjacentTo(const Region &other) const;
     Mat toMask(Mat img) const;
     void add(const Mat &m, bool mask = false);

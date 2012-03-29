@@ -20,6 +20,12 @@ RPoint::RPoint(int x, int y)
   m_y = y;
 }
 
+RPoint::RPoint(const RPoint &other)
+{
+  m_x = other.m_x;
+  m_y = other.m_y;
+}
+
 RPoint::~RPoint()
 {
 }
@@ -36,5 +42,13 @@ bool RPoint::operator <(const RPoint& other) const
 RPoint RPoint::operator+(const RPoint& other) const
 {
   return RPoint(m_x+other.m_x, m_y+other.m_y);
+}
+
+RPoint& RPoint::operator=(const RPoint &other)
+{
+  m_x = other.m_x;
+  m_y = other.m_y;
+
+  return *this;
 }
 
