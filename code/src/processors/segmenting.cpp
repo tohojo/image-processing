@@ -142,7 +142,6 @@ QList<IP::Region> Segmenting::splitRegions(Mat image, bool topLevel) const
   int progress_offset = 10;
   int value = 0;
   foreach(Rect rect, rects) {
-    qDebug("Rect: %dx%d %d,%d", rect.width, rect.height, rect.x, rect.y);
     Mat newReg(image, rect);
     if(isHomogeneous(newReg)) {
       output.append(IP::Region(newReg));
@@ -154,8 +153,6 @@ QList<IP::Region> Segmenting::splitRegions(Mat image, bool topLevel) const
     if(topLevel)
       emit progress(progress_offset + qRound(progress_scale * (++c/(float)c_rects)));
   }
-
-  qDebug("Returning %d regions", output.size());
 
   return output;
 }

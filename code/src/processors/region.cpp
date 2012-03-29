@@ -15,8 +15,6 @@ Region::Region()
 
 Region::Region(const Mat &m, bool mask)
 {
-  qDebug("Region(Mat,bool) constructor");
-
   Size s; Point p;
   RPoint min, max;
   // Get the position in the parent matrix if one exists, and use that
