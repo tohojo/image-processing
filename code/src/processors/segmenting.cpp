@@ -47,6 +47,7 @@ void Segmenting::run()
     mutex.lock();
     if(!restart)
       condition.wait(&mutex);
+    restart = false;
     mutex.unlock();
   }
 }
@@ -269,6 +270,8 @@ void Segmenting::setMode(const Mode mode)
   QMutexLocker locker(&mutex);
   if(m_mode == mode) return;
   m_mode = mode;
+  mutex.unlock();
+  process();
 }
 
 void Segmenting::setDarkBG(const bool bg)
@@ -276,6 +279,8 @@ void Segmenting::setDarkBG(const bool bg)
   QMutexLocker locker(&mutex);
   if(m_dark_bg == bg) return;
   m_dark_bg = bg;
+  mutex.unlock();
+  process();
 }
 
 void Segmenting::setDelta(const int delta)
@@ -283,4 +288,6 @@ void Segmenting::setDelta(const int delta)
   QMutexLocker locker(&mutex);
   if(m_delta == delta) return;
   m_delta = delta;
+  mutex.unlock();
+  process();
 }
