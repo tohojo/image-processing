@@ -42,12 +42,12 @@ Region::Region(const Mat &m, bool mask)
             (!m.at<int>(j,i-1)) || (!m.at<int>(j,i+1)) // before or after y-value not set
             )
            ) {
-          points.append(RPoint(j+p.x,i+p.y));
+          RPoint pt(j+p.x,i+p.y);
+          points.append(pt);
+          updateBounds(pt);
         }
       }
     }
-    bound_min = points.first();
-    bound_max = points.last();
   } else {
     bound_min = RPoint(p.x, p.y);
     bound_max = RPoint(p.x+s.width, p.y+s.height);
@@ -118,8 +118,6 @@ void Region::add(const Region &other)
 
   for(i = 0; i < other.points.size(); i++) {
     RPoint p(other.points[i]);
-    if(p < bound_min) bound_min = p;
-    if(bound_max < p) bound_max = p;
     insert(p);
   }
 
@@ -147,8 +145,6 @@ void Region::add(RPoint p)
   }
   if(contains(p) || !adjacentPoint(p)) return;
   insert(p);
-  if(p < bound_min) bound_min = p;
-  if(bound_max < p) bound_max = p;
   for(int i = -1; i <= 1; i++)
     for(int j = -1; j <= 1; j++)
       if(i != 0 || j != 0) removeInterior(p+RPoint(i,j));
@@ -342,6 +338,15 @@ void Region::insert(RPoint p)
       shiftYMap(++i, 1); // Shift only those after this y
     }
   }
+  updateBounds(p);
+}
+
+void Region::updateBounds(RPoint p)
+{
+  if(p.x() < bound_min.x()) bound_min = RPoint(p.x(), bound_min.y());
+  if(p.y() < bound_min.y()) bound_min = RPoint(bound_min.x(), p.y());
+  if(p.x() > bound_max.x()) bound_max = RPoint(p.x(), bound_max.y());
+  if(p.y() > bound_max.y()) bound_max = RPoint(bound_max.x(), p.y());
 }
 
 /**

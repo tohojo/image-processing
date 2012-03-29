@@ -65,6 +65,7 @@ namespace ImageProcessing {
     void shiftYMap(QMap<int, int>::iterator i, int shift);
     void insert(RPoint p);
     void removeInterior(RPoint p);
+    void updateBounds(RPoint p);
     RPoint bound_min;
     RPoint bound_max;
     QList<RPoint> points;
