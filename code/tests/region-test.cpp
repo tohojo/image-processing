@@ -12,6 +12,17 @@
 
 using namespace ImageProcessing;
 
+void printMatrix(Mat m) {
+  Size s = m.size();
+  for(int i = s.height-1; i >= 0; i--) {
+    for(int j = 0; j < s.width; j++) {
+      printf("%03d,", m.at<uchar>(j,i));
+    }
+    printf("\n");
+  }
+}
+
+
 int main(int argc, char *argv[])
 {
   Region one, two;
@@ -44,10 +55,12 @@ int main(int argc, char *argv[])
   printf("contains(1,1): %s\n", one.contains(RPoint(1,1)) ? "true" : "false");
 
   Mat m = Mat::ones(5,5,CV_8U);
+  printMatrix(m);
   Region(m).print();
 
   Rect r(3,0,2,2);
   Mat m2 = Mat(m,r);
+  printMatrix(m2);
   two = Region(m2,true);
   two.print();
   m2.at<uchar>(1,1)=0;
@@ -55,4 +68,8 @@ int main(int argc, char *argv[])
 
   one.add(two);
   one.print();
+
+  Mat m3 = one.toMask(m);
+  printMatrix(m3);
 }
+
