@@ -45,6 +45,7 @@ namespace ImageProcessing {
 
     Region& operator=(const Region& other);
 
+    bool adjacentPoint(const RPoint p) const;
     bool adjacentTo(const Region &other) const;
     Mat toMask(Mat img) const;
     void add(const Mat &m, bool mask = false);
@@ -60,7 +61,6 @@ namespace ImageProcessing {
     void print();
 
   private:
-    bool adjacentPoint(const RPoint p) const;
     void buildYMap();
     void shiftYMap(QMap<int, int>::iterator i, int shift);
     void insert(RPoint p);
