@@ -162,10 +162,10 @@ QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) c
   QList<IP::Region> output;
   int i,j;
   for(i = 0; i < regions.size(); ++i) {
-    IP::Region current = regions[i];
+    IP::Region current(regions[i]);
     IP::Region newReg;
     for(j = i+1; j < regions.size(); j++) {
-      IP::Region test = regions[j];
+      IP::Region test(regions[j]);
       if(current.adjacentTo(test)) {
         newReg = IP::Region(current);
         newReg.add(test);

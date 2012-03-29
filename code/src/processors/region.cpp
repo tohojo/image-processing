@@ -112,7 +112,7 @@ void Region::add(const Region &other)
   }
 
   for(i = 0; i < other.points.size(); i++) {
-    RPoint p = RPoint(other.points[i]);
+    RPoint p(other.points[i]);
     if(p < bound_min) bound_min = p;
     if(bound_max < p) bound_max = p;
     insert(p);
