@@ -3,7 +3,7 @@ include_directories(../src/widgets/)
 include_directories(../src/)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Werror -Wno-error=unused-parameter")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -Wno-unused-parameter")
 endif()
 
 
