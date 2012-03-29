@@ -6,6 +6,7 @@
  */
 
 #include "rpoint.h"
+#include <stdio.h>
 
 using namespace ImageProcessing;
 
@@ -52,3 +53,7 @@ RPoint& RPoint::operator=(const RPoint &other)
   return *this;
 }
 
+void RPoint::print() const
+{
+  printf("(%d,%d)", m_x, m_y);
+}

@@ -57,6 +57,8 @@ namespace ImageProcessing {
     bool inBoundary(const RPoint p) const;
     bool interior(const RPoint p) const;
 
+    void print();
+
   private:
     bool adjacentPoint(const RPoint p) const;
     void buildYMap();

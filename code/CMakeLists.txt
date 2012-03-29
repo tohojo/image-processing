@@ -14,4 +14,4 @@ set(CMAKE_BUILD_TYPE Debug)
 
 add_subdirectory(lib)
 add_subdirectory(src)
-
+add_subdirectory(tests)

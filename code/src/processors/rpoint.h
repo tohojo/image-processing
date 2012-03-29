@@ -29,6 +29,8 @@ namespace ImageProcessing {
     int x() const {return m_x;}
     int y() const {return m_y;}
 
+    void print() const;
+
   private:
     int m_x;
     int m_y;

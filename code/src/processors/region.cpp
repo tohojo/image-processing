@@ -6,6 +6,7 @@
  */
 
 #include "region.h"
+#include <stdio.h>
 
 using namespace ImageProcessing;
 
@@ -375,4 +376,22 @@ void Region::shiftYMap(QMap<int, int>::iterator i, int shift)
   for(; i != ycoords.end(); ++i) {
     i.value() += shift;
   }
+}
+
+void Region::print()
+{
+  std::cout << "Min: "; bound_min.print();
+  std::cout << " Max: "; bound_max.print();
+  std::cout << "\n";
+  std::cout << "Points:\n";
+  foreach(const RPoint &p, points) {
+    std::cout << "  ";
+    p.print();
+    std::cout << "\n";
+  }
+  std::cout << "YMap:\n";
+  QMap<int, int>::const_iterator i;
+  for(i = ycoords.constBegin(); i != ycoords.constEnd(); ++i)
+    printf("  %d: %d\n", i.key(), i.value());
+
 }
