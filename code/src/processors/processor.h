@@ -27,6 +27,7 @@ public:
 
 public slots:
   void process();
+  void cancel();
 
 signals:
   void updated();

@@ -27,6 +27,7 @@ Processor::~Processor()
 void Processor::process()
 {
   QMutexLocker locker(&mutex);
+  abort = false;
 
   if(!isRunning()) {
     start(LowPriority);
@@ -34,6 +35,13 @@ void Processor::process()
     restart = true;
     condition.wakeOne();
   }
+}
+
+void Processor::cancel()
+{
+  QMutexLocker locker(&mutex);
+  abort = true;
+  condition.wakeOne();
 }
 
 
