@@ -205,7 +205,7 @@ QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) c
 void Segmenting::colourRegions(QList<IP::Region> regions, Mat img) const
 {
   img.setTo(255);
-  int colour;
+  int colour = 0;
   float progress_scale = 5;
   int progress_offset = 95;
   for(int i = 0; i<regions.size(); i++) {
