@@ -103,7 +103,10 @@ void Region::add(const Region &other)
   if(isEmpty()) {
     operator=(other);
   }
-  if(!adjacentTo(other)) return;
+  if(!adjacentTo(other) || contains(other) || other.contains(*this)) {
+    qWarning("Warning: Attempt to add invalid region");
+    return;
+  }
   // Keep track of points that might become interior, and check them
   // afterwards.
   QList<RPoint> checkPoints;
@@ -245,10 +248,18 @@ int Region::boundSize() const
  */
 bool Region::contains(const RPoint p) const
 {
-  if(p < bound_min || bound_max < p) {
-    return false;}
-
   return inBoundary(p) || interior(p);
+}
+
+bool Region::contains(const Region &other) const
+{
+  if(!(other.bound_max.x() <= bound_max.x() &&
+       other.bound_max.y() <= bound_max.y() &&
+       other.bound_min.x() >= bound_min.x() &&
+       other.bound_min.y() >= bound_min.y())) return false;
+  foreach(RPoint p, other.points)
+    if(!contains(p)) return false;
+  return true;
 }
 
 /**

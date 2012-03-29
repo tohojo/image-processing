@@ -54,6 +54,7 @@ namespace ImageProcessing {
 
     bool isEmpty() const;
 
+    bool contains(const Region &other) const;
     bool contains(const RPoint p) const;
     bool inBoundary(const RPoint p) const;
     bool interior(const RPoint p) const;
