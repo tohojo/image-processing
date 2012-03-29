@@ -5,6 +5,10 @@ set(image-processing_SOURCES
   processors/segmenting.cpp
   processors/null_processor.cpp
   processors/processor_model.cpp
+  processors/rpoint.h
+  processors/rpoint.cpp
+  processors/region.h
+  processors/region.cpp
   util.cpp
   util.h)
 set(image-processing_HEADERS

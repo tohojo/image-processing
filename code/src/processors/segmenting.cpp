@@ -1,3 +1,4 @@
+#include <QtCore/QMutableListIterator>
 #include "segmenting.h"
 #include "util.h"
 
@@ -7,7 +8,7 @@ Segmenting::Segmenting(QObject *parent)
   m_threshold = 0;
   m_dark_bg = false;
   m_mode = GLOBAL_THRESHOLD;
-  m_delta = 10;
+  m_delta = 50;
 }
 
 Segmenting::~Segmenting()
@@ -98,16 +99,15 @@ void Segmenting::splitMerge()
   emit progress(10);
 
 
-  QVector<Mat> regions = splitRegions(resized, resized, true);
+  QList<IP::Region> regionMap = splitRegions(resized, true);
+
+  qDebug("Regions returned: %d", regionMap.size());
+
+  QList<IP::Region> regions = mergeRegions(regionMap, resized);
 
   qDebug("Regions returned: %d", regions.size());
-  foreach(Mat m, regions) {
-    Size s = m.size();
-    Size ws; Point p;
-    m.locateROI(ws, p);
-    qDebug("Region size: %dx%d", s.width, s.height);
-    qDebug(" Offset: %d,%d", p.x, p.y);
-  }
+
+  colourRegions(regions, resized);
 
   output_image = resized;
 }
@@ -116,21 +116,19 @@ void Segmenting::splitMerge()
  * Function to split a region into multiple homogeneous regions (no
  * item varies more from the region average than the delta parameter).
  */
-QVector<Mat> Segmenting::splitRegions(Mat region, Mat image, bool topLevel) const
+QList<IP::Region> Segmenting::splitRegions(Mat image, bool topLevel) const
 {
-  QVector<Mat> output;
-  QVector<Rect> rects;
+  QList<IP::Region> output;
+  QList<Rect> rects;
   // Split into four regions.
-  Size size = region.size();
+  Size size = image.size();
   if(size.width == 1 && size.height == 1) {
-    output.append(region);
+    output.append(IP::Region(image));
     return output;
   }
 
   int mid_x = size.width/2;
   int mid_y = size.height/2;
-
-  qDebug("Image size: %dx%d", image.size().width, image.size().height);
 
   rects.append(Rect(0, 0, mid_x, mid_y));
   if(size.width > 1)
@@ -142,37 +140,103 @@ QVector<Mat> Segmenting::splitRegions(Mat region, Mat image, bool topLevel) cons
 
   int c_rects = rects.size();
   int c = 0;
-  float progress_scale = 80;
-  int value = 0;
+  float progress_scale = 40;
+  int progress_offset = 10;
   foreach(Rect rect, rects) {
-    qDebug("Rect: %dx%d %d,%d", rect.width, rect.height, rect.x, rect.y);
-    Mat newReg(region, rect);
+    Mat newReg(image, rect);
     if(isHomogeneous(newReg)) {
-      output.append(newReg);
-      newReg.setTo(value);
-      value += 50;
+      output.append(IP::Region(newReg));
     } else {
-      output += splitRegions(newReg, image);
+      output += splitRegions(newReg);
     }
     if(topLevel)
-      emit progress(qRound(progress_scale * (++c/(float)c_rects)));
+      emit progress(progress_offset + qRound(progress_scale * (++c/(float)c_rects)));
   }
-
-  qDebug("Returning %d regions", output.size());
 
   return output;
 }
 
-bool Segmenting::isHomogeneous(Mat region) const
+
+/**
+ * Merge the regions into as few possible homogeneous regions as
+ * possible.
+ *
+ * The merge strategy consists of taking one region from the input,
+ * and iteratively try merging it with every other region until no
+ * more regions can be merged in. Merged regions are also removed from
+ * the input.
+ *
+ * This process continues until no more regions are left in the input.
+ */
+QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) const
 {
-  Size s = region.size();
-  if(s.height == 1 && s.width == 1) return true;
-  double r_min, r_max;
-  Scalar r_mean = mean(region);
-  double r_meanVal = r_mean[0];
-  minMaxLoc(region, &r_min, &r_max);
+  QList<IP::Region> output;
+  QList<IP::Region> input(regions);
+  int i, current_size;
+  int input_size = input.size();
+  float progress_scale = 45;
+  int progress_offset = 50;
+
+  while(!input.empty()) {
+    IP::Region current = input.takeFirst();
+    do {
+      current_size = input.size();
+
+      for(i = 0; i < input.size(); i++) {
+        IP::Region test(input[i]);
+        if(current.adjacentTo(test)) {
+          IP::Region newReg(current);
+          newReg.add(test);
+          if(isHomogeneous(newReg, img)) {
+            current = newReg;
+            input.removeAt(i);
+            i--;
+          }
+        }
+      }
+    } while(current_size != input.size()); // Keep looping until no more regions are merged
+    output.append(current);
+    emit progress(progress_offset +
+                  qRound(progress_scale * ((input_size-input.size())/(float)input_size)));
+  }
+  return output;
+}
+
+void Segmenting::colourRegions(QList<IP::Region> regions, Mat img) const
+{
+  img.setTo(255);
+  int colour = 0;
+  float progress_scale = 5;
+  int progress_offset = 95;
+  for(int i = 0; i<regions.size(); i++) {
+    Mat mask = regions[i].toMask(img);
+    img.setTo(colour, mask);
+    colour += 30;
+    if(colour > 200) colour = 0;
+    emit progress(progress_offset + qRound(progress_scale * (i/(float)regions.size())));
+  }
+}
+
+bool Segmenting::isHomogeneous(const IP::Region region, const Mat img) const
+{
+  double r_min, r_max, r_meanVal;
+  Scalar r_mean;
+  if(!region.isEmpty()) {
+    Mat mask = region.toMask(img);
+    minMaxLoc(img, &r_min, &r_max, 0, 0, mask);
+    r_mean = mean(img, mask);
+  } else {
+    minMaxLoc(img, &r_min, &r_max);
+    r_mean = mean(img);
+  }
+  r_meanVal = r_mean[0];
 
   return (r_max-r_meanVal < m_delta && r_meanVal-r_min < m_delta);
+}
+
+bool Segmenting::isHomogeneous(const Mat mat) const
+{
+  return isHomogeneous(IP::Region(), mat);
 }
 
 
