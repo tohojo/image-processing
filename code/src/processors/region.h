@@ -58,6 +58,8 @@ namespace ImageProcessing {
     bool inBoundary(const RPoint p) const;
     bool interior(const RPoint p) const;
 
+    int boundSize() const;
+
     void print();
 
   private:

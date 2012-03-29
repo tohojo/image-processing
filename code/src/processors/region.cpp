@@ -230,6 +230,11 @@ bool Region::adjacentPoint(const RPoint p) const
           inBoundary(p+RPoint(0, 1)));
 }
 
+int Region::boundSize() const
+{
+  return (bound_max.x()-bound_min.x())*(bound_max.y()-bound_min.y());
+}
+
 /**
  * Checks whether a given point is contained in the region.
  *
