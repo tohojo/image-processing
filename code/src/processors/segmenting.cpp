@@ -158,6 +158,8 @@ QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) c
 {
   QList<IP::Region> output;
   int i,j;
+  float progress_scale = 45;
+  int progress_offset = 50;
   for(i = 0; i < regions.size(); ++i) {
     IP::Region current(regions[i]);
     IP::Region newReg;
@@ -174,6 +176,7 @@ QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) c
       }
     }
     output.append(current);
+    emit progress(progress_offset + qRound(progress_scale * (i/(float)regions.size())));
   }
   return output;
 }
