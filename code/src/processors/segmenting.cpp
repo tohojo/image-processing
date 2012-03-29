@@ -181,7 +181,7 @@ QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) c
     IP::Region current = input.takeFirst();
     do {
       current_size = input.size();
-      
+
       for(i = 0; i < input.size(); i++) {
         IP::Region test(input[i]);
         if(current.adjacentTo(test)) {
