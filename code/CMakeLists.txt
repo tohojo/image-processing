@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.8)
 project(image-processing)
 find_package(OpenCV REQUIRED)
 find_package(Qt4 REQUIRED)
-set(CMAKE_BUILD_TYPE Debug)
 
 include(${QT_USE_FILE})
 add_definitions(${QT_DEFINITIONS})
