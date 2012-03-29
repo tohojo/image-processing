@@ -8,6 +8,7 @@
 #include "region.h"
 #include "rpoint.h"
 #include <stdio.h>
+#include <cv.h>
 
 using namespace ImageProcessing;
 
@@ -33,4 +34,25 @@ int main(int argc, char *argv[])
   one.add(RPoint(1,1));
   one.print();
 
+  printf("Adding additional points\n");
+  one.add(RPoint(0,2));
+  one.add(RPoint(1,2));
+  one.add(RPoint(2,0));
+  one.add(RPoint(2,1));
+  one.add(RPoint(2,2));
+  one.print();
+  printf("contains(1,1): %s\n", one.contains(RPoint(1,1)) ? "true" : "false");
+
+  Mat m = Mat::ones(5,5,CV_8U);
+  Region(m).print();
+
+  Rect r(3,0,2,2);
+  Mat m2 = Mat(m,r);
+  two = Region(m2,true);
+  two.print();
+  m2.at<uchar>(1,1)=0;
+  Region(m2,true).print();
+
+  one.add(two);
+  one.print();
 }

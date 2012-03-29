@@ -21,4 +21,4 @@ add_executable(rpoint-test
   ../src/processors/rpoint.h
   ../src/processors/rpoint.cpp
 )
-target_link_libraries(rpoint-test)
+target_link_libraries(rpoint-test ${OpenCV_LIBS})
