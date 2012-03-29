@@ -94,6 +94,10 @@ Region& Region::operator=(const Region &other)
 
 void Region::add(const Region &other)
 {
+  if(other.isEmpty()) return;
+  if(isEmpty()) {
+    operator=(other);
+  }
   if(!adjacentTo(other)) return;
   // Keep track of points that might become interior, and check them
   // afterwards.
