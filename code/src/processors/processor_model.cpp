@@ -44,3 +44,10 @@ void ProcessorModel::create_processors()
   m_processors.append(new NullProcessor());
   m_processors.append(new Segmenting());
 }
+
+int ProcessorModel::index_for(QString name)
+{
+  for(int i = 0; i < m_processors.size(); i++)
+    if(m_processors[i]->name() == name) return i;
+  return -1;
+}

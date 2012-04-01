@@ -18,8 +18,10 @@ public:
 
   Processor * get_processor(int index) const;
 
+  int index_for(QString name);
+
 private:
-  QVector<Processor *> m_processors;
+  QList<Processor *> m_processors;
   void create_processors();
 };
 #endif

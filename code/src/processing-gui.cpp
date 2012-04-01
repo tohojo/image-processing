@@ -4,8 +4,10 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QGraphicsPixmapItem>
 #include <QtGui/QBitmap>
+#include <QtGui/QMessageBox>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QDebug>
 
 #include "processing-gui.h"
 #include "util.h"
@@ -36,6 +38,37 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
 
   connect(action_open_image, SIGNAL(activated()), this, SLOT(open_image()));
   connect(output_zoom, SIGNAL(sliderMoved(int)), this, SLOT(zoom_output(int)));
+}
+
+void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
+  args = arguments;
+
+  if(args.contains("processor")) {
+    QString processor = args.value("processor").toString();
+    int idx = processor_model->index_for(processor);
+    if(idx == -1) {
+      QMessageBox msgbox(QMessageBox::Critical, tr("Processor not found"),
+                         tr("The processor '%1' was not found.").arg(processor),
+                         QMessageBox::Ok, this);
+      msgbox.exec();
+    } else {
+      processor_selection->setCurrentIndex(processor_model->index(idx),
+                                           QItemSelectionModel::SelectCurrent);
+    }
+  }
+  QMap<QString, QVariant> properties = args.value("properties").toMap();
+  if(!properties.empty()) {
+    QMap<QString, QVariant>::iterator i;
+    for(i = properties.begin(); i != properties.end(); ++i) {
+      if(!current_processor->setProperty(i.key().toLocal8Bit(), i.value())) {
+        qWarning() << "Error setting property: " << i.key();
+      }
+    }
+  }
+
+  if(args.contains("input")) {
+    load_image(args.value("input").toString());
+  }
 }
 
 ProcessingGUI::~ProcessingGUI()
@@ -70,20 +103,37 @@ void ProcessingGUI::open_image()
                                                   open_directory,
                                                   tr("Images (*.png *.jpg *.jpeg *.tif)"));
   if(!filename.isNull()) {
-    QFileInfo fileinfo = QFileInfo(filename);
-    open_directory = fileinfo.dir().path();
-    input_image = Util::load_image(filename);
-    current_processor->set_input(input_image);
-    QImage qImg = Util::mat_to_qimage(input_image);
-    input_view->setImage(qImg);
-    input_filename->setText(fileinfo.fileName());
-    emit image_changed();
+    load_image(filename);
   }
+}
+
+void ProcessingGUI::load_image(QString filename)
+{
+  QFileInfo fileinfo = QFileInfo(filename);
+  if(fileinfo.dir().exists(".")) {
+    open_directory = fileinfo.dir().path();
+  }
+
+  if(!fileinfo.exists()) {
+    QMessageBox msgbox(QMessageBox::Critical, tr("File not found"),
+                       tr("File '%1' was not found.").arg(filename),
+                       QMessageBox::Ok, this);
+    msgbox.exec();
+    return;
+  }
+
+  input_image = Util::load_image(filename);
+  current_processor->set_input(input_image);
+  QImage qImg = Util::mat_to_qimage(input_image);
+  input_view->setImage(qImg);
+  input_filename->setText(fileinfo.fileName());
+  emit image_changed();
 }
 
 void ProcessingGUI::set_processor(Processor *proc)
 {
   if(current_processor != NULL) {
+    current_processor->cancel();
     current_processor->disconnect();
     disconnect(this, 0, current_processor, 0);
   }

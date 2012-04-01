@@ -18,10 +18,13 @@ public:
   ProcessingGUI(QWidget *parent =0);
   ~ProcessingGUI();
 
+  void set_args(QMap<QString, QVariant> arguments);
+
 private:
   Mat input_image;
   bool m_inprogress;
   QString open_directory;
+  QMap<QString, QVariant> args;
   Processor *current_processor;
   QGraphicsScene *input_scene;
   QGraphicsScene *output_scene;
@@ -34,6 +37,7 @@ public slots:
 private slots:
   void zoom_output(int value);
   void open_image();
+  void load_image(QString filename);
   void update_output();
   void new_processor(const QModelIndex & current);
   void setProgress(int value);
