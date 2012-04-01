@@ -18,6 +18,8 @@ public:
 
   Processor * get_processor(int index) const;
 
+  int index_for(QString name);
+
 private:
   QList<Processor *> m_processors;
   void create_processors();

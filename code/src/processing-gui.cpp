@@ -45,6 +45,19 @@ void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
   if(args.contains("input")) {
     load_image(args.value("input").toString());
   }
+
+  if(args.contains("processor")) {
+    QString processor = args.value("processor").toString();
+    int idx = processor_model->index_for(processor);
+    if(idx == -1) {
+      QMessageBox msgbox(QMessageBox::Critical, tr("Processor not found"),
+                         tr("The processor '%1' was not found.").arg(processor),
+                         QMessageBox::Ok, this);
+      msgbox.exec();
+    } else {
+      set_processor(processor_model->get_processor(idx));
+    }
+  }
 }
 
 ProcessingGUI::~ProcessingGUI()
