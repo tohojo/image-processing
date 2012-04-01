@@ -39,6 +39,14 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   connect(output_zoom, SIGNAL(sliderMoved(int)), this, SLOT(zoom_output(int)));
 }
 
+void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
+  args = arguments;
+
+  if(args.contains("input")) {
+    load_image(args.value("input").toString());
+  }
+}
+
 ProcessingGUI::~ProcessingGUI()
 {
   delete output_scene;
@@ -81,15 +89,6 @@ void ProcessingGUI::load_image(QString filename)
   if(fileinfo.dir().exists(".")) {
     open_directory = fileinfo.dir().path();
   }
-}
-
-void ProcessingGUI::set_processor(Processor *proc)
-{
-  if(current_processor != NULL) {
-    current_processor->disconnect();
-    disconnect(this, 0, current_processor, 0);
-  }
-
 
   if(!fileinfo.exists()) {
     QMessageBox msgbox(QMessageBox::Critical, tr("File not found"),
@@ -105,6 +104,15 @@ void ProcessingGUI::set_processor(Processor *proc)
   input_view->setImage(qImg);
   input_filename->setText(fileinfo.fileName());
   emit image_changed();
+}
+
+void ProcessingGUI::set_processor(Processor *proc)
+{
+  if(current_processor != NULL) {
+    current_processor->disconnect();
+    disconnect(this, 0, current_processor, 0);
+  }
+
   current_processor = proc;
   connect(this, SIGNAL(image_changed()), current_processor, SLOT(process()));
   connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));

@@ -37,9 +37,11 @@ int main(int argc, char *argv[])
 {
   QApplication app(argc, argv);
 
+  QMap<QString, QVariant> args = parseArgs(app.arguments());
+
   ProcessingGUI ui;
   ui.show();
-  
+  ui.set_args(args);
+
   return app.exec();
-  QMap<QString, QVariant> args = parseArgs(app.arguments());
 }
