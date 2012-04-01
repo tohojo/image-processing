@@ -55,7 +55,8 @@ void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
                          QMessageBox::Ok, this);
       msgbox.exec();
     } else {
-      set_processor(processor_model->get_processor(idx));
+      processor_selection->setCurrentIndex(processor_model->index(idx),
+                                           QItemSelectionModel::SelectCurrent);
     }
   }
 }
