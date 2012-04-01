@@ -1,5 +1,5 @@
 #include <QtGui/QApplication>
-#include <upstream>
+#include <iostream>
 #include "processing-gui.h"
 
 /**
