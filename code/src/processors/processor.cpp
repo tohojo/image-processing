@@ -12,6 +12,7 @@ Processor::Processor(QObject *parent)
 {
   abort = false;
   restart = false;
+  once = false;
 }
 
 Processor::~Processor()
@@ -29,7 +30,10 @@ void Processor::process()
   QMutexLocker locker(&mutex);
   abort = false;
 
-  if(!isRunning()) {
+  if(once) {
+    mutex.unlock();
+    run();
+  } else if(!isRunning()) {
     start(LowPriority);
   } else {
     restart = true;
@@ -49,12 +53,19 @@ void Processor::run()
 {
   forever {
     if(abort) return;
+    if(once) return;
     mutex.lock();
     if(!restart)
       condition.wait(&mutex);
     restart = false;
     mutex.unlock();
   }
+}
+
+void Processor::run_once()
+{
+  once = true;
+  run();
 }
 
 void Processor::set_input(const Mat img)

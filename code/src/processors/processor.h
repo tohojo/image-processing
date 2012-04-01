@@ -19,7 +19,6 @@ public:
   Processor(QObject *parent = 0);
   virtual ~Processor();
 
-
   void set_input(const Mat img);
   Mat get_output();
 
@@ -27,6 +26,7 @@ public:
 
 public slots:
   void process();
+  void run_once();
   void cancel();
 
 signals:
@@ -41,6 +41,7 @@ protected:
   Mat output_image;
   bool abort;
   bool restart;
+  bool once;
 };
 
 #endif

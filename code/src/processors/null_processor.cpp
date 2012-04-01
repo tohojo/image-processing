@@ -17,6 +17,7 @@ void NullProcessor::run()
     output_image = input_image;
     emit progress(100);
     emit updated();
+    if(once) return;
 
     if(!restart)
       condition.wait(&mutex);

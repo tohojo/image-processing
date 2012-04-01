@@ -67,9 +67,12 @@ int main(int argc, char *argv[])
   QMap<QString, QVariant> args = parseArgs(app.arguments());
 
   ProcessingGUI ui;
-  if(!args.contains("batch"))
+  if(!args.contains("batch")) {
     ui.show();
-  ui.set_args(args);
-
-  return app.exec();
+    ui.set_args(args);
+    return app.exec();
+  } else {
+    ui.set_args(args);
+    return 0;
+  }
 }

@@ -1,5 +1,5 @@
 #include <QtGui/QApplication>
-#include <QtGui/QFileDialog>
+#include<QtGui/QFileDialog>
 #include <QtGui/QImage>
 #include <QtGui/QPixmap>
 #include <QtGui/QGraphicsPixmapItem>
@@ -99,10 +99,7 @@ void ProcessingGUI::zoom_output(int value)
 void ProcessingGUI::update_output()
 {
   if(m_batch) {
-    current_processor->cancel();
     qDebug("Batch processing complete.");
-    close();
-    QApplication::instance()->quit();
     return;
   }
   output_scene->clear();
@@ -153,9 +150,9 @@ void ProcessingGUI::load_image(QString filename)
 void ProcessingGUI::set_processor(Processor *proc)
 {
   if(current_processor != NULL) {
-    current_processor->cancel();
     current_processor->disconnect();
     disconnect(this, 0, current_processor, 0);
+    current_processor->cancel();
   }
 
   current_processor = proc;
@@ -163,6 +160,11 @@ void ProcessingGUI::set_processor(Processor *proc)
   connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));
   connect(current_processor, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)));
   connect(current_processor, SIGNAL(progress(int)), this, SLOT(setProgress(int)));
+  if(m_batch) {
+    current_processor->set_input(input_image);
+    current_processor->run_once();
+    return;
+  }
   m_properties->clear();
   m_properties->addObject(current_processor);
 

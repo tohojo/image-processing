@@ -1,4 +1,4 @@
-#include <QtCore/QMutableListIterator>
+#include <QtCore/QMutableListIterator> 
 #include "segmenting.h"
 #include "util.h"
 
@@ -45,6 +45,7 @@ void Segmenting::run()
         emit updated();
       }
     }
+    if(once) return;
     mutex.lock();
     if(!restart)
       condition.wait(&mutex);
