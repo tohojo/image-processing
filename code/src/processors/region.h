@@ -21,8 +21,7 @@
 
 #include "rpoint.h"
 #include <cv.h>
-#include <QtCore/QList>
-#include <QtCore/QMap>
+#include <QtCore/QSet>
 
 using namespace cv;
 
@@ -64,15 +63,12 @@ namespace ImageProcessing {
     void print();
 
   private:
-    void buildYMap();
-    void shiftYMap(QMap<int, int>::iterator i, int shift);
     void insert(RPoint p);
     void removeInterior(RPoint p);
     void updateBounds(RPoint p);
     RPoint bound_min;
     RPoint bound_max;
-    QList<RPoint> points;
-    QMap<int, int> ycoords;
+    QSet<RPoint> points;
   };
 
 }
