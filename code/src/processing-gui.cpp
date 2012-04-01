@@ -7,6 +7,7 @@
 #include <QtGui/QMessageBox>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QDebug>
 
 #include "processing-gui.h"
 #include "util.h"
@@ -53,6 +54,15 @@ void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
     } else {
       processor_selection->setCurrentIndex(processor_model->index(idx),
                                            QItemSelectionModel::SelectCurrent);
+    }
+  }
+  QMap<QString, QVariant> properties = args.value("properties").toMap();
+  if(!properties.empty()) {
+    QMap<QString, QVariant>::iterator i;
+    for(i = properties.begin(); i != properties.end(); ++i) {
+      if(!current_processor->setProperty(i.key().toLocal8Bit(), i.value())) {
+        qWarning() << "Error setting property: " << i.key();
+      }
     }
   }
 
