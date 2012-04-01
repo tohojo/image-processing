@@ -23,6 +23,7 @@ public:
 private:
   Mat input_image;
   bool m_inprogress;
+  bool m_batch;
   QString open_directory;
   QMap<QString, QVariant> args;
   Processor *current_processor;

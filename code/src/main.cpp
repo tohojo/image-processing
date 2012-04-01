@@ -20,7 +20,7 @@ void checkNext(QString arg, QStringList args)
  *
  * Parses arguments of the following form:
  *
- * -b / --batch: Batch mode. Currently not used.
+ * -b / --batch: Batch mode.
  *
  * -o FILE / --output FILE: Place to write output (in batch mode).
  *                          Currently not used.
@@ -67,7 +67,8 @@ int main(int argc, char *argv[])
   QMap<QString, QVariant> args = parseArgs(app.arguments());
 
   ProcessingGUI ui;
-  ui.show();
+  if(!args.contains("batch"))
+    ui.show();
   ui.set_args(args);
 
   return app.exec();

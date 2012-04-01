@@ -18,7 +18,7 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   setupUi(this);
 
   current_processor = NULL;
-  m_inprogress = false;
+  m_inprogress = m_batch = false;
 
   open_directory = QDir::currentPath();
 
@@ -43,10 +43,17 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
 void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
   args = arguments;
 
+  if(args.contains("batch"))
+    m_batch = true;
+
   if(args.contains("processor")) {
     QString processor = args.value("processor").toString();
     int idx = processor_model->index_for(processor);
     if(idx == -1) {
+      if(m_batch) {
+        qFatal("Processor '%s' not found.", processor.toLocal8Bit().data());
+        return;
+      }
       QMessageBox msgbox(QMessageBox::Critical, tr("Processor not found"),
                          tr("The processor '%1' was not found.").arg(processor),
                          QMessageBox::Ok, this);
@@ -68,6 +75,8 @@ void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
 
   if(args.contains("input")) {
     load_image(args.value("input").toString());
+  } else if(m_batch) {
+    qFatal("No input image given for batch mode.");
   }
 }
 
@@ -89,6 +98,11 @@ void ProcessingGUI::zoom_output(int value)
 
 void ProcessingGUI::update_output()
 {
+  if(m_batch) {
+    qDebug("Batch processing complete.");
+    QApplication::instance()->quit();
+    return;
+  }
   output_scene->clear();
   QImage img = Util::mat_to_qimage(current_processor->get_output());
   QGraphicsPixmapItem *image = output_scene->addPixmap(QPixmap::fromImage(img));
@@ -115,6 +129,10 @@ void ProcessingGUI::load_image(QString filename)
   }
 
   if(!fileinfo.exists()) {
+    if(m_batch) {
+      qFatal("File '%s' not found.", filename.toLocal8Bit().data());
+      return;
+    }
     QMessageBox msgbox(QMessageBox::Critical, tr("File not found"),
                        tr("File '%1' was not found.").arg(filename),
                        QMessageBox::Ok, this);
