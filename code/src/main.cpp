@@ -12,6 +12,7 @@ void checkNext(QString arg, QStringList args)
 QMap<QString, QVariant> parseArgs(QStringList args)
 {
   QMap<QString, QVariant> parsed;
+  parsed.insert("properties", QVariant(QMap<QString, QVariant>()));
   args.removeFirst(); // Program name
   while(!args.empty()) {
     QString arg = args.takeFirst();
@@ -23,6 +24,12 @@ QMap<QString, QVariant> parseArgs(QStringList args)
     } else if(arg == "-p" || arg == "--processor") {
       checkNext(arg, args);
       parsed.insert("processor", QVariant(args.takeFirst()));
+    } else if(arg.startsWith("--property-")) {
+      checkNext(arg, args);
+      QString prop = arg.replace("--property-", "");
+      QMap<QString, QVariant> properties = parsed.value("properties").toMap();
+      properties.insert(prop, QVariant(args.takeFirst()));
+      parsed.insert("properties", properties);
     } else if(arg.startsWith("-")) {
         qFatal("Unrecognised command line argument: %s", arg.toLocal8Bit().data());
     } else {
