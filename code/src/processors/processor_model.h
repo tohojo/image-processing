@@ -19,7 +19,7 @@ public:
   Processor * get_processor(int index) const;
 
 private:
-  QVector<Processor *> m_processors;
+  QList<Processor *> m_processors;
   void create_processors();
 };
 #endif
