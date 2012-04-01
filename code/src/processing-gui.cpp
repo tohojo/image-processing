@@ -99,8 +99,10 @@ void ProcessingGUI::zoom_output(int value)
 void ProcessingGUI::update_output()
 {
   if(m_batch) {
+    current_processor->cancel();
     qDebug("Batch processing complete.");
     close();
+    QApplication::instance()->quit();
     return;
   }
   output_scene->clear();
