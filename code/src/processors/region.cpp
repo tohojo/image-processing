@@ -272,7 +272,6 @@ bool Region::inBoundary(const RPoint p) const
 {
   // If no points with this y coordinate are in the region, this point
   // is not.
-  if(!ycoords.contains(p.y())) return false;
   for(int i = ycoords.value(p.y()); i < points.size() && points[i].y() == p.y(); i++) {
     if(points[i] == p) return true;
   }
