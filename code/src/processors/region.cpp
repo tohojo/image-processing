@@ -49,7 +49,7 @@ Region::Region(const Mat &m, bool mask)
           } else {
             updateBounds(pt);
           }
-          points.append(pt);
+          points.insert(pt);
         }
       }
     }
@@ -61,26 +61,24 @@ Region::Region(const Mat &m, bool mask)
     // preserve sorted order.
     int i;
     for(i = 0; i < s.width; i++) {
-      points.append(RPoint(p.x+i,p.y));
+      points.insert(RPoint(p.x+i,p.y));
     }
     for(i = 1; i < s.height-1; i++) {
-      points.append(RPoint(p.x, p.y+i));
-      points.append(RPoint(p.x+s.width-1, p.y+i));
+      points.insert(RPoint(p.x, p.y+i));
+      points.insert(RPoint(p.x+s.width-1, p.y+i));
     }
     for(i = 0; i < s.width; i++) {
-      points.append(RPoint(p.x+i,p.y+s.height-1));
+      points.insert(RPoint(p.x+i,p.y+s.height-1));
     }
   }
 
-  buildYMap();
 }
 
 Region::Region(const Region &r)
 {
   bound_min = RPoint(r.bound_min);
   bound_max = RPoint(r.bound_max);
-  points = QList<RPoint>(r.points);
-  ycoords = QMap<int, int>(r.ycoords);
+  points = QSet<RPoint>(r.points);
 }
 
 Region::~Region()
@@ -91,8 +89,7 @@ Region& Region::operator=(const Region &other)
 {
   bound_min = RPoint(other.bound_min);
   bound_max = RPoint(other.bound_max);
-  points = QList<RPoint>(other.points);
-  ycoords = QMap<int, int>(other.ycoords);
+  points = QSet<RPoint>(other.points);
 
   return *this;
 }
@@ -109,28 +106,28 @@ void Region::add(const Region &other)
   }
   // Keep track of points that might become interior, and check them
   // afterwards.
+  QSet<RPoint>::const_iterator i;
   QList<RPoint> checkPoints;
-  int i;
+  QList<RPoint>::const_iterator j;
   checkPoints.reserve(points.size()+other.points.size());
 
   // Go through each region and find the points that are adjacent to
   // the other region; i.e. the points that are on the shared border.
   // There are the points that may become interior points after the
   // merge, so we need to check them when we have merged the regions.
-  for(i = 0; i < other.points.size(); i++) {
-    if(adjacentPoint(other.points[i])) checkPoints.append(RPoint(other.points[i]));
+  for(i = other.points.constBegin(); i != other.points.constEnd(); ++i) {
+    if(adjacentPoint(*i)) checkPoints.append(*i);
   }
-  for(i = 0; i < points.size(); i++) {
-    if(other.adjacentPoint(points[i])) checkPoints.append(RPoint(points[i]));
-  }
-
-  for(i = 0; i < other.points.size(); i++) {
-    RPoint p(other.points[i]);
-    insert(p);
+  for(i = points.constBegin(); i != points.constEnd(); ++i) {
+    if(other.adjacentPoint(*i)) checkPoints.append(*i);
   }
 
-  for(i = 0; i < checkPoints.size(); i++) {
-    removeInterior(checkPoints[i]);
+  for(i = other.points.constBegin(); i != other.points.constEnd(); ++i) {
+    insert(*i);
+  }
+
+  for(j = checkPoints.constBegin(); j != checkPoints.constEnd(); ++j) {
+    removeInterior(*j);
   }
 }
 
@@ -219,8 +216,9 @@ bool Region::adjacentTo(const Region &other) const
      (bound_max.x() < other.bound_min.x() && bound_max.y() < other.bound_min.y()))
     return false;
 
-  for(int i = 0; i < points.size(); i++) {
-    if(other.adjacentPoint(points[i])) return true;
+  QSet<RPoint>::const_iterator i;
+  for(i = points.constBegin(); i != points.constEnd(); i++) {
+    if(other.adjacentPoint(*i)) return true;
   }
   return false;
 }
@@ -270,12 +268,7 @@ bool Region::contains(const Region &other) const
  */
 bool Region::inBoundary(const RPoint p) const
 {
-  // If no points with this y coordinate are in the region, this point
-  // is not.
-  for(int i = ycoords.value(p.y()); i < points.size() && points[i].y() == p.y(); i++) {
-    if(points[i] == p) return true;
-  }
-  return false;
+  return points.contains(p);
 }
 
 /**
@@ -312,54 +305,12 @@ bool Region::interior(const RPoint p) const
 }
 
 /**
- * Build up the map of Y coordinates to points list positions.
- * The map is used for efficient lookup of points.
- */
-void Region::buildYMap()
-{
-  ycoords.clear();
-  if(points.size() == 0) return;
-  int i, current;
-  current = points[0].y();
-  ycoords.insert(current, 0);
-  for(i = 0; i < points.size(); i++) {
-    if(current != points[i].y()) {
-      current = points[i].y();
-      ycoords.insert(current, i);
-    }
-  }
-}
-
-/**
  * Insert point into region, preserving ordering of points list, and y
  * coord map.
  */
 void Region::insert(RPoint p)
 {
-  QMap<int, int>::iterator i;
-  i = ycoords.lowerBound(p.y());
-  if(i == ycoords.end()) {
-    // p.y() is the new largest y, so insert at end
-    ycoords.insert(p.y(), points.size());
-    points.append(p);
-  } else if (i.key() > p.y()) {
-    // No point with this y coordinate exists, but y-value greater
-    // than p.y() found, insert just before this.
-    int pos = i.value();
-    points.insert(pos, p);
-    shiftYMap(i, 1);
-    ycoords.insert(p.y(), pos);
-  } else {
-    // Found point(s) with same y-value
-    int pos = i.value();
-    while(pos < points.size() && points[pos] < p) pos++;
-    if(pos == points.size()) {
-      points.append(p);
-    } else {
-      points.insert(pos,p);
-      shiftYMap(++i, 1); // Shift only those after this y
-    }
-  }
+  points.insert(p);
   updateBounds(p);
 }
 
@@ -378,41 +329,7 @@ void Region::updateBounds(RPoint p)
 void Region::removeInterior(RPoint p)
 {
   if(inBoundary(p) && interior(p)) {
-    QMap<int, int>::iterator i, j;
-    i = ycoords.lowerBound(p.y());
-    j = i+1;
-    int pos = i.value();
-    while(points[pos] < p) pos++;
-    if(pos == i.value() && (j == ycoords.end() || j.value() == pos+1)) {
-      // This point is being pointed to in the YMap, and is the only
-      // on with its y coordinate, so remove it from the map.
-      //
-      // Note that if this happens in the middle of the region, we
-      // will probably end up with a disjoint region. We do not try to
-      // detect this, or worry about it much here, but instead assumes
-      // that regions are being created and extended in a sane way.
-      ycoords.erase(i);
-    }
-
-    // We remove the point, and shift all positions in the map *after*
-    // this y coordinate. This is sufficient, because if the point is
-    // being pointed to by the map, removing it will automatically
-    // make the pointed valid for the next point with the same y
-    // coordinate. If no such next point exists, we already removed
-    // this y coordinate from the map as above.
-    points.removeAt(pos);
-    shiftYMap(j, -1);
-  }
-}
-
-/**
- * Shift the values of the ymap, starting at an iterator, by a value
- * (defaults to 1). Used after a point is inserted.
- */
-void Region::shiftYMap(QMap<int, int>::iterator i, int shift)
-{
-  for(; i != ycoords.end(); ++i) {
-    i.value() += shift;
+    points.remove(p);
   }
 }
 
@@ -427,9 +344,4 @@ void Region::print()
     p.print();
     std::cout << "\n";
   }
-  std::cout << "YMap:\n";
-  QMap<int, int>::const_iterator i;
-  for(i = ycoords.constBegin(); i != ycoords.constEnd(); ++i)
-    printf("  %d: %d\n", i.key(), i.value());
-
 }
