@@ -123,6 +123,7 @@ void ProcessingGUI::load_image(QString filename)
 void ProcessingGUI::set_processor(Processor *proc)
 {
   if(current_processor != NULL) {
+    current_processor->cancel();
     current_processor->disconnect();
     disconnect(this, 0, current_processor, 0);
   }
