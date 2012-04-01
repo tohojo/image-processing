@@ -18,6 +18,7 @@ Segmenting::~Segmenting()
 void Segmenting::run()
 {
   forever {
+    if(abort) return;
     mutex.lock();
     Mode m = m_mode;
     bool isEmpty = input_image.empty();
