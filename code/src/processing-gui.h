@@ -21,6 +21,7 @@ public:
 private:
   Mat input_image;
   bool m_inprogress;
+  QString open_directory;
   Processor *current_processor;
   QGraphicsScene *input_scene;
   QGraphicsScene *output_scene;

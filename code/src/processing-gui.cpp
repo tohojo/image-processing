@@ -18,6 +18,8 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   current_processor = NULL;
   m_inprogress = false;
 
+  open_directory = QDir::currentPath();
+
   output_scene = new QGraphicsScene(this);
   output_view->setScene(output_scene);
 
@@ -65,10 +67,11 @@ void ProcessingGUI::update_output()
 void ProcessingGUI::open_image()
 {
   QString filename = QFileDialog::getOpenFileName(this, tr("Select image"),
-                                                  QDir::currentPath(),
+                                                  open_directory,
                                                   tr("Images (*.png *.jpg *.jpeg *.tif)"));
   if(!filename.isNull()) {
     QFileInfo fileinfo = QFileInfo(filename);
+    open_directory = fileinfo.dir().path();
     input_image = Util::load_image(filename);
     current_processor->set_input(input_image);
     QImage qImg = Util::mat_to_qimage(input_image);
