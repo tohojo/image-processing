@@ -4,6 +4,7 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QGraphicsPixmapItem>
 #include <QtGui/QBitmap>
+#include <QtGui/QMessageBox>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
@@ -70,14 +71,15 @@ void ProcessingGUI::open_image()
                                                   open_directory,
                                                   tr("Images (*.png *.jpg *.jpeg *.tif)"));
   if(!filename.isNull()) {
-    QFileInfo fileinfo = QFileInfo(filename);
+    load_image(filename);
+  }
+}
+
+void ProcessingGUI::load_image(QString filename)
+{
+  QFileInfo fileinfo = QFileInfo(filename);
+  if(fileinfo.dir().exists(".")) {
     open_directory = fileinfo.dir().path();
-    input_image = Util::load_image(filename);
-    current_processor->set_input(input_image);
-    QImage qImg = Util::mat_to_qimage(input_image);
-    input_view->setImage(qImg);
-    input_filename->setText(fileinfo.fileName());
-    emit image_changed();
   }
 }
 
@@ -88,6 +90,21 @@ void ProcessingGUI::set_processor(Processor *proc)
     disconnect(this, 0, current_processor, 0);
   }
 
+
+  if(!fileinfo.exists()) {
+    QMessageBox msgbox(QMessageBox::Critical, tr("File not found"),
+                       tr("File '%1' was not found.").arg(filename),
+                       QMessageBox::Ok, this);
+    msgbox.exec();
+    return;
+  }
+
+  input_image = Util::load_image(filename);
+  current_processor->set_input(input_image);
+  QImage qImg = Util::mat_to_qimage(input_image);
+  input_view->setImage(qImg);
+  input_filename->setText(fileinfo.fileName());
+  emit image_changed();
   current_processor = proc;
   connect(this, SIGNAL(image_changed()), current_processor, SLOT(process()));
   connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));

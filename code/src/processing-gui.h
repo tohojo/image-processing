@@ -34,6 +34,7 @@ public slots:
 private slots:
   void zoom_output(int value);
   void open_image();
+  void load_image(QString filename);
   void update_output();
   void new_processor(const QModelIndex & current);
   void setProgress(int value);
