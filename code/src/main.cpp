@@ -1,7 +1,13 @@
 #include <QtGui/QApplication>
-#include <iostream>
+#include <upstream>
 #include "processing-gui.h"
 
+/**
+ * Helper function to check that the argument list contains one more
+ * argument. Aborts with an error if it does not.
+ *
+ * Used to check arguments that need a value (e.g. --processor NAME).
+ */
 void checkNext(QString arg, QStringList args)
 {
   if(args.empty() || args.first().startsWith("-")) {
@@ -9,6 +15,20 @@ void checkNext(QString arg, QStringList args)
   }
 }
 
+/**
+ * Parse command line arguments into a QMap.
+ *
+ * Parses arguments of the following form:
+ *
+ * -b / --batch: Batch mode. Currently not used.
+ *
+ * -o FILE / --output FILE: Place to write output (in batch mode).
+ *                          Currently not used.
+ *
+ * -p NAME / --processor NAME: Load processor NAME on load.
+ *
+ * --property-NAME VALUE: Set property NAME to VALUE for selected processor.
+ */
 QMap<QString, QVariant> parseArgs(QStringList args)
 {
   QMap<QString, QVariant> parsed;
