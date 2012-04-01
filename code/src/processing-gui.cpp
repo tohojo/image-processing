@@ -42,10 +42,6 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
 void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
   args = arguments;
 
-  if(args.contains("input")) {
-    load_image(args.value("input").toString());
-  }
-
   if(args.contains("processor")) {
     QString processor = args.value("processor").toString();
     int idx = processor_model->index_for(processor);
@@ -58,6 +54,10 @@ void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
       processor_selection->setCurrentIndex(processor_model->index(idx),
                                            QItemSelectionModel::SelectCurrent);
     }
+  }
+
+  if(args.contains("input")) {
+    load_image(args.value("input").toString());
   }
 }
 
