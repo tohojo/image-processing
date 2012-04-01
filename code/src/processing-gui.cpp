@@ -100,7 +100,7 @@ void ProcessingGUI::update_output()
 {
   if(m_batch) {
     qDebug("Batch processing complete.");
-    QApplication::instance()->quit();
+    close();
     return;
   }
   output_scene->clear();
