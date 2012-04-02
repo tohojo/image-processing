@@ -29,17 +29,16 @@ Region::Region(const Mat &m, bool mask)
   // some extra for odd paths.
   points.reserve(qRound((s.width+s.height)*2.5));
   if(mask) {
-    for(int i = 0; i < s.height; i++) {
-      const uchar *ptr = m.ptr<uchar>(i);
-      for(int j = 0; j < s.width; j++) {
-        if(ptr[j] && // if the point is set
+    for(int i = 0; i < m.rows; i++) {
+      for(int j = 0; j < m.cols; j++) {
+        if(m.at<uchar>(i,j) && // if the point is set
            // and it is an edge point
            (i == 0 || // edges of regions
             j == 0 ||
             i == s.height-1 ||
             j == s.width-1 ||
-            (!ptr[j-1]) || (!ptr[j+1]) || // before or after x-value not set
-            (!m.at<int>(j,i-1)) || (!m.at<int>(j,i+1)) // before or after y-value not set
+            (!m.at<uchar>(i,j-1)) || (!m.at<uchar>i,j+1) || // before or after x-value not set
+            (!m.at<uchar>(i-1,j)) || (!m.at<uchar>(i+1,j)) // before or after y-value not set
             )
            ) {
           RPoint pt(j+p.x,i+p.y);
@@ -194,7 +193,7 @@ Mat Region::toMask(Mat img) const
         }
         xmap[idx] &= (~1);
       }
-      if(xmap[idx] & 3) m.at<uchar>(j, i) = 255;
+      if(xmap[idx] & 3) m.at<uchar>(i, j) = 255;
     }
   }
   delete[] xmap;
