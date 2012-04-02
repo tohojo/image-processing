@@ -100,8 +100,16 @@ void Region::add(const Region &other)
   if(isEmpty()) {
     operator=(other);
   }
-  if(!adjacentTo(other) || contains(other) || other.contains(*this)) {
-    qWarning("Warning: Attempt to add invalid region");
+  if(!adjacentTo(other)) {
+    qWarning("Warning: Attempt to add non-adjacent region");
+    return;
+  }
+  if(contains(other) ) {
+    qWarning("Warning: Attempt to add contained region");
+    return;
+  }
+  if (other.contains(*this)) {
+    qWarning("Warning: Attempt to add containing region");
     return;
   }
   // Keep track of points that might become interior, and check them
