@@ -12,7 +12,7 @@ class CamCalibrator
 {
 
 public:
-	CamCalibrator();
+	CamCalibrator(int argc, char *argv[]);
 	~CamCalibrator();
 	void lineSort(Point2d line1, Point2d line2, Point2d * leftOrRightArray, int arrayLength);
 	static double pointLineDistance(Point2d p, Point2d lineEnd1, Point2d lineEnd2);
