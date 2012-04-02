@@ -37,8 +37,8 @@ Region::Region(const Mat &m, bool mask)
             j == 0 ||
             i == s.height-1 ||
             j == s.width-1 ||
-            (!m.at<uchar>(i,j-1)) || (!m.at<uchar>i,j+1) || // before or after x-value not set
-            (!m.at<uchar>(i-1,j)) || (!m.at<uchar>(i+1,j)) // before or after y-value not set
+            (!m.at<int>(i,j-1)) || (!m.at<int>(i,j+1)) || // before or after x-value not set
+            (!m.at<int>(i-1,j)) || (!m.at<int>(i+1,j)) // before or after y-value not set
             )
            ) {
           RPoint pt(j+p.x,i+p.y);
