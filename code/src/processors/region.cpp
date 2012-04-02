@@ -55,7 +55,7 @@ Region::Region(const Mat &m, bool mask)
     }
   } else {
     bound_min = RPoint(p.x, p.y);
-    bound_max = RPoint(p.x+s.width, p.y+s.height);
+    bound_max = RPoint(p.x+s.width-1, p.y+s.height-1);
 
     // do first column, then middle ones, then last column, so
     // preserve sorted order.
