@@ -38,7 +38,7 @@ namespace ImageProcessing {
   {
   public:
     Region();
-    Region(const Mat &m, bool mask = false);
+    Region(const Mat &m);
     Region(const Region &r);
     ~Region();
 
@@ -49,8 +49,7 @@ namespace ImageProcessing {
     Mat toMask(Mat img) const;
     void add(const Mat &m, bool mask = false);
     void add(const Region &other);
-    void add(RPoint p);
-
+    
     bool isEmpty() const;
 
     bool contains(const Region &other) const;
