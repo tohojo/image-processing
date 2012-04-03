@@ -199,6 +199,7 @@ QList<IP::Region> Segmenting::splitRegions(Mat image, bool topLevel) const
 }
 
 
+
 /**
  * Merge the regions into as few possible homogeneous regions as
  * possible.
@@ -223,11 +224,13 @@ QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) c
     IP::Region current = input.takeFirst();
     do {
       current_size = input.size();
-
       for(i = 0; i < input.size(); i++) {
         if(abort || restart) return output;
         IP::Region test(input[i]);
-        if(current.adjacentTo(test)) {
+        if(current.contains(test)) {
+          input.removeAt(i);
+          i--;
+        } else if(current.adjacentTo(test)) {
           IP::Region newReg(current);
           newReg.add(test);
           if(isHomogeneous(newReg, img)) {
@@ -237,11 +240,11 @@ QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) c
           }
         }
       }
+      emit progress(progress_offset +
+                    qRound(progress_scale * ((input_size-input.size())/(float)input_size)));
     } while(current_size != input.size()); // Keep looping until no more regions are merged
     output.append(current);
   }
-      emit progress(progress_offset +
-                    qRound(progress_scale * ((input_size-input.size())/(float)input_size)));
   return output;
 }
 
