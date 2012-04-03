@@ -113,7 +113,7 @@ void Segmenting::splitMerge()
   Mat roi(resized, imgRect);
   input_image.copyTo(roi);
   mutex.unlock();
-  emit progress(10);
+  emit progress(5);
 
   if(abort || restart) return;
 
@@ -181,8 +181,8 @@ QList<IP::Region> Segmenting::splitRegions(Mat image, bool topLevel) const
 
   int c_rects = rects.size();
   int c = 0;
-  float progress_scale = 40;
-  int progress_offset = 10;
+  float progress_scale = 20;
+  int progress_offset = 5;
   foreach(Rect rect, rects) {
     Mat newReg(image, rect);
     if(isHomogeneous(newReg)) {
@@ -216,8 +216,8 @@ QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) c
   QList<IP::Region> input(regions);
   int i, current_size;
   int input_size = input.size();
-  float progress_scale = 45;
-  int progress_offset = 50;
+  float progress_scale = 70;
+  int progress_offset = 25;
 
   while(!input.empty()) {
     IP::Region current = input.takeFirst();
@@ -239,9 +239,9 @@ QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) c
       }
     } while(current_size != input.size()); // Keep looping until no more regions are merged
     output.append(current);
-    emit progress(progress_offset +
-                  qRound(progress_scale * ((input_size-input.size())/(float)input_size)));
   }
+      emit progress(progress_offset +
+                    qRound(progress_scale * ((input_size-input.size())/(float)input_size)));
   return output;
 }
 
