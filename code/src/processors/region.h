@@ -33,6 +33,11 @@ namespace ImageProcessing {
    * Stores the points representing the outline of the region, i.e.
    * all points that have a (4-way) neighbouring point that is not
    * inside the region.
+   *
+   * This representation of regions only works for convex regions, and
+   * so breaks down in quite a few cases (see region-tests for an
+   * example). A better approach would have to represent all points in
+   * a region (probably in an opencv matrix).
    **/
   class Region
   {

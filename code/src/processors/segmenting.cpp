@@ -140,6 +140,11 @@ void Segmenting::splitMerge()
   mutex.unlock();
 }
 
+/**
+ * Filter out all regions that are completely outside the region of
+ * the original image (such regions occur when an image is resized to
+ * a power of two for split/merge segmentation).
+ */
 QList<IP::Region> Segmenting::filterRegions(QList<IP::Region> regions, Rect rect) const
 {
   QList<IP::Region> output;
@@ -210,6 +215,12 @@ QList<IP::Region> Segmenting::splitRegions(Mat image, bool topLevel) const
  * the input.
  *
  * This process continues until no more regions are left in the input.
+ *
+ * This merge process is horribly inefficient, and takes forever to
+ * run on a large number of regions (more than a few thousands). Given
+ * a better region representation, the search for possible regions to
+ * merge with could be limited to regions that are actually adjacent
+ * to the current region (i.e. by only searching around the border).
  */
 QList<IP::Region> Segmenting::mergeRegions(QList<IP::Region> regions, Mat img) const
 {
