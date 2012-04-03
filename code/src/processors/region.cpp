@@ -14,10 +14,9 @@ Region::Region()
 {
 }
 
-Region::Region(const Mat &m, bool mask)
+Region::Region(const Mat &m)
 {
   Size s; Point p;
-  RPoint min, max;
   // Get the position in the parent matrix if one exists, and use that
   // as an offset for computing the actual points. Allows to use a
   // sub-region matrix to create a matrix from.
@@ -25,50 +24,12 @@ Region::Region(const Mat &m, bool mask)
   s = m.size();
 
   // We don't want reallocations as we're adding stuff, so reserve
-  // space for a rectangle going all the way around the region, plus
-  // some extra for odd paths.
-  points.reserve(qRound((s.width+s.height)*2.5));
-  if(mask) {
-    for(int i = 0; i < m.rows; i++) {
-      for(int j = 0; j < m.cols; j++) {
-        if(m.at<uchar>(i,j) && // if the point is set
-           // and it is an edge point
-           (i == 0 || // edges of regions
-            j == 0 ||
-            i == s.height-1 ||
-            j == s.width-1 ||
-            (!m.at<int>(i,j-1)) || (!m.at<int>(i,j+1)) || // before or after x-value not set
-            (!m.at<int>(i-1,j)) || (!m.at<int>(i+1,j)) // before or after y-value not set
-            )
-           ) {
-          RPoint pt(j+p.x,i+p.y);
-          if(isEmpty()) {
-            bound_min = pt;
-            bound_max = pt;
-          } else {
-            updateBounds(pt);
-          }
-          points.insert(pt);
-        }
-      }
-    }
-  } else {
-    bound_min = RPoint(p.x, p.y);
-    bound_max = RPoint(p.x+s.width-1, p.y+s.height-1);
+  // space for a rectangle going all the way around the region.
+  points.reserve((s.width+s.height)*2);
+  bound_min = RPoint(p.x, p.y);
+  bound_max = RPoint(p.x+s.width-1, p.y+s.height-1);
 
-    // do first column, then middle ones, then last column, so
-    // preserve sorted order.
-    int i;
-    for(i = 0; i < s.width; i++) {
-      points.insert(RPoint(p.x+i,p.y));
-    }
-    for(i = 1; i < s.height-1; i++) {
-      points.insert(RPoint(p.x, p.y+i));
-      points.insert(RPoint(p.x+s.width-1, p.y+i));
-    }
-    for(i = 0; i < s.width; i++) {
-      points.insert(RPoint(p.x+i,p.y+s.height-1));
-    }
+
   }
 
 }
@@ -76,6 +37,19 @@ Region::Region(const Mat &m, bool mask)
 Region::Region(const Region &r)
 {
   bound_min = RPoint(r.bound_min);
+  // do first column, then middle ones, then last column, so
+  // preserve sorted order.
+  int i;
+  for(i = 0; i < s.width; i++) {
+    points.insert(RPoint(p.x+i,p.y));
+  }
+  for(i = 1; i < s.height-1; i++) {
+    points.insert(RPoint(p.x, p.y+i));
+    points.insert(RPoint(p.x+s.width-1, p.y+i));
+  }
+  for(i = 0; i < s.width; i++) {
+    points.insert(RPoint(p.x+i,p.y+s.height-1));
+  }
   bound_max = RPoint(r.bound_max);
   points = QSet<RPoint>(r.points);
 }
@@ -138,28 +112,6 @@ void Region::add(const Region &other)
   }
 }
 
-/**
- * Add a single point to the region. The point must be adjacent to the
- * region.
- *
- * Works by first adding the point to the boundary, then checking if
- * each of its 8-neighbours has become interior from this addition and
- * removes them if they have.
- */
-void Region::add(RPoint p)
-{
-  p = RPoint(p);
-  if(isEmpty()) {
-    bound_min = p;
-    bound_max = p;
-    insert(p);
-    return;
-  }
-  if(contains(p) || !adjacentPoint(p)) return;
-  insert(p);
-  for(int i = -1; i <= 1; i++)
-    for(int j = -1; j <= 1; j++)
-      if(i != 0 || j != 0) removeInterior(p+RPoint(i,j));
 }
 
 bool Region::isEmpty() const
