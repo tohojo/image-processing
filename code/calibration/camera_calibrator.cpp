@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "camera_calibrator.h"
+#include <fstream>
 
 using namespace cv;
 using namespace std;
@@ -14,29 +15,15 @@ bool lineComp(Point2d a, Point2d b){
 }
 
 // Basic constructor
-CamCalibrator::CamCalibrator()
+CamCalibrator::CamCalibrator(int argc, char *argv[])
 {
 	calPtsInImg = new Point2d[63];
 	obj = new CalibrationObject();
 	mat_R = Mat(3, 3, CV_64F, Scalar::all(0));
 	mat_T = Mat(3, 3, CV_64F, Scalar::all(0));
-}
-
-CamCalibrator::~CamCalibrator()
-{
-}
-
-// Get image coordinates of calibration points
-// Currently assumes the image has been properly segmented into 63 calibration objects
-void CamCalibrator::getPtsFromSegmentedImage()
-{
-	cout << "Getting points from segmented image...\n";
-
-	// Currently just hard-coding image size from img160027
-	imageLengthX = 2592;
-	imageLengthY = 1944;
 
 	// Currently just hard-coding image calibration points from output of ImageJ on img160027
+	/*
 	calPtsInImg[0] = Point2d(598.38, 302.94);
 	calPtsInImg[1] = Point2d(721.03, 316.74);
 	calPtsInImg[2] = Point2d(856.95, 332.55);
@@ -100,6 +87,39 @@ void CamCalibrator::getPtsFromSegmentedImage()
 	calPtsInImg[60] = Point2d(1497.71, 1591.72);
 	calPtsInImg[61] = Point2d(1088.25, 1655.7);
 	calPtsInImg[62] = Point2d(1380.72, 1662.24);
+*/
+
+	char *in_arg;
+	if (argc > 1) {
+		in_arg = argv[1];
+	} else {
+		in_arg = "test.txt";
+	}
+	ifstream inFile(in_arg, ios::in);
+	double in_x, in_y;
+	for (int i = 0; i < 63; i++){
+		inFile >> in_x;
+		inFile >> in_y;
+		calPtsInImg[i] = Point2d(in_x, in_y);
+		cout << i << ". x " << in_x << "y " << in_y << "\n";
+	}
+	inFile.close();
+}
+
+CamCalibrator::~CamCalibrator()
+{
+}
+
+// Get image coordinates of calibration points
+// Currently assumes the image has been properly segmented into 63 calibration objects
+void CamCalibrator::getPtsFromSegmentedImage()
+{
+	cout << "Getting points from segmented image...\n";
+
+	// Currently just hard-coding image size from img160027
+	imageLengthX = 2592;
+	imageLengthY = 1944;
+
 }
 
 // Match image calibration points to measured points of the calibration object
@@ -482,12 +502,6 @@ void CamCalibrator::calibrate()
 	mat_R.at<double>(1,1) = a6*mat_T.at<double>(1,0); // r22
 	mat_R.at<double>(1,2) = a7*mat_T.at<double>(1,0); // r23
 	mat_T.at<double>(0,0) = a4*mat_T.at<double>(1,0)/sx; // tx
-
-	cout << "SFJKASDHJAGSDJHAD\n\n";
-	for (int i = 0; i < 3; i++){
-		for (int j = 0; j < 3; j++){ cout << "\t" << mat_R.at<double>(i,j) << "\t";	}
-		cout << "\n";
-	}
 
 	Mat row1R = Mat(1, 3, CV_64F, Scalar::all(0));
 	Mat row2R = Mat(1, 3, CV_64F, Scalar::all(0));
