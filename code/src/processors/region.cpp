@@ -12,8 +12,6 @@ using namespace ImageProcessing;
 
 Region::Region()
 {
-  min_val = 0;
-  max_val = 255;
 }
 
 Region::Region(const Mat &m)
@@ -30,12 +28,6 @@ Region::Region(const Mat &m)
   points.reserve((s.width+s.height)*2);
   bound_min = RPoint(p.x, p.y);
   bound_max = RPoint(p.x+s.width-1, p.y+s.height-1);
-
-
-  double min, max;
-  minMaxLoc(m, &min, &max);
-  min_val = qRound(min);
-  max_val = qRound(max);
 
   // do first column, then middle ones, then last column, so
   // preserve sorted order.
@@ -56,8 +48,6 @@ Region::Region(const Region &r)
 {
   bound_min = RPoint(r.bound_min);
   bound_max = RPoint(r.bound_max);
-  min_val = r.min_val;
-  max_val = r.max_val;
   points = QSet<RPoint>(r.points);
 }
 
@@ -70,9 +60,6 @@ Region& Region::operator=(const Region &other)
   bound_min = RPoint(other.bound_min);
   bound_max = RPoint(other.bound_max);
   points = QSet<RPoint>(other.points);
-  min_val = other.min_val;
-  max_val = other.max_val;
-
   return *this;
 }
 
@@ -120,9 +107,6 @@ void Region::add(const Region &other)
   for(j = checkPoints.constBegin(); j != checkPoints.constEnd(); ++j) {
     removeInterior(*j);
   }
-
-  if(other.min_val < min_val) min_val = other.min_val;
-  if(other.max_val > max_val) max_val = other.max_val;
 }
 
 bool Region::isEmpty() const
@@ -309,11 +293,5 @@ void Region::print() const
   bound_min.print();
   std::cout << "/";
   bound_max.print();
-  std::cout << ". Min/max val:" << min_val << "/" << max_val;
   std::cout << "\n";
-}
-
-int Region::variance() const
-{
-  return max_val-min_val;
 }

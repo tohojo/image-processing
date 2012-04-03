@@ -49,15 +49,13 @@ namespace ImageProcessing {
     Mat toMask(Mat img) const;
     void add(const Mat &m, bool mask = false);
     void add(const Region &other);
-    
+
     bool isEmpty() const;
 
     bool contains(const Region &other) const;
     bool contains(const RPoint p) const;
     bool inBoundary(const RPoint p) const;
     bool interior(const RPoint p) const;
-
-    int variance() const;
 
     int boundSize() const;
 
@@ -70,8 +68,6 @@ namespace ImageProcessing {
     RPoint bound_min;
     RPoint bound_max;
     QSet<RPoint> points;
-    int max_val;
-    int min_val;
   };
 
 }
