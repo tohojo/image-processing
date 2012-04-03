@@ -59,6 +59,8 @@ namespace ImageProcessing {
 
     int boundSize() const;
 
+    RPoint minBound() const {return bound_min;}
+
     void print() const;
 
   private:
