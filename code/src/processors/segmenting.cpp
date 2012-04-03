@@ -246,19 +246,16 @@ void Segmenting::colourRegions(QList<IP::Region> regions, Mat img) const
 
 bool Segmenting::isHomogeneous(const IP::Region region, const Mat img) const
 {
-  double r_min, r_max, r_meanVal;
-  Scalar r_mean;
+  double r_min, r_max;
   if(!region.isEmpty()) {
     Mat mask = region.toMask(img);
     minMaxLoc(img, &r_min, &r_max, 0, 0, mask);
-    r_mean = mean(img, mask);
   } else {
     minMaxLoc(img, &r_min, &r_max);
-    r_mean = mean(img);
   }
-  r_meanVal = r_mean[0];
 
-  return (r_max-r_meanVal < m_delta && r_meanVal-r_min < m_delta);
+  bool res = (qRound(r_max-r_min) <= m_delta);
+  return res;
 }
 
 bool Segmenting::isHomogeneous(const Mat mat) const
