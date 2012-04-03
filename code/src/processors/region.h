@@ -61,7 +61,7 @@ namespace ImageProcessing {
 
     int boundSize() const;
 
-    void print();
+    void print() const;
 
   private:
     void insert(RPoint p);

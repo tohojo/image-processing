@@ -303,17 +303,16 @@ void Region::removeInterior(RPoint p)
   }
 }
 
-void Region::print()
+void Region::print() const
 {
-  std::cout << "Min: "; bound_min.print();
-  std::cout << " Max: "; bound_max.print();
+  std::cout << "Min/max bound: ";
+  bound_min.print();
+  std::cout << "/";
+  bound_max.print();
+  std::cout << ". Min/max val:" << min_val << "/" << max_val;
   std::cout << "\n";
-  std::cout << "Points:\n";
-  foreach(const RPoint &p, points) {
-    std::cout << "  ";
-    p.print();
-    std::cout << "\n";
-  }
+}
+
 int Region::variance() const
 {
   return max_val-min_val;
