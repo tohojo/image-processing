@@ -12,6 +12,8 @@ using namespace ImageProcessing;
 
 Region::Region()
 {
+  min_val = 0;
+  max_val = 255;
 }
 
 Region::Region(const Mat &m)
@@ -30,13 +32,11 @@ Region::Region(const Mat &m)
   bound_max = RPoint(p.x+s.width-1, p.y+s.height-1);
 
 
-  }
+  double min, max;
+  minMaxLoc(m, &min, &max);
+  min_val = qRound(min);
+  max_val = qRound(max);
 
-}
-
-Region::Region(const Region &r)
-{
-  bound_min = RPoint(r.bound_min);
   // do first column, then middle ones, then last column, so
   // preserve sorted order.
   int i;
@@ -50,7 +50,14 @@ Region::Region(const Region &r)
   for(i = 0; i < s.width; i++) {
     points.insert(RPoint(p.x+i,p.y+s.height-1));
   }
+}
+
+Region::Region(const Region &r)
+{
+  bound_min = RPoint(r.bound_min);
   bound_max = RPoint(r.bound_max);
+  min_val = r.min_val;
+  max_val = r.max_val;
   points = QSet<RPoint>(r.points);
 }
 
@@ -63,6 +70,8 @@ Region& Region::operator=(const Region &other)
   bound_min = RPoint(other.bound_min);
   bound_max = RPoint(other.bound_max);
   points = QSet<RPoint>(other.points);
+  min_val = other.min_val;
+  max_val = other.max_val;
 
   return *this;
 }
@@ -72,6 +81,7 @@ void Region::add(const Region &other)
   if(other.isEmpty()) return;
   if(isEmpty()) {
     operator=(other);
+    return;
   }
   if(!adjacentTo(other)) {
     qWarning("Warning: Attempt to add non-adjacent region");
@@ -110,8 +120,9 @@ void Region::add(const Region &other)
   for(j = checkPoints.constBegin(); j != checkPoints.constEnd(); ++j) {
     removeInterior(*j);
   }
-}
 
+  if(other.min_val < min_val) min_val = other.min_val;
+  if(other.max_val > max_val) max_val = other.max_val;
 }
 
 bool Region::isEmpty() const
@@ -303,4 +314,7 @@ void Region::print()
     p.print();
     std::cout << "\n";
   }
+int Region::variance() const
+{
+  return max_val-min_val;
 }

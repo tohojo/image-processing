@@ -57,6 +57,8 @@ namespace ImageProcessing {
     bool inBoundary(const RPoint p) const;
     bool interior(const RPoint p) const;
 
+    int variance() const;
+
     int boundSize() const;
 
     void print();
@@ -68,6 +70,8 @@ namespace ImageProcessing {
     RPoint bound_min;
     RPoint bound_max;
     QSet<RPoint> points;
+    int max_val;
+    int min_val;
   };
 
 }
