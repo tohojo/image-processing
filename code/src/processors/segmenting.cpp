@@ -106,12 +106,10 @@ void Segmenting::splitMerge()
   Size size = input_image.size();
   uint32_t new_h = Util::nearest_pow(size.height);
   uint32_t new_w = Util::nearest_pow(size.width);
-  uint32_t new_x = (new_w-size.width)/2;
-  uint32_t new_y = (new_h-size.height)/2;
 
   Mat resized = Mat::zeros(new_h, new_w, input_image.type());
   emit progress(5);
-  Rect imgRect = Rect(new_x, new_y, size.width, size.height);
+  Rect imgRect = Rect(0, 0, size.width, size.height);
   Mat roi(resized, imgRect);
   input_image.copyTo(roi);
   mutex.unlock();
@@ -124,6 +122,11 @@ void Segmenting::splitMerge()
   if(abort || restart) return;
   qDebug("Regions returned: %d", regionMap.size());
 
+  if(roi.rows != resized.rows || roi.cols != resized.cols) {
+    regionMap = filterRegions(regionMap, imgRect);
+    qDebug("Filtered: %d", regionMap.size());
+  }
+
   QList<IP::Region> regions = mergeRegions(regionMap, resized);
 
   if(abort || restart) return;
@@ -133,8 +136,21 @@ void Segmenting::splitMerge()
   if(abort || restart) return;
 
   mutex.lock();
-  output_image = resized;
+  output_image = Mat(resized, imgRect);
   mutex.unlock();
+}
+
+QList<IP::Region> Segmenting::filterRegions(QList<IP::Region> regions, Rect rect) const
+{
+  QList<IP::Region> output;
+  QList<IP::Region>::iterator i;
+  for(i = regions.begin(); i != regions.end(); ++i) {
+    IP::RPoint bm = i->minBound();
+    if(bm.x() < rect.width && bm.y() < rect.height) {
+      output.append(*i);
+    }
+  }
+  return output;
 }
 
 /**
