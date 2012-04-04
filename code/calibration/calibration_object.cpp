@@ -74,10 +74,15 @@ CalibrationObject::CalibrationObject(){
 	rMeasurements[26] = Point3d(4.5,0,1.53);
 	rMeasurements[27] = Point3d(6,0,1.55); // Bottom row right
 
-	lAssocImagePts = new Point2d[35];
-	rAssocImagePts = new Point2d[28];
-	for (int i = 0; i < 35; i++) { lAssocImagePts[i] = Point2d(0,0); }
-	for (int i = 0; i < 28; i++) { rAssocImagePts[i] = Point2d(0,0); }
+	lAssocImagePts_RAW = new Point2d[35];
+	rAssocImagePts_RAW = new Point2d[28];
+	for (int i = 0; i < 35; i++) { lAssocImagePts_RAW[i] = Point2d(0,0); }
+	for (int i = 0; i < 28; i++) { rAssocImagePts_RAW[i] = Point2d(0,0); }
+
+	lAssocImagePts_ADJ = new Point2d[35];
+	rAssocImagePts_ADJ = new Point2d[28];
+	for (int i = 0; i < 35; i++) { lAssocImagePts_ADJ[i] = Point2d(0,0); }
+	for (int i = 0; i < 28; i++) { rAssocImagePts_ADJ[i] = Point2d(0,0); }
 }
 
 CalibrationObject::~CalibrationObject(){
@@ -101,20 +106,39 @@ Point3d CalibrationObject::getRightPt(int row, int column){
 	return rMeasurements[(7-row)*4 + (column-1)];
 }
 
-Point2d CalibrationObject::getLeftAssocImagePt(int row, int column){
-	return lAssocImagePts[(7-row)*5 + (5-column)];
+Point2d CalibrationObject::getLeftAssocImagePt_RAW(int row, int column){
+	return lAssocImagePts_RAW[(7-row)*5 + (5-column)];
 }
 
-Point2d CalibrationObject::getRightAssocImagePt(int row, int column){
-	return rAssocImagePts[(7-row)*4 + (column-1)];
+Point2d CalibrationObject::getRightAssocImagePt_RAW(int row, int column){
+	return rAssocImagePts_RAW[(7-row)*4 + (column-1)];
 }
 
-void CalibrationObject::setLeftAssocImagePt(int row, int column, Point2d pt){
-	lAssocImagePts[(7-row)*5 + (5-column)].x = pt.x;
-	lAssocImagePts[(7-row)*5 + (5-column)].y = pt.y;
+void CalibrationObject::setLeftAssocImagePt_RAW(int row, int column, Point2d pt){
+	lAssocImagePts_RAW[(7-row)*5 + (5-column)].x = pt.x;
+	lAssocImagePts_RAW[(7-row)*5 + (5-column)].y = pt.y;
 }
 
-void CalibrationObject::setRightAssocImagePt(int row, int column, Point2d pt){
-	rAssocImagePts[(7-row)*4 + (column-1)].x = pt.x;
-	rAssocImagePts[(7-row)*4 + (column-1)].y = pt.y;
+void CalibrationObject::setRightAssocImagePt_RAW(int row, int column, Point2d pt){
+	rAssocImagePts_RAW[(7-row)*4 + (column-1)].x = pt.x;
+	rAssocImagePts_RAW[(7-row)*4 + (column-1)].y = pt.y;
+}
+
+
+Point2d CalibrationObject::getLeftAssocImagePt_ADJ(int row, int column){
+	return lAssocImagePts_ADJ[(7-row)*5 + (5-column)];
+}
+
+Point2d CalibrationObject::getRightAssocImagePt_ADJ(int row, int column){
+	return rAssocImagePts_ADJ[(7-row)*4 + (column-1)];
+}
+
+void CalibrationObject::setLeftAssocImagePt_ADJ(int row, int column, Point2d pt){
+	lAssocImagePts_ADJ[(7-row)*5 + (5-column)].x = pt.x;
+	lAssocImagePts_ADJ[(7-row)*5 + (5-column)].y = pt.y;
+}
+
+void CalibrationObject::setRightAssocImagePt_ADJ(int row, int column, Point2d pt){
+	rAssocImagePts_ADJ[(7-row)*4 + (column-1)].x = pt.x;
+	rAssocImagePts_ADJ[(7-row)*4 + (column-1)].y = pt.y;
 }

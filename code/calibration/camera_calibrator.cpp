@@ -87,6 +87,11 @@ CamCalibrator::CamCalibrator(int argc, char *argv[])
 	calPtsInImg[60] = Point2d(1497.71, 1591.72);
 	calPtsInImg[61] = Point2d(1088.25, 1655.7);
 	calPtsInImg[62] = Point2d(1380.72, 1662.24);
+
+	// Currently just hard-coding image size from img160027
+	imageLengthX = 2592;
+	imageLengthY = 1944;
+
 */
 
 	char *in_arg;
@@ -96,6 +101,9 @@ CamCalibrator::CamCalibrator(int argc, char *argv[])
 		in_arg = "test.txt";
 	}
 	ifstream inFile(in_arg, ios::in);
+	inFile >> imageLengthX;
+	inFile >> imageLengthY;
+
 	double in_x, in_y;
 	for (int i = 0; i < 63; i++){
 		inFile >> in_x;
@@ -116,9 +124,6 @@ void CamCalibrator::getPtsFromSegmentedImage()
 {
 	cout << "Getting points from segmented image...\n";
 
-	// Currently just hard-coding image size from img160027
-	imageLengthX = 2592;
-	imageLengthY = 1944;
 
 }
 
@@ -260,11 +265,11 @@ void CamCalibrator::matchPtsToCalibrationPts()
 	}
 	cout << "\n";
 	// We have now identified the top left line of points; add them to the calibration object.
-	obj->setLeftAssocImagePt(7, 5, LeftLine[0]);
-	obj->setLeftAssocImagePt(7, 4, LeftLine[1]);
-	obj->setLeftAssocImagePt(7, 3, LeftLine[2]);
-	obj->setLeftAssocImagePt(7, 2, LeftLine[3]);
-	obj->setLeftAssocImagePt(7, 1, LeftLine[4]);
+	obj->setLeftAssocImagePt_RAW(7, 5, LeftLine[0]);
+	obj->setLeftAssocImagePt_RAW(7, 4, LeftLine[1]);
+	obj->setLeftAssocImagePt_RAW(7, 3, LeftLine[2]);
+	obj->setLeftAssocImagePt_RAW(7, 2, LeftLine[3]);
+	obj->setLeftAssocImagePt_RAW(7, 1, LeftLine[4]);
 
 	// 6.b) For all points in Left face, find distance from point to bottom Left line. Take five closest.
 	lineSort(Left15, Left11, Left, 35);	// Sorts Left by distance to bottom line
@@ -276,11 +281,11 @@ void CamCalibrator::matchPtsToCalibrationPts()
 	}
 	cout << "\n";
 	// We have now identified the bottom left line of points; add them to the calibration object.
-	obj->setLeftAssocImagePt(1, 5, LeftLine[0]);
-	obj->setLeftAssocImagePt(1, 4, LeftLine[1]);
-	obj->setLeftAssocImagePt(1, 3, LeftLine[2]);
-	obj->setLeftAssocImagePt(1, 2, LeftLine[3]);
-	obj->setLeftAssocImagePt(1, 1, LeftLine[4]);
+	obj->setLeftAssocImagePt_RAW(1, 5, LeftLine[0]);
+	obj->setLeftAssocImagePt_RAW(1, 4, LeftLine[1]);
+	obj->setLeftAssocImagePt_RAW(1, 3, LeftLine[2]);
+	obj->setLeftAssocImagePt_RAW(1, 2, LeftLine[3]);
+	obj->setLeftAssocImagePt_RAW(1, 1, LeftLine[4]);
 
 	// 7.a) For all points in Right face, find distance from point to top Right line. Take five closest.
 	lineSort(Right71, Right74, Right, 28);	// Sorts Right by distance to top line
@@ -294,10 +299,10 @@ void CamCalibrator::matchPtsToCalibrationPts()
 	}
 	cout << "\n";
 	// We have now identified the top right line of points; add them to the calibration object.
-	obj->setRightAssocImagePt(7, 1, RightLine[0]);
-	obj->setRightAssocImagePt(7, 2, RightLine[1]);
-	obj->setRightAssocImagePt(7, 3, RightLine[2]);
-	obj->setRightAssocImagePt(7, 4, RightLine[3]);
+	obj->setRightAssocImagePt_RAW(7, 1, RightLine[0]);
+	obj->setRightAssocImagePt_RAW(7, 2, RightLine[1]);
+	obj->setRightAssocImagePt_RAW(7, 3, RightLine[2]);
+	obj->setRightAssocImagePt_RAW(7, 4, RightLine[3]);
 
 	// 7.b) For all points in Right face, find distance from point to bottom Right line. Take five closest.
 	lineSort(Right11, Right14, Right, 28);	// Sorts Right by distance to bottom line
@@ -309,10 +314,10 @@ void CamCalibrator::matchPtsToCalibrationPts()
 	}
 	cout << "\n";
 	// We have now identified the bottom right line of points; add them to the calibration object.
-	obj->setRightAssocImagePt(1, 1, RightLine[0]);
-	obj->setRightAssocImagePt(1, 2, RightLine[1]);
-	obj->setRightAssocImagePt(1, 3, RightLine[2]);
-	obj->setRightAssocImagePt(1, 4, RightLine[3]);
+	obj->setRightAssocImagePt_RAW(1, 1, RightLine[0]);
+	obj->setRightAssocImagePt_RAW(1, 2, RightLine[1]);
+	obj->setRightAssocImagePt_RAW(1, 3, RightLine[2]);
+	obj->setRightAssocImagePt_RAW(1, 4, RightLine[3]);
 
 	// 8. For all points in each face, find distance from that point to each of that face's vertical lines.
 	//     Calculate which point on the object they correspond to accordingly.
@@ -321,50 +326,50 @@ void CamCalibrator::matchPtsToCalibrationPts()
 	// 8.a) For all points in Left face, find distance to each of the FIVE vertical lines. Calculate corresponding point.
 	for (int i = 0; i < 5; i++){
 		// Sort Left by distance to vertical line 5-i. (5, 4, 3, 2, 1)
-		lineSort(obj->getLeftAssocImagePt(7, 5-i), obj->getLeftAssocImagePt(1, 5-i), Left, 35);
+		lineSort(obj->getLeftAssocImagePt_RAW(7, 5-i), obj->getLeftAssocImagePt_RAW(1, 5-i), Left, 35);
 		// Get the seven closest calibration image points to vertical line 5-i.
 		for (int j = 0; j < 7; j++){ verticalLine[j] = Left[j]; }
 		// Sort these seven points by y-value.
 		std::sort(verticalLine, verticalLine+7, compareY);
 		// We have now identified the intermediate 5 in a vertical line of points; add them to the calibration object.
 		//obj->setLeftAssocImagePt(7, 5-i, verticalLine[0]);
-		obj->setLeftAssocImagePt(6, 5-i, verticalLine[1]);
-		obj->setLeftAssocImagePt(5, 5-i, verticalLine[2]);
-		obj->setLeftAssocImagePt(4, 5-i, verticalLine[3]);
-		obj->setLeftAssocImagePt(3, 5-i, verticalLine[4]);
-		obj->setLeftAssocImagePt(2, 5-i, verticalLine[5]);
+		obj->setLeftAssocImagePt_RAW(6, 5-i, verticalLine[1]);
+		obj->setLeftAssocImagePt_RAW(5, 5-i, verticalLine[2]);
+		obj->setLeftAssocImagePt_RAW(4, 5-i, verticalLine[3]);
+		obj->setLeftAssocImagePt_RAW(3, 5-i, verticalLine[4]);
+		obj->setLeftAssocImagePt_RAW(2, 5-i, verticalLine[5]);
 		//obj->setLeftAssocImagePt(1, 5-i, verticalLine[6]);
 	}
 
 	// 8.b) For all points in Right face, find distance to each of the FOUR vertical lines. Calculate corresponding point.
 	for (int i = 0; i < 4; i++){
 		// Sort Right by distance to vertical line 4-i. (4, 3, 2, 1)
-		lineSort(obj->getRightAssocImagePt(1, 4-i), obj->getRightAssocImagePt(7, 4-i), Right, 28);
+		lineSort(obj->getRightAssocImagePt_RAW(1, 4-i), obj->getRightAssocImagePt_RAW(7, 4-i), Right, 28);
 		// Get the seven closest calibration image points to vertical line 4-i.
 		for (int j = 0; j < 7; j++){ verticalLine[j] = Right[j]; }
 		// Sort these seven points by y-value.
 		std::sort(verticalLine, verticalLine+7, compareY);
 		// We have now identified the intermediate 5 in a vertical line of points; add them to the calibration object.
 		//obj->setRightAssocImagePt(7, 4-i, verticalLine[0]);
-		obj->setRightAssocImagePt(6, 4-i, verticalLine[1]);
-		obj->setRightAssocImagePt(5, 4-i, verticalLine[2]);
-		obj->setRightAssocImagePt(4, 4-i, verticalLine[3]);
-		obj->setRightAssocImagePt(3, 4-i, verticalLine[4]);
-		obj->setRightAssocImagePt(2, 4-i, verticalLine[5]);
+		obj->setRightAssocImagePt_RAW(6, 4-i, verticalLine[1]);
+		obj->setRightAssocImagePt_RAW(5, 4-i, verticalLine[2]);
+		obj->setRightAssocImagePt_RAW(4, 4-i, verticalLine[3]);
+		obj->setRightAssocImagePt_RAW(3, 4-i, verticalLine[4]);
+		obj->setRightAssocImagePt_RAW(2, 4-i, verticalLine[5]);
 		//obj->setRightAssocImagePt(1, 4-i, verticalLine[6]);
 	}
 
-	cout << "\n*** Associated image coordinates for Left face calibration points (x/y): ***\n";
+	cout << "\n** Associated RAW image coordinates for Left face calibration points (x/y): **\n";
 	for (int i = 0; i < 7; i++){
 		for (int j = 0; j < 5; j++){
-			cout << obj->getLeftAssocImagePt(7-i, 5-j).x << "/" << obj->getLeftAssocImagePt(7-i, 5-j).y << " ";
+			cout << obj->getLeftAssocImagePt_RAW(7-i, 5-j).x << "/" << obj->getLeftAssocImagePt_RAW(7-i, 5-j).y << " ";
 		}
 		cout << "\n";
 	}
-	cout << "*** Associated image coordinates for Right face calibration points (x/y): ***\n";
+	cout << "** Associated RAW image coordinates for Right face calibration points (x/y): **\n";
 	for (int i = 0; i < 7; i++){
 		for (int j = 0; j < 4; j++){
-			cout << obj->getRightAssocImagePt(7-i, j+1).x << "/" << obj->getRightAssocImagePt(7-i, j+1).y << " ";
+			cout << obj->getRightAssocImagePt_RAW(7-i, j+1).x << "/" << obj->getRightAssocImagePt_RAW(7-i, j+1).y << " ";
 		}
 		cout << "\n";
 	}
@@ -378,10 +383,8 @@ void CamCalibrator::calibrate()
 	double imageCY = imageLengthY/2.0;
 
 	// Initially set scale factor sx = 1
-	// Assume pixel units and 1 pixel between adjacent camera sensor elements so set deltaX = 1, deltaY = 1
+	// Assume pixel units and 1 pixel between adjacent camera sensor elements.
 	sx = 1;
-	deltaX = 1;
-	deltaY = 1;
 
 	// Calibration step 1: compute 3d orientation, position and scale factor
 
@@ -389,12 +392,14 @@ void CamCalibrator::calibrate()
 	mat_X = Mat(63, 1, CV_64F, Scalar::all(0)); // Matrix X is a Nx1 matrix of xd values
 
 	// For each of the 63 points in turn (i):
-	// 1. Calculate xd and yd.
+	// 1. Calculate adjusted image coordinates, xd and yd, for image frame. Put in ADJ.
 	// 2. Change row i of X to xd.
 	// 3. Change row i of M to [yd*Xw, yd*Yw, yd*Zw, yd, -xdXw, -xdYw, -xdZw].
 	for (int i = 0; i < 35; i++){
-		double xd = ( deltaX * (obj->lAssocImagePts[i].x - imageCX) ) / sx;
-		double yd = deltaY * (obj->lAssocImagePts[i].y - imageCY);
+		double xd = ( obj->lAssocImagePts_RAW[i].x - imageCX ) / sx;
+		double yd = obj->lAssocImagePts_RAW[i].y - imageCY;
+		obj->lAssocImagePts_ADJ[i].x = xd;
+		obj->lAssocImagePts_ADJ[i].y = yd;
 		mat_X.at<double>(i,0) = xd;
 		mat_M.at<double>(i,0) = yd*obj->lMeasurements[i].x;
 		mat_M.at<double>(i,1) = yd*obj->lMeasurements[i].y;
@@ -405,8 +410,10 @@ void CamCalibrator::calibrate()
 		mat_M.at<double>(i,6) = -xd*obj->lMeasurements[i].z;
 	}
 	for (int i = 0; i < 28; i++){
-		double xd = ( deltaX * (obj->rAssocImagePts[i].x - imageCX) ) / sx;
-		double yd = deltaY * (obj->rAssocImagePts[i].y - imageCY);
+		double xd = (obj->rAssocImagePts_RAW[i].x - imageCX) / sx;
+		double yd = obj->rAssocImagePts_RAW[i].y - imageCY;
+		obj->rAssocImagePts_ADJ[i].x = xd;
+		obj->rAssocImagePts_ADJ[i].y = yd;
 		mat_X.at<double>(i+35,0) = xd;
 		mat_M.at<double>(i+35,0) = yd*obj->rMeasurements[i].x;
 		mat_M.at<double>(i+35,1) = yd*obj->rMeasurements[i].y;
@@ -454,8 +461,8 @@ void CamCalibrator::calibrate()
 	double distance = 0;
 	for (int i = 0; i < 35; i++)
 	{
-		double xdiff = obj->lAssocImagePts[i].x - imageLengthX;
-		double ydiff = obj->lAssocImagePts[i].y - imageLengthY;
+		double xdiff = obj->lAssocImagePts_ADJ[i].x;
+		double ydiff = obj->lAssocImagePts_ADJ[i].y;
 		double squareDistance = sqrt( (xdiff * xdiff) + (ydiff * ydiff) );
 		if (squareDistance > distance){
 			pointIndex = i;
@@ -476,14 +483,17 @@ void CamCalibrator::calibrate()
 	// Use our distant reference point to check whether ty has the correct sign
 	double Xw = obj->lMeasurements[pointIndex].x;
 	double Yw = obj->lMeasurements[pointIndex].y;
-	double firstSign = mat_R.at<double>(0,0)*Xw + mat_R.at<double>(0,1)*Yw + mat_R.at<double>(0,2)*Yw + mat_T.at<double>(0,0);
-	double secondSign = mat_R.at<double>(1,0)*Xw + mat_R.at<double>(1,1)*Yw + mat_R.at<double>(1,2)*Yw + ty_sign_unknown;
-	if ( (firstSign > 0 && secondSign > 0) || (firstSign < 0 && secondSign < 0) ) {
-		cout << "Debug: signs are the same, ty has correct sign.\n";
-		mat_T.at<double>(1,0) = ty_sign_unknown;
-	} else {
+	double xSign = mat_R.at<double>(0,0)*Xw + mat_R.at<double>(0,1)*Yw + mat_R.at<double>(0,2)*Yw + mat_T.at<double>(0,0);
+	double ySign = mat_R.at<double>(1,0)*Xw + mat_R.at<double>(1,1)*Yw + mat_R.at<double>(1,2)*Yw + ty_sign_unknown;
+	double XS = obj->lAssocImagePts_ADJ[pointIndex].x;
+	double YS = obj->lAssocImagePts_ADJ[pointIndex].y;
+
+	if ( (xSign > 0 && XS <= 0) || (xSign <= 0 && XS > 0) || (ySign > 0 && YS <= 0) || (ySign <= 0 && YS > 0) ) {
 		cout << "Debug: signs are different, ty has wrong sign.\n";
 		mat_T.at<double>(1,0) = ty_sign_unknown*-1;
+	} else {
+		cout << "Debug: signs are the same, ty has correct sign.\n";
+		mat_T.at<double>(1,0) = ty_sign_unknown;
 	}
 	// We now have tx, ty.
 	
@@ -562,7 +572,7 @@ void CamCalibrator::calibrate()
 
 	cout << "\n";
 
-	// Calibration stage 2 or step 6:
+	// Calibration stage 2 [or step 6]:
 	// compute effective focal length, distortion coefficients kappa, and tz (z-component of translation vector T)
 	// Rewrite projection relations for each reference point i as a system of linear equations
 
@@ -579,16 +589,16 @@ void CamCalibrator::calibrate()
 		double Uzi = mat_R.at<double>(2,0)*obj->lMeasurements[i].x + mat_R.at<double>(2,1)*obj->lMeasurements[i].y;// + r33*obj->lMeasurements[i].z;
 		//double ydi = Uyi / (Uzi + mat_T.at<double>(2,0)); // This changes with later iterations
 		mat_M2.at<double>(i,0) = Uyi;
-		mat_M2.at<double>(i,1) = -1.0*obj->lAssocImagePts[i].y;//-1.0*ydi;
-		mat_U.at<double>(i,0) = Uzi*obj->lAssocImagePts[i].y;//Uzi*ydi;
+		mat_M2.at<double>(i,1) = -1.0*obj->lAssocImagePts_ADJ[i].y;//-1.0*ydi;
+		mat_U.at<double>(i,0) = Uzi*obj->lAssocImagePts_ADJ[i].y;//Uzi*ydi;
 	}
 	for (int i = 0; i < 28; i++){
 		double Uyi = mat_R.at<double>(1,0)*obj->rMeasurements[i].x + mat_R.at<double>(1,1)*obj->rMeasurements[i].y + mat_T.at<double>(1,0);//mat_R.at<double>(1,2)*obj->rMeasurements[i].z + mat_T.at<double>(1,0);
 		double Uzi = mat_R.at<double>(2,0)*obj->rMeasurements[i].x + mat_R.at<double>(2,1)*obj->rMeasurements[i].y;// + r33*obj->rMeasurements[i].z;
 		//double ydi = Uyi / (Uzi + mat_T.at<double>(2,0)); // This changes with later iterations
 		mat_M2.at<double>(i+35,0) = Uyi;
-		mat_M2.at<double>(i+35,1) = -1.0*obj->rAssocImagePts[i].y;//-1.0*ydi;
-		mat_U.at<double>(i+35,0) = Uzi*obj->rAssocImagePts[i].y;//Uzi*ydi;
+		mat_M2.at<double>(i+35,1) = -1.0*obj->rAssocImagePts_ADJ[i].y;//-1.0*ydi;
+		mat_U.at<double>(i+35,0) = Uzi*obj->rAssocImagePts_ADJ[i].y;//Uzi*ydi;
 	}
 
 	/*cout << "Matrix M2...\n";
@@ -630,6 +640,74 @@ void CamCalibrator::calibrate()
 	cout << "sx = " << sx << "\n";
 	cout << "focal length = " << focalLength << "\n";
 	cout << "\n****************\n\n";
+}
+
+// Back-project rays using the calculated matrices R, T, and values s, focalLength, deltaX, deltaY
+void CamCalibrator::checkResults(){
+	// Apply matrices in inverse order to image point, to transform into real world measurement
+	// Then check the accuracy against the appropriate point on the calibration object
+
+	// First do the forward direction, to check
+	Point3d pt1 = obj->getLeftPt(1,1);
+	Point3d pt2 = obj->getRightPt(2,2);
+	Point2d point1i = obj->getLeftAssocImagePt_RAW(1,1);
+	Point2d point2i = obj->getRightAssocImagePt_RAW(2,2);
+	Mat point1 = Mat(4, 1, CV_64F, Scalar::all(1));
+	point1.at<double>(0,0) = pt1.x;
+	point1.at<double>(1,0) = pt1.y;
+	point1.at<double>(2,0) = pt1.z;
+	Mat point2 = Mat(4, 1, CV_64F, Scalar::all(1));
+	point2.at<double>(0,0) = pt2.x;
+	point2.at<double>(1,0) = pt2.y;
+	point2.at<double>(2,0) = pt2.z;
+	Mat transform = Mat(4, 4, CV_64F, Scalar::all(0));
+	for (int i = 0; i < 3; i++){
+		for (int j = 0; j < 3; j++){
+			transform.at<double>(i,j) = mat_R.at<double>(i,j);
+		}
+	}
+	transform.at<double>(0,3) = mat_T.at<double>(0,0);
+	transform.at<double>(1,3) = mat_T.at<double>(1,0);
+	transform.at<double>(2,3) = mat_T.at<double>(2,0);
+	transform.at<double>(3,3) = 1.0;
+	Mat newpoint1 = transform * point1;
+	Mat newpoint2 = transform * point2;
+	Mat focal = Mat(3, 4, CV_64F, Scalar::all(0));
+	focal.at<double>(0,0) = 1.0;
+	focal.at<double>(1,1) = 1.0;
+	focal.at<double>(2,2) = 1.0/focalLength;
+	Mat newpoint1a = focal * newpoint1;
+	Mat newpoint2a = focal * newpoint2;
+	Mat xcyc = Mat(3, 3, CV_64F, Scalar::all(0));
+	xcyc.at<double>(2,2) = 1.0;
+	xcyc.at<double>(0,0) = -1.0;
+	xcyc.at<double>(1,1) = -1.0;
+	xcyc.at<double>(0,2) = imageLengthX/2; //?
+	xcyc.at<double>(1,2) = imageLengthY/2; //?
+	Mat newpoint1b = xcyc * newpoint1a;
+	Mat newpoint2b = xcyc * newpoint2a;
+	
+	//
+	cout << "> Point1: (" << point1.at<double>(0,0) << ", " << point1.at<double>(1,0) << ", " << point1.at<double>(2,0) << ")\n";
+	cout << " Point1 calculated point: (" << newpoint1.at<double>(0,0) << ", " << newpoint1.at<double>(1,0) << ", " << newpoint1.at<double>(2,0) << ")\n";
+	cout << " Point1a calculated point: (" << newpoint1a.at<double>(0,0) << ", " << newpoint1a.at<double>(1,0) << ", " << newpoint1a.at<double>(2,0) << ")\n";
+	cout << " Point1b calculated point: (" << newpoint1b.at<double>(0,0) << ", " << newpoint1b.at<double>(1,0) << ", " << newpoint1b.at<double>(2,0) << ")\n";
+	cout << " Point1 RAW image point: (" << point1i.x << ", " << point1i.y << ")\n";
+	//
+	cout << "> Point2: (" << point2.at<double>(0,0) << ", " << point2.at<double>(1,0) << ", " << point2.at<double>(2,0) << ")\n";
+	cout << " Point2 calculated point: (" << newpoint2.at<double>(0,0) << ", " << newpoint2.at<double>(1,0) << ", " << newpoint2.at<double>(2,0) << ")\n";
+	cout << " Point2a calculated point: (" << newpoint2a.at<double>(0,0) << ", " << newpoint2a.at<double>(1,0) << ", " << newpoint2a.at<double>(2,0) << ")\n";
+	cout << " Point2b calculated point: (" << newpoint2b.at<double>(0,0) << ", " << newpoint2b.at<double>(1,0) << ", " << newpoint2b.at<double>(2,0) << ")\n";
+	cout << " Point2 RAW image point: (" << point2i.x << ", " << point2i.y << ")\n";
+	
+
+//	(u v 1) = (-1 -1 1 on diagonal, xc yc in the third column) * (1 1 1/f diagonal) * rotation & trans
+	// * X Y Z real coordinates
+
+	// what about scale factor? maybe divide the u and v resulting by s; or maybe it factors into f
+
+// xc yc map into the distance to image centre, maybe? -1 if opposite to normal??
+
 }
 
 // Sorts an array of points by distance of those points to a given line (first sets lineP1, lineP2; then sorts using lineComp)

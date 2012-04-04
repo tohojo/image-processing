@@ -19,6 +19,7 @@ public:
 	void getPtsFromSegmentedImage();
 	void matchPtsToCalibrationPts();
 	void calibrate();
+	void checkResults();
 	double imageLengthX;
 	double imageLengthY;
 
@@ -34,8 +35,6 @@ private:
 	Mat mat_U;
 	Point2d* calPtsInImg; //x,y for each calibration point (63 of them)
 	double sx;
-	double deltaX;
-	double deltaY;
 	double focalLength;
 
 };
