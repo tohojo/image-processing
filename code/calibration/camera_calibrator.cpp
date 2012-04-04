@@ -576,15 +576,12 @@ void CamCalibrator::calibrate()
 	// compute effective focal length, distortion coefficients kappa, and tz (z-component of translation vector T)
 	// Rewrite projection relations for each reference point i as a system of linear equations
 
-	mat_M2 = Mat(63, 2, CV_64F, Scalar::all(0));
-	mat_U = Mat(63, 1, CV_64F, Scalar::all(0));
-
 	// For each of the 63 points in turn (i):
 	// 1. Calculate yi and wi.
 	// 2. Change row i, first column of mat_M2 to yi.
 	// 3. Change row i, second column of mat_M2 to -1.0*y.
-	// 3. Change row i, only column of mat_U to wi *y.
-	for (int i = 0; i < 35; i++){
+	// 4. Change row i, only column of mat_U to wi *y.
+	/*for (int i = 0; i < 35; i++){
 		double yi = mat_R.at<double>(1,0)*obj->lMeasurements[i].x + mat_R.at<double>(1,1)*obj->lMeasurements[i].y + mat_R.at<double>(1,2)*obj->lMeasurements[i].z + mat_T.at<double>(1,0);
 		double wi = mat_R.at<double>(2,0)*obj->lMeasurements[i].x + mat_R.at<double>(2,1)*obj->lMeasurements[i].y + mat_R.at<double>(2,2)*obj->lMeasurements[i].z + 0.0;
 		mat_M2.at<double>(i,0) = yi;
@@ -598,28 +595,71 @@ void CamCalibrator::calibrate()
 		mat_M2.at<double>(i+35,1) = obj->rAssocImagePts_ADJ[i].y * -1.0;
 		mat_U.at<double>(i+35,0) = wi*obj->rAssocImagePts_ADJ[i].y;
 	}
+	*/
 
-	/*cout << "Matrix M2...\n";
-	for (int i = 0; i < 63; i++){
-	for (int j = 0; j < 2; j++){
-	cout << " " << mat_M2.at<double>(i,j);
+	Mat best1, best2;
+	best1 = computeLeastSquaresForKappa(0.0);
+	double bestError1 = best1.at<double>(2,0);
+	double bestKappa1 = 0.0;
+	double bestError2, bestKappa2;
+	Mat comp1 = computeLeastSquaresForKappa(-0.0001);
+	Mat comp2 = computeLeastSquaresForKappa(0.0001);
+	if (comp1.at<double>(2,0) < comp2.at<double>(2,0)) {
+		best2 = comp1;
+		bestError2 = comp1.at<double>(2,0);
+		bestKappa2 = -0.0001;
+	} else {
+		best2 = comp2;
+		bestError2 = comp2.at<double>(2,0);
+		bestKappa2 = 0.0001;
 	}
-	cout << "\n";
+	for (int i = 0; i < 100; i++){
+		double newKappa;
+		if (bestError1 < bestError2){
+			newKappa = (bestKappa1*9.0 + bestKappa2)/10.0;
+		} else {
+			newKappa = (bestKappa1 + bestKappa2*9.0)/10.0;
+		}
+		Mat F = computeLeastSquaresForKappa(newKappa);
+		double newError = F.at<double>(2,0);
+		if (bestError1 < bestError2){
+			if (newError < bestError2){
+				best2 = F;
+				bestError2 = newError;
+				bestKappa2 = newKappa;
+			}
+		} else {
+			if (newError < bestError1){
+				best1 = F;
+				bestError1 = newError;
+				bestKappa1 = newKappa;
+			}
+		}
 	}
-	cout << "Matrix U...\n";
-	for (int i = 0; i < 63; i++){
-	cout << " " << mat_U.at<double>(i,0) << " ";
+	if (bestError1 < bestError2){
+		cout << "> ITERATIVE BEST ERROR: error " << bestError1 << ", kappa " << bestKappa1 << ",\n";
+		cout << "   f " << best1.at<double>(0,0) << ", Tz " << best1.at<double>(1,0) << "\n";
+		cout << "> SECOND BEST ERROR: error " << bestError2 << ", kappa " << bestKappa2 << "\n";
+		cout << "   f " << best2.at<double>(0,0) << ", Tz " << best2.at<double>(1,1) << "\n";
+		// Set our estimate for focal length and tz
+		focalLength = best1.at<double>(0,0);
+		mat_T.at<double>(2,0) = best1.at<double>(1,0);
+	} else {
+		cout << "> ITERATIVE BEST ERROR: error " << bestError2 << ", kappa " << bestKappa2 << ",\n";
+		cout << "   f " << best2.at<double>(0,0) << ", Tz " << best2.at<double>(1,0) << "\n";
+		cout << "> SECOND BEST ERROR: error " << bestError1 << ", kappa " << bestKappa1 << "\n";
+		cout << "   f " << best1.at<double>(0,0) << ", Tz " << best1.at<double>(1,0) << "\n";
+		focalLength = best2.at<double>(0,0);
+		mat_T.at<double>(2,0) = best2.at<double>(1,0);
+	}
+	Mat temp_1_M = computeLeastSquaresForKappa(0.0);
+	cout << "> IGNORING ERROR: error " << temp_1_M.at<double>(2,0) << ", kappa " << 0.0 << "\n";
+	cout << "   f " << temp_1_M.at<double>(0,0) << ", Tz " << temp_1_M.at<double>(1,0) << "\n";
+
+/*	for (double i = -0.00000002; i <= -0.000000005; i+=0.0000000001){
+		Mat F = computeLeastSquaresForKappa(i);
+		cout << "> Squared error (" << i << "): " << F.at<double>(2,0) << "\n";
 	}*/
-
-	// Now solve using the pseudo-inverse technique to generate matrix F:
-	// L = (M^transpose * M)^inverse * (M^transpose * X)
-	Mat M2trans_M2_inv = (mat_M2.t() * (mat_M2)).inv(DECOMP_SVD);
-	Mat M2trans_U = mat_M2.t() * mat_U;
-	Mat F = M2trans_M2_inv * M2trans_U;
-
-	// Set our first estimate for focal length and tz
-	focalLength = F.at<double>(0,0);
-	mat_T.at<double>(2,0) = F.at<double>(1,0);
 
 	// NEXT #1: Use steepest descent optimisation starting from already determined approximate values
 	// to converge on the true values for the focal length and Tz.
@@ -638,6 +678,73 @@ void CamCalibrator::calibrate()
 	cout << "sx = " << sx << "\n";
 	cout << "focal length = " << focalLength << "\n";
 	cout << "\n****************\n\n";
+}
+
+// Calculates best fit of focalLength and Tz for a given kappa
+// Outputs a 3x1 matrix containing focalLength, Tz, error squared of solution
+Mat CamCalibrator::computeLeastSquaresForKappa(double kappa){
+	Mat mat_M2a = Mat(63, 2, CV_64F, Scalar::all(0));
+	Mat mat_Ua = Mat(63, 1, CV_64F, Scalar::all(0));
+	for (int i = 0; i < 35; i++){
+		double yi = mat_R.at<double>(1,0)*obj->lMeasurements[i].x + mat_R.at<double>(1,1)*obj->lMeasurements[i].y + mat_R.at<double>(1,2)*obj->lMeasurements[i].z + mat_T.at<double>(1,0);
+		double wi = mat_R.at<double>(2,0)*obj->lMeasurements[i].x + mat_R.at<double>(2,1)*obj->lMeasurements[i].y + mat_R.at<double>(2,2)*obj->lMeasurements[i].z;
+		double rSq = sqrt( ((1.0/sx) * obj->lAssocImagePts_ADJ[i].x)*((1.0/sx) * obj->lAssocImagePts_ADJ[i].x)
+			+ ( obj->lAssocImagePts_ADJ[i].y * obj->lAssocImagePts_ADJ[i].y ) );
+		double kappa_error = obj->lAssocImagePts_ADJ[i].y * kappa * (rSq * rSq);
+		mat_M2a.at<double>(i,0) = yi;
+		mat_M2a.at<double>(i,1) = (obj->lAssocImagePts_ADJ[i].y * -1.0) - kappa_error;
+		mat_Ua.at<double>(i,0) = (wi * obj->lAssocImagePts_ADJ[i].y) + (wi*kappa_error);
+	}
+	for (int i = 0; i < 28; i++){
+		double yi = mat_R.at<double>(1,0)*obj->rMeasurements[i].x + mat_R.at<double>(1,1)*obj->rMeasurements[i].y + mat_R.at<double>(1,2)*obj->rMeasurements[i].z + mat_T.at<double>(1,0);
+		double wi = mat_R.at<double>(2,0)*obj->rMeasurements[i].x + mat_R.at<double>(2,1)*obj->rMeasurements[i].y + mat_R.at<double>(2,2)*obj->rMeasurements[i].z;
+		double rSq = sqrt( ((1.0/sx) * obj->rAssocImagePts_ADJ[i].x)*((1.0/sx) * obj->rAssocImagePts_ADJ[i].x)
+			+ ( obj->rAssocImagePts_ADJ[i].y * obj->rAssocImagePts_ADJ[i].y ) );
+		double kappa_error = obj->rAssocImagePts_ADJ[i].y * kappa * (rSq * rSq);
+		mat_M2a.at<double>(i+35,0) = yi;
+		mat_M2a.at<double>(i+35,1) = (obj->rAssocImagePts_ADJ[i].y * -1.0) - kappa_error;
+		mat_Ua.at<double>(i+35,0) = (wi*obj->rAssocImagePts_ADJ[i].y) + (wi*kappa_error);
+	}
+	// Now solve using the pseudo-inverse technique to generate matrix F:
+	Mat M2trans_M2_inv = (mat_M2a.t() * (mat_M2a)).inv(DECOMP_SVD);
+	Mat M2trans_U = mat_M2a.t() * mat_Ua;
+	Mat F = M2trans_M2_inv * M2trans_U;
+
+	// Now compare results to ideal results
+	double output_foc = F.at<double>(0,0);
+	double output_Tz = F.at<double>(1,0);
+	double currentSquaredError = 0.0;
+	for (int i = 0; i < 35; i++){
+		double yi = mat_R.at<double>(1,0)*obj->lMeasurements[i].x + mat_R.at<double>(1,1)*obj->lMeasurements[i].y + mat_R.at<double>(1,2)*obj->lMeasurements[i].z + mat_T.at<double>(1,0);
+		double wi = mat_R.at<double>(2,0)*obj->lMeasurements[i].x + mat_R.at<double>(2,1)*obj->lMeasurements[i].y + mat_R.at<double>(2,2)*obj->lMeasurements[i].z;
+		double rSq = sqrt( ((1.0/sx) * obj->lAssocImagePts_ADJ[i].x)*((1.0/sx) * obj->lAssocImagePts_ADJ[i].x)
+			+ ( obj->lAssocImagePts_ADJ[i].y * obj->lAssocImagePts_ADJ[i].y ) );
+		double kappa_error = obj->lAssocImagePts_ADJ[i].y * kappa * (rSq * rSq);
+		double output1 = (yi * output_foc) +
+			(((obj->lAssocImagePts_ADJ[i].y * -1.0) - kappa_error) * output_Tz);
+		double output2 = (wi * obj->lAssocImagePts_ADJ[i].y) + (wi*kappa_error);
+		double sq_error = (output1-output2)*(output1-output2);
+		//cout << "Err " << sq_error << "\n";
+		currentSquaredError += sq_error;
+	}
+	for (int i = 0; i < 28; i++){
+		double yi = mat_R.at<double>(1,0)*obj->rMeasurements[i].x + mat_R.at<double>(1,1)*obj->rMeasurements[i].y + mat_R.at<double>(1,2)*obj->rMeasurements[i].z + mat_T.at<double>(1,0);
+		double wi = mat_R.at<double>(2,0)*obj->rMeasurements[i].x + mat_R.at<double>(2,1)*obj->rMeasurements[i].y + mat_R.at<double>(2,2)*obj->rMeasurements[i].z;
+		double rSq = sqrt( ((1.0/sx) * obj->rAssocImagePts_ADJ[i].x)*((1.0/sx) * obj->rAssocImagePts_ADJ[i].x)
+			+ ( obj->rAssocImagePts_ADJ[i].y * obj->rAssocImagePts_ADJ[i].y ) );
+		double kappa_error = obj->rAssocImagePts_ADJ[i].y * kappa * (rSq * rSq);
+		double output1 = (yi * output_foc) +
+			(((obj->rAssocImagePts_ADJ[i].y * -1.0) - kappa_error) * output_Tz);
+		double output2 = (wi * obj->rAssocImagePts_ADJ[i].y) + (wi*kappa_error);
+		double sq_error = (output1-output2)*(output1-output2);
+		//cout << "Err " << sq_error << "\n";
+		currentSquaredError += sq_error;
+	}
+	Mat solution = Mat(3, 1, CV_64F, Scalar::all(0));
+	solution.at<double>(0,0) = F.at<double>(0,0);
+	solution.at<double>(1,0) = F.at<double>(1,0);
+	solution.at<double>(2,0) = currentSquaredError;
+	return solution;
 }
 
 // Back-project rays using the calculated matrices R, T, and values s, focalLength, deltaX, deltaY

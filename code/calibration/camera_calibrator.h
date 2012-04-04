@@ -20,6 +20,7 @@ public:
 	void matchPtsToCalibrationPts();
 	void calibrate();
 	void checkResults();
+	Mat computeLeastSquaresForKappa(double kappa);
 	double imageLengthX;
 	double imageLengthY;
 
