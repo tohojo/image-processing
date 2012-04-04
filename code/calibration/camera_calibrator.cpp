@@ -586,16 +586,16 @@ void CamCalibrator::calibrate()
 	// 3. Change row i, only column of mat_U to Uzi*ydi.
 	for (int i = 0; i < 35; i++){
 		double Uyi = mat_R.at<double>(1,0)*obj->lMeasurements[i].x + mat_R.at<double>(1,1)*obj->lMeasurements[i].y + mat_R.at<double>(1,2)*obj->lMeasurements[i].z + mat_T.at<double>(1,0);
-		double Uzi = mat_R.at<double>(2,0)*obj->lMeasurements[i].x + mat_R.at<double>(2,1)*obj->lMeasurements[i].y + mat_R.at<double>(2,2)*obj->lMeasurements[i].z + 100;
+		double Uzi = mat_R.at<double>(2,0)*obj->lMeasurements[i].x + mat_R.at<double>(2,1)*obj->lMeasurements[i].y + mat_R.at<double>(2,2)*obj->lMeasurements[i].z + 0.0;
 		mat_M2.at<double>(i,0) = Uyi;
-		mat_M2.at<double>(i,1) = -1.0*obj->lAssocImagePts_ADJ[i].y;
+		mat_M2.at<double>(i,1) = obj->lAssocImagePts_ADJ[i].y * -1.0;
 		mat_U.at<double>(i,0) = Uzi*obj->lAssocImagePts_ADJ[i].y;
 	}
 	for (int i = 0; i < 28; i++){
 		double Uyi = mat_R.at<double>(1,0)*obj->rMeasurements[i].x + mat_R.at<double>(1,1)*obj->rMeasurements[i].y + mat_R.at<double>(1,2)*obj->rMeasurements[i].z + mat_T.at<double>(1,0);
-		double Uzi = mat_R.at<double>(2,0)*obj->rMeasurements[i].x + mat_R.at<double>(2,1)*obj->rMeasurements[i].y + mat_R.at<double>(2,2)*obj->lMeasurements[i].z + 100;
+		double Uzi = mat_R.at<double>(2,0)*obj->rMeasurements[i].x + mat_R.at<double>(2,1)*obj->rMeasurements[i].y + mat_R.at<double>(2,2)*obj->rMeasurements[i].z + 0.0;
 		mat_M2.at<double>(i+35,0) = Uyi;
-		mat_M2.at<double>(i+35,1) = -1.0*obj->rAssocImagePts_ADJ[i].y;
+		mat_M2.at<double>(i+35,1) = obj->rAssocImagePts_ADJ[i].y * -1.0;
 		mat_U.at<double>(i+35,0) = Uzi*obj->rAssocImagePts_ADJ[i].y;
 	}
 
