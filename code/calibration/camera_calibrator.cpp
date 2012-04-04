@@ -585,20 +585,18 @@ void CamCalibrator::calibrate()
 	// 3. Change row i, second column of mat_M2 to -1.0*ydi.
 	// 3. Change row i, only column of mat_U to Uzi*ydi.
 	for (int i = 0; i < 35; i++){
-		double Uyi = mat_R.at<double>(1,0)*obj->lMeasurements[i].x + mat_R.at<double>(1,1)*obj->lMeasurements[i].y + mat_T.at<double>(1,0); //mat_R.at<double>(1,2)*obj->lMeasurements[i].z + mat_T.at<double>(1,0);
-		double Uzi = mat_R.at<double>(2,0)*obj->lMeasurements[i].x + mat_R.at<double>(2,1)*obj->lMeasurements[i].y;// + r33*obj->lMeasurements[i].z;
-		//double ydi = Uyi / (Uzi + mat_T.at<double>(2,0)); // This changes with later iterations
+		double Uyi = mat_R.at<double>(1,0)*obj->lMeasurements[i].x + mat_R.at<double>(1,1)*obj->lMeasurements[i].y + mat_R.at<double>(1,2)*obj->lMeasurements[i].z + mat_T.at<double>(1,0);
+		double Uzi = mat_R.at<double>(2,0)*obj->lMeasurements[i].x + mat_R.at<double>(2,1)*obj->lMeasurements[i].y + mat_R.at<double>(2,2)*obj->lMeasurements[i].z + 100;
 		mat_M2.at<double>(i,0) = Uyi;
-		mat_M2.at<double>(i,1) = -1.0*obj->lAssocImagePts_ADJ[i].y;//-1.0*ydi;
-		mat_U.at<double>(i,0) = Uzi*obj->lAssocImagePts_ADJ[i].y;//Uzi*ydi;
+		mat_M2.at<double>(i,1) = -1.0*obj->lAssocImagePts_ADJ[i].y;
+		mat_U.at<double>(i,0) = Uzi*obj->lAssocImagePts_ADJ[i].y;
 	}
 	for (int i = 0; i < 28; i++){
-		double Uyi = mat_R.at<double>(1,0)*obj->rMeasurements[i].x + mat_R.at<double>(1,1)*obj->rMeasurements[i].y + mat_T.at<double>(1,0);//mat_R.at<double>(1,2)*obj->rMeasurements[i].z + mat_T.at<double>(1,0);
-		double Uzi = mat_R.at<double>(2,0)*obj->rMeasurements[i].x + mat_R.at<double>(2,1)*obj->rMeasurements[i].y;// + r33*obj->rMeasurements[i].z;
-		//double ydi = Uyi / (Uzi + mat_T.at<double>(2,0)); // This changes with later iterations
+		double Uyi = mat_R.at<double>(1,0)*obj->rMeasurements[i].x + mat_R.at<double>(1,1)*obj->rMeasurements[i].y + mat_R.at<double>(1,2)*obj->rMeasurements[i].z + mat_T.at<double>(1,0);
+		double Uzi = mat_R.at<double>(2,0)*obj->rMeasurements[i].x + mat_R.at<double>(2,1)*obj->rMeasurements[i].y + mat_R.at<double>(2,2)*obj->lMeasurements[i].z + 100;
 		mat_M2.at<double>(i+35,0) = Uyi;
-		mat_M2.at<double>(i+35,1) = -1.0*obj->rAssocImagePts_ADJ[i].y;//-1.0*ydi;
-		mat_U.at<double>(i+35,0) = Uzi*obj->rAssocImagePts_ADJ[i].y;//Uzi*ydi;
+		mat_M2.at<double>(i+35,1) = -1.0*obj->rAssocImagePts_ADJ[i].y;
+		mat_U.at<double>(i+35,0) = Uzi*obj->rAssocImagePts_ADJ[i].y;
 	}
 
 	/*cout << "Matrix M2...\n";
