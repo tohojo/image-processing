@@ -9,6 +9,7 @@ set(image-processing_SOURCES
   widgets/resizingimagelabel.cpp
   widgets/signalingdockwidget.cpp
   processors/processor.cpp
+  processors/feature_points.cpp
   processors/segmenting.cpp
   processors/null_processor.cpp
   processors/processor_model.cpp
@@ -26,6 +27,7 @@ set(image-processing_HEADERS
   widgets/resizingimagelabel.h
   widgets/signalingdockwidget.h
   processors/processor.h
+  processors/feature_points.h
   processors/segmenting.h
   processors/null_processor.h
   processors/processor_model.h)
