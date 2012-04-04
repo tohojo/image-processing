@@ -3,6 +3,7 @@ set(image-processing_SOURCES
   processing-gui.cpp
   widgets/resizingimagelabel.cpp
   processors/processor.cpp
+  processors/feature_points.cpp
   processors/segmenting.cpp
   processors/null_processor.cpp
   processors/processor_model.cpp
@@ -16,6 +17,7 @@ set(image-processing_HEADERS
   processing-gui.h
   widgets/resizingimagelabel.h
   processors/processor.h
+  processors/feature_points.h
   processors/segmenting.h
   processors/null_processor.h
   processors/processor_model.h)
