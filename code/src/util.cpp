@@ -17,30 +17,18 @@ namespace Util {
 
       QImage qImage;
 
-      Size size = img.size();
-      qDebug("Image size: %dx%d pixels", size.width, size.height);
+      qDebug("Copying matrix to image. Size: %dx%d", img.cols, img.rows);
 
-      if(img.isContinuous()) {
-        qDebug("Image is continuous, reusing buffer for QImage");
-        const uchar *ptr = img.ptr<uchar>(0);
-        qImage = QImage(ptr, size.width, size.height, QImage::Format_Indexed8);
-      } else {
-        qDebug("Image is not continuous, copying line-by-line");
-        uchar *img_buffer = (uchar*) malloc(size.width * size.height);
-        uchar *img_pointer = img_buffer;
-        for (int i=0; i < size.height; i++) {
-          const uchar *ptr = img.ptr<uchar>(i);
-          memcpy(img_pointer, ptr, size.width);
-          img_pointer += size.width;
+      uchar *img_buffer = (uchar*) malloc(img.rows * img.cols);
+      uchar *img_pointer = img_buffer;
+      for (int i=0; i < img.rows; i++) {
+        for(int j = 0; j < img.cols; j++) {
+          *img_pointer++ = img.at<uchar>(i,j);
         }
-        qDebug("Three random pixels: %d, %d, %d",
-               img_buffer[10], img_buffer[123], img_buffer[124234]);
-
-        qImage = QImage(img_buffer, size.width, size.height, QImage::Format_Indexed8);
-
-        qDebug("QImage pixel values: %d, %d",
-               qImage.pixelIndex(10, 0), qImage.pixelIndex(123,0));
       }
+      // Use variant of QImage constructor that specifies the number
+      // of bytes pr line. Otherwise the image gets all weird.
+      qImage = QImage(img_buffer, img.cols, img.rows, img.cols, QImage::Format_Indexed8);
       qImage.setColorTable(colorTable);
       return qImage;
     } else {

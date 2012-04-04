@@ -16,7 +16,8 @@ void printMatrix(Mat m) {
   Size s = m.size();
   for(int i = s.height-1; i >= 0; i--) {
     for(int j = 0; j < s.width; j++) {
-      printf("%03d,", m.at<uchar>(j,i));
+      printf("%3d", m.at<uchar>(Point(j,i)));
+      if(j!=s.width-1) printf(",");
     }
     printf("\n");
   }
@@ -25,51 +26,89 @@ void printMatrix(Mat m) {
 
 int main(int argc, char *argv[])
 {
-  Region one, two;
+  Mat mat = Mat::zeros(Size(4,4), CV_8U);
+  Mat btmleft(mat, Rect(0,0,2,2));
+  Mat btmright(mat, Rect(2,0,2,2));
+  Mat topleft(mat, Rect(0,2,2,2));
+  Mat topright(mat, Rect(2,2,2,2));
 
-  printf("Adding point (0,0)\n");
-  one.add(RPoint(0,0));
-  one.print();
-  printf("Adding point (0,1)\n");
-  one.add(RPoint(0,1));
-  one.print();
-  printf("Inboundary(0,0): %s\n", one.inBoundary(RPoint(0,0)) ? "true" : "false");
-  printf("contains(1,0): %s\n", one.contains(RPoint(1,0)) ? "true" : "false");
-  printf("adjacentPoint(1,0): %s\n", one.adjacentPoint(RPoint(1,0)) ? "true" : "false");
-  printf("inBoundary(1,0): %s\n", one.inBoundary(RPoint(1,0)) ? "true" : "false");
-  printf("interior(1,0): %s\n", one.interior(RPoint(1,0)) ? "true" : "false");
-  printf("Adding point (1,0)\n");
-  one.add(RPoint(1,0));
-  one.print();
-  printf("Adding point (1,1)\n");
-  one.add(RPoint(1,1));
-  one.print();
+  btmright.setTo(80);
+  topleft.setTo(160);
+  topright.setTo(255);
 
-  printf("Adding additional points\n");
-  one.add(RPoint(0,2));
-  one.add(RPoint(1,2));
-  one.add(RPoint(2,0));
-  one.add(RPoint(2,1));
-  one.add(RPoint(2,2));
-  one.print();
-  printf("contains(1,1): %s\n", one.contains(RPoint(1,1)) ? "true" : "false");
+  printMatrix(mat);
 
-  Mat m = Mat::ones(5,5,CV_8U);
-  printMatrix(m);
-  Region(m).print();
+  Region rbl(btmleft);
+  Region rbr(btmright);
+  Region rtl(topleft);
+  Region rtr(topright);
+  rbl.print();
+  printMatrix(rbl.toMask(mat));
+  rbr.print();
+  printMatrix(rbr.toMask(mat));
+  rtl.print();
+  printMatrix(rtl.toMask(mat));
+  rtr.print();
+  printMatrix(rtr.toMask(mat));
 
-  Rect r(3,0,2,2);
-  Mat m2 = Mat(m,r);
-  printMatrix(m2);
-  two = Region(m2,true);
-  two.print();
-  m2.at<uchar>(1,1)=0;
-  Region(m2,true).print();
+  printf("\nBottom / top:\n\n");
 
-  one.add(two);
-  one.print();
+  Region btm = rbl;
+  btm.add(rbr);
+  btm.print();
+  printMatrix(btm.toMask(mat));
+  Region top = rtl;
+  top.add(rtr);
+  top.print();
+  printMatrix(top.toMask(mat));
 
-  Mat m3 = one.toMask(m);
-  printMatrix(m3);
+  printf("\nWhole:\n\n");
+
+  Region whole = top;
+  whole.add(btm);
+  whole.print();
+  printMatrix(whole.toMask(mat));
+
+
+  printf("\nBottom line:\n\n");
+
+  Mat m00(btmleft, Rect(0,0,1,1));
+  Mat m10(btmleft, Rect(1,0,1,1));
+  Mat m20(btmright, Rect(0,0,1,1));
+  Mat m30(btmright, Rect(1,0,1,1));
+
+  Region btmline(m00);
+  btmline.add(Region(m10));
+  btmline.add(Region(m20));
+  btmline.add(Region(m30));
+
+  btmline.print();
+
+  printMatrix(btmline.toMask(mat));
+
+  printf("\nOutline:\n\n");
+
+  Mat m31(mat, Rect(3,1,1,1));
+  Mat m32(mat, Rect(3,2,1,1));
+  Mat m33(mat, Rect(3,3,1,1));
+  Mat m23(mat, Rect(2,3,1,1));
+  Mat m13(mat, Rect(1,3,1,1));
+  Mat m03(mat, Rect(0,3,1,1));
+  Mat m02(mat, Rect(0,2,1,1));
+  Mat m01(mat, Rect(0,1,1,1));
+
+
+  Region outline = btmline;
+  outline.add(Region(m31));
+  outline.add(Region(m32));
+  outline.add(Region(m33));
+  outline.add(Region(m23));
+  outline.add(Region(m13));
+  outline.add(Region(m03));
+  outline.add(Region(m02));
+  outline.add(Region(m01));
+
+  outline.print();
+  printMatrix(outline.toMask(mat));
 }
 
