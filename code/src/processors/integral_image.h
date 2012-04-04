@@ -17,7 +17,7 @@ class IntegralImage
 public:
   IntegralImage(Mat img);
   void compute();
-  double area(Point start, Point end);
+  float area(Point start, Point end);
 private:
   Mat m_img;
   Mat m_int;
