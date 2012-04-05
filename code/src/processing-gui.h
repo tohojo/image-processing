@@ -19,6 +19,7 @@ public:
   ~ProcessingGUI();
 
   void set_args(QMap<QString, QVariant> arguments);
+  void show();
 
 private:
   Mat input_image;

@@ -40,6 +40,7 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   connect(action_open_image, SIGNAL(activated()), this, SLOT(open_image()));
   connect(output_zoom, SIGNAL(sliderMoved(int)), this, SLOT(zoom_output(int)));
 
+  // Dock widgets showing/hiding w/menu
   connect(textDock, SIGNAL(closed(bool)),
           action_Textual_output, SLOT(setChecked(bool)));
   connect(inputDock, SIGNAL(closed(bool)),
@@ -48,6 +49,16 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
           actionProcessors, SLOT(setChecked(bool)));
   connect(propertiesDock, SIGNAL(closed(bool)),
           action_Properties, SLOT(setChecked(bool)));
+void ProcessingGUI::show()
+{
+  QMainWindow::show();
+  // Make sure the dock widget menu is updated correctly
+  action_Textual_output->setChecked(textDock->isVisible());
+  actionInput_image->setChecked(inputDock->isVisible());
+  actionProcessors->setChecked(processingDock->isVisible());
+  action_Properties->setChecked(propertiesDock->isVisible());
+}
+
 }
 
 void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
