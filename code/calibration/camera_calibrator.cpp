@@ -661,10 +661,6 @@ void CamCalibrator::calibrate()
 		cout << "> Squared error (" << i << "): " << F.at<double>(2,0) << "\n";
 	}*/
 
-	// NEXT #1: Use steepest descent optimisation starting from already determined approximate values
-	// to converge on the true values for the focal length and Tz.
-	// NEXT #2: The previous assumed distortion [kappa] = 0. Rewrite to solve for [kappa] at the same time.
-
 	cout << "\n****************\n\n";
 	cout << "~~~ Camera parameters: ~~~\n\n";
 	cout << " R =\t{ " << mat_R.at<double>(0,0) << "\t" << mat_R.at<double>(0,1) << "\t" << mat_R.at<double>(0,2) << "\t}\n";
@@ -749,16 +745,12 @@ Mat CamCalibrator::computeLeastSquaresForKappa(double kappa){
 
 // Back-project rays using the calculated matrices R, T, and values s, focalLength, deltaX, deltaY
 void CamCalibrator::checkResults(){
-	// Apply matrices in inverse order to image point, to transform into real world measurement
-	// Then check the accuracy against the appropriate point on the calibration object
 
-
+/*
 
 	// First do the forward direction, to check
 	Point3d pt1 = obj->getLeftPt(1,1);
 	Point3d pt2 = obj->getRightPt(2,2);
-	Point2d point1i = obj->getLeftAssocImagePt_RAW(1,1);
-	Point2d point2i = obj->getRightAssocImagePt_RAW(2,2);
 	Point2d point1iadj = obj->getLeftAssocImagePt_ADJ(1,1);
 	Point2d point2iadj = obj->getRightAssocImagePt_ADJ(2,2);
 	Mat point1 = Mat(4, 1, CV_64F, Scalar::all(1));
@@ -779,56 +771,82 @@ void CamCalibrator::checkResults(){
 	transform.at<double>(1,3) = mat_T.at<double>(1,0);
 	transform.at<double>(2,3) = mat_T.at<double>(2,0);
 	transform.at<double>(3,3) = 1.0;
-	Mat newpoint1 = transform * point1;
-	Mat newpoint2 = transform * point2;
-	//Mat focal = Mat(3, 4, CV_64F, Scalar::all(0));
-	//focal.at<double>(0,0) = 1.0;
-	//focal.at<double>(1,1) = 1.0;
-	//focal.at<double>(2,2) = 1.0/focalLength;
-	//Mat newpoint1a = focal * newpoint1;
-	//Mat newpoint2a = focal * newpoint2;
-	newpoint1.at<double>(0,0) = focalLength * (newpoint1.at<double>(0,0)/newpoint1.at<double>(2,0)); // x = f(X/Z) in camera coordinates XYZ
-	newpoint1.at<double>(1,0) = focalLength * (newpoint1.at<double>(1,0)/newpoint1.at<double>(2,0)); // y = f(Y/Z) in camera coordinates XYZ
-	newpoint2.at<double>(0,0) = focalLength * (newpoint2.at<double>(0,0)/newpoint2.at<double>(2,0)); // x = f(X/Z) in camera coordinates XYZ
-	newpoint2.at<double>(1,0) = focalLength * (newpoint2.at<double>(1,0)/newpoint2.at<double>(2,0)); // y = f(Y/Z) in camera coordinates XYZ
-
-		cout << "A2\n";
-/*
-	Mat xcyc = Mat(3, 3, CV_64F, Scalar::all(0));
-	xcyc.at<double>(2,2) = 1.0;
-	xcyc.at<double>(0,0) = -1.0;
-	xcyc.at<double>(1,1) = -1.0;
-	xcyc.at<double>(0,2) = imageLengthX/2; //?
-	xcyc.at<double>(1,2) = imageLengthY/2; //?
-	//Mat newpoint1b = xcyc * newpoint1a;
-	//Mat newpoint2b = xcyc * newpoint2a;
-	Mat newpoint1b = xcyc * newpoint1;
-	Mat newpoint2b = xcyc * newpoint2;
-	*/
-	
-	cout << "A1\n";
+	Mat newp1 = transform * point1;
+	Mat newp2 = transform * point2;
+	newp1.at<double>(0,0) = focalLength * (newp1.at<double>(0,0)/newp1.at<double>(2,0)); // x = f(X/Z) in camera coordinates XYZ
+	newp1.at<double>(1,0) = focalLength * (newp1.at<double>(1,0)/newp1.at<double>(2,0)); // y = f(Y/Z) in camera coordinates XYZ
+	newp2.at<double>(0,0) = focalLength * (newp2.at<double>(0,0)/newp2.at<double>(2,0)); // x = f(X/Z) in camera coordinates XYZ
+	newp2.at<double>(1,0) = focalLength * (newp2.at<double>(1,0)/newp2.at<double>(2,0)); // y = f(Y/Z) in camera coordinates XYZ
 
 	//
 	cout << "> Point1: (" << point1.at<double>(0,0) << ", " << point1.at<double>(1,0) << ", " << point1.at<double>(2,0) << ")\n";
-	cout << " Point1 calculated point: (" << newpoint1.at<double>(0,0) << ", " << newpoint1.at<double>(1,0) << ", " << newpoint1.at<double>(2,0) << ")\n";
-	//cout << " Point1a calculated point: (" << newpoint1a.at<double>(0,0) << ", " << newpoint1a.at<double>(1,0) << ", " << newpoint1a.at<double>(2,0) << ")\n";
-//	cout << " Point1b calculated point: (" << newpoint1b.at<double>(0,0) << ", " << newpoint1b.at<double>(1,0) << ", " << newpoint1b.at<double>(2,0) << ")\n";
-	cout << " Point1 RAW image point: (" << point1i.x << ", " << point1i.y << ")\n";
+	cout << " Point1 calculated pt: (" << newp1.at<double>(0,0) << ", " << newp1.at<double>(1,0) << ", " << newp1.at<double>(2,0) << ")\n";
+	cout << " Point1 calculated / sx: (" << newp1.at<double>(0,0)/sx << ", " << newp1.at<double>(1,0)/sx << ", " << newp1.at<double>(2,0)/sx << ")\n";
 	cout << " Point1 ADJ image point: (" << point1iadj.x << ", " << point1iadj.y << ")\n";
 	//
 	cout << "> Point2: (" << point2.at<double>(0,0) << ", " << point2.at<double>(1,0) << ", " << point2.at<double>(2,0) << ")\n";
-	cout << " Point2 calculated point: (" << newpoint2.at<double>(0,0) << ", " << newpoint2.at<double>(1,0) << ", " << newpoint2.at<double>(2,0) << ")\n";
-	//cout << " Point2a calculated point: (" << newpoint2a.at<double>(0,0) << ", " << newpoint2a.at<double>(1,0) << ", " << newpoint2a.at<double>(2,0) << ")\n";
-//	cout << " Point2b calculated point: (" << newpoint2b.at<double>(0,0) << ", " << newpoint2b.at<double>(1,0) << ", " << newpoint2b.at<double>(2,0) << ")\n";
-	cout << " Point2 RAW image point: (" << point2i.x << ", " << point2i.y << ")\n";
+	cout << " Point2 calculated pt: (" << newp2.at<double>(0,0) << ", " << newp2.at<double>(1,0) << ", " << newp2.at<double>(2,0) << ")\n";
+	cout << " Point2 calculated / sx: (" << newp2.at<double>(0,0)/sx << ", " << newp2.at<double>(1,0)/sx << ", " << newp2.at<double>(2,0)/sx << ")\n";
 	cout << " Point2 ADJ image point: (" << point2iadj.x << ", " << point2iadj.y << ")\n";
+*/
 
-//	(u v 1) = (-1 -1 1 on diagonal, xc yc in the third column) * (1 1 1/f diagonal) * rotation & trans
-	// * X Y Z real coordinates
+	double x_error_nil = 0.0;
+	double x_error_divd_sx = 0.0;
+	double x_error_mult_sx = 0.0;
+	double y_error_nil = 0.0;
+	double y_error_divd_sx = 0.0;
+	double y_error_mult_sx = 0.0;
+	for (int i = 0; i < 35; i++){
+		Point3d pt = obj->lMeasurements[i];
+		Point2d pt_ADJ = obj->lAssocImagePts_ADJ[i];
+		Mat pt1 = Mat(4, 1, CV_64F, Scalar::all(1));
+		pt1.at<double>(0,0) = pt.x;
+		pt1.at<double>(1,0) = pt.y;
+		pt1.at<double>(2,0) = pt.z;
+		Mat transform = Mat(4, 4, CV_64F, Scalar::all(0));
+		for (int i = 0; i < 3; i++){
+			for (int j = 0; j < 3; j++){
+				transform.at<double>(i,j) = mat_R.at<double>(i,j);
+			}
+		}
+		transform.at<double>(0,3) = mat_T.at<double>(0,0);
+		transform.at<double>(1,3) = mat_T.at<double>(1,0);
+		transform.at<double>(2,3) = mat_T.at<double>(2,0);
+		transform.at<double>(3,3) = 1.0;
+		pt1 = transform * pt1;
+		pt1.at<double>(0,0) = focalLength * (pt1.at<double>(0,0)/pt1.at<double>(2,0)); // x = f(X/Z) in camera coordinates XYZ
+		pt1.at<double>(1,0) = focalLength * (pt1.at<double>(1,0)/pt1.at<double>(2,0)); // y = f(Y/Z) in camera coordinates XYZ
+		double x_nil = pt1.at<double>(0,0);
+		double x_divd_sx = pt1.at<double>(0,0)/sx;
+		double x_mult_sx = pt1.at<double>(0,0)*sx;
+		x_error_nil += sqrt( (pt_ADJ.x - x_nil)*(pt_ADJ.x - x_nil) );
+		x_error_divd_sx += sqrt( (pt_ADJ.x - x_divd_sx)*(pt_ADJ.x - x_divd_sx) );
+		x_error_mult_sx += sqrt( (pt_ADJ.x - x_mult_sx)*(pt_ADJ.x - x_mult_sx) );
+		double y_nil = pt1.at<double>(1,0);
+		double y_divd_sx = pt1.at<double>(1,0)/sx;
+		double y_mult_sx = pt1.at<double>(1,0)*sx;
+		y_error_nil += sqrt( (pt_ADJ.y - y_nil)*(pt_ADJ.y - y_nil) );
+		y_error_divd_sx += sqrt( (pt_ADJ.y - y_divd_sx)*(pt_ADJ.y - y_divd_sx) );
+		y_error_mult_sx += sqrt( (pt_ADJ.y - y_mult_sx)*(pt_ADJ.y - y_mult_sx) );
+	}
+	cout << "\n === x error nil: " << x_error_nil << "\n";
+	cout << " === x/sx error: " << x_error_divd_sx << "\n";
+	cout << " === x*sx error: " << x_error_mult_sx << "\n";
+	cout << "\n === y error nil: " << y_error_nil << "\n";
+	cout << " === y/sx error: " << y_error_divd_sx << "\n";
+	cout << " === y*sx error: " << y_error_mult_sx << "\n";
 
-	// what about scale factor? maybe divide the u and v resulting by s; or maybe it factors into f
-
-// xc yc map into the distance to image centre, maybe? -1 if opposite to normal??
+	// #1. Add kappa, confirm what to do with sx.
+	// #2. Work out how to apply calculations in inverse order to image point,
+	//		to transform into real world measurement
+	// #3. Check my descent optimisation is actually working as it should.
+	// #4. Combine with QT, step 1: output calibration results to text panel.
+	// #5. Combine with QT, step 2: add a processor that does this (still working from txt file of pts).
+	// #6. Combine with QT, step 3: change the processor so that you click on patches in an image,
+	//		and it floodfills from the cursor; average x and y for those pixels to get image points;
+	//		perform calibration.
+	// #7. EXPERIMENTS: Backprojection for several images from several cameras,
+	//		check accuracy against the appropriate point on the calibration object
 
 }
 
