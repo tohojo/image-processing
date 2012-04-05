@@ -9,6 +9,7 @@
 #define IMAGEGRAPHICSITEM_H
 
 #include <QtGui/QGraphicsPixmapItem>
+#include "poiitem.h"
 
 class ImageGraphicsItem : public QObject, public QGraphicsPixmapItem
 {
@@ -19,6 +20,7 @@ public:
   ImageGraphicsItem(const QPixmap &pixmap, QGraphicsItem *parent = 0);
   ~ImageGraphicsItem();
   void setPixmap(const QPixmap &pixmap);
+  void removePOI(POIItem * poi);
 
 signals:
   void newPOI(QPoint p);
@@ -27,6 +29,7 @@ signals:
 private:
   void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
   void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
   void init();
 };
 

@@ -56,13 +56,30 @@ void ImageGraphicsItem::setPixmap(const QPixmap &pixmap)
   }
 }
 
+void ImageGraphicsItem::removePOI(POIItem *poi)
+{
+  QPoint p = poi->pos().toPoint();
+  delete poi;
+  emit POIRemoved(p);
+}
+
 void ImageGraphicsItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-  qDebug() << "Adding POI at: " << event->pos();
-  emit newPOI(event->pos().toPoint());
+  QPoint p = event->pos().toPoint();
+  qDebug("Adding POI at (%d,%d)", p.x(), p.y());
+  emit newPOI(p);
+
+  POIItem * poi = new POIItem(this);
+  poi->setPos(p);
 }
 
 void ImageGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+  event->ignore();
+}
+
+void ImageGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+  scene()->clearSelection();
   event->ignore();
 }
