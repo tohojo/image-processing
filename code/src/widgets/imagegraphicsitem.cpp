@@ -9,17 +9,27 @@
 #include <QtGui/QGraphicsScene>
 #include <QtGui/QGraphicsView>
 #include <QtGui/QTransform>
+#include <QtGui/QMenu>
+#include <QtGui/QGraphicsSceneMouseEvent>
 #include <QDebug>
 
 ImageGraphicsItem::ImageGraphicsItem(QGraphicsItem *parent)
   :QGraphicsPixmapItem(parent)
 {
+  init();
 }
 
 ImageGraphicsItem::ImageGraphicsItem(const QPixmap &pixmap, QGraphicsItem *parent)
   :QGraphicsPixmapItem(parent)
 {
+  init();
   setPixmap(pixmap);
+}
+
+void ImageGraphicsItem::init()
+{
+  setFlags(QGraphicsItem::ItemIsSelectable);
+  setCursor(Qt::CrossCursor);
 }
 
 ImageGraphicsItem::~ImageGraphicsItem()
@@ -46,6 +56,13 @@ void ImageGraphicsItem::setPixmap(const QPixmap &pixmap)
   }
 }
 
-void ImageGraphicsItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent */*event*/)
+void ImageGraphicsItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
+  qDebug() << "Adding POI at: " << event->pos();
+  emit newPOI(event->pos().toPoint());
+}
+
+void ImageGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+  event->ignore();
 }

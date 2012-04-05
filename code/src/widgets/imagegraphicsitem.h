@@ -10,8 +10,9 @@
 
 #include <QtGui/QGraphicsPixmapItem>
 
-class ImageGraphicsItem : public QGraphicsPixmapItem
+class ImageGraphicsItem : public QObject, public QGraphicsPixmapItem
 {
+  Q_OBJECT
 
 public:
   ImageGraphicsItem(QGraphicsItem *parent = 0);
@@ -19,8 +20,14 @@ public:
   ~ImageGraphicsItem();
   void setPixmap(const QPixmap &pixmap);
 
+signals:
+  void newPOI(QPoint p);
+  void POIRemoved(QPoint p);
+
 private:
   void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+  void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  void init();
 };
 
 #endif

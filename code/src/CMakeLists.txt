@@ -2,7 +2,6 @@ set(image-processing_SOURCES
   main.cpp
   message-handler.cpp
   processing-gui.cpp
-  widgets/imagegraphicsitem.h
   widgets/imagegraphicsitem.cpp
   widgets/resizingimagelabel.cpp
   widgets/signalingdockwidget.cpp
@@ -19,6 +18,7 @@ set(image-processing_SOURCES
 set(image-processing_HEADERS
   message-handler.h
   processing-gui.h
+  widgets/imagegraphicsitem.h
   widgets/resizingimagelabel.h
   widgets/signalingdockwidget.h
   processors/processor.h
