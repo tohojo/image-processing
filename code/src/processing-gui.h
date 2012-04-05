@@ -32,6 +32,9 @@ private:
   QGraphicsScene *output_scene;
   ProcessorModel *processor_model;
   QItemSelectionModel *processor_selection;
+  void readSettings();
+  void closeEvent(QCloseEvent *event);
+
 
 public slots:
   void set_processor(Processor *proc);

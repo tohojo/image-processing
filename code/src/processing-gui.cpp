@@ -8,6 +8,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTime>
+#include <QtCore/QSettings>
 #include <QDebug>
 
 #include "processing-gui.h"
@@ -49,6 +50,20 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
           actionProcessors, SLOT(setChecked(bool)));
   connect(propertiesDock, SIGNAL(closed(bool)),
           action_Properties, SLOT(setChecked(bool)));
+
+  readSettings();
+
+}
+
+ProcessingGUI::~ProcessingGUI()
+{
+  delete output_scene;
+  delete processor_selection;
+  delete processor_model;
+  if(current_processor != NULL)
+    delete current_processor;
+}
+
 void ProcessingGUI::show()
 {
   QMainWindow::show();
@@ -59,6 +74,19 @@ void ProcessingGUI::show()
   action_Properties->setChecked(propertiesDock->isVisible());
 }
 
+void ProcessingGUI::readSettings()
+{
+  QSettings settings("Ben & Toke Inc.", "Image Processing");
+  restoreGeometry(settings.value("ProcessingGUI/geometry").toByteArray());
+  restoreState(settings.value("ProcessingGUI/windowState").toByteArray());
+}
+
+void ProcessingGUI::closeEvent(QCloseEvent * event)
+{
+  QSettings settings("Ben & Toke Inc.", "Image Processing");
+  settings.setValue("ProcessingGUI/geometry", saveGeometry());
+  settings.setValue("ProcessingGUI/windowState", saveState());
+  QMainWindow::closeEvent(event);
 }
 
 void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
@@ -101,14 +129,6 @@ void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
   }
 }
 
-ProcessingGUI::~ProcessingGUI()
-{
-  delete output_scene;
-  delete processor_selection;
-  delete processor_model;
-  if(current_processor != NULL)
-    delete current_processor;
-}
 
 void ProcessingGUI::zoom_output(int value)
 {
