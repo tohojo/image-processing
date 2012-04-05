@@ -60,6 +60,13 @@ void Segmenting::thresholdSegment(bool adapt) {
   Scalar m = mean(input_image);
   m_threshold = cvRound(m[0]);
 
+  if(POIs.size()) {
+    qDebug("Current POIs:");
+    foreach(Point pt, POIs) {
+      qDebug("  (%d,%d)", pt.x, pt.y);
+    }
+  }
+
   if(adapt) {
     emit progress(30);
     qDebug("Threshold before: %d", m_threshold);

@@ -37,6 +37,14 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
           this, SLOT(new_processor(const QModelIndex&)));
   connect(processButton, SIGNAL(clicked()), this, SLOT(process_button_clicked()));
 
+  // Connect the POI signals to all processors
+  for(int i = 0; i < processor_model->rowCount(); i++) {
+    connect(current_image, SIGNAL(newPOI(QPoint)),
+            processor_model->get_processor(i), SLOT(addPOI(QPoint)));
+    connect(current_image, SIGNAL(POIRemoved(QPoint)),
+            processor_model->get_processor(i), SLOT(deletePOI(QPoint)));
+  }
+
   // Start out by selection first index.
   processor_selection->setCurrentIndex(processor_model->index(0), QItemSelectionModel::SelectCurrent);
 
