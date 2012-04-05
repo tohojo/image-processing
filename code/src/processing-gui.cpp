@@ -194,6 +194,18 @@ void ProcessingGUI::load_image(QString filename)
   input_view->setImage(qImg);
   input_filename->setText(fileinfo.fileName());
   emit image_changed();
+
+  // Scale the graphics view to leave 15 pixels of air on each side
+  // of the image, and recenter it.
+  QSize s = qImg.size();
+  QRect r = output_view->frameRect();
+  float scale = qMin((r.width()-30.0f)/s.width(), (r.height()-30.0f)/s.height());
+  scale = qMax(scale, 0.01f);
+  scale = qMin(scale, 4.0f);
+  QTransform transform = QTransform::fromScale(scale, scale);
+  output_view->centerOn(current_image);
+  output_view->setTransform(transform);
+
 }
 
 void ProcessingGUI::set_processor(Processor *proc)
