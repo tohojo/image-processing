@@ -752,11 +752,15 @@ void CamCalibrator::checkResults(){
 	// Apply matrices in inverse order to image point, to transform into real world measurement
 	// Then check the accuracy against the appropriate point on the calibration object
 
+
+
 	// First do the forward direction, to check
 	Point3d pt1 = obj->getLeftPt(1,1);
 	Point3d pt2 = obj->getRightPt(2,2);
 	Point2d point1i = obj->getLeftAssocImagePt_RAW(1,1);
 	Point2d point2i = obj->getRightAssocImagePt_RAW(2,2);
+	Point2d point1iadj = obj->getLeftAssocImagePt_ADJ(1,1);
+	Point2d point2iadj = obj->getRightAssocImagePt_ADJ(2,2);
 	Mat point1 = Mat(4, 1, CV_64F, Scalar::all(1));
 	point1.at<double>(0,0) = pt1.x;
 	point1.at<double>(1,0) = pt1.y;
@@ -777,34 +781,47 @@ void CamCalibrator::checkResults(){
 	transform.at<double>(3,3) = 1.0;
 	Mat newpoint1 = transform * point1;
 	Mat newpoint2 = transform * point2;
-	Mat focal = Mat(3, 4, CV_64F, Scalar::all(0));
-	focal.at<double>(0,0) = 1.0;
-	focal.at<double>(1,1) = 1.0;
-	focal.at<double>(2,2) = 1.0/focalLength;
-	Mat newpoint1a = focal * newpoint1;
-	Mat newpoint2a = focal * newpoint2;
+	//Mat focal = Mat(3, 4, CV_64F, Scalar::all(0));
+	//focal.at<double>(0,0) = 1.0;
+	//focal.at<double>(1,1) = 1.0;
+	//focal.at<double>(2,2) = 1.0/focalLength;
+	//Mat newpoint1a = focal * newpoint1;
+	//Mat newpoint2a = focal * newpoint2;
+	newpoint1.at<double>(0,0) = focalLength * (newpoint1.at<double>(0,0)/newpoint1.at<double>(2,0)); // x = f(X/Z) in camera coordinates XYZ
+	newpoint1.at<double>(1,0) = focalLength * (newpoint1.at<double>(1,0)/newpoint1.at<double>(2,0)); // y = f(Y/Z) in camera coordinates XYZ
+	newpoint2.at<double>(0,0) = focalLength * (newpoint2.at<double>(0,0)/newpoint2.at<double>(2,0)); // x = f(X/Z) in camera coordinates XYZ
+	newpoint2.at<double>(1,0) = focalLength * (newpoint2.at<double>(1,0)/newpoint2.at<double>(2,0)); // y = f(Y/Z) in camera coordinates XYZ
+
+		cout << "A2\n";
+/*
 	Mat xcyc = Mat(3, 3, CV_64F, Scalar::all(0));
 	xcyc.at<double>(2,2) = 1.0;
 	xcyc.at<double>(0,0) = -1.0;
 	xcyc.at<double>(1,1) = -1.0;
 	xcyc.at<double>(0,2) = imageLengthX/2; //?
 	xcyc.at<double>(1,2) = imageLengthY/2; //?
-	Mat newpoint1b = xcyc * newpoint1a;
-	Mat newpoint2b = xcyc * newpoint2a;
+	//Mat newpoint1b = xcyc * newpoint1a;
+	//Mat newpoint2b = xcyc * newpoint2a;
+	Mat newpoint1b = xcyc * newpoint1;
+	Mat newpoint2b = xcyc * newpoint2;
+	*/
 	
+	cout << "A1\n";
+
 	//
 	cout << "> Point1: (" << point1.at<double>(0,0) << ", " << point1.at<double>(1,0) << ", " << point1.at<double>(2,0) << ")\n";
 	cout << " Point1 calculated point: (" << newpoint1.at<double>(0,0) << ", " << newpoint1.at<double>(1,0) << ", " << newpoint1.at<double>(2,0) << ")\n";
-	cout << " Point1a calculated point: (" << newpoint1a.at<double>(0,0) << ", " << newpoint1a.at<double>(1,0) << ", " << newpoint1a.at<double>(2,0) << ")\n";
-	cout << " Point1b calculated point: (" << newpoint1b.at<double>(0,0) << ", " << newpoint1b.at<double>(1,0) << ", " << newpoint1b.at<double>(2,0) << ")\n";
+	//cout << " Point1a calculated point: (" << newpoint1a.at<double>(0,0) << ", " << newpoint1a.at<double>(1,0) << ", " << newpoint1a.at<double>(2,0) << ")\n";
+//	cout << " Point1b calculated point: (" << newpoint1b.at<double>(0,0) << ", " << newpoint1b.at<double>(1,0) << ", " << newpoint1b.at<double>(2,0) << ")\n";
 	cout << " Point1 RAW image point: (" << point1i.x << ", " << point1i.y << ")\n";
+	cout << " Point1 ADJ image point: (" << point1iadj.x << ", " << point1iadj.y << ")\n";
 	//
 	cout << "> Point2: (" << point2.at<double>(0,0) << ", " << point2.at<double>(1,0) << ", " << point2.at<double>(2,0) << ")\n";
 	cout << " Point2 calculated point: (" << newpoint2.at<double>(0,0) << ", " << newpoint2.at<double>(1,0) << ", " << newpoint2.at<double>(2,0) << ")\n";
-	cout << " Point2a calculated point: (" << newpoint2a.at<double>(0,0) << ", " << newpoint2a.at<double>(1,0) << ", " << newpoint2a.at<double>(2,0) << ")\n";
-	cout << " Point2b calculated point: (" << newpoint2b.at<double>(0,0) << ", " << newpoint2b.at<double>(1,0) << ", " << newpoint2b.at<double>(2,0) << ")\n";
+	//cout << " Point2a calculated point: (" << newpoint2a.at<double>(0,0) << ", " << newpoint2a.at<double>(1,0) << ", " << newpoint2a.at<double>(2,0) << ")\n";
+//	cout << " Point2b calculated point: (" << newpoint2b.at<double>(0,0) << ", " << newpoint2b.at<double>(1,0) << ", " << newpoint2b.at<double>(2,0) << ")\n";
 	cout << " Point2 RAW image point: (" << point2i.x << ", " << point2i.y << ")\n";
-	
+	cout << " Point2 ADJ image point: (" << point2iadj.x << ", " << point2iadj.y << ")\n";
 
 //	(u v 1) = (-1 -1 1 on diagonal, xc yc in the third column) * (1 1 1/f diagonal) * rotation & trans
 	// * X Y Z real coordinates
