@@ -7,6 +7,7 @@
 #include "processor.h"
 #include "null_processor.h"
 #include "processor_model.h"
+#include "imagegraphicsitem.h"
 
 using namespace cv;
 
@@ -32,6 +33,7 @@ private:
   QGraphicsScene *output_scene;
   ProcessorModel *processor_model;
   QItemSelectionModel *processor_selection;
+  ImageGraphicsItem *current_image;
   void readSettings();
   void closeEvent(QCloseEvent *event);
 

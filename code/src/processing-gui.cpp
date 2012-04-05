@@ -26,6 +26,8 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
 
   output_scene = new QGraphicsScene(this);
   output_view->setScene(output_scene);
+  current_image = new ImageGraphicsItem();
+  output_scene->addItem(current_image);
 
   processor_model = new ProcessorModel();
   processor_selection = new QItemSelectionModel(processor_model);
@@ -143,11 +145,9 @@ void ProcessingGUI::update_output()
     qDebug("Batch processing complete.");
     return;
   }
-  output_scene->clear();
   QImage img = Util::mat_to_qimage(current_processor->get_output());
-  QGraphicsPixmapItem *image = output_scene->addPixmap(QPixmap::fromImage(img));
-  output_scene->setSceneRect(image->boundingRect());
-  output_view->ensureVisible(image->boundingRect());
+  current_image->setPixmap(QPixmap::fromImage(img));
+  output_zoom->setSliderPosition(output_view->transform().m11()*100);
 }
 
 
