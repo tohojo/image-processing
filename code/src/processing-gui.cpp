@@ -245,6 +245,6 @@ void ProcessingGUI::process_button_clicked()
 void ProcessingGUI::newMessage(QString msg)
 {
   QString message = QString("%1: %2");
-  message = message.arg(QTime::currentTime().toString("hh:mm:ss"), msg);
+  message = message.arg(QTime::currentTime().toString("hh:mm:ss.zzz"), msg);
   textOutput->appendPlainText(message);
 }
