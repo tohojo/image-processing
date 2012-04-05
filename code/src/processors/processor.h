@@ -32,6 +32,7 @@ public slots:
 signals:
   void updated();
   void progress(int value) const;
+  void newMessage(QString msg) const;
 
 protected:
   virtual void run();

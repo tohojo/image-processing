@@ -1,6 +1,7 @@
 #include <QtGui/QApplication>
 #include <iostream>
 #include "processing-gui.h"
+#include "message-handler.h"
 
 /**
  * Helper function to check that the argument list contains one more
@@ -59,14 +60,22 @@ QMap<QString, QVariant> parseArgs(QStringList args)
   return parsed;
 }
 
+MessageHandler handler;
+
+void msgHandler(QtMsgType type, const char* msg)
+{
+  handler.msgHandler(type, msg);
+}
 
 int main(int argc, char *argv[])
 {
+  qInstallMsgHandler(msgHandler);
   QApplication app(argc, argv);
 
   QMap<QString, QVariant> args = parseArgs(app.arguments());
 
   ProcessingGUI ui;
+  ui.connect(&handler, SIGNAL(newMessage(QString)), &ui, SLOT(newMessage(QString)));
   if(!args.contains("batch")) {
     ui.show();
     ui.set_args(args);

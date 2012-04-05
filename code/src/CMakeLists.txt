@@ -1,5 +1,6 @@
 set(image-processing_SOURCES
   main.cpp
+  message-handler.cpp
   processing-gui.cpp
   widgets/resizingimagelabel.cpp
   processors/processor.cpp
@@ -13,6 +14,7 @@ set(image-processing_SOURCES
   util.cpp
   util.h)
 set(image-processing_HEADERS
+  message-handler.h
   processing-gui.h
   widgets/resizingimagelabel.h
   processors/processor.h

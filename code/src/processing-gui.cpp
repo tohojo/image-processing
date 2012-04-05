@@ -7,6 +7,7 @@
 #include <QtGui/QMessageBox>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QTime>
 #include <QDebug>
 
 #include "processing-gui.h"
@@ -150,8 +151,8 @@ void ProcessingGUI::load_image(QString filename)
 void ProcessingGUI::set_processor(Processor *proc)
 {
   if(current_processor != NULL) {
-    current_processor->disconnect();
-    disconnect(this, 0, current_processor, 0);
+    current_processor->disconnect(this);
+    this->disconnect(current_processor);
     current_processor->cancel();
   }
 
@@ -160,6 +161,7 @@ void ProcessingGUI::set_processor(Processor *proc)
   connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));
   connect(current_processor, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)));
   connect(current_processor, SIGNAL(progress(int)), this, SLOT(setProgress(int)));
+  connect(current_processor, SIGNAL(newMessage(QString)), SLOT(newMessage(QString)));
   if(m_batch) {
     current_processor->set_input(input_image);
     current_processor->run_once();
@@ -198,4 +200,11 @@ void ProcessingGUI::process_button_clicked()
   } else {
     current_processor->process();
   }
+}
+
+void ProcessingGUI::newMessage(QString msg)
+{
+  QString message = QString("%1: %2");
+  message = message.arg(QTime::currentTime().toString("hh:mm:ss"), msg);
+  textOutput->appendPlainText(message);
 }

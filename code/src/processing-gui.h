@@ -34,6 +34,7 @@ private:
 
 public slots:
   void set_processor(Processor *proc);
+  void newMessage(QString msg);
 
 private slots:
   void zoom_output(int value);

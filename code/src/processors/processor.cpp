@@ -79,3 +79,4 @@ Mat Processor::get_output()
   QMutexLocker locker(&mutex);
   return output_image;
 }
+
