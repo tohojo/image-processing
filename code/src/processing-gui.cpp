@@ -39,6 +39,15 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
 
   connect(action_open_image, SIGNAL(activated()), this, SLOT(open_image()));
   connect(output_zoom, SIGNAL(sliderMoved(int)), this, SLOT(zoom_output(int)));
+
+  connect(textDock, SIGNAL(closed(bool)),
+          action_Textual_output, SLOT(setChecked(bool)));
+  connect(inputDock, SIGNAL(closed(bool)),
+          actionInput_image, SLOT(setChecked(bool)));
+  connect(processingDock, SIGNAL(closed(bool)),
+          actionProcessors, SLOT(setChecked(bool)));
+  connect(propertiesDock, SIGNAL(closed(bool)),
+          action_Properties, SLOT(setChecked(bool)));
 }
 
 void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {

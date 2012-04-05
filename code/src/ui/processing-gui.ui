@@ -141,7 +141,7 @@
    <addaction name="menu_View"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QDockWidget" name="processingDock">
+  <widget class="SignalingDockWidget" name="processingDock">
    <property name="windowTitle">
     <string>Processing functions</string>
    </property>
@@ -156,7 +156,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="inputDock">
+  <widget class="SignalingDockWidget" name="inputDock">
    <property name="windowTitle">
     <string>Input image</string>
    </property>
@@ -203,7 +203,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="propertiesDock">
+  <widget class="SignalingDockWidget" name="propertiesDock">
    <property name="windowTitle">
     <string>Properties</string>
    </property>
@@ -218,7 +218,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="textDock">
+  <widget class="SignalingDockWidget" name="textDock">
    <property name="windowTitle">
     <string>Textual output</string>
    </property>
@@ -229,12 +229,6 @@
     <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
       <widget class="QPlainTextEdit" name="textOutput">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="font">
         <font>
          <family>Monospace</family>
@@ -327,6 +321,12 @@
    <extends>QTreeView</extends>
    <header>QPropertyEditorWidget.h</header>
   </customwidget>
+  <customwidget>
+   <class>SignalingDockWidget</class>
+   <extends>QDockWidget</extends>
+   <header>signalingdockwidget.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -363,22 +363,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>textDock</sender>
-   <signal>visibilityChanged(bool)</signal>
-   <receiver>action_Textual_output</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>499</x>
-     <y>612</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionProcessors</sender>
    <signal>toggled(bool)</signal>
    <receiver>processingDock</receiver>
@@ -391,22 +375,6 @@
     <hint type="destinationlabel">
      <x>122</x>
      <y>225</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>processingDock</sender>
-   <signal>visibilityChanged(bool)</signal>
-   <receiver>actionProcessors</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>122</x>
-     <y>225</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
     </hint>
    </hints>
   </connection>
@@ -427,22 +395,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>propertiesDock</sender>
-   <signal>visibilityChanged(bool)</signal>
-   <receiver>action_Properties</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>874</x>
-     <y>279</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionInput_image</sender>
    <signal>toggled(bool)</signal>
    <receiver>inputDock</receiver>
@@ -455,22 +407,6 @@
     <hint type="destinationlabel">
      <x>122</x>
      <y>487</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>inputDock</sender>
-   <signal>visibilityChanged(bool)</signal>
-   <receiver>actionInput_image</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>122</x>
-     <y>487</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
     </hint>
    </hints>
   </connection>
