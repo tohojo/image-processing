@@ -11,8 +11,9 @@ FeaturePoints::FeaturePoints(QObject *parent)
   : Processor(parent)
 {
   m_threshold = 10.0;
+  // Default values from SURF article, pg 5.
   m_segments = 4;
-  m_octaves = 3;
+  m_octaves = 4;
 }
 
 FeaturePoints::~FeaturePoints()
