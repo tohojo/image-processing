@@ -49,7 +49,10 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   processor_selection->setCurrentIndex(processor_model->index(0), QItemSelectionModel::SelectCurrent);
 
   connect(action_open_image, SIGNAL(activated()), this, SLOT(open_image()));
-  connect(output_zoom, SIGNAL(sliderMoved(int)), this, SLOT(zoom_output(int)));
+  
+  connect(output_zoom, SIGNAL(valueChanged(int)), this, SLOT(zoom_output(int)));
+  connect(output_view, SIGNAL(zoomUpdated(int)),
+          output_zoom, SLOT(setValue(int)));
 
   // Dock widgets showing/hiding w/menu
   connect(textDock, SIGNAL(closed(bool)),
@@ -155,7 +158,6 @@ void ProcessingGUI::update_output()
   }
   QImage img = Util::mat_to_qimage(current_processor->get_output());
   current_image->setPixmap(QPixmap::fromImage(img));
-  output_zoom->setSliderPosition(output_view->transform().m11()*100);
 }
 
 
@@ -205,7 +207,6 @@ void ProcessingGUI::load_image(QString filename)
   QTransform transform = QTransform::fromScale(scale, scale);
   output_view->centerOn(current_image);
   output_view->setTransform(transform);
-
 }
 
 void ProcessingGUI::set_processor(Processor *proc)

@@ -2,6 +2,7 @@ set(image-processing_SOURCES
   main.cpp
   message-handler.cpp
   processing-gui.cpp
+  widgets/graphicsview.cpp
   widgets/imagegraphicsitem.cpp
   widgets/poiitem.h
   widgets/poiitem.cpp
@@ -20,6 +21,7 @@ set(image-processing_SOURCES
 set(image-processing_HEADERS
   message-handler.h
   processing-gui.h
+  widgets/graphicsview.h
   widgets/imagegraphicsitem.h
   widgets/resizingimagelabel.h
   widgets/signalingdockwidget.h
