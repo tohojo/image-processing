@@ -160,7 +160,7 @@ float FastHessian::filterXY(Point p, int size)
   float filter_bl = m_integral->area(Point(p.x-size-1, p.y),
                                      Point(p.x-1, p.y+size));
   float filter_br = m_integral->area(p,
-                                     Point(p.x+size, p.x+size));
+                                     Point(p.x+size, p.y+size));
 
   return -1*(filter_tl+filter_br)+ 2*(filter_bl+filter_tr);
 }
