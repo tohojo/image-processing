@@ -18,6 +18,7 @@ FastHessian::FastHessian(Mat &img, int octaves, int intervals, float threshold)
   for(int i = 0; i < octaves*intervals; i++) {
     m_scales[i] = Mat::zeros(img.rows, img.cols, CV_32F);
   }
+  m_computed = false;
 }
 
 FastHessian::~FastHessian()
