@@ -1,4 +1,4 @@
-#include <QtCore/QMutableListIterator> 
+#include <QtCore/QMutableListIterator>
 #include "segmenting.h"
 #include "util.h"
 
