@@ -27,7 +27,13 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
     s = 1.0/(-delta/100.0);
   else
     s = delta/100.0;
+  QPointF before = mapToScene(event->pos());
+  QPointF center = mapToScene(QPoint(viewport()->width()/2, viewport()->height()/2));
   scale(s,s);
+  ensureVisible(QRectF(before, QSize(1,1)));
+  QPointF after = mapToScene(event->pos());
+  centerOn(center-(after-before));
+
   event->accept();
 }
 
