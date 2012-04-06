@@ -6,6 +6,7 @@
  */
 
 #include "integral_image.h"
+#include <QDebug>
 
 IntegralImage::IntegralImage(Mat &img)
 {
@@ -32,8 +33,15 @@ void IntegralImage::compute()
 
 float IntegralImage::area(Point start, Point end)
 {
-  return m_int.at<float>(start) +
-         m_int.at<float>(end) -
+  if(end.x>=m_int.cols || end.y>=m_int.rows) {
+    qFatal("End value too large: (%d, %d) (max (%d,%d))", end.x, end.y, m_int.cols, m_int.rows);
+  }
+  float res = m_int.at<float>(end) -
         (m_int.at<float>(Point(start.x,end.y))+
          m_int.at<float>(Point(end.x,start.y)));
+
+  if(start.x >= 0 && start.y >= 0)
+    res += m_int.at<float>(start);
+
+  return res;
 }
