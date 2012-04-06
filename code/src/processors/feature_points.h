@@ -36,6 +36,7 @@ public:
 
 private:
   void run();
+  void compute();
 
   int m_octaves;
   int m_intervals;

@@ -52,20 +52,50 @@ void FeaturePoints::setThreshold(double threshold)
 void FeaturePoints::run()
 {
   forever {
-    if(abort) return;
     mutex.lock();
-    FastHessian fh(input_image, m_octaves, m_intervals, m_threshold);
-    fh.compute();
-    QList<Point> pts = fh.interestPoints();
-    qDebug("Got %d interest points.", pts.size());
-    output_image = input_image;
-    emit progress(100);
-    emit updated();
-    if(once) return;
+    bool isEmpty = input_image.empty();
+    if(abort) {
+      mutex.unlock();
+      return;
+    }
+    mutex.unlock();
+
+    if(!isEmpty)
+      compute();
+
+    mutex.lock();
+    if(!restart && !isEmpty) {
+      emit progress(100);
+      emit updated();
+    }
+    if(once) {
+      mutex.unlock();
+      return;
+    }
 
     if(!restart)
       condition.wait(&mutex);
     restart = false;
     mutex.unlock();
   }
+}
+
+void FeaturePoints::compute()
+{
+  emit progress(0);
+  mutex.lock();
+  FastHessian fh(input_image, m_octaves, m_intervals, m_threshold);
+  mutex.unlock();
+
+  emit progress(10);
+  fh.compute();
+
+  QList<Point> pts = fh.interestPoints();
+  qDebug("Got %d interest points.", pts.size());
+  mutex.lock();
+  input_image.copyTo(output_image);
+  foreach(Point pt, pts) {
+    circle(output_image, pt, 5, 255);
+  }
+  mutex.unlock();
 }
