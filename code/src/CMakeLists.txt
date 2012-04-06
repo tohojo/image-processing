@@ -13,6 +13,8 @@ set(image-processing_SOURCES
   processors/segmenting.cpp
   processors/null_processor.cpp
   processors/processor_model.cpp
+  processors/fast_hessian.h
+  processors/fast_hessian.cpp
   processors/integral_image.h
   processors/integral_image.cpp
   processors/rpoint.h
