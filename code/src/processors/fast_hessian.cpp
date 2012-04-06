@@ -35,7 +35,7 @@ void FastHessian::compute()
   int o,i,x,y;
 
   for(o = 0; o < m_octaves; o++) {
-    int border = ((3 * pow(2, o+1)*(m_intervals)+1)+1)/2;
+    int border = ((3 * pow(2, o+1)*(m_intervals)+1)+1)/2+1;
     for(i = 0; i < m_intervals; i++) {
       int lobe_s = pow(2,o+1)*(i+1)+1;
       int lobe_l = pow(2,o+1)*2*(i+1)+1;
