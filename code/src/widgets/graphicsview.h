@@ -11,6 +11,7 @@
 #include <QtGui/QGraphicsScene>
 #include <QtGui/QWheelEvent>
 #include <QtGui/QTransform>
+#include <QtGui/QPainter>
 
 class GraphicsView : public QGraphicsView
 {
@@ -18,7 +19,6 @@ class GraphicsView : public QGraphicsView
 
 public:
   GraphicsView(QWidget *parent =0);
-  GraphicsView(QGraphicsScene *scene, QWidget *parent =0);
   ~GraphicsView();
   void updateZoom();
   void setTransform(const QTransform &matrix, bool combine = false);
@@ -29,6 +29,7 @@ signals:
 
 private:
   void wheelEvent(QWheelEvent *event);
+  void drawForeground(QPainter *painter, const QRectF &rect);
 };
 
 #endif
