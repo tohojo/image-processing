@@ -6,6 +6,7 @@
  */
 
 #include "feature_points.h"
+#include "fast_hessian.h"
 
 FeaturePoints::FeaturePoints(QObject *parent)
   : Processor(parent)
@@ -53,6 +54,10 @@ void FeaturePoints::run()
   forever {
     if(abort) return;
     mutex.lock();
+    FastHessian fh(input_image, m_octaves, m_intervals, m_threshold);
+    fh.compute();
+    QList<Point> pts = fh.interestPoints();
+    qDebug("Got %d interest points.", pts.size());
     output_image = input_image;
     emit progress(100);
     emit updated();
