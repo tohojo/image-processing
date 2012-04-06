@@ -16,7 +16,7 @@ class FeaturePoints: public Processor
   Q_OBJECT
 
   Q_PROPERTY(int Octaves READ octaves WRITE setOctaves USER true)
-  Q_PROPERTY(int Segments READ segments WRITE setSegments USER true)
+  Q_PROPERTY(int Intervals READ intervals WRITE setIntervals USER true)
   Q_PROPERTY(double Threshold READ threshold WRITE setThreshold USER true)
 
 public:
@@ -28,8 +28,8 @@ public:
   int octaves() {QMutexLocker locker(&mutex); return m_octaves;}
   void setOctaves(const int octaves);
 
-  int segments() {QMutexLocker locker(&mutex); return m_segments;}
-  void setSegments(const int segments);
+  int intervals() {QMutexLocker locker(&mutex); return m_intervals;}
+  void setIntervals(const int intervals);
 
   double threshold() {QMutexLocker locker(&mutex); return m_threshold;}
   void setThreshold(const double threshold);
@@ -38,7 +38,7 @@ private:
   void run();
 
   int m_octaves;
-  int m_segments;
+  int m_intervals;
   double m_threshold;
 };
 

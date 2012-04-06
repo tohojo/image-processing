@@ -12,7 +12,7 @@ FeaturePoints::FeaturePoints(QObject *parent)
 {
   m_threshold = 10.0;
   // Default values from SURF article, pg 5.
-  m_segments = 4;
+  m_intervals = 4;
   m_octaves = 4;
 }
 
@@ -29,11 +29,11 @@ void FeaturePoints::setOctaves(int octaves)
   process();
 }
 
-void FeaturePoints::setSegments(int segments)
+void FeaturePoints::setIntervals(int intervals)
 {
   QMutexLocker locker(&mutex);
-  if(m_segments == segments) return;
-  m_segments = segments;
+  if(m_intervals == intervals) return;
+  m_intervals = intervals;
   mutex.unlock();
   process();
 }
