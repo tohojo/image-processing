@@ -28,6 +28,7 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   output_view->setScene(output_scene);
   current_image = new ImageGraphicsItem();
   output_scene->addItem(current_image);
+  connect(this, SIGNAL(image_changed()), current_image, SLOT(clearPOIs()));
 
   processor_model = new ProcessorModel();
   processor_selection = new QItemSelectionModel(processor_model);
@@ -49,7 +50,7 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   processor_selection->setCurrentIndex(processor_model->index(0), QItemSelectionModel::SelectCurrent);
 
   connect(action_open_image, SIGNAL(activated()), this, SLOT(open_image()));
-  
+
   connect(output_zoom, SIGNAL(valueChanged(int)), this, SLOT(zoom_output(int)));
   connect(output_view, SIGNAL(zoomUpdated(int)),
           output_zoom, SLOT(setValue(int)));

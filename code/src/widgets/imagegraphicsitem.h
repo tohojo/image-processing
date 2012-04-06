@@ -22,6 +22,9 @@ public:
   void setPixmap(const QPixmap &pixmap);
   void removePOI(POIItem * poi);
 
+public slots:
+  void clearPOIs();
+
 signals:
   void newPOI(QPoint p);
   void POIRemoved(QPoint p);
