@@ -15,7 +15,7 @@ using namespace cv;
 class IntegralImage
 {
 public:
-  IntegralImage(Mat img);
+  IntegralImage(Mat &img);
   void compute();
   float area(Point start, Point end);
 private:

@@ -7,7 +7,7 @@
 
 #include "integral_image.h"
 
-IntegralImage::IntegralImage(Mat img)
+IntegralImage::IntegralImage(Mat &img)
 {
   m_img = img;
   m_int = Mat(m_img.rows, m_img.cols, CV_32F);
