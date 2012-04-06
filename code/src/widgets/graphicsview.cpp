@@ -44,7 +44,6 @@ void GraphicsView::updateZoom()
     setTransform(t);
     return;
   }
-  qDebug("Updating zoom: %d", zoom);
   emit zoomUpdated(zoom);
 }
 
