@@ -62,31 +62,32 @@ void GraphicsView::setTransform(const QTransform & matrix, bool combine)
 void GraphicsView::drawForeground(QPainter *painter, const QRectF &/*rect*/)
 {
   int height = 30;
-  int textSize = 14;
+  int textSize = 14; // Height of text bounding box, in pixels
   QBrush bg = QBrush(QColor::fromRgb(0, 0, 0, 200));
   QPen text = QPen(QColor::fromRgb(220,220,0));
   QString string("Drag to move. Scroll to zoom. Double click to add a POI. Right click on a POI to remove it.");
 
 
-  // Straight forward: Draw the translucent rectangle in the bottom of the screen.
+  // We want to draw in viewport coordinates, so remove the painter
+  // scaling, and move it into position height pixels above the
+  // bottom.
   QRect vp = painter->viewport();
-  QRect rect = QRect(vp.x()-1, vp.height()-height, vp.width()+2, height);
-  painter->setBrush(bg);
-  painter->drawPolygon(mapToScene(rect));
+  painter->setWorldTransform(QTransform(1.0, // scale x
+                                        0, 0,
+                                        1.0, // scale y
+                                        0, // x pos
+                                        vp.height()-height)); // y pos
 
-  // More involved: Change the transform of the painter to paint the
-  // text correctly without scaling. This is found by a lot of
-  // experimenting.
-  //
-  // The idea is to not scale, and to replace the scaling with a
-  // corresponding translation (only in the x direction, for some
-  // reason).
+
+  // Draw the translucent rectangle in the bottom of the screen. Make
+  // sure the border in the sides are outside the view (so there's a
+  // border at the top only.
+  QRect rect = QRect(-1, 0, vp.width()+2, height);
+  painter->setBrush(bg);
+  painter->drawPolygon(rect);
+
   painter->setPen(text);
-  QTransform tf = painter->worldTransform();
-  qreal scale = 1/tf.m11();
-  int newx = tf.dx()*scale;
-  painter->setWorldTransform(QTransform(1.0, tf.m12(), tf.m21(), 1.0, newx, rect.bottomLeft().y()/2));
-  QRectF textPos(QPoint(-newx, rect.bottomLeft().y()/2) + QPoint(10,-(height-(height-textSize)/2)),
+  QRectF textPos(QPoint(10,(height-textSize)/2),
                  QSize(vp.width(), textSize));
   painter->drawText(textPos, Qt::AlignLeft, string);
 }
