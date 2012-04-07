@@ -10,33 +10,38 @@
 
 #include <cv.h>
 #include "integral_image.h"
+#include "response_layer.h"
 #include <QtCore/QList>
 
 using namespace cv;
 
+static const int OCTAVES = 5;
+static const int INTERVALS = 4;
 
 class FastHessian
 {
 public:
-  FastHessian(Mat &img, int octaves, int intervals, float threshold);
+  FastHessian(Mat &img, int octaves, int intervals, int init_sample, float threshold);
   ~FastHessian();
 
   QList<Point> interestPoints() { return m_ipoints; };
   void compute();
 
 private:
-  float filterX(Point p, int size_s, int size_l);
-  float filterY(Point p, int size_s, int size_l);
-  float filterXY(Point p, int size);
-  bool maximal(Point pt, int i);
-  void addPoint(Point pt, int i);
+  void buildResponseMap();
+  void buildResponseLayer(ResponseLayer *layer);
+  inline float filterX(Point p, int lobe);
+  inline float filterY(Point p, int lobe);
+  inline float filterXY(Point p, int lobe);
+  bool maximal(Point pt, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t);
+  void addPoint(Point pt, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t);
   Mat m_img;
   IntegralImage *m_integral;
-  bool m_computed;
   int m_octaves;
   int m_intervals;
+  int m_init_sample;
   float m_threshold;
-  Mat *m_scales;
+  QList<ResponseLayer *> m_layers;
   QList<Point> m_ipoints;
 };
 

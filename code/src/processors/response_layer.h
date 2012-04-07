@@ -28,8 +28,12 @@ public:
   int step() { return m_step; }
   int filter_size() { return m_filter_size; }
 
-  float get(int row, int col);
-  void  set(int row, int col, float val);
+  float getResponse(int row, int col, ResponseLayer *other);
+  float getResponse(Point p, ResponseLayer *other);
+  float getResponse(int row, int col);
+  float getResponse(Point p);
+  void  setResponse(int row, int col, float val);
+  void  setResponse(Point p, float val);
 
 private:
   Mat responses;

@@ -18,6 +18,7 @@ public:
   IntegralImage(Mat &img);
   void compute();
   float area(Point start, Point end);
+  float area(Point start, int w, int h);
 private:
   Mat m_img;
   Mat m_int;

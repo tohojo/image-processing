@@ -16,6 +16,7 @@ FeaturePoints::FeaturePoints(QObject *parent)
   // Default values from SURF article, pg 5.
   m_intervals = 4;
   m_octaves = 4;
+  m_init_sample = 2;
 
   m_extractor = SURF;
 }
@@ -38,6 +39,15 @@ void FeaturePoints::setIntervals(int intervals)
   QMutexLocker locker(&mutex);
   if(m_intervals == intervals) return;
   m_intervals = intervals;
+  mutex.unlock();
+  process();
+}
+
+void FeaturePoints::setInitSample(int initSample)
+{
+  QMutexLocker locker(&mutex);
+  if(m_init_sample == initSample) return;
+  m_init_sample = initSample;
   mutex.unlock();
   process();
 }
@@ -104,7 +114,7 @@ void FeaturePoints::compute()
 {
   emit progress(0);
   mutex.lock();
-  FastHessian fh(input_image, m_octaves, m_intervals, m_threshold);
+  FastHessian fh(input_image, m_octaves, m_intervals, m_init_sample, m_threshold);
   mutex.unlock();
 
   emit progress(10);
