@@ -15,6 +15,8 @@ set(image-processing_SOURCES
   processors/processor_model.cpp
   processors/fast_hessian.h
   processors/fast_hessian.cpp
+  processors/response_layer.h
+  processors/response_layer.cpp
   processors/integral_image.h
   processors/integral_image.cpp
   processors/rpoint.h
