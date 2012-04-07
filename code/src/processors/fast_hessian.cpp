@@ -172,7 +172,7 @@ bool FastHessian::maximal(Point pt, ResponseLayer *b, ResponseLayer *m, Response
 
   float val = m->getResponse(pt, t);
 
-  if(val > m_threshold) return false;
+  if(val < m_threshold) return false;
 
   for(int i = -1; i <= 1; i++) {
     for(int j = -1; j <= 1; j++) {
