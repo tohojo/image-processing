@@ -37,6 +37,7 @@ private:
 	Point2d* calPtsInImg; //x,y for each calibration point (63 of them)
 	double sx;
 	double focalLength;
+	double finalKappa;
 
 };
 
