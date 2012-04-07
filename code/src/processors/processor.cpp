@@ -79,3 +79,17 @@ Mat Processor::get_output()
   QMutexLocker locker(&mutex);
   return output_image;
 }
+
+void Processor::addPOI(QPoint p)
+{
+  QMutexLocker locker(&mutex);
+  Point pt(p.x(), p.y());
+  POIs.append(pt);
+}
+
+void Processor::deletePOI(QPoint p)
+{
+  QMutexLocker locker(&mutex);
+  Point pt(p.x(), p.y());
+  POIs.removeOne(pt);
+}

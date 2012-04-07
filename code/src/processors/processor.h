@@ -6,6 +6,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 #include <QtCore/QWaitCondition>
+#include <QtCore/QPoint>
 
 using namespace cv;
 
@@ -28,10 +29,13 @@ public slots:
   void process();
   void run_once();
   void cancel();
+  void addPOI(QPoint);
+  void deletePOI(QPoint);
 
 signals:
   void updated();
   void progress(int value) const;
+  void newMessage(QString msg) const;
 
 protected:
   virtual void run();
@@ -42,6 +46,7 @@ protected:
   bool abort;
   bool restart;
   bool once;
+  QList<Point> POIs;
 };
 
 #endif

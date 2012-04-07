@@ -7,6 +7,7 @@
 #include "processor.h"
 #include "null_processor.h"
 #include "processor_model.h"
+#include "imagegraphicsitem.h"
 
 using namespace cv;
 
@@ -19,6 +20,7 @@ public:
   ~ProcessingGUI();
 
   void set_args(QMap<QString, QVariant> arguments);
+  void show();
 
 private:
   Mat input_image;
@@ -31,9 +33,14 @@ private:
   QGraphicsScene *output_scene;
   ProcessorModel *processor_model;
   QItemSelectionModel *processor_selection;
+  ImageGraphicsItem *current_image;
+  void readSettings();
+  void closeEvent(QCloseEvent *event);
+
 
 public slots:
   void set_processor(Processor *proc);
+  void newMessage(QString msg);
 
 private slots:
   void zoom_output(int value);

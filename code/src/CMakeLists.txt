@@ -1,7 +1,13 @@
 set(image-processing_SOURCES
   main.cpp
+  message-handler.cpp
   processing-gui.cpp
+  widgets/graphicsview.cpp
+  widgets/imagegraphicsitem.cpp
+  widgets/poiitem.h
+  widgets/poiitem.cpp
   widgets/resizingimagelabel.cpp
+  widgets/signalingdockwidget.cpp
   processors/processor.cpp
   processors/segmenting.cpp
   processors/null_processor.cpp
@@ -13,8 +19,12 @@ set(image-processing_SOURCES
   util.cpp
   util.h)
 set(image-processing_HEADERS
+  message-handler.h
   processing-gui.h
+  widgets/graphicsview.h
+  widgets/imagegraphicsitem.h
   widgets/resizingimagelabel.h
+  widgets/signalingdockwidget.h
   processors/processor.h
   processors/segmenting.h
   processors/null_processor.h

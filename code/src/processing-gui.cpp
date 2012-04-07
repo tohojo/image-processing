@@ -7,6 +7,8 @@
 #include <QtGui/QMessageBox>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QTime>
+#include <QtCore/QSettings>
 #include <QDebug>
 
 #include "processing-gui.h"
@@ -24,6 +26,9 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
 
   output_scene = new QGraphicsScene(this);
   output_view->setScene(output_scene);
+  current_image = new ImageGraphicsItem();
+  output_scene->addItem(current_image);
+  connect(this, SIGNAL(image_changed()), current_image, SLOT(clearPOIs()));
 
   processor_model = new ProcessorModel();
   processor_selection = new QItemSelectionModel(processor_model);
@@ -33,11 +38,69 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
           this, SLOT(new_processor(const QModelIndex&)));
   connect(processButton, SIGNAL(clicked()), this, SLOT(process_button_clicked()));
 
+  // Connect the POI signals to all processors
+  for(int i = 0; i < processor_model->rowCount(); i++) {
+    connect(current_image, SIGNAL(newPOI(QPoint)),
+            processor_model->get_processor(i), SLOT(addPOI(QPoint)));
+    connect(current_image, SIGNAL(POIRemoved(QPoint)),
+            processor_model->get_processor(i), SLOT(deletePOI(QPoint)));
+  }
+
   // Start out by selection first index.
   processor_selection->setCurrentIndex(processor_model->index(0), QItemSelectionModel::SelectCurrent);
 
   connect(action_open_image, SIGNAL(activated()), this, SLOT(open_image()));
-  connect(output_zoom, SIGNAL(sliderMoved(int)), this, SLOT(zoom_output(int)));
+
+  connect(output_zoom, SIGNAL(valueChanged(int)), this, SLOT(zoom_output(int)));
+  connect(output_view, SIGNAL(zoomUpdated(int)),
+          output_zoom, SLOT(setValue(int)));
+
+  // Dock widgets showing/hiding w/menu
+  connect(textDock, SIGNAL(closed(bool)),
+          action_Textual_output, SLOT(setChecked(bool)));
+  connect(inputDock, SIGNAL(closed(bool)),
+          actionInput_image, SLOT(setChecked(bool)));
+  connect(processingDock, SIGNAL(closed(bool)),
+          actionProcessors, SLOT(setChecked(bool)));
+  connect(propertiesDock, SIGNAL(closed(bool)),
+          action_Properties, SLOT(setChecked(bool)));
+
+  readSettings();
+
+}
+
+ProcessingGUI::~ProcessingGUI()
+{
+  delete output_scene;
+  delete processor_selection;
+  delete processor_model;
+  if(current_processor != NULL)
+    delete current_processor;
+}
+
+void ProcessingGUI::show()
+{
+  QMainWindow::show();
+  // Make sure the dock widget menu is updated correctly
+  action_Textual_output->setChecked(textDock->isVisible());
+  actionInput_image->setChecked(inputDock->isVisible());
+  actionProcessors->setChecked(processingDock->isVisible());
+  action_Properties->setChecked(propertiesDock->isVisible());
+}
+
+void ProcessingGUI::readSettings()
+{
+  QSettings settings("Ben & Toke Inc.", "Image Processing");
+  restoreGeometry(settings.value("ProcessingGUI/geometry").toByteArray());
+  restoreState(settings.value("ProcessingGUI/windowState").toByteArray());
+}
+
+void ProcessingGUI::closeEvent(QCloseEvent * event)
+{
+  QSettings settings("Ben & Toke Inc.", "Image Processing");
+  settings.setValue("ProcessingGUI/geometry", saveGeometry());
+  settings.setValue("ProcessingGUI/windowState", saveState());
+  QMainWindow::closeEvent(event);
 }
 
 void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
@@ -80,14 +143,6 @@ void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
   }
 }
 
-ProcessingGUI::~ProcessingGUI()
-{
-  delete output_scene;
-  delete processor_selection;
-  delete processor_model;
-  if(current_processor != NULL)
-    delete current_processor;
-}
 
 void ProcessingGUI::zoom_output(int value)
 {
@@ -102,11 +157,8 @@ void ProcessingGUI::update_output()
     qDebug("Batch processing complete.");
     return;
   }
-  output_scene->clear();
   QImage img = Util::mat_to_qimage(current_processor->get_output());
-  QGraphicsPixmapItem *image = output_scene->addPixmap(QPixmap::fromImage(img));
-  output_scene->setSceneRect(image->boundingRect());
-  output_view->ensureVisible(image->boundingRect());
+  current_image->setPixmap(QPixmap::fromImage(img));
 }
 
 
@@ -145,13 +197,24 @@ void ProcessingGUI::load_image(QString filename)
   input_view->setImage(qImg);
   input_filename->setText(fileinfo.fileName());
   emit image_changed();
+
+  // Scale the graphics view to leave 15 pixels of air on each side
+  // of the image, and recenter it.
+  QSize s = qImg.size();
+  QRect r = output_view->frameRect();
+  float scale = qMin((r.width()-30.0f)/s.width(), (r.height()-30.0f)/s.height());
+  scale = qMax(scale, 0.01f);
+  scale = qMin(scale, 4.0f);
+  QTransform transform = QTransform::fromScale(scale, scale);
+  output_view->centerOn(current_image);
+  output_view->setTransform(transform);
 }
 
 void ProcessingGUI::set_processor(Processor *proc)
 {
   if(current_processor != NULL) {
-    current_processor->disconnect();
-    disconnect(this, 0, current_processor, 0);
+    current_processor->disconnect(this);
+    this->disconnect(current_processor);
     current_processor->cancel();
   }
 
@@ -160,6 +223,7 @@ void ProcessingGUI::set_processor(Processor *proc)
   connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));
   connect(current_processor, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)));
   connect(current_processor, SIGNAL(progress(int)), this, SLOT(setProgress(int)));
+  connect(current_processor, SIGNAL(newMessage(QString)), SLOT(newMessage(QString)));
   if(m_batch) {
     current_processor->set_input(input_image);
     current_processor->run_once();
@@ -198,4 +262,11 @@ void ProcessingGUI::process_button_clicked()
   } else {
     current_processor->process();
   }
+}
+
+void ProcessingGUI::newMessage(QString msg)
+{
+  QString message = QString("%1: %2");
+  message = message.arg(QTime::currentTime().toString("hh:mm:ss.zzz"), msg);
+  textOutput->appendPlainText(message);
 }
