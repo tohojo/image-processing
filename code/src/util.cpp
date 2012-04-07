@@ -17,7 +17,7 @@ namespace Util {
 
       QImage qImage;
 
-      qDebug("Copying matrix to image. Size: %dx%d", img.cols, img.rows);
+      qDebug("Copying grey scale matrix to image. Size: %dx%d", img.cols, img.rows);
 
       uchar *img_buffer = (uchar*) malloc(img.rows * img.cols);
       uchar *img_pointer = img_buffer;
@@ -31,6 +31,22 @@ namespace Util {
       qImage = QImage(img_buffer, img.cols, img.rows, img.cols, QImage::Format_Indexed8);
       qImage.setColorTable(colorTable);
       return qImage;
+    } else if(img.depth() == CV_8U && img.channels() == 3) {
+      qDebug("Copying colour matrix to image. Size: %dx%d", img.cols, img.rows);
+      Mat *channels = new Mat[3];
+      split(img, channels);
+      uchar *img_buffer = new uchar[img.rows * img.cols *4];
+      uchar *img_pointer = img_buffer;
+      for (int i=0; i < img.rows; i++) {
+        for(int j = 0; j < img.cols; j++) {
+          *img_pointer++ = channels[0].at<uchar>(i,j);
+          *img_pointer++ = channels[1].at<uchar>(i,j);
+          *img_pointer++ = channels[2].at<uchar>(i,j);
+          *img_pointer++ = 255; // alpha channel
+        }
+      }
+
+      return QImage(img_buffer, img.cols, img.rows, QImage::Format_RGB32);
     } else {
       qFatal("Could not process image of depth %d with %d channels",
              img.depth(), img.channels());
