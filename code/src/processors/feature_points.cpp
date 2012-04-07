@@ -7,6 +7,7 @@
 
 #include "feature_points.h"
 #include "fast_hessian.h"
+#include <QDebug>
 
 FeaturePoints::FeaturePoints(QObject *parent)
   : Processor(parent)
@@ -15,6 +16,8 @@ FeaturePoints::FeaturePoints(QObject *parent)
   // Default values from SURF article, pg 5.
   m_intervals = 4;
   m_octaves = 4;
+
+  m_extractor = SURF;
 }
 
 FeaturePoints::~FeaturePoints()
@@ -48,6 +51,15 @@ void FeaturePoints::setThreshold(double threshold)
   process();
 }
 
+void FeaturePoints::setExtractor(Extractor extractor)
+{
+  QMutexLocker locker(&mutex);
+  if(m_extractor == extractor) return;
+  m_extractor = extractor;
+  mutex.unlock();
+  process();
+}
+
 
 void FeaturePoints::run()
 {
@@ -60,8 +72,16 @@ void FeaturePoints::run()
     }
     mutex.unlock();
 
-    if(!isEmpty)
-      compute();
+    if(!isEmpty) {
+      switch(m_extractor) {
+      case SURF:
+        compute();
+        break;
+      case SURF_OPENCV:
+        compute_opencv();
+        break;
+      }
+    }
 
     mutex.lock();
     if(!restart && !isEmpty) {
@@ -97,5 +117,24 @@ void FeaturePoints::compute()
   foreach(Point pt, pts) {
     circle(output_image, pt, 5, 255);
   }
+  mutex.unlock();
+}
+
+void FeaturePoints::compute_opencv()
+{
+  emit progress(0);
+  mutex.lock();
+  Mat input = input_image;
+  mutex.unlock();
+
+  cv::SURF filter(m_threshold, m_octaves, m_intervals, false, true);
+  std::vector<KeyPoint> kps;
+  filter(input, Mat(), kps);
+  qDebug() << "Got" << kps.size() << "interest points.";
+  emit progress(90);
+  Mat output(input.rows, input.cols, input.type());
+  drawKeypoints(input, kps, output);
+  mutex.lock();
+  output_image = output;
   mutex.unlock();
 }
