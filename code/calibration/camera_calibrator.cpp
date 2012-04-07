@@ -524,73 +524,45 @@ void CamCalibrator::calibrate()
 	}
 	*/
 
-	Mat best1, best2;
-	best1 = computeLeastSquaresForKappa(0.0);
-	double bestError1 = best1.at<double>(2,0);
-	double bestKappa1 = 0.0;
-	double bestError2, bestKappa2;
-	Mat comp1 = computeLeastSquaresForKappa(-0.0001);
-	Mat comp2 = computeLeastSquaresForKappa(0.0001);
-	if (comp1.at<double>(2,0) < comp2.at<double>(2,0)) {
-		best2 = comp1;
-		bestError2 = comp1.at<double>(2,0);
-		bestKappa2 = -0.0001;
-	} else {
-		best2 = comp2;
-		bestError2 = comp2.at<double>(2,0);
-		bestKappa2 = 0.0001;
-	}
-	for (int i = 0; i < 100; i++){
-		double newKappa;
-		if (bestError1 < bestError2){
-			newKappa = (bestKappa1*9.0 + bestKappa2)/10.0;
+	kappa1 = 0.0;
+	double step = 0.001;
+	double minstep = 0.0000000000001;
+	Mat kap;
+	do {
+		kap = computeLeastSquaresForKappa(kappa1);
+		Mat kap_plus = computeLeastSquaresForKappa(kappa1 + step);
+		Mat kap_minus = computeLeastSquaresForKappa(kappa1 - step);
+		if( (kap.at<double>(2,0) < kap_plus.at<double>(2,0)) && (kap.at<double>(2,0) < kap_minus.at<double>(2,0)) ){
+			step = step/2.0;
 		} else {
-			newKappa = (bestKappa1 + bestKappa2*9.0)/10.0;
-		}
-		Mat F = computeLeastSquaresForKappa(newKappa);
-		double newError = F.at<double>(2,0);
-		if (bestError1 < bestError2){
-			if (newError < bestError2){
-				best2 = F;
-				bestError2 = newError;
-				bestKappa2 = newKappa;
-			}
-		} else {
-			if (newError < bestError1){
-				best1 = F;
-				bestError1 = newError;
-				bestKappa1 = newKappa;
+			if (kap_minus.at<double>(2,0) < kap_plus.at<double>(2,0)){
+				kappa1 = kappa1 - step;
+			} else {
+				kappa1 = kappa1 + step;
 			}
 		}
-	}
-	if (bestError1 < bestError2){
-		cout << "> ITERATIVE BEST ERROR: error " << bestError1 << ", kappa " << bestKappa1 << ",\n";
-		cout << "   f " << best1.at<double>(0,0) << ", Tz " << best1.at<double>(1,0) << "\n";
-		cout << "> SECOND BEST ERROR: error " << bestError2 << ", kappa " << bestKappa2 << "\n";
-		cout << "   f " << best2.at<double>(0,0) << ", Tz " << best2.at<double>(1,1) << "\n";
-		// Set our estimate for focal length and tz
-		focalLength = best1.at<double>(0,0);
-		mat_T.at<double>(2,0) = best1.at<double>(1,0);
-		finalKappa = bestKappa1;
-	} else {
-		cout << "> ITERATIVE BEST ERROR: error " << bestError2 << ", kappa " << bestKappa2 << ",\n";
-		cout << "   f " << best2.at<double>(0,0) << ", Tz " << best2.at<double>(1,0) << "\n";
-		cout << "> SECOND BEST ERROR: error " << bestError1 << ", kappa " << bestKappa1 << "\n";
-		cout << "   f " << best1.at<double>(0,0) << ", Tz " << best1.at<double>(1,0) << "\n";
-		focalLength = best2.at<double>(0,0);
-		mat_T.at<double>(2,0) = best2.at<double>(1,0);
-		finalKappa = bestKappa2;
-	}
+	} while (step > minstep);
+
+	cout << "Kappa(1) = " << kappa1 << "\n";
+	cout << "Kappa determined at step size " << step << "\n";
+	cout << "Error with this kappa = " << kap.at<double>(2,0) << "\n";
+	cout << "f with this kappa = " << kap.at<double>(0,0) << "; Tz = " << kap.at<double>(1,0) << "\n";
+
+	// Set our estimate for focal length and tz
+	focalLength = kap.at<double>(0,0);
+	mat_T.at<double>(2,0) = kap.at<double>(1,0);
+	// We also now have our kappa-1 value
+
 	Mat temp_1_M = computeLeastSquaresForKappa(0.0);
-	cout << "> IGNORING ERROR: error " << temp_1_M.at<double>(2,0) << ", kappa " << 0.0 << "\n";
-	cout << "   f " << temp_1_M.at<double>(0,0) << ", Tz " << temp_1_M.at<double>(1,0) << "\n";
+	cout << "For comparison, error without kappa = " << temp_1_M.at<double>(2,0) << "\n";
+	cout << "f without kappa = " << temp_1_M.at<double>(0,0) << "; Tz = " << temp_1_M.at<double>(1,0) << "\n";
 
-	/*	for (double i = -0.00000002; i <= -0.000000005; i+=0.0000000001){
-	Mat F = computeLeastSquaresForKappa(i);
-	cout << "> Squared error (" << i << "): " << F.at<double>(2,0) << "\n";
-	}*/
+	//for (double i = -0.00000002; i <= -0.000000005; i+=0.0000000001){
+	//	Mat Fff = computeLeastSquaresForKappa(i);
+	//	cout << "> Squared error (" << i << "): " << Fff.at<double>(2,0) << "\n";
+	//}
 
-	if (finalKappa < 0) finalKappa*=-1.0;
+//	if (kappa1 < 0) kappa1*=-1.0;
 
 	cout << "\n****************\n\n";
 	cout << "~~~ Camera parameters: ~~~\n\n";
@@ -604,7 +576,7 @@ void CamCalibrator::calibrate()
 	cout << "\n";
 	cout << "sx = " << sx << "\n";
 	cout << "focal length = " << focalLength << "\n";
-	cout << "kappa = " << finalKappa << "\n";
+	cout << "kappa = " << kappa1 << "\n";
 	cout << "\n****************\n\n";
 }
 
@@ -678,50 +650,6 @@ Mat CamCalibrator::computeLeastSquaresForKappa(double kappa){
 // Back-project rays using the calculated matrices R, T, and values s, focalLength, deltaX, deltaY
 void CamCalibrator::checkResults(){
 
-	/*
-
-	// First do the forward direction, to check
-	Point3d pt1 = obj->getLeftPt(1,1);
-	Point3d pt2 = obj->getRightPt(2,2);
-	Point2d point1iadj = obj->getLeftAssocImagePt_ADJ(1,1);
-	Point2d point2iadj = obj->getRightAssocImagePt_ADJ(2,2);
-	Mat point1 = Mat(4, 1, CV_64F, Scalar::all(1));
-	point1.at<double>(0,0) = pt1.x;
-	point1.at<double>(1,0) = pt1.y;
-	point1.at<double>(2,0) = pt1.z;
-	Mat point2 = Mat(4, 1, CV_64F, Scalar::all(1));
-	point2.at<double>(0,0) = pt2.x;
-	point2.at<double>(1,0) = pt2.y;
-	point2.at<double>(2,0) = pt2.z;
-	Mat transform = Mat(4, 4, CV_64F, Scalar::all(0));
-	for (int i = 0; i < 3; i++){
-	for (int j = 0; j < 3; j++){
-	transform.at<double>(i,j) = mat_R.at<double>(i,j);
-	}
-	}
-	transform.at<double>(0,3) = mat_T.at<double>(0,0);
-	transform.at<double>(1,3) = mat_T.at<double>(1,0);
-	transform.at<double>(2,3) = mat_T.at<double>(2,0);
-	transform.at<double>(3,3) = 1.0;
-	Mat newp1 = transform * point1;
-	Mat newp2 = transform * point2;
-	newp1.at<double>(0,0) = focalLength * (newp1.at<double>(0,0)/newp1.at<double>(2,0)); // x = f(X/Z) in camera coordinates XYZ
-	newp1.at<double>(1,0) = focalLength * (newp1.at<double>(1,0)/newp1.at<double>(2,0)); // y = f(Y/Z) in camera coordinates XYZ
-	newp2.at<double>(0,0) = focalLength * (newp2.at<double>(0,0)/newp2.at<double>(2,0)); // x = f(X/Z) in camera coordinates XYZ
-	newp2.at<double>(1,0) = focalLength * (newp2.at<double>(1,0)/newp2.at<double>(2,0)); // y = f(Y/Z) in camera coordinates XYZ
-
-	//
-	cout << "> Point1: (" << point1.at<double>(0,0) << ", " << point1.at<double>(1,0) << ", " << point1.at<double>(2,0) << ")\n";
-	cout << " Point1 calculated pt: (" << newp1.at<double>(0,0) << ", " << newp1.at<double>(1,0) << ", " << newp1.at<double>(2,0) << ")\n";
-	cout << " Point1 calculated / sx: (" << newp1.at<double>(0,0)/sx << ", " << newp1.at<double>(1,0)/sx << ", " << newp1.at<double>(2,0)/sx << ")\n";
-	cout << " Point1 ADJ image point: (" << point1iadj.x << ", " << point1iadj.y << ")\n";
-	//
-	cout << "> Point2: (" << point2.at<double>(0,0) << ", " << point2.at<double>(1,0) << ", " << point2.at<double>(2,0) << ")\n";
-	cout << " Point2 calculated pt: (" << newp2.at<double>(0,0) << ", " << newp2.at<double>(1,0) << ", " << newp2.at<double>(2,0) << ")\n";
-	cout << " Point2 calculated / sx: (" << newp2.at<double>(0,0)/sx << ", " << newp2.at<double>(1,0)/sx << ", " << newp2.at<double>(2,0)/sx << ")\n";
-	cout << " Point2 ADJ image point: (" << point2iadj.x << ", " << point2iadj.y << ")\n";
-	*/
-
 	Mat transform = Mat(4, 4, CV_64F, Scalar::all(0));
 	for (int i = 0; i < 3; i++){
 		for (int j = 0; j < 3; j++){
@@ -759,8 +687,8 @@ void CamCalibrator::checkResults(){
 		pt1.at<double>(2,0) = 1.0;
 		double xx = pt1.at<double>(0,0);
 		double yy = pt1.at<double>(1,0);
-		double x_nil = xx + xx * finalKappa * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
-		double y_nil = yy + yy * finalKappa * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+		double x_nil = xx + xx * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+		double y_nil = yy + yy * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
 		double x_divd_sx = x_nil/sx;
 		double y_divd_sx = y_nil/sx;
 		x_error_nil += sqrt( (pt_ADJ.x - x_nil)*(pt_ADJ.x - x_nil) );
@@ -789,8 +717,8 @@ void CamCalibrator::checkResults(){
 		pt1.at<double>(2,0) = 1.0;
 		double xx = pt1.at<double>(0,0);
 		double yy = pt1.at<double>(1,0);
-		double x_nil = xx + xx * finalKappa * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
-		double y_nil = yy + yy * finalKappa * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+		double x_nil = xx + xx * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+		double y_nil = yy + yy * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
 		double x_divd_sx = x_nil/sx;
 		double y_divd_sx = y_nil/sx;
 		x_error_nil += sqrt( (pt_ADJ.x - x_nil)*(pt_ADJ.x - x_nil) );
@@ -836,9 +764,14 @@ void CamCalibrator::checkResults(){
 	cout << "pt1 x " << pt1.at<double>(0,0) << " y " << pt1.at<double>(1,0) << "\n\n";
 	double xx = pt1.at<double>(0,0);
 	double yy = pt1.at<double>(1,0);
-	double kapx = xx + xx * finalKappa * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
-	double kapy = yy + yy * finalKappa * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+	double kapx = xx + xx * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+	double kapy = yy + yy * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
 	cout << "pt1 kappa x " << kapx << " y " << kapy << "\n\n";
+
+	xx/=sx; yy/=sx;
+	double kapxx = xx + xx * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+	double kapyy = yy + yy * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+	cout << "pt1 kappa xx " << kapxx << " yy " << kapyy << "\n\n";
 
 	Point3d back_ideal = obj->rMeasurements[1];
 	Point2d back_ADJ = obj->rAssocImagePts_ADJ[1];
@@ -859,10 +792,9 @@ void CamCalibrator::checkResults(){
 	cout << "[ " << back1.at<double>(0,0) << "  " << back1.at<double>(1,0) << "  " << back1.at<double>(2,0) << " ]\n";
 
 
-	// #1. Add kappa, confirm what to do with sx.
 	// #2. Work out how to apply calculations in inverse order to image point,
 	//		to transform into real world measurement
-	// #3. Check my descent optimisation is actually working as it should.
+	// #3. Fix my descent optimisation.
 	// #4. Combine with QT, step 1: output calibration results to text panel.
 	// #5. Combine with QT, step 2: add a processor that does this (still working from txt file of pts).
 	// #6. Combine with QT, step 3: change the processor so that you click on patches in an image,
