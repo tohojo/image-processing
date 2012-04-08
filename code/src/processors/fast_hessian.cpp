@@ -71,7 +71,6 @@ void FastHessian::compute()
           if(maximal(pt, b, m, t)) addPoint(pt, b, m, t);
         }
       }
-      qDebug() << m_ipoints.size();
     }
   }
 }
