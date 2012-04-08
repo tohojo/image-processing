@@ -165,13 +165,13 @@ void FeaturePoints::compute_opensurf()
   IplImage in = input;
 
   OpenSURF::IpVec ipts;
-  OpenSURF::surfDetDes(&in, ipts, true,  m_octaves, m_intervals, m_init_sample, m_threshold);
+  OpenSURF::surfDetDes(&in, ipts, true,  m_octaves, m_intervals, m_init_sample, OpenSURF::THRES);
   qDebug() << "Got" << ipts.size() << "interest points.";
   emit progress(90);
 
   std::vector<KeyPoint> kps;
   for(unsigned int i = 0; i < ipts.size(); i++) {
-    OpenSURF::Ipoint ip;
+    OpenSURF::Ipoint ip = ipts.at(i);
     kps.push_back(KeyPoint(ip.x, ip.y, 1));
   }
   Mat output(input.rows, input.cols, input.type());
