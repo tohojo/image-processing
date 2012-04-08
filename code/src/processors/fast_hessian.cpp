@@ -201,7 +201,7 @@ void FastHessian::addPoint(Point pt, ResponseLayer *b, ResponseLayer *m, Respons
   //
   // For opencv the cutoff value here is 1, for opensurf it's 0.5.
   if (qAbs(dx) < 0.5f && qAbs(dy) < 0.5f && qAbs(ds) < 0.5f) {
-    m_ipoints.append(Point(pt.x*t->step(), pt.y*t->step()));
+    m_ipoints.append(KeyPoint(pt.x*t->step(), pt.y*t->step(), 1));
   }
 }
 

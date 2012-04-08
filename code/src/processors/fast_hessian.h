@@ -24,7 +24,7 @@ public:
   FastHessian(Mat &img, int octaves, int intervals, int init_sample, float threshold);
   ~FastHessian();
 
-  QList<Point> interestPoints() { return m_ipoints; };
+  QList<KeyPoint> interestPoints() { return m_ipoints; };
   void compute();
 
 private:
@@ -46,7 +46,7 @@ private:
   int m_init_sample;
   float m_threshold;
   QList<ResponseLayer *> m_layers;
-  QList<Point> m_ipoints;
+  QList<KeyPoint> m_ipoints;
 };
 
 #endif

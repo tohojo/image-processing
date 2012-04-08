@@ -114,19 +114,20 @@ void FeaturePoints::compute()
 {
   emit progress(0);
   mutex.lock();
-  FastHessian fh(input_image, m_octaves, m_intervals, m_init_sample, m_threshold);
+  Mat input = input_image;
   mutex.unlock();
+
+  FastHessian fh(input, m_octaves, m_intervals, m_init_sample, m_threshold);
 
   emit progress(10);
   fh.compute();
 
-  QList<Point> pts = fh.interestPoints();
-  qDebug("Got %d interest points.", pts.size());
+  std::vector<KeyPoint> pts = fh.interestPoints().toVector().toStdVector();
+  qDebug() << "Got" << pts.size() << "interest points.";
+  Mat output(input.rows, input.cols, input.type());
+  drawKeypoints(input, pts, output);
   mutex.lock();
-  input_image.copyTo(output_image);
-  foreach(Point pt, pts) {
-    circle(output_image, pt, 5, 255);
-  }
+  output_image = output;
   mutex.unlock();
 }
 
