@@ -1,1 +1,2 @@
 add_subdirectory(QPropertyEditor)
+add_subdirectory(OpenSURF)

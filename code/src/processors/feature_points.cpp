@@ -7,7 +7,9 @@
 
 #include "feature_points.h"
 #include "fast_hessian.h"
+#include "surflib.h"
 #include <QDebug>
+
 
 FeaturePoints::FeaturePoints(QObject *parent)
   : Processor(parent)
@@ -90,6 +92,9 @@ void FeaturePoints::run()
       case SURF_OPENCV:
         compute_opencv();
         break;
+      case SURF_OPENSURF:
+        compute_opensurf();
+        break;
       }
     }
 
@@ -143,6 +148,32 @@ void FeaturePoints::compute_opencv()
   filter(input, Mat(), kps);
   qDebug() << "Got" << kps.size() << "interest points.";
   emit progress(90);
+  Mat output(input.rows, input.cols, input.type());
+  drawKeypoints(input, kps, output);
+  mutex.lock();
+  output_image = output;
+  mutex.unlock();
+}
+
+void FeaturePoints::compute_opensurf()
+{
+  emit progress(0);
+  mutex.lock();
+  Mat input = input_image;
+  mutex.unlock();
+
+  IplImage in = input;
+
+  OpenSURF::IpVec ipts;
+  OpenSURF::surfDetDes(&in, ipts, true,  m_octaves, m_intervals, m_init_sample, m_threshold);
+  qDebug() << "Got" << ipts.size() << "interest points.";
+  emit progress(90);
+
+  std::vector<KeyPoint> kps;
+  for(unsigned int i = 0; i < ipts.size(); i++) {
+    OpenSURF::Ipoint ip;
+    kps.push_back(KeyPoint(ip.x, ip.y, 1));
+  }
   Mat output(input.rows, input.cols, input.type());
   drawKeypoints(input, kps, output);
   mutex.lock();

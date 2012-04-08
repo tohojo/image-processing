@@ -23,7 +23,7 @@ class FeaturePoints: public Processor
   Q_ENUMS(Extractor)
 
 public:
-  enum Extractor { SURF, SURF_OPENCV };
+    enum Extractor { SURF, SURF_OPENSURF, SURF_OPENCV };
   FeaturePoints( QObject *parent = 0 );
   ~FeaturePoints();
 
@@ -48,6 +48,7 @@ private:
   void run();
   void compute();
   void compute_opencv();
+  void compute_opensurf();
 
   int m_octaves;
   int m_intervals;

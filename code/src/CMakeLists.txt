@@ -50,10 +50,12 @@ include_directories(widgets/)
 include_directories(./)
 
 include_directories (${image-processing_SOURCE_DIR}/lib/QPropertyEditor)
-link_directories (${image-processing_BINARY_DIR}/lib/QPropertyEditor) 
+include_directories (${image-processing_SOURCE_DIR}/lib/OpenSURF)
+link_directories (${image-processing_BINARY_DIR}/lib/QPropertyEditor)
+link_directories (${image-processing_BINARY_DIR}/lib/OpenSURF)
 
 add_executable(image-processing
   ${image-processing_HEADERS_MOC}
   ${image-processing_FORMS_HEADERS}
   ${image-processing_SOURCES})
-target_link_libraries(image-processing ${QT_LIBRARIES} ${OpenCV_LIBS} QPropertyEditor)
+target_link_libraries(image-processing ${QT_LIBRARIES} ${OpenCV_LIBS} QPropertyEditor OpenSURF)
