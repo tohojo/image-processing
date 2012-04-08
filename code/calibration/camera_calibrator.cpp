@@ -745,6 +745,9 @@ void CamCalibrator::checkResults(){
 	perspective_inv.at<double>(3,2) = 1.0/focalLength;
 
 	double totalSquaredError = 0.0;
+	double squaredErrorX = 0.0;
+	double squaredErrorY = 0.0;
+	double squaredErrorZ = 0.0;
 
 	for (int i = 0; i < 35; i++){
 		Point3d ideal = obj->lMeasurements[i];
@@ -777,6 +780,9 @@ void CamCalibrator::checkResults(){
 			(calc_y-ideal.y)*(calc_y-ideal.y) + (calc_z-ideal.z)*(calc_z-ideal.z) );
 //		cout << "SQ ERROR: " << err << "\n";
 		totalSquaredError += err;
+		squaredErrorX += sqrt ((calc_x-ideal.x)*(calc_x-ideal.x));
+		squaredErrorY += sqrt ((calc_y-ideal.y)*(calc_y-ideal.y));
+		squaredErrorZ += sqrt ((calc_z-ideal.z)*(calc_z-ideal.z));
 	}
 	for (int i = 0; i < 28; i++){
 		Point3d ideal = obj->rMeasurements[i];
@@ -809,9 +815,15 @@ void CamCalibrator::checkResults(){
 			(calc_y-ideal.y)*(calc_y-ideal.y) + (calc_z-ideal.z)*(calc_z-ideal.z) );
 //		cout << "SQ ERROR: " << err << "\n";
 		totalSquaredError += err;
+		squaredErrorX += sqrt ((calc_x-ideal.x)*(calc_x-ideal.x));
+		squaredErrorY += sqrt ((calc_y-ideal.y)*(calc_y-ideal.y));
+		squaredErrorZ += sqrt ((calc_z-ideal.z)*(calc_z-ideal.z));
 	}
 	cout << "TOTAL ERROR: " << totalSquaredError << "\n";
 	cout << "MEAN ERROR: " << totalSquaredError/63.0 << "\n";
+	cout << "x ERROR: " << squaredErrorX/63.0 << "\n";
+	cout << "y ERROR: " << squaredErrorY/63.0 << "\n";
+	cout << "z ERROR: " << squaredErrorZ/63.0 << "\n";
 
 
 
