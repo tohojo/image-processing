@@ -192,17 +192,16 @@ bool FastHessian::maximal(Point pt, ResponseLayer *b, ResponseLayer *m, Response
  */
 void FastHessian::addPoint(Point pt, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t)
 {
-  float dx, dy, di;
-  interpolate(pt, b, m, t, &dx, &dy, &di);
+  float dx, dy, ds;
+  interpolate(pt, b, m, t, &dx, &dy, &ds);
 
-  // Following the lead of opensurf, instead of doing actual
-  // interpolation and checking for convergence, we just discard
-  // points that do not correspond to the interpolated value.
-  if (qAbs(dx) < 0.5f && qAbs(dy) < 0.5f && qAbs(di) < 0.5f) {
+  // Following the lead of opensurf and opencv, instead of doing
+  // actual interpolation and checking for convergence, we just
+  // discard points that do not correspond to the interpolated value.
+  //
+  // For opencv the cutoff value here is 1, for opensurf it's 0.5.
+  if (qAbs(dx) < 0.5f && qAbs(dy) < 0.5f && qAbs(ds) < 0.5f) {
     m_ipoints.append(Point(pt.x*t->step(), pt.y*t->step()));
-  } else {
-    qDebug("Discarding point from interpolation: (%d,%d) - values: %f,%f,%f",
-           pt.x, pt.y, dx, dy, di);
   }
 }
 
@@ -220,8 +219,8 @@ void FastHessian::addPoint(Point pt, ResponseLayer *b, ResponseLayer *m, Respons
  * The values for the partial derivatives are approximated by point
  * value differences in the response layers.
  */
-void FastHessian::interpolate(Point p, ResponseLayer *b, ReponseLayer *m, ResponseLayer *t,
-                              float &dx, float &dy, float &di)
+void FastHessian::interpolate(Point p, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t,
+                              float *dx, float *dy, float *ds)
 {
   Mat X; // holds solution
   Mat h3d = hessian3D(p, b, m, t);
@@ -238,12 +237,16 @@ void FastHessian::interpolate(Point p, ResponseLayer *b, ReponseLayer *m, Respon
 
 Mat FastHessian::hessian3D(Point p, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t)
 {
-  float dxx = m->getResponse(Point(), t);
-  float dxy = m->getResponse();
-  float dxs = t->getResponse();
-  float dyy = m->getResponse();
-  float dys = t->getResponse();
-  float dss = t->getResponse();
+  float val = m->getResponse(p,t);
+  float dxx = m->getResponse(Point(p.x+1, p.y), t) +m->getResponse(Point(p.x-1,p.y),t) - 2*val;
+  float dyy = m->getResponse(Point(p.x, p.y+1), t) +m->getResponse(Point(p.x,p.y-1),t) - 2*val;
+  float dss = b->getResponse(p, t) + t->getResponse(p) - 2*val;
+  float dxy = ( m->getResponse(Point(p.x+1,p.y+1), t) - m->getResponse(Point(p.x-1, p.y+1), t) +
+                m->getResponse(Point(p.x-1,p.y-1), t) - m->getResponse(Point(p.x+1, p.y-1), t) ) /4.0;
+  float dxs = ( t->getResponse(Point(p.x+1, p.y)) - t->getResponse(Point(p.x-1, p.y)) +
+                b->getResponse(Point(p.x-1, p.y), t) - b->getResponse(Point(p.x+1, p.y), t) ) /4.0;
+  float dys = ( t->getResponse(Point(p.x, p.y+1)) - t->getResponse(Point(p.x, p.y-1)) +
+                b->getResponse(Point(p.x, p.y-1), t) - b->getResponse(Point(p.x, p.y+1), t) ) /4.0;
 
   Mat h3d(3,3,CV_32F);
 
