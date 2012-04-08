@@ -190,9 +190,85 @@ bool FastHessian::maximal(Point pt, ResponseLayer *b, ResponseLayer *m, Response
  *
  * TODO: Implement interpolation.
  */
-void FastHessian::addPoint(Point pt, ResponseLayer */*b*/, ResponseLayer */*m*/, ResponseLayer *t)
+void FastHessian::addPoint(Point pt, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t)
 {
-  m_ipoints.append(Point(pt.x*t->step(), pt.y*t->step()));
+  float dx, dy, di;
+  interpolate(pt, b, m, t, &dx, &dy, &di);
+
+  // Following the lead of opensurf, instead of doing actual
+  // interpolation and checking for convergence, we just discard
+  // points that do not correspond to the interpolated value.
+  if (qAbs(dx) < 0.5f && qAbs(dy) < 0.5f && qAbs(di) < 0.5f) {
+    m_ipoints.append(Point(pt.x*t->step(), pt.y*t->step()));
+  } else {
+    qDebug("Discarding point from interpolation: (%d,%d) - values: %f,%f,%f",
+           pt.x, pt.y, dx, dy, di);
+  }
+}
+
+/**
+ * Interpolate the interest point to subpixel accuracy, by the method
+ * from (Brown and Lowe, 2002).
+ *
+ * This comes down to solving the equation Ax=b where A is the
+ * second-order derivative of the scale-space function shifted (i.e.
+ * the 3D Hessian), and b = -(dx,dy,ds). The scale-space function is
+ * assumed shifted so the interest point candidate is at the origin.
+ * The solution to this equation yields the position (x,y,s) in
+ * scale-space of the actual extremum.
+ *
+ * The values for the partial derivatives are approximated by point
+ * value differences in the response layers.
+ */
+void FastHessian::interpolate(Point p, ResponseLayer *b, ReponseLayer *m, ResponseLayer *t,
+                              float &dx, float &dy, float &di)
+{
+  Mat X; // holds solution
+  Mat h3d = hessian3D(p, b, m, t);
+  Mat d3d = deriv3D(p, b, m, t);
+  d3d *= -1;
+  if(solve(h3d, d3d, X)) {
+    *dx = X.at<float>(0,0);
+    *dy = X.at<float>(1,0);
+    *ds = X.at<float>(2,0);
+  } else {
+    *dx = *dy = *ds = 0.0f;
+  }
+}
+
+Mat FastHessian::hessian3D(Point p, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t)
+{
+  float dxx = m->getResponse(Point(), t);
+  float dxy = m->getResponse();
+  float dxs = t->getResponse();
+  float dyy = m->getResponse();
+  float dys = t->getResponse();
+  float dss = t->getResponse();
+
+  Mat h3d(3,3,CV_32F);
+
+  h3d.at<float>(0,0) = dxx;
+  h3d.at<float>(1,0) = dxy;
+  h3d.at<float>(2,0) = dxs;
+  h3d.at<float>(0,1) = dxy;
+  h3d.at<float>(1,1) = dyy;
+  h3d.at<float>(2,1) = dys;
+  h3d.at<float>(0,2) = dxs;
+  h3d.at<float>(1,2) = dys;
+  h3d.at<float>(2,2) = dss;
+
+  return h3d;
+}
+
+Mat FastHessian::deriv3D(Point p, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t)
+{
+  Mat d3d(3, 1, CV_32F);
+  d3d.at<float>(0,0) = (m->getResponse(Point(p.x+1, p.y), t) -
+                        m->getResponse(Point(p.x-1, p.y), t))/2.0f;
+  d3d.at<float>(1,0) = (m->getResponse(Point(p.x, p.y+1), t) -
+                        m->getResponse(Point(p.x, p.y+1), t))/2.0f;
+  d3d.at<float>(2,0) = (t->getResponse(p) - b->getResponse(p, t))/2.0f;
+  return d3d;
 }
 
 /**
