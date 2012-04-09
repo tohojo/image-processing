@@ -36,7 +36,7 @@ private:
   bool maximal(Point pt, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t);
   void addPoint(Point pt, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t);
   void interpolate(Point p, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t,
-                   float *dx, float *dy, float *ds);
+                   double *dx, double *dy, double *ds);
   Mat hessian3D(Point p, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t);
   Mat deriv3D(Point p, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t);
   Mat m_img;

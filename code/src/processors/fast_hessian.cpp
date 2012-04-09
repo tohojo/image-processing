@@ -191,7 +191,7 @@ bool FastHessian::maximal(Point pt, ResponseLayer *b, ResponseLayer *m, Response
  */
 void FastHessian::addPoint(Point pt, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t)
 {
-  float dx, dy, ds;
+  double dx, dy, ds;
   interpolate(pt, b, m, t, &dx, &dy, &ds);
 
   // Following the lead of opensurf and opencv, instead of doing
@@ -219,16 +219,16 @@ void FastHessian::addPoint(Point pt, ResponseLayer *b, ResponseLayer *m, Respons
  * value differences in the response layers.
  */
 void FastHessian::interpolate(Point p, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t,
-                              float *dx, float *dy, float *ds)
+                              double *dx, double *dy, double *ds)
 {
   Mat X; // holds solution
   Mat h3d = hessian3D(p, b, m, t);
   Mat d3d = deriv3D(p, b, m, t);
   d3d *= -1;
   if(solve(h3d, d3d, X)) {
-    *dx = X.at<float>(0,0);
-    *dy = X.at<float>(1,0);
-    *ds = X.at<float>(2,0);
+    *dx = X.at<double>(0,0);
+    *dy = X.at<double>(1,0);
+    *ds = X.at<double>(2,0);
   } else {
     *dx = *dy = *ds = 0.0f;
   }
@@ -236,40 +236,40 @@ void FastHessian::interpolate(Point p, ResponseLayer *b, ResponseLayer *m, Respo
 
 Mat FastHessian::hessian3D(Point p, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t)
 {
-  float val = m->getResponse(p,t);
-  float dxx = m->getResponse(Point(p.x+1, p.y), t) +m->getResponse(Point(p.x-1,p.y),t) - 2*val;
-  float dyy = m->getResponse(Point(p.x, p.y+1), t) +m->getResponse(Point(p.x,p.y-1),t) - 2*val;
-  float dss = b->getResponse(p, t) + t->getResponse(p) - 2*val;
-  float dxy = ( m->getResponse(Point(p.x+1,p.y+1), t) - m->getResponse(Point(p.x-1, p.y+1), t) +
+  double val = m->getResponse(p,t);
+  double dxx = m->getResponse(Point(p.x+1, p.y), t) +m->getResponse(Point(p.x-1,p.y),t) - 2*val;
+  double dyy = m->getResponse(Point(p.x, p.y+1), t) +m->getResponse(Point(p.x,p.y-1),t) - 2*val;
+  double dss = b->getResponse(p, t) + t->getResponse(p) - 2*val;
+  double dxy = ( m->getResponse(Point(p.x+1,p.y+1), t) - m->getResponse(Point(p.x-1, p.y+1), t) +
                 m->getResponse(Point(p.x-1,p.y-1), t) - m->getResponse(Point(p.x+1, p.y-1), t) ) /4.0;
-  float dxs = ( t->getResponse(Point(p.x+1, p.y)) - t->getResponse(Point(p.x-1, p.y)) +
+  double dxs = ( t->getResponse(Point(p.x+1, p.y)) - t->getResponse(Point(p.x-1, p.y)) +
                 b->getResponse(Point(p.x-1, p.y), t) - b->getResponse(Point(p.x+1, p.y), t) ) /4.0;
-  float dys = ( t->getResponse(Point(p.x, p.y+1)) - t->getResponse(Point(p.x, p.y-1)) +
+  double dys = ( t->getResponse(Point(p.x, p.y+1)) - t->getResponse(Point(p.x, p.y-1)) +
                 b->getResponse(Point(p.x, p.y-1), t) - b->getResponse(Point(p.x, p.y+1), t) ) /4.0;
 
-  Mat h3d(3,3,CV_32F);
+  Mat h3d(3,3,CV_64F);
 
-  h3d.at<float>(0,0) = dxx;
-  h3d.at<float>(1,0) = dxy;
-  h3d.at<float>(2,0) = dxs;
-  h3d.at<float>(0,1) = dxy;
-  h3d.at<float>(1,1) = dyy;
-  h3d.at<float>(2,1) = dys;
-  h3d.at<float>(0,2) = dxs;
-  h3d.at<float>(1,2) = dys;
-  h3d.at<float>(2,2) = dss;
+  h3d.at<double>(0,0) = dxx;
+  h3d.at<double>(0,1) = dxy;
+  h3d.at<double>(0,2) = dxs;
+  h3d.at<double>(1,0) = dxy;
+  h3d.at<double>(1,1) = dyy;
+  h3d.at<double>(1,2) = dys;
+  h3d.at<double>(2,0) = dxs;
+  h3d.at<double>(2,1) = dys;
+  h3d.at<double>(2,2) = dss;
 
   return h3d;
 }
 
 Mat FastHessian::deriv3D(Point p, ResponseLayer *b, ResponseLayer *m, ResponseLayer *t)
 {
-  Mat d3d(3, 1, CV_32F);
-  d3d.at<float>(0,0) = (m->getResponse(Point(p.x+1, p.y), t) -
+  Mat d3d(3, 1, CV_64F);
+  d3d.at<double>(0,0) = (m->getResponse(Point(p.x+1, p.y), t) -
                         m->getResponse(Point(p.x-1, p.y), t))/2.0f;
-  d3d.at<float>(1,0) = (m->getResponse(Point(p.x, p.y+1), t) -
+  d3d.at<double>(1,0) = (m->getResponse(Point(p.x, p.y+1), t) -
                         m->getResponse(Point(p.x, p.y+1), t))/2.0f;
-  d3d.at<float>(2,0) = (t->getResponse(p) - b->getResponse(p, t))/2.0f;
+  d3d.at<double>(2,0) = (t->getResponse(p) - b->getResponse(p, t))/2.0f;
   return d3d;
 }
 
