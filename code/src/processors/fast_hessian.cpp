@@ -148,7 +148,7 @@ void FastHessian::buildResponseLayer(ResponseLayer *layer)
       Dyy = filterY(p, lobe) * inverse_area;
       Dxy = filterXY(p, lobe) * inverse_area;
 
-      float detHess = (Dxx*Dyy - 0.9f*0.9f*Dxy*Dxy);
+      float detHess = (Dxx*Dyy - 0.81f*Dxy*Dxy); // (0.9Dxy)^2 == 0.81*Dxy*Dxy
       layer->setResponse(Point(x,y), detHess);
     }
   }
