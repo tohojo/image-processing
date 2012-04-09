@@ -10,7 +10,7 @@ class LensDistortionEstimation
 {
 
 public:
-	LensDistortionEstimation(int argc, char *argv[]);
+	LensDistortionEstimation(int argc, const char *argv[]);
 	~LensDistortionEstimation();
 
 private:

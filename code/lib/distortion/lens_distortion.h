@@ -109,6 +109,6 @@ int trivial_solution(int Nl, int *Np, int Na, double *a, double x0, double y0, d
 void read_primitives_from_file(FILE *fp_1, int Nl, int *Np, double *x0, double *y0, double **x, double **y, double **xx, double **yy);
 void undistort_image_3c(int Na, double *a, unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *r_undistort, unsigned char *g_undistort, unsigned char *b_undistort, int width, int height);
 void undistort_image_1c(int Na, double *a, unsigned char *g, unsigned char *g_undistort, int width, int height);
-int read_line_primitives(char filename[300], int *Nl, int **Np, double ***x, double ***y);
+int read_line_primitives(const char filename[300], int *Nl, int **Np, double ***x, double ***y);
 
 #endif

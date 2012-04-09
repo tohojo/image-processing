@@ -95,7 +95,7 @@ LensDistortionEstimation::~LensDistortionEstimation() // Changed/Added by B Mead
 { // Changed/Added by B Meadows, 2012
 } // Changed/Added by B Meadows, 2012
 
-LensDistortionEstimation::LensDistortionEstimation(int argc, char *argv[])
+LensDistortionEstimation::LensDistortionEstimation(int argc, const char *argv[])
 {
   unsigned char *r, *g, *b; /* RGB input image channels */
   unsigned char *ru,*gu,*bu;/* RGB output undistorted image channels */
@@ -147,7 +147,7 @@ LensDistortionEstimation::LensDistortionEstimation(int argc, char *argv[])
     if(grey!=NULL) free(grey); if(r!=NULL) free(r); if(g!=NULL) free(g); if(b!=NULL) free(b);
  //   return(-1); // Changed/Added by B Meadows, 2012
   }
-  
+
   /* WE ALLOCATE MEMORY FOR AUXILARY POINTS AND WE NORMALIZE ORIGINAL POINTS */
   xx=(double**)malloc( sizeof(double*)*Nl);  /*  x pixels normalized coordinates */
   yy=(double**)malloc( sizeof(double*)*Nl);  /*  y pixels normalized coordinates */
