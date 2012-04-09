@@ -74,6 +74,12 @@ void Processor::set_input(const Mat img)
   input_image = img;
 }
 
+void Processor::set_input_name(QString filename)
+{
+  QMutexLocker locker(&mutex);
+  input_image_filename = filename;
+}
+
 Mat Processor::get_output()
 {
   QMutexLocker locker(&mutex);

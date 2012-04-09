@@ -21,6 +21,7 @@ public:
   virtual ~Processor();
 
   void set_input(const Mat img);
+  void set_input_name(QString filename);
   Mat get_output();
 
   virtual QString name() {return "Processor";}
@@ -47,6 +48,7 @@ protected:
   bool restart;
   bool once;
   QList<Point> POIs;
+  QString input_image_filename;
 };
 
 #endif

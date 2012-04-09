@@ -164,7 +164,7 @@ void ProcessingGUI::update_output()
 
 void ProcessingGUI::open_image()
 {
-  QString filename = QFileDialog::getOpenFileName(this, tr("Select image"),
+  filename = QFileDialog::getOpenFileName(this, tr("Select image"),
                                                   open_directory,
                                                   tr("Images (*.png *.jpg *.jpeg *.tif)"));
   if(!filename.isNull()) {
@@ -193,6 +193,7 @@ void ProcessingGUI::load_image(QString filename)
 
   input_image = Util::load_image(filename);
   current_processor->set_input(input_image);
+  current_processor->set_input_name(filename);
   QImage qImg = Util::mat_to_qimage(input_image);
   input_view->setImage(qImg);
   input_filename->setText(fileinfo.fileName());
@@ -226,6 +227,7 @@ void ProcessingGUI::set_processor(Processor *proc)
   connect(current_processor, SIGNAL(newMessage(QString)), SLOT(newMessage(QString)));
   if(m_batch) {
     current_processor->set_input(input_image);
+	current_processor->set_input_name(filename);
     current_processor->run_once();
     return;
   }
@@ -233,6 +235,7 @@ void ProcessingGUI::set_processor(Processor *proc)
   m_properties->addObject(current_processor);
 
   current_processor->set_input(input_image);
+  current_processor->set_input_name(filename);
   current_processor->process();
 }
 

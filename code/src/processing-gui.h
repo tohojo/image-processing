@@ -34,6 +34,7 @@ private:
   ProcessorModel *processor_model;
   QItemSelectionModel *processor_selection;
   ImageGraphicsItem *current_image;
+  QString filename;
   void readSettings();
   void closeEvent(QCloseEvent *event);
 

@@ -11,8 +11,8 @@
 DistortionRemoval::DistortionRemoval(QObject *parent)
 : Processor(parent)
 {
-	squares_across = 4;
-	squares_down = 4;
+	squares_across = 8;
+	squares_down = 8;
 }
 
 DistortionRemoval::~DistortionRemoval()
@@ -56,19 +56,26 @@ void DistortionRemoval::calculateLines(){
 	if(success){
 		cornerSubPix(input_image, corners, Size(10, 10), Size(-1, -1), TermCriteria(TermCriteria::COUNT, 30, 0.1));
 	}
+	output_image = input_image.clone();
+	if (corners.size() > 0){
+		drawChessboardCorners(output_image, patternSize, Mat(corners), success);
+	}
 	if (corners.size() != numberOfCorners){
 		qDebug("=======================");
-		qDebug("Error in finding corners: choose appropriate chessboard size for input.");
+		qDebug("Error in finding corners:");
+		qDebug(" choose appropriate chessboard dimensions or cleaner chessboard image.");
+		std::ostringstream strs;
+		strs << "Corners expected = " << numberOfCorners << ", but corners found = " << corners.size() << ".";
+		std::string output_str = strs.str();
+		qDebug(output_str.c_str());
 		qDebug("=======================");
 	} else {
-		output_image = input_image.clone();
-		drawChessboardCorners(output_image, patternSize, Mat(corners), success);
 		qDebug("Lines calculated. Sub-pixel corner points:");
 		for (vector<Point2f>::iterator i = corners.begin(); i != corners.end(); i++){
 			std::ostringstream strs;
 			strs << "   Corner found: <" << (i->x) << "," << (i->y) << "> ";
 			std::string output_str = strs.str();
-			qDebug(output_str.c_str());			
+			qDebug(output_str.c_str());
 		}
 		// The following assumes that points from the chessboard are stored left-to-right, top-to-bottom.
 		// This should be guaranteed by opencv.
@@ -94,27 +101,32 @@ void DistortionRemoval::calculateLines(){
 
 		// Since stage 1 was successful, progress to stage 2:
 		// The actual distortion removal.
-		char * input_image_name = "test.tif";
-		//action_open_image
-		//actionInput_image
+		
+		std::string str_name = input_image_filename.toStdString();
+		char * input_image_name = (char*)str_name.c_str();
 		char * arguments[] = { "lens_distortion_estimation",
 			input_image_name,
 			"output_undistorted_image.tif",
 			"line_segment_output.dat",
 			"output_lens_distortion_models.dat" };
 		LensDistortionEstimation lde = LensDistortionEstimation(5, arguments);
+		qDebug("Distortion removed from image; corrected image stored in 'output_undistorted_image.tif'.");
 	}
 
-	// Next step: try to call the other IPOL_distort code directly.
-	// 1. Construct segments that should be straight lines from the point coordinates in "corners".
-	// 2. For the best results, use multiple lines.
-	// 3. Needs both vertical and horizontal line segments for the optimization procedure to converge.
-	// 4. Determine the radial distortion coefficients:
-	//		There are numerous camera calibration packages (including one in OpenCV).
-	//		But a particularly good open-source ANSI C library can be located here[5]. 
-	//		The line segment coordinates are fed into an optimizer which determines the undistorted
-	//		coefficients by minimizing the error between the radial distortion model and the training data.
-	//		These coefficients can then be stored in a lookup table for run-time image correction.
+	// What is happening here?
+	// 1. We use opencv to automatically extract corners from a distorted chessboard image.
+	// 2. We reconstruct segments that should be straight lines from these points, using a naive algorithm
+	//		which relies on the fact that opencv finds corners in a set order; the algorithm only works
+	//		if all the internal points are found.
+	// 3. For optimal distortion removal, we use use multiple lines, both vertical and horizontal.
+	// 4. The actual distortion removal consists of first modelling the distortion (by determining 
+	//		the radial distortion coefficients) and then correcting the image based on that model.
+	//		This is done using an open-source ANSI C library which uses an optimizer to determine
+	//		the undistorted coefficients by minimizing the error between the radial distortion model
+	//		and the image data.
+	// 5. Note that this usage of the algorithm only works within certain constraints: only on
+	//		relatively 'clean' images of [distorted] chessboards (due to opencv), and only on
+	//		uncompressed .tif images (due to the library we refer to as IPOL_distort.
 }
 
 void DistortionRemoval::setSquaresAcross(const int squares){
