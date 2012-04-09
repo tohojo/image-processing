@@ -18,7 +18,7 @@ public:
 	DistortionRemoval(QObject *parent = 0);
 	~DistortionRemoval();
 
-	QString name() {return "Distortion removal stage 1";}
+	QString name() {return "Distortion removal";}
 
 	int squaresAcross() {QMutexLocker locker(&mutex); return squares_across;}
 	int squaresDown() {QMutexLocker locker(&mutex); return squares_down;}

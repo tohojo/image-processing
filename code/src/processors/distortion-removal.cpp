@@ -126,7 +126,7 @@ void DistortionRemoval::calculateLines(){
 	//		and the image data.
 	// 5. Note that this usage of the algorithm only works within certain constraints: only on
 	//		relatively 'clean' images of [distorted] chessboards (due to opencv), and only on
-	//		uncompressed .tif images (due to the library we refer to as IPOL_distort.
+	//		uncompressed .tif images (due to the library we refer to as IPOL_distort).
 }
 
 void DistortionRemoval::setSquaresAcross(const int squares){
