@@ -2,9 +2,9 @@
 % rubber: module xelatex
 \subsection{Distortion removal}
 Initial investigation:\\
-- "Straight lines ought to be straight" paper recommended.\\
-- "Applying and removing lens distortion in post production" - \cite{postproduction} \\
-- The IPOL_distort algorithm is based on \cite{algebraic-distortion}.\\\\
+- "Straight lines ought to be straight" - \cite{straightlines} .\\
+- "Applying and removing lens distortion in post production" - \cite{postproduction} .\\
+- The IPOL_distort algorithm is based on \cite{algebraic-distortion} .\\\\
 Algorithm:\\
 1. We use opencv to automatically extract corners from a distorted chessboard image.\\
 2. We reconstruct segments that should be straight lines from these points, using a naive algorithm which relies on the fact that opencv finds corners in a set order; the algorithm only works if all the internal points are found.\\
