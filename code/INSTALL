@@ -1,0 +1,20 @@
+INSTALLATION INSTRUCTIONS
+
+Requirements: A c++ compiler, the Qt and OpenCV library + development
+headers.
+
+The project uses CMake as a build system. On *nix, running the
+build.sh script should take care of most things (tested on Arch
+Linux).
+
+On Windows, do the equivalent of what the build script does, i.e. run
+commands like this (from the directory where this file is located):
+
+(Create the "build" directory if it doesn't exist).
+
+cd build
+cmake ..
+make
+
+This should build the executable `image-processing` which can be found
+in `build/src/`.
