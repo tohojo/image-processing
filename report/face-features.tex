@@ -16,7 +16,12 @@ Interesting points:
   calculations.
 \item When estimating the determinant of the Hessian matrix (from the
   filter response values), a weight of $0.9$ for the $D_{xy}$
-  direction is used. This comes from the article. OpenCV does not area
-  normalise the values (I think; the code is quite convoluted), which
-  means the threshold values are somewhat different.
+  direction is used. This comes from the article.
+\item The three implementations (ours, OpenCV and OpenSURF) use
+  somewhat different threshold values. OpenCV does not area normalise
+  the values (I think; the code is quite convoluted), which might be a
+  good bet for why those are different. OpenSURF represents grey scale
+  values as floating point values between 0 and 1, whereas we
+  represent them as 0-255 int values, which should account for the
+  values here.
 \end{itemize}
