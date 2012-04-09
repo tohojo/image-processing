@@ -1,4 +1,7 @@
 #include "distortion-removal.h"
+
+#include "lens_distortion_estimation.h"
+
 #include <QtCore/QList>
 #include <iostream>
 #include <fstream>
@@ -30,7 +33,6 @@ void DistortionRemoval::run()
 			if(abort) return;
 			if(!restart) {
 				emit progress(100);
-				output_image = input_image;
 				emit updated();
 			}
 		}
@@ -55,9 +57,10 @@ void DistortionRemoval::calculateLines(){
 		cornerSubPix(input_image, corners, Size(10, 10), Size(-1, -1), TermCriteria(TermCriteria::COUNT, 30, 0.1));
 	}
 	if (corners.size() != numberOfCorners){
+		qDebug("=======================");
 		qDebug("Error in finding corners: choose appropriate chessboard size for input.");
+		qDebug("=======================");
 	} else {
-//		input_image.copyTo(output_image);
 		output_image = input_image.clone();
 		drawChessboardCorners(output_image, patternSize, Mat(corners), success);
 		qDebug("Lines calculated. Sub-pixel corner points:");
@@ -65,15 +68,13 @@ void DistortionRemoval::calculateLines(){
 			std::ostringstream strs;
 			strs << "   Corner found: <" << (i->x) << "," << (i->y) << "> ";
 			std::string output_str = strs.str();
-			qDebug(output_str.c_str());
-			//points[] = new Point2f(i->x, i->y);			
+			qDebug(output_str.c_str());			
 		}
-
 		// The following assumes that points from the chessboard are stored left-to-right, top-to-bottom.
 		// This should be guaranteed by opencv.
 		int lineLength = (squares_across-1);
 		int lineHeight = (squares_down-1);
-		ofstream outFile("output.dat", ios::out);
+		ofstream outFile("line_segment_output.dat", ios::out);
 		Point2f* points = &corners[0];
 		int numberOfLines = lineLength+lineHeight;
 		outFile << numberOfLines << "\n";
@@ -90,9 +91,19 @@ void DistortionRemoval::calculateLines(){
 			}
 		}
 		outFile.close();
-	}
 
-	// Chessboard lines not being drawn correctly.
+		// Since stage 1 was successful, progress to stage 2:
+		// The actual distortion removal.
+		char * input_image_name = "test.tif";
+		//action_open_image
+		//actionInput_image
+		char * arguments[] = { "lens_distortion_estimation",
+			input_image_name,
+			"output_undistorted_image.tif",
+			"line_segment_output.dat",
+			"output_lens_distortion_models.dat" };
+		LensDistortionEstimation lde = LensDistortionEstimation(5, arguments);
+	}
 
 	// Next step: try to call the other IPOL_distort code directly.
 	// 1. Construct segments that should be straight lines from the point coordinates in "corners".
