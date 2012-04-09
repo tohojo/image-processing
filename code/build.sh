@@ -16,3 +16,5 @@ fi
 cd "$builddir"
 cmake $CMAKEARGS ..
 make "$@"
+
+[ ! -f image-processing ] && ln -sf src/image-processing image-processing
