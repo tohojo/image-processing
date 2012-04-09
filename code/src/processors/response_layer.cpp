@@ -7,6 +7,7 @@
 
 #include "response_layer.h"
 #include <QDebug>
+#include <fstream>
 
 ResponseLayer::ResponseLayer(int width, int height, int step, int filter_size)
   : responses(height, width, CV_32F),
@@ -57,4 +58,20 @@ float ResponseLayer::getResponse(Point p, ResponseLayer *other)
 {
   int scale = m_width/other->m_width;
   return getResponse(Point(p.x*scale, p.y*scale));
+}
+
+void ResponseLayer::toCSV(const char *filename)
+{
+  std::ofstream file;
+  file.open(filename);
+  for(int i = 0; i < responses.rows; i++) {
+    for(int j = 0; j < responses.cols; j++) {
+      file << responses.at<float>(i,j);
+      if(j < responses.cols-1) file << ",";
+    }
+    file << "\n";
+  }
+
+  file.close();
+
 }

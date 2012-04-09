@@ -7,6 +7,7 @@
 
 #include "integral_image.h"
 #include <QDebug>
+#include <fstream>
 
 IntegralImage::IntegralImage(Mat &img)
 {
@@ -57,4 +58,20 @@ float IntegralImage::area(Point p, int width, int height)
   Point start(qMin(p.x, m_img.cols)-1, qMin(p.y, m_img.rows)-1);
   Point end(qMin(p.x+width, m_img.cols)-1, qMin(p.y+height, m_img.rows)-1);
   return area(start,end);
+}
+
+void IntegralImage::toCSV(const char *filename)
+{
+  std::ofstream file;
+  file.open(filename);
+  for(int i = 0; i < m_int.rows; i++) {
+    for(int j = 0; j < m_int.cols; j++) {
+      file << m_int.at<float>(i,j);
+      if(j < m_int.cols-1) file << ",";
+    }
+    file << "\n";
+  }
+
+  file.close();
+
 }

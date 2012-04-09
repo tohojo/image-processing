@@ -34,6 +34,7 @@ public:
   float getResponse(Point p);
   void  setResponse(int row, int col, float val);
   void  setResponse(Point p, float val);
+  void toCSV(const char* filename);
 
 private:
   Mat responses;

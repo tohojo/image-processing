@@ -10,6 +10,7 @@
 ************************************************************/
 
 #include <memory.h>
+#include <fstream>
 namespace OpenSURF {
 
 //#define RL_DEBUG  // un-comment to test response layer
@@ -43,6 +44,23 @@ public:
     if (responses) delete [] responses;
     if (laplacian) delete [] laplacian;
   }
+
+void toCSV(const char *filename)
+{
+  std::ofstream file;
+  file.open(filename);
+  for(int i = 0; i < height; i++) {
+    for(int j = 0; j < width; j++) {
+      file << responses[i*width+j];
+      if(j < width-1) file << ",";
+    }
+    file << "\n";
+  }
+
+  file.close();
+
+}
+
 
   inline unsigned char getLaplacian(unsigned int row, unsigned int column)
   {

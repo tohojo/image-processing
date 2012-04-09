@@ -19,6 +19,7 @@ public:
   void compute();
   float area(Point start, Point end);
   float area(Point start, int w, int h);
+  void toCSV(const char* filename);
 private:
   Mat m_img;
   Mat m_int;
