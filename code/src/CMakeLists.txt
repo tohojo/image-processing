@@ -25,11 +25,7 @@ set(image-processing_SOURCES
   processors/region.h
   processors/region.cpp
   util.cpp
-  util.h
-  distortion/ami_pol.cpp
-  distortion/ami_tif.cpp
-  distortion/lens_distortion.cpp
-  distortion/lens_distortion_estimation.cpp)
+  util.h)
 set(image-processing_HEADERS
   message-handler.h
   processing-gui.h
@@ -43,10 +39,7 @@ set(image-processing_HEADERS
   processors/null_processor.h
   processors/distortion-removal.h
   processors/processor_model.h
-  distortion/ami_pol.h
-  distortion/ami_tif.h
-  distortion/lens_distortion.h
-  distortion/lens_distortion_estimation.h)
+  )
 
 set(image-processing_FORMS ui/processing-gui.ui)
 
@@ -57,17 +50,18 @@ qt4_wrap_ui(image-processing_FORMS_HEADERS ${image-processing_FORMS})
 # make sure the compiler can find the generated _ui* files
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(processors/)
-include_directories(distortion/)
 include_directories(widgets/)
 include_directories(./)
 
 include_directories (${image-processing_SOURCE_DIR}/lib/QPropertyEditor)
 include_directories (${image-processing_SOURCE_DIR}/lib/OpenSURF)
+include_directories (${image-processing_SOURCE_DIR}/lib/distortion)
 link_directories (${image-processing_BINARY_DIR}/lib/QPropertyEditor)
 link_directories (${image-processing_BINARY_DIR}/lib/OpenSURF)
+link_directories (${image-processing_BINARY_DIR}/lib/distortion)
 
 add_executable(image-processing
   ${image-processing_HEADERS_MOC}
   ${image-processing_FORMS_HEADERS}
   ${image-processing_SOURCES})
-target_link_libraries(image-processing ${QT_LIBRARIES} ${OpenCV_LIBS} QPropertyEditor OpenSURF)
+target_link_libraries(image-processing ${QT_LIBRARIES} ${OpenCV_LIBS} QPropertyEditor OpenSURF distortion)

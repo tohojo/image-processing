@@ -79,21 +79,21 @@ void DistortionRemoval::calculateLines(){
 		}
 		// The following assumes that points from the chessboard are stored left-to-right, top-to-bottom.
 		// This should be guaranteed by opencv.
-		int lineLength = (squares_across-1);
-		int lineHeight = (squares_down-1);
+		unsigned int lineLength = (squares_across-1);
+		unsigned int lineHeight = (squares_down-1);
 		ofstream outFile("line_segment_output.dat", ios::out);
 		Point2f* points = &corners[0];
 		int numberOfLines = lineLength+lineHeight;
 		outFile << numberOfLines << "\n";
-		for (int i = 0; i < numberOfCorners/lineLength; i++ ){ // horizontal lines
+		for (unsigned int i = 0; i < numberOfCorners/lineLength; i++ ){ // horizontal lines
 			outFile << lineLength << "\n";
-			for (int j = 0; j < lineLength; j++ ){
+			for (unsigned int j = 0; j < lineLength; j++ ){
 				outFile << points[i*lineLength + j].x << " " << points[i*lineLength + j].y << "\n";
 			}
 		}
-		for (int i = 0; i < numberOfCorners/lineHeight; i++ ){ // vertical lines
+		for (unsigned int i = 0; i < numberOfCorners/lineHeight; i++ ){ // vertical lines
 			outFile << lineHeight << "\n";
-			for (int j = 0; j < lineHeight; j++ ){
+			for (unsigned int j = 0; j < lineHeight; j++ ){
 				outFile << points[j*lineLength + i].x << " " << points[j*lineLength + i].y << "\n";
 			}
 		}
@@ -101,10 +101,10 @@ void DistortionRemoval::calculateLines(){
 
 		// Since stage 1 was successful, progress to stage 2:
 		// The actual distortion removal.
-		
+
 		std::string str_name = input_image_filename.toStdString();
-		char * input_image_name = (char*)str_name.c_str();
-		char * arguments[] = { "lens_distortion_estimation",
+		const char * input_image_name = (char*)str_name.c_str();
+		const char * arguments[] = { "lens_distortion_estimation",
 			input_image_name,
 			"output_undistorted_image.tif",
 			"line_segment_output.dat",
@@ -119,7 +119,7 @@ void DistortionRemoval::calculateLines(){
 	//		which relies on the fact that opencv finds corners in a set order; the algorithm only works
 	//		if all the internal points are found.
 	// 3. For optimal distortion removal, we use use multiple lines, both vertical and horizontal.
-	// 4. The actual distortion removal consists of first modelling the distortion (by determining 
+	// 4. The actual distortion removal consists of first modelling the distortion (by determining
 	//		the radial distortion coefficients) and then correcting the image based on that model.
 	//		This is done using an open-source ANSI C library which uses an optimizer to determine
 	//		the undistorted coefficients by minimizing the error between the radial distortion model

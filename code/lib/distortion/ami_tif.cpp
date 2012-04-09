@@ -322,7 +322,7 @@ long integer4Value(unsigned char *source, int IIorMM, int type, int num)
 
 
 /* Read a msg file and fill myTiff with the default information */
-int read_msg_TIFF_struct (char name[200], FILE *fptr, struct TIFF_file *myTiff)
+int read_msg_TIFF_struct (const char name[200], FILE *fptr, struct TIFF_file *myTiff)
 {
   int depth, nPixels = 1024*1024;
   long inicio, final, total;
@@ -346,7 +346,7 @@ int read_msg_TIFF_struct (char name[200], FILE *fptr, struct TIFF_file *myTiff)
 
 
 /* Read a tiff file called "name" and fill myTiff with the information */
-int read_tiff_TIFF_struct (char name[200], struct TIFF_file *myTiff)
+int read_tiff_TIFF_struct (const char name[200], struct TIFF_file *myTiff)
 {
   FILE *fptr;
   int retorno, temp, i, sizeTemp;
@@ -627,7 +627,7 @@ int read_tiff_TIFF_struct (char name[200], struct TIFF_file *myTiff)
 
 
 int read_tiff_unsigned_char (
-char name[200] /** Input image file name to read */,
+const char name[200] /** Input image file name to read */,
 unsigned char **grey /** Output grey level image data (pointer memory is allocated inside the function call) */,
 unsigned char **r /** Output RED image data (pointer memory is allocated inside the function call) */,
 unsigned char **g /** Output GREEN image data (pointer memory is allocated inside the function call) */,

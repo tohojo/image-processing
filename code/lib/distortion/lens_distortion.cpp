@@ -1264,7 +1264,7 @@ double distance_function(
    f_objective=0.0;
    for (i=0;i<Nl;i++){
      points_2D_modified=(double**)malloc(sizeof(double*)*Np[i]);
-     for(j=0;j<Np[i];j++){ 
+     for(j=0;j<Np[i];j++){
         points_2D_modified[j]=(double*)malloc(sizeof(double)*2);
         points_2D_modified[j][0]=x[i][j];
         points_2D_modified[j][1]=y[i][j];
@@ -1423,7 +1423,7 @@ double cuadratic_fitting(
          double minimo_lambda,f_minimo;
          double error=1e100;
          int iteraciones_lambda,i;
- 
+
          iteraciones_lambda=0;
          /* We loop till getting the minimum */
          while(error>tol_lambda){
@@ -1517,7 +1517,7 @@ double minimize_lambda(
        	  if(f_2<f_1) break;
           if(fabs((f_2-last_f2)/last_f2)<=tol_ff){   /* Avoid the flat zone */
               if(amin_copy!=NULL) free(amin_copy);   /*free memory*/
-              return(lambda2);    
+              return(lambda2);
           }
          lambda2=lambda2/2.0;
       	}
@@ -1584,7 +1584,7 @@ double  gradient_method(
            grad_f[i]=(distance_function(amin,x,y,Nl,Np,Na,x0,y0)-f_objective)/delta;
       	   amin[i]=kk;
    	}
-        /* Activate to stop the gradient when the gradient_norm<tol_norma gradient_norm=0.0; 
+        /* Activate to stop the gradient when the gradient_norm<tol_norma gradient_norm=0.0;
 	   for(i=0;i<=Na;i++)	gradient_norm=gradient_norm+pow(grad_f[i],2.0);
            gradient_norm=sqrt(gradient_norm);		if(gradient_norm<=tol_norma) break; */
    	lambda=minimize_lambda(amin,x,y,Na,Nl,Np,grad_f,f_objective,change_k,x0,y0);
@@ -1652,7 +1652,7 @@ int  optimize(
     ami_calloc1d(change_k,int,Na+1);
     change_k[0]=0;change_k[2]=1;  /* OPTIMIZED ONLY */
     starttime = clock();
-    gradient_method(amin,x,y,Nl,Np,Na,change_k,0.0,0.0,zoom);   
+    gradient_method(amin,x,y,Nl,Np,Na,change_k,0.0,0.0,zoom);
     stoptime = clock();
     timeused = difftime(stoptime,starttime);
     fprintf(fp1,"Na (degree of  lens distortion model polynom) = %d",Na);
@@ -1684,7 +1684,7 @@ int  optimize(
 
 
     f_evaluations=0;n_iterations=0;
-    Na=4;  
+    Na=4;
     change_k=NULL;                                     	/* DEGREE OF THE POLYNOM */
     ami_calloc1d(change_k,int,Na+1);           		 /* WE ALLOCATE MEMORY */
     if(control==1) amin[0]=1; for(i=1;i<=Na;i++) amin[i]=0;   /* TRIVIAL SOLUTION */
@@ -2374,7 +2374,7 @@ int height /** INPUT IMAGE HEIGHT */
  * \author Luis Alvarez
 */
 int read_line_primitives(
-char filename[300] /** INPUT FILE NAME */,
+const char filename[300] /** INPUT FILE NAME */,
 int *Nl /** OUTPUT NUMBER OF LINES */,
 int **Np /** OUTPUT NUMBER OF POINTS FOR EACH LINE */,
 double ***x /** OUTPUT POINT X COORDINATES  */,
