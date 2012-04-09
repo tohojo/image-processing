@@ -9,10 +9,17 @@ set(image-processing_SOURCES
   widgets/resizingimagelabel.cpp
   widgets/signalingdockwidget.cpp
   processors/processor.cpp
+  processors/feature_points.cpp
   processors/segmenting.cpp
   processors/null_processor.cpp
   processors/distortion-removal.cpp
   processors/processor_model.cpp
+  processors/fast_hessian.h
+  processors/fast_hessian.cpp
+  processors/response_layer.h
+  processors/response_layer.cpp
+  processors/integral_image.h
+  processors/integral_image.cpp
   processors/rpoint.h
   processors/rpoint.cpp
   processors/region.h
@@ -31,6 +38,7 @@ set(image-processing_HEADERS
   widgets/resizingimagelabel.h
   widgets/signalingdockwidget.h
   processors/processor.h
+  processors/feature_points.h
   processors/segmenting.h
   processors/null_processor.h
   processors/distortion-removal.h
@@ -54,10 +62,12 @@ include_directories(widgets/)
 include_directories(./)
 
 include_directories (${image-processing_SOURCE_DIR}/lib/QPropertyEditor)
-link_directories (${image-processing_BINARY_DIR}/lib/QPropertyEditor) 
+include_directories (${image-processing_SOURCE_DIR}/lib/OpenSURF)
+link_directories (${image-processing_BINARY_DIR}/lib/QPropertyEditor)
+link_directories (${image-processing_BINARY_DIR}/lib/OpenSURF)
 
 add_executable(image-processing
   ${image-processing_HEADERS_MOC}
   ${image-processing_FORMS_HEADERS}
   ${image-processing_SOURCES})
-target_link_libraries(image-processing ${QT_LIBRARIES} ${OpenCV_LIBS} QPropertyEditor)
+target_link_libraries(image-processing ${QT_LIBRARIES} ${OpenCV_LIBS} QPropertyEditor OpenSURF)

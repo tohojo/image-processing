@@ -2,6 +2,7 @@
  * Utility functions for conversion between opencv and qt formats etc.
  */
 #include "util.h"
+#include <fstream>
 
 namespace Util {
 
@@ -79,5 +80,21 @@ namespace Util {
     n++;
 
     return (n==num) ? n : ((smaller) ? n >> 1 : n);
+  }
+
+  void img_to_csv (const char *filename, Mat mat)
+  {
+    std::ofstream file;
+    file.open(filename);
+    for(int i = 0; i < mat.rows; i++) {
+      for(int j = 0; j < mat.cols; j++) {
+        file << (int) mat.at<uchar>(i,j);
+        if(j < mat.cols-1) file << ",";
+      }
+      file << "\n";
+    }
+
+    file.close();
+
   }
 }
