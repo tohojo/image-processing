@@ -165,7 +165,7 @@ void FeaturePoints::compute_opensurf()
   IplImage in = input;
 
   OpenSURF::IpVec ipts;
-  OpenSURF::surfDetDes(&in, ipts, true,  m_octaves, m_intervals, m_init_sample, OpenSURF::THRES);
+  OpenSURF::surfDetDes(&in, ipts, true,  m_octaves, m_intervals, m_init_sample, m_threshold);
   qDebug() << "Got" << ipts.size() << "interest points.";
   emit progress(90);
 
