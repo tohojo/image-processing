@@ -1,5 +1,5 @@
 #include <QtGui/QApplication>
-#include<QtGui/QFileDialog>
+#include <QtGui/QFileDialog>
 #include <QtGui/QImage>
 #include <QtGui/QPixmap>
 #include <QtGui/QGraphicsPixmapItem>
