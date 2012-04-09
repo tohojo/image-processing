@@ -11,6 +11,7 @@ set(image-processing_SOURCES
   processors/processor.cpp
   processors/segmenting.cpp
   processors/null_processor.cpp
+  processors/distortion-removal.cpp
   processors/processor_model.cpp
   processors/rpoint.h
   processors/rpoint.cpp
@@ -28,6 +29,7 @@ set(image-processing_HEADERS
   processors/processor.h
   processors/segmenting.h
   processors/null_processor.h
+  processors/distortion-removal.h
   processors/processor_model.h)
 set(image-processing_FORMS ui/processing-gui.ui)
 
