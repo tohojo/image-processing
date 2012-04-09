@@ -1,3 +1,22 @@
 % vim:ft=tex
 % rubber: module xelatex
 \subsection{Face features extraction}
+We have implemented the SURF extractor, described in \cite{SURF},
+which is an attempt to improve upon the first scale-invariant feature
+extraction algorithm, SIFT, described in \cite{SIFT}. The
+implementation is inspired by the OpenSURF implementation, described
+in \cite{OpenSURF}, and the code structure is quite similar.
+Interesting points:
+
+\begin{itemize}
+\item The response layers and filter sizes are taken from \cite{SURF}.
+  This means the range of possible values for the octaves and interval
+  parameters are somewhat limited (resp. 1-5 and 3-4). The OpenSURF
+  implementation simply ignores the invervals parameter in the
+  calculations.
+\item When estimating the determinant of the Hessian matrix (from the
+  filter response values), a weight of $0.9$ for the $D_{xy}$
+  direction is used. This comes from the article. OpenCV does not area
+  normalise the values (I think; the code is quite convoluted), which
+  means the threshold values are somewhat different.
+\end{itemize}
