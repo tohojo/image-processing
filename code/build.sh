@@ -14,7 +14,11 @@ if [ ! -d "$builddir" ]; then
 fi
 
 cd "$builddir"
-cmake $CMAKEARGS ..
-make "$@"
+cmake $CMAKEARGS .. || exit
+make "$@" || exit
+
+RES=$?
 
 [ ! -f image-processing ] && ln -sf src/image-processing image-processing
+
+exit $RES
