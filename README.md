@@ -1,4 +1,4 @@
-IMAGE PROCESSING APPLICATION
+# Image Processing application #
 By Ben Meadows and Toke Høiland-Jørgensen
 
 This application is a project assignment for the COMPSCI773 course,
@@ -24,8 +24,7 @@ So far the application does the following:
 - Distortion removal - removing distortion so straight lines stay
   straight.
 
-
-WORKINGS OF THE APPLICATION
+## Workings of the application ##
 
 The program is written in C++ using the Qt and OpenCV libraries. The
 application consists of a Qt-based GUI that allows the user to load
@@ -43,6 +42,5 @@ the actual processing. The processing is done in a separate thread, to
 keep the interface responsive, and make it possible for the user to
 cancel a long-running processor.
 
-INSTALLATION
-
+## Installation ##
 See the INSTALL file in the `code/` subdirectory.

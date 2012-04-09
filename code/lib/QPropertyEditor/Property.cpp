@@ -1,7 +1,7 @@
 // *************************************************************************************************
 //
 // QPropertyEditor v 0.3
-//   
+//
 // --------------------------------------
 // Copyright (C) 2007 Volker Wiendl
 // Acknowledgements to Roman alias banal from qt-apps.org for the Enum enhancement
@@ -9,7 +9,7 @@
 //
 // The QPropertyEditor Library is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
-// the Free Software Foundation version 3 of the License 
+// the Free Software Foundation version 3 of the License
 //
 // The Horde3D Scene Editor is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -26,7 +26,7 @@
 #include <QtCore/QMetaProperty>
 #include <QtGui/QSpinBox>
 
-Property::Property(const QString& name /*= QString()*/, QObject* propertyObject /*= 0*/, QObject* parent /*= 0*/) : QObject(parent), 
+Property::Property(const QString& name /*= QString()*/, QObject* propertyObject /*= 0*/, QObject* parent /*= 0*/) : QObject(parent),
 m_propertyObject(propertyObject)
 {
 	setObjectName(name);
@@ -70,13 +70,14 @@ QWidget* Property::createEditor(QWidget *parent, const QStyleOptionViewItem& /*o
 		editor->setProperty("maximum", INT_MAX);
 		connect(editor, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
 		break;
-	case QMetaType::Float:	
-	case QVariant::Double:	
+	case QMetaType::Float:
+	case QVariant::Double:
 		editor = new QDoubleSpinBox(parent);
 		editor->setProperty("minimum", -INT_MAX);
 		editor->setProperty("maximum", INT_MAX);
+		editor->setProperty("decimals", 5);
 		connect(editor, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
-		break;			
+		break;
 	default:
 		return editor;
 	}
@@ -94,15 +95,15 @@ bool Property::setEditorData(QWidget *editor, const QVariant &data)
 		editor->blockSignals(true);
 		static_cast<QSpinBox*>(editor)->setValue(data.toInt());
 		editor->blockSignals(false);
-		return true;			
-	case QMetaType::Float:	
-	case QVariant::Double:	
+		return true;
+	case QMetaType::Float:
+	case QVariant::Double:
 		editor->blockSignals(true);
 		static_cast<QDoubleSpinBox*>(editor)->setValue(data.toDouble());
 		editor->blockSignals(false);
-		return true;		
-	default: 
-		return false;	
+		return true;
+	default:
+		return false;
 	}
 	return false;
 }
@@ -115,10 +116,10 @@ QVariant Property::editorData(QWidget *editor)
 		return QVariant::fromValue(static_cast<ColorCombo*>(editor)->color());
 	case QVariant::Int:
 		return QVariant(static_cast<QSpinBox*>(editor)->value());
-	case QMetaType::Float:	
-	case QVariant::Double:	
+	case QMetaType::Float:
+	case QVariant::Double:
 		return QVariant(static_cast<QDoubleSpinBox*>(editor)->value());
-		break;			
+		break;
 	default:
 		return QVariant();
 	}

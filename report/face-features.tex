@@ -1,3 +1,38 @@
 % vim:ft=tex
 % rubber: module xelatex
 \subsection{Face features extraction}
+We have implemented the SURF extractor, described in \cite{SURF},
+which is an attempt to improve upon the first scale-invariant feature
+extraction algorithm, SIFT, described in \cite{SIFT}. The
+implementation is inspired by the OpenSURF implementation, described
+in \cite{OpenSURF}, and the code structure is quite similar.
+Interesting points:
+
+\begin{itemize}
+\item The response layers and filter sizes are taken from \cite{SURF}.
+  This means the range of possible values for the octaves and interval
+  parameters are somewhat limited (resp. 1-5 and 3-4). The OpenSURF
+  implementation simply ignores the invervals parameter in the
+  calculations.
+\item When estimating the determinant of the Hessian matrix (from the
+  filter response values), a weight of $0.9$ for the $D_{xy}$
+  direction is used. This comes from the article.
+\item The three implementations (ours, OpenCV and OpenSURF) use
+  somewhat different threshold values. OpenCV does not area normalise
+  the values (I think; the code is quite convoluted), which might be a
+  good bet for why those are different. OpenSURF represents grey scale
+  values as floating point values between 0 and 1, whereas we
+  represent them as 0-255 int values, which should account for the
+  values here.
+\item The interpolation between points to get subpixel accuracy for
+  interest points follows the method in \cite{inv-features}, which
+  amounts to solving a linear system using pixel differences as
+  approximations for derivatives. In \cite{SURF}, it is implied that
+  this should be used to iteratively interpolate keypoint locations,
+  and discard those that do not converge. However, both OpenCV and
+  OpenSURF seem to just use the interpolation deltas to discard
+  keypoints that interpolate to a different point, and no
+  interpolation is done. We do the same; though for some reason, the
+  interpolation seems to make the results worse (i.e. fit worse with
+  the other implementations).
+\end{itemize}

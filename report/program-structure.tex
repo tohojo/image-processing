@@ -1,6 +1,23 @@
 % vim:ft=tex
 % rubber: module xelatex
 \section{Our program}
+The program is written in C++ using the Qt and OpenCV libraries. The
+application consists of a Qt-based GUI that allows the user to load
+images, select between various image processors, select parameters and
+peruse the results of the processing by zooming and panning on the
+output image. Furthermore, it is possible to select points of interest
+(POIs) by double clicking on the image, which can be used to select
+points for the calibration algorithm. The GUI also has a log output
+window for textual output from the algorithms.
+
+Each processor is implemented as a class that specifies which
+parameters are available for this processor (the parameters can be set
+by the user with the help of the QPropertySelect library), and does
+the actual processing. The processing is done in a separate thread, to
+keep the interface responsive, and make it possible for the user to
+cancel a long-running processor.
+
+
 \input{segmentation}
 \input{face-features.tex}
 \input{camera-calibration.tex}

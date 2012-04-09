@@ -1,3 +1,33 @@
 % vim:ft=tex
 % rubber: module xelatex
 \subsection{Image segmentation}
+We have implemented a simple thresholding algorithm, and a split and
+merge image segmentation algorithm from the description on the lecture
+slides. Key points:
+
+\begin{itemize}
+
+\item The thresholding algorithm splits pixels into background and
+  foreground on a threshold which is the mean of the pixel
+  intensities. Optionally, this can be adapted iteratively by
+  adjusting the threshold to be halfway between the means of the upper
+  and lower half, until the threshold converges. No attempt is made to
+  figure out which parts of the image are background and which are
+  foreground. Instead, a user parameter sets whether the background in
+  the original image is light or dark.
+\item Regions in the split and merge algorithm are represented using
+  the Region class, which unfortunately tries to be a bit too clever,
+  and so represents regions using the points of their border. This
+  works well for convex regions, but breaks down when regions have
+  weird shapes. This means that because the convexity assumption
+  breaks down, in some cases regions that could have been merged will
+  not be, since pixels will be included in checks that should not. In
+  general it makes the segmentation less than perfect. Solution:
+  Actually store the pixels that make up the region.
+\item In the merge step of the split and merge segmentation, regions
+  are matched to each other rather naively (i.e. all regions are
+  matched to each other). This makes the implementation rather slow
+  when there are more than a few hundred regions after the split step.
+  Solution: Only merge regions that are neighbouring (this will be
+  easier given a better region representation).
+\end{itemize}
