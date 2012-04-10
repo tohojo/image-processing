@@ -12,8 +12,8 @@ class CalibrationProcessor : public Processor
 {
   Q_OBJECT
 
-  Q_PROPERTY(QFileInfo Points3d READ points3d WRITE setPoints3d USER true)
   Q_PROPERTY(ProcessingStage Stage READ stage WRITE setStage USER true)
+  Q_PROPERTY(QFileInfo Points3d READ points3d WRITE setPoints3d USER true)
   Q_PROPERTY(double FeatureThreshold READ threshold WRITE setThreshold USER true)
   Q_ENUMS(ProcessingStage)
 
