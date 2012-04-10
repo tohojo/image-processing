@@ -12,6 +12,7 @@ set(image-processing_SOURCES
   processors/feature_points.cpp
   processors/segmenting.cpp
   processors/null_processor.cpp
+  processors/calibration_processor.cpp
   processors/distortion-removal.cpp
   processors/processor_model.cpp
   processors/fast_hessian.h
@@ -39,6 +40,7 @@ set(image-processing_HEADERS
   processors/feature_points.h
   processors/segmenting.h
   processors/null_processor.h
+  processors/calibration_processor.h
   processors/distortion-removal.h
   processors/processor_model.h
   )
