@@ -7,6 +7,7 @@
 CalibrationProcessor::CalibrationProcessor(QObject *parent)
   : Processor(parent)
 {
+  m_stage = STAGE_1;
 }
 
 CalibrationProcessor::~CalibrationProcessor()
@@ -19,11 +20,19 @@ void CalibrationProcessor::run()
     if(abort) return;
     mutex.lock();
     bool isEmpty = input_image.empty();
+    ProcessingStage stage = m_stage;
     mutex.unlock();
     if(!isEmpty) {
       emit progress(0);
-      loadPoints3d();
+      switch(stage) {
+      case STAGE_1:
       findPOIs();
+      break;
+      case STAGE_2:
+      loadPoints3d();
+      adjustPOIs();
+      calibrate();
+      }
       if(abort) return;
       if(!restart) {
         emit progress(100);
@@ -56,14 +65,35 @@ void CalibrationProcessor::findPOIs()
 
   foreach(KeyPoint kp, kps) {
     QPoint p(qRound(kp.pt.x), qRound(kp.pt.y));
-    bool exists = false;
-    foreach(Point pt, POIs) {
-      QPoint d = QPoint(pt.x, pt.y)-p;
-      if(d.manhattanLength() < 20) exists = true;
-    }
-    if(!exists) emit newPOI(p);
+    if(!poiExists(p)) emit newPOI(p);
   }
 
+}
+
+void CalibrationProcessor::adjustPOIs()
+{
+}
+
+void CalibrationProcessor::calibrate()
+{
+}
+
+bool CalibrationProcessor::poiExists(QPoint p)
+{
+  foreach(Point pt, POIs) {
+    QPoint d = QPoint(pt.x, pt.y)-p;
+    if(d.manhattanLength() < 20) return true;
+  }
+  return false;
+}
+
+void CalibrationProcessor::addPOI(QPoint p)
+{
+  if(m_stage == STAGE_1) {
+    Processor::addPOI(p);
+  } else {
+    qWarning("Ignoring new POIs in stage 2");
+  }
 }
 
 void CalibrationProcessor::loadPoints3d()
@@ -103,6 +133,15 @@ bool CalibrationProcessor::parsePoint(QString line, Point3f *p)
   return (ok_x && ok_y && ok_z);
 }
 
+
+void CalibrationProcessor::setStage(ProcessingStage s)
+{
+  QMutexLocker locker(&mutex);
+  if(m_stage == s) return;
+  m_stage = s;
+  mutex.unlock();
+  process();
+}
 
 void CalibrationProcessor::setPoints3d(const QFileInfo f)
 {
