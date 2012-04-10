@@ -7,6 +7,7 @@
 
 #include "qfileinfo_property.h"
 #include <QtGui/QMessageBox>
+#include "file_edit_widget.h"
 
 QFileInfoProperty::QFileInfoProperty(const QString& name /*= QString()*/,
                                      QObject* propertyObject /*= 0*/,
@@ -29,7 +30,7 @@ void QFileInfoProperty::setValue(const QVariant& value)
   if (value.type() == QVariant::String) {
     QString v = value.toString();
     QFileInfo info(v);
-    if(!info.isFile()) {
+    if(!v.isEmpty() && !info.isFile()) {
       QMessageBox msgbox(QMessageBox::Critical, tr("File not found"),
                          tr("The file '%1' was not found.").arg(v),
                          QMessageBox::Ok);
@@ -41,4 +42,29 @@ void QFileInfoProperty::setValue(const QVariant& value)
   }
   else
     Property::setValue(value);
+}
+
+QWidget * QFileInfoProperty::createEditor(QWidget *parent, const QStyleOptionViewItem& /*option*/)
+{
+  FileEditWidget *editor = new FileEditWidget(parent);
+  connect(editor, SIGNAL(editingFinished()), this, SLOT(editorFinished()));
+  return editor;
+}
+
+bool QFileInfoProperty::setEditorData(QWidget *editor, const QVariant &data)
+{
+  static_cast<FileEditWidget*>(editor)->setText(data.toString());
+  return true;
+}
+
+QVariant QFileInfoProperty::editorData(QWidget *editor)
+{
+  return QVariant(static_cast<FileEditWidget*>(editor)->text());
+}
+
+
+void QFileInfoProperty::editorFinished()
+{
+  QVariant value_editor = static_cast<FileEditWidget*>(QObject::sender())->text();
+  setValue(value_editor);
 }

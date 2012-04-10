@@ -1,5 +1,6 @@
 #include "calibration_processor.h"
 #include "util.h"
+#include <QDebug>
 
 CalibrationProcessor::CalibrationProcessor(QObject *parent)
   : Processor(parent)
@@ -19,6 +20,7 @@ void CalibrationProcessor::run()
     mutex.unlock();
     if(!isEmpty) {
       emit progress(0);
+      qDebug()<< m_points3d.canonicalFilePath();
       if(abort) return;
       if(!restart) {
         emit progress(100);
@@ -38,7 +40,7 @@ void CalibrationProcessor::run()
 void CalibrationProcessor::setPoints3d(const QFileInfo f)
 {
   QMutexLocker locker(&mutex);
-  if(f.absoluteFilePath() == m_points3d.absoluteFilePath()) return;
+  if(f.canonicalFilePath() == m_points3d.canonicalFilePath()) return;
   m_points3d = f;
   mutex.unlock();
   process();

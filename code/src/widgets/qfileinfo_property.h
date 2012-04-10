@@ -12,13 +12,19 @@
 
 class QFileInfoProperty : public Property
 {
-	Q_OBJECT
+  Q_OBJECT
 
-public:
-	QFileInfoProperty(const QString& name = QString(), QObject* propertyObject = 0, QObject* parent = 0);
+  public:
+  QFileInfoProperty(const QString& name = QString(), QObject* propertyObject = 0, QObject* parent = 0);
 
-	QVariant value(int role = Qt::UserRole) const;
-	virtual void setValue(const QVariant& value);
+  QVariant value(int role = Qt::UserRole) const;
+  virtual void setValue(const QVariant& value);
+  virtual QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem &option);
+  virtual QVariant editorData(QWidget *editor);
+  virtual bool setEditorData(QWidget *editor, const QVariant& data);
+
+public slots:
+  void editorFinished();
 
 };
 
