@@ -337,11 +337,11 @@ void CamCalibrator::mapPtsToCalibrationPts()
 		pt_cor.worldPt = obj->rMeasurements[i];
 		mapping.push_back(pt_cor);
 	}
+
 	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
 		//		cout << " POINT found: <" << (i->worldPt.x) << "," << (i->worldPt.y) << "," << (i->worldPt.z)
 		//			<< "     [" << (i->imagePt.x) << "," << (i->imagePt.y) << "] \n";
 	}
-
 
 }
 
@@ -358,10 +358,10 @@ void CamCalibrator::calibrate()
 
 	// Calibration step 1: compute 3d orientation, position and scale factor
 
-	mat_M = Mat(63, 7, CV_64F, Scalar::all(0)); // Matrix M is a Nx7 matrix with row vectors of the equation m
-	mat_X = Mat(63, 1, CV_64F, Scalar::all(0)); // Matrix X is a Nx1 matrix of xd values
+	mat_M = Mat(mapping.size(), 7, CV_64F, Scalar::all(0)); // Matrix M is a Nx7 matrix with row vectors of the equation m
+	mat_X = Mat(mapping.size(), 1, CV_64F, Scalar::all(0)); // Matrix X is a Nx1 matrix of xd values
 
-	// For each of the 63 points in turn (i):
+	// For each of the ~63 points in turn (i):
 	// 1. Calculate adjusted image coordinates, xd and yd, for image frame. Put in ADJ.
 	// 2. Change row i of X to xd.
 	// 3. Change row i of M to [yd*Xw, yd*Yw, yd*Zw, yd, -xdXw, -xdYw, -xdZw].
@@ -518,7 +518,7 @@ void CamCalibrator::calibrate()
 	// compute effective focal length, distortion coefficients kappa, and tz (z-component of translation vector T)
 	// Rewrite projection relations for each reference point i as a system of linear equations
 
-	// For each of the 63 points in turn (i):
+	// For each of the ~63 points in turn (i):
 	// 1. Calculate yi and wi.
 	// 2. Change row i, first column of mat_M2 to yi.
 	// 3. Change row i, second column of mat_M2 to -1.0*y.
@@ -583,8 +583,8 @@ void CamCalibrator::calibrate()
 // Calculates best fit of focalLength and Tz for a given kappa
 // Outputs a 3x1 matrix containing focalLength, Tz, error squared of solution
 Mat CamCalibrator::computeLeastSquaresForKappa(double kappa){
-	Mat mat_M2a = Mat(63, 2, CV_64F, Scalar::all(0));
-	Mat mat_Ua = Mat(63, 1, CV_64F, Scalar::all(0));
+	Mat mat_M2a = Mat(mapping.size(), 2, CV_64F, Scalar::all(0));
+	Mat mat_Ua = Mat(mapping.size(), 1, CV_64F, Scalar::all(0));
 	int count = 0;
 	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
 		double yi = mat_R.at<double>(1,0)*i->worldPt.x + mat_R.at<double>(1,1)*i->worldPt.y + mat_R.at<double>(1,2)*i->worldPt.z + mat_T.at<double>(1,0);
@@ -670,8 +670,9 @@ void CamCalibrator::checkResults(){
 		x_error_divd_sx += sqrt( (pt_ADJ.x - x_divd_sx)*(pt_ADJ.x - x_divd_sx) );
 	}
 
-	cout << " === mean x pixel error: " << x_error_divd_sx/63.0 << "\n";
-	cout << " === mean y pixel error: " << y_error_nil/63.0 << "\n";
+	cout << " === mean x pixel error: " << x_error_divd_sx/mapping.size() << "\n";
+	cout << " === mean y pixel error: " << y_error_nil/mapping.size() << "\n";
+	cout << "\nNUMBER OF POINTS BEING CONSIDERED: " << mapping.size() << "\n";
 
 	cout << "\nFinding mean squared error by back-projecting rays to calibration points.\n";
 	Mat rotate = Mat(4, 4, CV_64F, Scalar::all(0));
@@ -749,10 +750,10 @@ void CamCalibrator::checkResults(){
 	}
 
 	cout << "TOTAL ERROR: " << totalSquaredError << "\n";
-	cout << "MEAN ERROR: " << totalSquaredError/63.0 << "\n";
-	cout << "x ERROR: " << squaredErrorX/63.0 << "\n";
-	cout << "y ERROR: " << squaredErrorY/63.0 << "\n";
-	cout << "z ERROR: " << squaredErrorZ/63.0 << "\n";
+	cout << "MEAN ERROR: " << totalSquaredError/mapping.size() << "\n";
+	cout << "x ERROR: " << squaredErrorX/mapping.size() << "\n";
+	cout << "y ERROR: " << squaredErrorY/mapping.size() << "\n";
+	cout << "z ERROR: " << squaredErrorZ/mapping.size() << "\n";
 }
 
 // Sorts an array of points by distance of those points to a given line (first sets lineP1, lineP2; then sorts using lineComp)
