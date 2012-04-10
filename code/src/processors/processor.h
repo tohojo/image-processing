@@ -32,14 +32,15 @@ public slots:
   void process();
   void run_once();
   void cancel();
-  void addPOI(QPoint);
-  void deletePOI(QPoint);
+  virtual void addPOI(QPoint);
+  virtual void deletePOI(QPoint);
 
 signals:
   void updated();
   void progress(int value) const;
   void newMessage(QString msg) const;
   void newPOI(QPoint);
+  void removePOI(QPoint);
 
 protected:
   virtual void run();

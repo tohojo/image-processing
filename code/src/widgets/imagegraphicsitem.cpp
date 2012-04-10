@@ -69,6 +69,14 @@ void ImageGraphicsItem::addPOI(QPoint p)
   poi->setPos(p);
 }
 
+void ImageGraphicsItem::removePOI(QPoint p)
+{
+  foreach(QGraphicsItem * item, childItems()) {
+    POIItem * poi = static_cast<POIItem*>(item);
+    if(poi->pos().toPoint() == p) removePOI(poi);
+  }
+}
+
 void ImageGraphicsItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
   QPoint p = event->pos().toPoint();
