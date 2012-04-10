@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include <stdio.h>
 #include "calibration_object.h"
 #include <cv.h>
 

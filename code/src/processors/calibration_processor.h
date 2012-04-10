@@ -42,9 +42,9 @@ private:
   void calibrate();
   Point findCentre(Mat img);
   bool poiExists(QPoint p);
-  bool parsePoint(QString line, Point3f *p);
+  bool parsePoint(QString line, Point3d *p);
   QFileInfo m_points3d_file;
-  QList<Point3f> m_points3d;
+  QList<Point3d> m_points3d;
   ProcessingStage m_stage;
 
 };

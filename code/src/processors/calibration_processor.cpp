@@ -2,6 +2,7 @@
 #include "util.h"
 #include "fast_hessian.h"
 #include "threshold_segmenter.h"
+#include "camera_calibrator.h"
 #include <QDebug>
 
 
@@ -119,6 +120,21 @@ Point CalibrationProcessor::findCentre(Mat img)
 
 void CalibrationProcessor::calibrate()
 {
+  mutex.lock();
+  QList<Point3d> points3d(m_points3d);
+  QList<Point> pois(POIs);
+  int height = input_image.rows;
+  int width = input_image.cols;
+  mutex.unlock();
+
+  if(points3d.size() != 63 || pois.size() != 63) {
+    qWarning("Need 63 points (both 2D and 3D). Unable to continue (have %d/%d)",
+             pois.size(), points3d.size());
+    return;
+  }
+  CamCalibrator calib(pois.toStdList(), points3d.toStdList(), width, height);
+  calib.mapPtsToCalibrationPts();
+  calib.calibrate();
 }
 
 bool CalibrationProcessor::poiExists(QPoint p)
@@ -144,7 +160,7 @@ void CalibrationProcessor::loadPoints3d()
   bool valid = m_points3d_file.isFile();
   mutex.unlock();
   if(!valid) return;
-  QList<Point3f> points;
+  QList<Point3d> points;
 
   QLocale::setDefault(QLocale::English);
   QFile file(filename);
@@ -155,7 +171,7 @@ void CalibrationProcessor::loadPoints3d()
 
   while (!in.atEnd()) {
     QString line = in.readLine();
-    Point3f p;
+    Point3d p;
     if(parsePoint(line, &p)) points.append(p);
   }
 
@@ -165,12 +181,12 @@ void CalibrationProcessor::loadPoints3d()
   qDebug("Loaded %d 3D points", points.size());
 }
 
-bool CalibrationProcessor::parsePoint(QString line, Point3f *p)
+bool CalibrationProcessor::parsePoint(QString line, Point3d *p)
 {
   bool ok_x, ok_y, ok_z;
-  p->x = line.section(",", 0, 0).toFloat(&ok_x);
-  p->y = line.section(",", 1, 1).toFloat(&ok_y);
-  p->z = line.section(",", 2, 2).toFloat(&ok_z);
+  p->x = line.section(",", 0, 0).toDouble(&ok_x);
+  p->y = line.section(",", 1, 1).toDouble(&ok_y);
+  p->z = line.section(",", 2, 2).toDouble(&ok_z);
   return (ok_x && ok_y && ok_z);
 }
 

@@ -17,6 +17,10 @@ set(image-processing_SOURCES
   processors/segmenting.cpp
   processors/null_processor.cpp
   processors/calibration_processor.cpp
+  processors/camera_calibrator.h
+  processors/camera_calibrator.cpp
+  processors/calibration_object.h
+  processors/calibration_object.cpp
   processors/distortion-removal.cpp
   processors/processor_model.cpp
   processors/fast_hessian.h
