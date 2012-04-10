@@ -5,6 +5,7 @@
 #include "processor.h"
 #include "region.h"
 #include "rpoint.h"
+#include <cv.h>
 
 using namespace cv;
 namespace IP = ImageProcessing;
@@ -21,12 +22,16 @@ public:
 
   QString name() {return "Calibration";}
 
-  QFileInfo points3d() {QMutexLocker l(&mutex); return m_points3d;}
+  QFileInfo points3d() {QMutexLocker l(&mutex); return m_points3d_file;}
   void setPoints3d(QFileInfo f);
 
 private:
   void run();
-  QFileInfo m_points3d;
+  void loadPoints3d();
+  bool parsePoint(QString line, Point3f *p);
+  QFileInfo m_points3d_file;
+  QList<Point3f> m_points3d;
+
 };
 
 #endif
