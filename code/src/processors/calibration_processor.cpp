@@ -4,6 +4,7 @@
 #include "threshold_segmenter.h"
 #include <QDebug>
 
+
 CalibrationProcessor::CalibrationProcessor(QObject *parent)
   : Processor(parent)
 {
@@ -72,6 +73,48 @@ void CalibrationProcessor::findPOIs()
 
 void CalibrationProcessor::adjustPOIs()
 {
+  mutex.lock();
+  Mat input = output_image; // threshold ed version from stage 1
+  QList<Point> pois(POIs);
+  emit clearPOIs();
+  mutex.unlock();
+  QList<Point> newPois;
+
+  //bool printed = false;
+  foreach(Point p, pois) {
+    Mat mask = Mat::zeros(input.rows+2, input.cols+2, input.type());
+    Rect r;
+    floodFill(input, mask, p, 255, &r, 0, 0, FLOODFILL_MASK_ONLY);
+    Mat roi(mask, r);
+    Mat roi2(input, r);
+    Point c = findCentre(roi);
+    emit newPOI(QPoint(c.x, c.y));
+    qDebug("Adjusting point (%d,%d) -> (%d,%d)", p.x,p.y,c.x,c.y);
+    newPois.append(c);
+  }
+
+  mutex.lock();
+  POIs = newPois;
+  mutex.unlock();
+}
+
+Point CalibrationProcessor::findCentre(Mat img)
+{
+  int x_sum = 0, y_sum = 0, x_c = 0, y_c = 0;
+  for(int x= 0; x<img.cols; x++) {
+    for(int y = 0; y<img.rows; y++) {
+      if(img.at<uchar>(y,x)) {
+        x_sum += x;
+        x_c++;
+        y_sum += y;
+        y_c++;
+      }
+    }
+  }
+  Size s; Point p;
+  img.locateROI(s,p);
+  if(!x_c || !y_c) return p;
+  return Point(p.x+x_sum/x_c, p.y+y_sum/y_c);
 }
 
 void CalibrationProcessor::calibrate()
@@ -91,8 +134,6 @@ void CalibrationProcessor::addPOI(QPoint p)
 {
   if(m_stage == STAGE_1) {
     Processor::addPOI(p);
-  } else {
-    qWarning("Ignoring new POIs in stage 2");
   }
 }
 

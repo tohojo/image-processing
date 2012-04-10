@@ -40,6 +40,7 @@ private:
   void findPOIs();
   void adjustPOIs();
   void calibrate();
+  Point findCentre(Mat img);
   bool poiExists(QPoint p);
   bool parsePoint(QString line, Point3f *p);
   QFileInfo m_points3d_file;
