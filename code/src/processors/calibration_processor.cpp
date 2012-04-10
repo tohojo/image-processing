@@ -32,7 +32,9 @@ void CalibrationProcessor::run()
       break;
       case STAGE_2:
       loadPoints3d();
+      emit progress(10);
       adjustPOIs();
+      emit progress(40);
       calibrate();
       }
       if(abort) return;
@@ -57,6 +59,7 @@ void CalibrationProcessor::findPOIs()
   ThresholdSegmenter seg(input_image, false);
   seg.compute(true);
   output_image = seg.output();
+  emit progress(15);
   emit updated();
   mutex.unlock();
 
@@ -64,6 +67,7 @@ void CalibrationProcessor::findPOIs()
   fh.compute();
   QList<KeyPoint> kps = fh.interestPoints();
   qDebug("Found %d keypoints", kps.size());
+  emit progress(70);
 
   foreach(KeyPoint kp, kps) {
     QPoint p(qRound(kp.pt.x), qRound(kp.pt.y));
@@ -90,7 +94,6 @@ void CalibrationProcessor::adjustPOIs()
     Mat roi2(input, r);
     Point c = findCentre(roi);
     emit newPOI(QPoint(c.x, c.y));
-    qDebug("Adjusting point (%d,%d) -> (%d,%d)", p.x,p.y,c.x,c.y);
     newPois.append(c);
   }
 

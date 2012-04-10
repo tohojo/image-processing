@@ -62,7 +62,6 @@ void ImageGraphicsItem::clearPOIs()
 
 void ImageGraphicsItem::addPOI(QPoint p)
 {
-  qDebug("Adding POI at (%d,%d)", p.x(), p.y());
   emit newPOI(p);
 
   POIItem * poi = new POIItem(this);
