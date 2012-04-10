@@ -16,6 +16,7 @@ class CalibrationProcessor : public Processor
 
   Q_PROPERTY(QFileInfo Points3d READ points3d WRITE setPoints3d USER true)
   Q_PROPERTY(ProcessingStage Stage READ stage WRITE setStage USER true)
+  Q_PROPERTY(double FeatureThreshold READ threshold WRITE setThreshold USER true)
   Q_ENUMS(ProcessingStage)
 
 public:
@@ -30,6 +31,9 @@ public:
 
   ProcessingStage stage() {QMutexLocker l(&mutex); return m_stage; }
   void setStage(ProcessingStage s);
+
+  double threshold() {QMutexLocker locker(&mutex); return m_threshold;}
+  void setThreshold(const double threshold);
 
 public slots:
   void addPOI(QPoint);
@@ -46,6 +50,7 @@ private:
   QFileInfo m_points3d_file;
   QList<Point3d> m_points3d;
   ProcessingStage m_stage;
+  double m_threshold;
 
 };
 

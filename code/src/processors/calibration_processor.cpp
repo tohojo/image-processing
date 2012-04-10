@@ -11,6 +11,7 @@ CalibrationProcessor::CalibrationProcessor(QObject *parent)
   : Processor(parent)
 {
   m_stage = STAGE_1;
+  m_threshold = 500;
 }
 
 CalibrationProcessor::~CalibrationProcessor()
@@ -64,7 +65,7 @@ void CalibrationProcessor::findPOIs()
   emit updated();
   mutex.unlock();
 
-  FastHessian fh(input, 4, 4, 2, 500);
+  FastHessian fh(input, 4, 4, 2, m_threshold);
   fh.compute();
   QList<KeyPoint> kps = fh.interestPoints();
   qDebug("Found %d keypoints", kps.size());
@@ -210,6 +211,15 @@ void CalibrationProcessor::setPoints3d(const QFileInfo f)
   QMutexLocker locker(&mutex);
   if(f.canonicalFilePath() == m_points3d_file.canonicalFilePath()) return;
   m_points3d_file = f;
+  mutex.unlock();
+  process();
+}
+
+void CalibrationProcessor::setThreshold(double threshold)
+{
+  QMutexLocker locker(&mutex);
+  if(m_threshold == threshold) return;
+  m_threshold = threshold;
   mutex.unlock();
   process();
 }
