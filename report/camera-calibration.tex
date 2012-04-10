@@ -14,7 +14,7 @@ Implementation procedure:
   \item Radial distortion is calculated as far as [kappa 1]. The literature suggests that this is sufficient for reasonably high accuracy using cameras without significant lens distortion.
   \item Note: for some time, my approximation for kappa was broken. The gradient descent was broken so that it stuck at 1 times 10 to the power -8. This is now fixed.
   \item Some difficulties were encountered in implementing the camera calibration. One problem was that in following the Tsai paper, the author states that the final calibration stage (finding f, kappa and the z-component of the translation vector) for the monoview noncoplanar case is "exactly the same as that for the coplanar case". However, it is not explained that the equation (15) for the coplanar case is derived by setting zw = 0 (due to the fact that the z position is identical for points in the plane). This does not, of course, follow for the noncoplanar case, so the equation must be re-derived from earlier equation (8b), and this was not immediately obvious.
-  \item Back-projection of rays also proved a difficult problem.
+  \item Back-projection of rays also proved a difficult problem for some time.
 \end{itemize}
 Other notes\\
 - Experiments... Patrice suggests we "create a line (using image points and known points of the camera geometry, optical centre, etc) which intersects with the calibration plane in a given point (e.g. Z=0 in world coordinates)."\\
@@ -24,5 +24,5 @@ Other notes\\
 Calibration experiments:\\
 -> On eight images (2 low grade, 2 high grade, 2 low grade distorted, 2 high grade distorted)...\\
 -> Compare backprojection accuracy... mean, variance, worst hit, best hit, breakdown into (x,y,z) \\
--> Compare kappa calculated (should be higher with lens distortion... but using actual fisheye distortion may be so high that the polynomial kappa model is unsuitable for it, as \cite{straightlines} (I think it is) suggests).\\
+-> Compare kappa calculated (should be higher with lens distortion... but using actual fisheye distortion may be so high that the polynomial kappa model is unsuitable for it, as \cite{straightlines} (I believe ot was) suggests can happen).\\
 -> Subjectively, look at the resulting translation and rotation matrices and consider what they mean, as well as the sx and focalLength.\\

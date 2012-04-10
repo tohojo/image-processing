@@ -373,6 +373,13 @@ void CamCalibrator::mapPtsToCalibrationPts()
 // Performing Tsai calibration. SEE Tsai section G: "Calibrating a Camera Using Monoview Noncoplanar Points"
 void CamCalibrator::calibrate()
 {
+
+	std::ofstream outFile("o.txt", std::ios::out);
+	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
+		outFile << i->imagePt.x << " "  << i->imagePt.y << "\n";
+	}
+	outFile.close();
+
 	cout << "\nPerforming camera calibration... \n";
 	double imageCX = imageLengthX/2.0;
 	double imageCY = imageLengthY/2.0;
