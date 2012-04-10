@@ -22,3 +22,14 @@ add_executable(rpoint-test
   ../src/processors/rpoint.cpp
 )
 target_link_libraries(rpoint-test ${OpenCV_LIBS})
+
+add_executable(features-test
+  features-test.cpp
+  ../src/processors/fast_hessian.h
+  ../src/processors/fast_hessian.cpp
+  ../src/processors/integral_image.h
+  ../src/processors/integral_image.cpp
+  ../src/processors/response_layer.h
+  ../src/processors/response_layer.cpp
+)
+target_link_libraries(features-test ${QT_LIBRARIES} ${OpenCV_LIBS})
