@@ -24,6 +24,8 @@ set(image-processing_SOURCES
   processors/rpoint.cpp
   processors/region.h
   processors/region.cpp
+  processors/threshold_segmenter.h
+  processors/threshold_segmenter.cpp
   util.cpp
   util.h)
 set(image-processing_HEADERS

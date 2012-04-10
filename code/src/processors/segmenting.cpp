@@ -1,6 +1,7 @@
 #include <QtCore/QMutableListIterator>
 #include "segmenting.h"
 #include "util.h"
+#include "threshold_segmenter.h"
 
 Segmenting::Segmenting(QObject *parent)
   : Processor(parent)
@@ -57,47 +58,12 @@ void Segmenting::run()
 void Segmenting::thresholdSegment(bool adapt) {
   QMutexLocker locker(&mutex);
 
-  Scalar m = mean(input_image);
-  m_threshold = cvRound(m[0]);
-
-  if(POIs.size()) {
-    qDebug("Current POIs:");
-    foreach(Point pt, POIs) {
-      qDebug("  (%d,%d)", pt.x, pt.y);
-    }
-  }
-
-  if(adapt) {
-    emit progress(30);
-    qDebug("Threshold before: %d", m_threshold);
-    adaptThreshold();
-    emit progress(70);
-    qDebug("Threshold after: %d", m_threshold);
-  } else {
-    emit progress(50);
-  }
-
-
-  if(m_dark_bg)
-    output_image = input_image >= m_threshold;
-  else
-    output_image = input_image < m_threshold;
-
+  ThresholdSegmenter seg(input_image, m_dark_bg);
+  seg.compute(adapt);
+  m_threshold = seg.threshold();
+  output_image = seg.output();
 }
 
-void Segmenting::adaptThreshold()
-{
-  int old_threshold;
-  do {
-    old_threshold = m_threshold;
-    Mat above = input_image >= m_threshold;
-    Mat below = input_image < m_threshold;
-    Scalar mean_above = mean(input_image, above);
-    Scalar mean_below = mean(input_image, below);
-    m_threshold = cvRound(((mean_above[0]+mean_below[0])/2));
-
-  } while(old_threshold != m_threshold);
-}
 
 void Segmenting::splitMerge()
 {
