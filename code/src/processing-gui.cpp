@@ -33,6 +33,7 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   current_image = new ImageGraphicsItem();
   output_scene->addItem(current_image);
   connect(this, SIGNAL(image_changed()), current_image, SLOT(clearPOIs()));
+  connect(action_Clear_POIs, SIGNAL(activated()), current_image, SLOT(clearPOIs()));
 
   processor_model = new ProcessorModel();
   processor_selection = new QItemSelectionModel(processor_model);
