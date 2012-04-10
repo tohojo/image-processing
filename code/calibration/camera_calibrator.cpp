@@ -19,7 +19,7 @@ CamCalibrator::CamCalibrator(int argc, char *argv[])
 {
 	calPtsInImg = new Point2d[63];
 	calPtsInWorld = new Point3d[63];
-	obj = new CalibrationObject();
+	obj = new VirtualCalibrationObject();
 	mat_R = Mat(3, 3, CV_64F, Scalar::all(0));
 	mat_T = Mat(3, 3, CV_64F, Scalar::all(0));
 
