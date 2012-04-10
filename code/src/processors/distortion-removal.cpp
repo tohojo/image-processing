@@ -48,7 +48,6 @@ void DistortionRemoval::run()
 void DistortionRemoval::calculateLines(){
 	const unsigned int numberOfCorners = (squares_across-1)*(squares_down-1);
 	Size patternSize(squares_across-1,squares_down-1);
-	std::vector<CvPoint2D32f> cornerList(numberOfCorners);
 	vector<Point2f> corners; //this will be filled by the detected corners
 	// 1. Find corners to pixel accuracy:
 	bool success = findChessboardCorners(input_image, patternSize, corners);
