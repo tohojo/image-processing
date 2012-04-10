@@ -20,4 +20,9 @@ Other notes\\
 - Experiments... Patrice suggests we "create a line (using image points and known points of the camera geometry, optical centre, etc) which intersects with the calibration plane in a given point (e.g. Z=0 in world coordinates)."\\
 - Assignment states "You need to evaluate the accuracy of the calibration data by comparing the true and reconstructed 3D coordinates of the disks in the calibration pattern. You may find useful to provide the average and standard deviation of the reconstructed 3D points errors. You may use the radius of ambiguity measure as in Tsai publication."\\
 - Back-projection now works... to a degree. The error between the real 3d point and the predicted 3d point is on the order of ~1.3 inches. This is so huge that I suspect systematic error - either a problem in the algorithm implementation or (less likely) a problem with the physical calibration object. Note that x and y error (the distance ALONG each face) is much more substantial than z error.\\
-
+\\
+Calibration experiments:\\
+-> On eight images (2 low grade, 2 high grade, 2 low grade distorted, 2 high grade distorted)...\\
+-> Compare backprojection accuracy... mean, variance, worst hit, best hit, breakdown into (x,y,z) \\
+-> Compare kappa calculated (should be higher with lens distortion... but using actual fisheye distortion may be so high that the polynomial kappa model is unsuitable for it, as \cite{straightlines} (I think it is) suggests).\\
+-> Subjectively, look at the resulting translation and rotation matrices and consider what they mean, as well as the sx and focalLength.\\
