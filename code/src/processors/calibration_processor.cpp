@@ -3,6 +3,7 @@
 #include "fast_hessian.h"
 #include "threshold_segmenter.h"
 #include "camera_calibrator.h"
+#include <QRegExp>
 #include <QDebug>
 
 
@@ -186,10 +187,11 @@ void CalibrationProcessor::loadPoints3d()
 
 bool CalibrationProcessor::parsePoint(QString line, Point3d *p)
 {
+  QRegExp r("[,\\s]+");
   bool ok_x, ok_y, ok_z;
-  p->x = line.section(",", 0, 0).toDouble(&ok_x);
-  p->y = line.section(",", 1, 1).toDouble(&ok_y);
-  p->z = line.section(",", 2, 2).toDouble(&ok_z);
+  p->x = line.section(r, 0, 0).toDouble(&ok_x);
+  p->y = line.section(r, 1, 1).toDouble(&ok_y);
+  p->z = line.section(r, 2, 2).toDouble(&ok_z);
   return (ok_x && ok_y && ok_z);
 }
 
