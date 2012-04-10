@@ -18,8 +18,6 @@ namespace Util {
 
       QImage qImage;
 
-      qDebug("Copying grey scale matrix to image. Size: %dx%d", img.cols, img.rows);
-
       uchar *img_buffer = (uchar*) malloc(img.rows * img.cols);
       uchar *img_pointer = img_buffer;
       for (int i=0; i < img.rows; i++) {
@@ -33,7 +31,6 @@ namespace Util {
       qImage.setColorTable(colorTable);
       return qImage;
     } else if(img.depth() == CV_8U && img.channels() == 3) {
-      qDebug("Copying colour matrix to image. Size: %dx%d", img.cols, img.rows);
       Mat *channels = new Mat[3];
       split(img, channels);
       uchar *img_buffer = new uchar[img.rows * img.cols *4];

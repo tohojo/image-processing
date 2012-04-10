@@ -22,13 +22,14 @@ class CamCalibrator
 
 public:
 	CamCalibrator(int argc, char *argv[]);
-  CamCalibrator(std::list<Point> points2d, std::list<Point3d> points3d, int width, int height);
+  CamCalibrator(std::list<Point> points2d, std::list<Point3d> points3d, int width, int height, std::vector<point_correspondence> corr);
 	~CamCalibrator();
 	void lineSort(Point2d line1, Point2d line2, Point2d * leftOrRightArray, int arrayLength);
 	static double pointLineDistance(Point2d p, Point2d lineEnd1, Point2d lineEnd2);
 	void mapPtsToCalibrationPts();
 	void calibrate();
 	void checkResults();
+  std::vector<point_correspondence> getMapping() {return mapping;}
 	Mat computeLeastSquaresForKappa(double kappa);
 	double imageLengthX;
 	double imageLengthY;

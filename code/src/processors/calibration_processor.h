@@ -3,19 +3,18 @@
 
 #include <QtCore/QFileInfo>
 #include "processor.h"
-#include "region.h"
-#include "rpoint.h"
+#include "camera_calibrator.h"
 #include <cv.h>
 
 using namespace cv;
-namespace IP = ImageProcessing;
 
 class CalibrationProcessor : public Processor
 {
   Q_OBJECT
 
-  Q_PROPERTY(QFileInfo Points3d READ points3d WRITE setPoints3d USER true)
   Q_PROPERTY(ProcessingStage Stage READ stage WRITE setStage USER true)
+  Q_PROPERTY(QFileInfo Points3d READ points3d WRITE setPoints3d USER true)
+  Q_PROPERTY(double FeatureThreshold READ threshold WRITE setThreshold USER true)
   Q_ENUMS(ProcessingStage)
 
 public:
@@ -31,8 +30,12 @@ public:
   ProcessingStage stage() {QMutexLocker l(&mutex); return m_stage; }
   void setStage(ProcessingStage s);
 
+  double threshold() {QMutexLocker locker(&mutex); return m_threshold;}
+  void setThreshold(const double threshold);
+
 public slots:
   void addPOI(QPoint);
+  void deletePOI(QPoint);
 
 private:
   void run();
@@ -45,7 +48,9 @@ private:
   bool parsePoint(QString line, Point3d *p);
   QFileInfo m_points3d_file;
   QList<Point3d> m_points3d;
+  QVector<point_correspondence> m_corr;
   ProcessingStage m_stage;
+  double m_threshold;
 
 };
 

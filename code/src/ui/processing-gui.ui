@@ -137,8 +137,15 @@
     <addaction name="separator"/>
     <addaction name="action_Properties"/>
    </widget>
+   <widget class="QMenu" name="menuPOIs">
+    <property name="title">
+     <string>&amp;POIs</string>
+    </property>
+    <addaction name="action_Clear_POIs"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menu_View"/>
+   <addaction name="menuPOIs"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="SignalingDockWidget" name="processingDock">
@@ -307,6 +314,11 @@
    </property>
    <property name="text">
     <string>&amp;Input image</string>
+   </property>
+  </action>
+  <action name="action_Clear_POIs">
+   <property name="text">
+    <string>&amp;Clear POIs</string>
    </property>
   </action>
  </widget>
