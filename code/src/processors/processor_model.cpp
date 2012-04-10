@@ -1,8 +1,9 @@
 #include "processor_model.h"
 #include "null_processor.h"
 #include "segmenting.h"
-#include "distortion-removal.h"
 #include "feature_points.h"
+#include "calibration_processor.h"
+#include "distortion-removal.h"
 
 ProcessorModel::ProcessorModel() : QAbstractListModel()
 {
@@ -45,8 +46,9 @@ void ProcessorModel::create_processors()
 {
   m_processors.append(new NullProcessor());
   m_processors.append(new Segmenting());
-  m_processors.append(new DistortionRemoval());
   m_processors.append(new FeaturePoints());
+  m_processors.append(new CalibrationProcessor());
+  m_processors.append(new DistortionRemoval());
 }
 
 int ProcessorModel::index_for(QString name)

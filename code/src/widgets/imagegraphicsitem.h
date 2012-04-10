@@ -24,6 +24,8 @@ public:
 
 public slots:
   void clearPOIs();
+  void addPOI(QPoint p);
+  void removePOI(QPoint p);
 
 signals:
   void newPOI(QPoint p);

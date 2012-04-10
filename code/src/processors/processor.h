@@ -15,6 +15,7 @@ class Processor : public QThread
   Q_OBJECT
 
   Q_PROPERTY(QString Name READ name DESIGNABLE true USER true)
+  Q_PROPERTY(int POICount READ poiCount USER true)
 
 public:
   Processor(QObject *parent = 0);
@@ -25,18 +26,21 @@ public:
   Mat get_output();
 
   virtual QString name() {return "Processor";}
+  int poiCount() {QMutexLocker l(&mutex); return POIs.size();}
 
 public slots:
   void process();
   void run_once();
   void cancel();
-  void addPOI(QPoint);
-  void deletePOI(QPoint);
+  virtual void addPOI(QPoint);
+  virtual void deletePOI(QPoint);
 
 signals:
   void updated();
   void progress(int value) const;
   void newMessage(QString msg) const;
+  void newPOI(QPoint);
+  void clearPOIs();
 
 protected:
   virtual void run();

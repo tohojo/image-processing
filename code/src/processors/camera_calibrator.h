@@ -2,6 +2,8 @@
 #ifndef CALIBRATION_EXPERIMENTS_H
 #define CALIBRATION_EXPERIMENTS_H
 
+#include <stdio.h>
+#include <list>
 #include <cv.h>
 #include "calibration_object.h"
 
@@ -19,6 +21,7 @@ class CamCalibrator
 
 public:
 	CamCalibrator(int argc, char *argv[]);
+  CamCalibrator(std::list<Point> points2d, std::list<Point3d> points3d, int width, int height);
 	~CamCalibrator();
 	void lineSort(Point2d line1, Point2d line2, Point2d * leftOrRightArray, int arrayLength);
 	static double pointLineDistance(Point2d p, Point2d lineEnd1, Point2d lineEnd2);

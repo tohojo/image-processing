@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "camera_calibrator.h"
 #include <fstream>
 
@@ -14,6 +13,28 @@ bool lineComp(Point2d a, Point2d b){
 	return (CamCalibrator::pointLineDistance(a, lineP1, lineP2) < CamCalibrator::pointLineDistance(b, lineP1, lineP2));
 }
 
+CamCalibrator::CamCalibrator(std::list<Point> points2d, std::list<Point3d> points3d, int width, int height)
+{
+  assert(points2d.size() == 63 && points3d.size() == 63);
+  calPtsInImg = new Point2d[points2d.size()];
+  calPtsInWorld = new Point3d[points3d.size()];
+  obj = new VirtualCalibrationObject();
+  mat_R = Mat(3, 3, CV_64F, Scalar::all(0));
+  mat_T = Mat(3, 3, CV_64F, Scalar::all(0));
+  imageLengthX = width;
+  imageLengthY = height;
+
+  int j = 0;
+  for(std::list<Point>::iterator i = points2d.begin(); i != points2d.end(); ++i) {
+    calPtsInImg[j++] = *i;
+  }
+
+  j =0;
+  for(std::list<Point3d>::iterator i = points3d.begin(); i != points3d.end(); ++i) {
+    calPtsInWorld[j++] = *i;
+  }
+}
+
 // Basic constructor
 CamCalibrator::CamCalibrator(int argc, char *argv[])
 {
@@ -25,10 +46,11 @@ CamCalibrator::CamCalibrator(int argc, char *argv[])
 
 	// READ IN IMAGE POINTS
 	char *in_arg;
+        const char *def_arg = "test.txt";
 	if (argc > 1) {
 		in_arg = argv[1];
 	} else {
-		in_arg = "test.txt";
+          in_arg = (char*) def_arg;
 	}
 	ifstream inFile(in_arg, ios::in);
 	inFile >> imageLengthX;
@@ -57,6 +79,10 @@ CamCalibrator::CamCalibrator(int argc, char *argv[])
 
 CamCalibrator::~CamCalibrator()
 {
+  delete calPtsInImg;
+  delete calPtsInWorld;
+  delete obj;
+
 }
 
 
@@ -215,10 +241,10 @@ void CamCalibrator::mapPtsToCalibrationPts()
 	//		we know the horizontal lines representing the top and bottom of each face.
 	//		Sort Left or Right each time according to new criteria: distance to a particular line of our choice.
 
-	for (int i = 0; i < 35; i++){
-		double dist = pointLineDistance(Left[i], Left75, Left71);
+	//for (int i = 0; i < 35; i++){
+                //double dist = pointLineDistance(Left[i], Left75, Left71);
 		//cout << "(Debug) distance to top Left line: " << dist << "\n";
-	}
+	//}
 
 
 	// 6.a) For all points in Left face, find distance from point to top Left line. Take five closest.
@@ -347,7 +373,7 @@ void CamCalibrator::mapPtsToCalibrationPts()
 
 // Performing Tsai calibration. SEE Tsai section G: "Calibrating a Camera Using Monoview Noncoplanar Points"
 void CamCalibrator::calibrate()
-{	
+{
 	cout << "\nPerforming camera calibration... \n";
 	double imageCX = imageLengthX/2.0;
 	double imageCY = imageLengthY/2.0;
@@ -389,7 +415,7 @@ void CamCalibrator::calibrate()
 	// DECOMP_LU is the LU decomposition (for non-singular matrices)
 	// DECOMP_CHOLESKY is the Cholesky LL^T decomposition (for symmetrical positively defined matrices).
 	// DECOMP_SVD is the SVD decomposition. If the matrix is singular or even non-square, the pseudo inversion is computed.
-	
+
 	/*cout << "Matrix L...\n";
 	for (int i = 0; i < 7; i++){
 		cout << " " << mat_L.at<double>(i,0) << "\n";
@@ -405,7 +431,7 @@ void CamCalibrator::calibrate()
 
 	// Get a reference point not close to the image centre (easy enough to just check the left face)
 	point_correspondence index_pc;
-	double distance = 0;	
+	double distance = 0;
 	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
 		double xdiff = i->imagePt_adj.x;
 		double ydiff = i->imagePt_adj.y;
@@ -523,7 +549,7 @@ void CamCalibrator::calibrate()
 	// 2. Change row i, first column of mat_M2 to yi.
 	// 3. Change row i, second column of mat_M2 to -1.0*y.
 	// 4. Change row i, only column of mat_U to wi *y.
-	
+
 	kappa1 = 0.0;
 	double step = 0.001;
 	double minstep = 0.0000000000001;
@@ -607,7 +633,7 @@ Mat CamCalibrator::computeLeastSquaresForKappa(double kappa){
 	double output_foc = F.at<double>(0,0);
 	double output_Tz = F.at<double>(1,0);
 	double currentSquaredError = 0.0;
-	
+
 	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
 		double yi = mat_R.at<double>(1,0)*i->worldPt.x + mat_R.at<double>(1,1)*i->worldPt.y + mat_R.at<double>(1,2)*i->worldPt.z + mat_T.at<double>(1,0);
 		double wi = mat_R.at<double>(2,0)*i->worldPt.x + mat_R.at<double>(2,1)*i->worldPt.y + mat_R.at<double>(2,2)*i->worldPt.z;
@@ -648,7 +674,7 @@ void CamCalibrator::checkResults(){
 	perspective.at<double>(2,2) = 1.0/focalLength;
 	double x_error_divd_sx = 0.0;
 	double y_error_nil = 0.0;
-	
+
 	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
 		Point3d pt = i->worldPt;
 		Point2d pt_ADJ = i->imagePt_adj;
@@ -716,10 +742,10 @@ void CamCalibrator::checkResults(){
 	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
 		Point3d ideal = i->worldPt;
 		Point2d i_ADJ = i->imagePt_adj;
-		Point2d i_RAW = i->imagePt;
+		//Point2d i_RAW = i->imagePt;
 		Mat iPoint = Mat(4, 1, CV_64F, Scalar::all(1));
 		iPoint.at<double>(0,0) = i_ADJ.x;
-		iPoint.at<double>(1,0) = i_ADJ.y;		
+		iPoint.at<double>(1,0) = i_ADJ.y;
 		double xx = iPoint.at<double>(0,0);
 		double yy = iPoint.at<double>(1,0);
 		iPoint.at<double>(0,0) = xx + xx * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );

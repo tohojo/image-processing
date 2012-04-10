@@ -8,10 +8,19 @@ set(image-processing_SOURCES
   widgets/poiitem.cpp
   widgets/resizingimagelabel.cpp
   widgets/signalingdockwidget.cpp
+  widgets/qfileinfo_property.cpp
+  widgets/custom_types.h
+  widgets/custom_types.cpp
+  widgets/file_edit_widget.cpp
   processors/processor.cpp
   processors/feature_points.cpp
   processors/segmenting.cpp
   processors/null_processor.cpp
+  processors/calibration_processor.cpp
+  processors/camera_calibrator.h
+  processors/camera_calibrator.cpp
+  processors/calibration_object.h
+  processors/calibration_object.cpp
   processors/distortion-removal.cpp
   processors/processor_model.cpp
   processors/fast_hessian.h
@@ -35,15 +44,18 @@ set(image-processing_HEADERS
   widgets/imagegraphicsitem.h
   widgets/resizingimagelabel.h
   widgets/signalingdockwidget.h
+  widgets/qfileinfo_property.h
+  widgets/file_edit_widget.h
   processors/processor.h
   processors/feature_points.h
   processors/segmenting.h
   processors/null_processor.h
+  processors/calibration_processor.h
   processors/distortion-removal.h
   processors/processor_model.h
   )
 
-set(image-processing_FORMS ui/processing-gui.ui)
+set(image-processing_FORMS ui/processing-gui.ui ui/file-edit-widget.ui)
 
 # QT4-specific preprocessor headers
 qt4_wrap_cpp(image-processing_HEADERS_MOC ${image-processing_HEADERS})

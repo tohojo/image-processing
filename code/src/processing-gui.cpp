@@ -12,12 +12,16 @@
 #include <QDebug>
 
 #include "processing-gui.h"
+#include "custom_types.h"
 #include "util.h"
 
 ProcessingGUI::ProcessingGUI(QWidget *parent)
   : QMainWindow(parent)
 {
   setupUi(this);
+
+  CustomTypes::registerTypes();
+  m_properties->registerCustomPropertyCB(CustomTypes::createCustomProperty);
 
   current_processor = NULL;
   m_inprogress = m_batch = false;
@@ -215,6 +219,7 @@ void ProcessingGUI::set_processor(Processor *proc)
 {
   if(current_processor != NULL) {
     current_processor->disconnect(this);
+    current_processor->disconnect(current_image);
     this->disconnect(current_processor);
     current_processor->cancel();
   }
@@ -225,6 +230,8 @@ void ProcessingGUI::set_processor(Processor *proc)
   connect(current_processor, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)));
   connect(current_processor, SIGNAL(progress(int)), this, SLOT(setProgress(int)));
   connect(current_processor, SIGNAL(newMessage(QString)), SLOT(newMessage(QString)));
+  connect(current_processor, SIGNAL(newPOI(QPoint)), current_image, SLOT(addPOI(QPoint)));
+  connect(current_processor, SIGNAL(clearPOIs()), current_image, SLOT(clearPOIs()));
   if(m_batch) {
     current_processor->set_input(input_image);
 	current_processor->set_input_name(filename);
