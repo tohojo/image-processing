@@ -12,12 +12,16 @@
 #include <QDebug>
 
 #include "processing-gui.h"
+#include "custom_types.h"
 #include "util.h"
 
 ProcessingGUI::ProcessingGUI(QWidget *parent)
   : QMainWindow(parent)
 {
   setupUi(this);
+
+  CustomTypes::registerTypes();
+  m_properties->registerCustomPropertyCB(CustomTypes::createCustomProperty);
 
   current_processor = NULL;
   m_inprogress = m_batch = false;

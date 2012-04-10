@@ -8,6 +8,9 @@ set(image-processing_SOURCES
   widgets/poiitem.cpp
   widgets/resizingimagelabel.cpp
   widgets/signalingdockwidget.cpp
+  widgets/qfileinfo_property.cpp
+  widgets/custom_types.h
+  widgets/custom_types.cpp
   processors/processor.cpp
   processors/feature_points.cpp
   processors/segmenting.cpp
@@ -36,6 +39,7 @@ set(image-processing_HEADERS
   widgets/imagegraphicsitem.h
   widgets/resizingimagelabel.h
   widgets/signalingdockwidget.h
+  widgets/qfileinfo_property.h
   processors/processor.h
   processors/feature_points.h
   processors/segmenting.h
