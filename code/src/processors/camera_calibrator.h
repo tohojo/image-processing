@@ -6,6 +6,7 @@
 #include <list>
 #include <cv.h>
 #include "calibration_object.h"
+#include <QDebug>
 
 using namespace cv;
 
@@ -35,7 +36,7 @@ public:
 protected:
 	// X/Y/Z values of actual calibration points in world coordinate system
 	VirtualCalibrationObject* obj;
-	vector<point_correspondence> mapping;
+        std::vector<point_correspondence> mapping;
 	Mat mat_M;
 	Mat mat_X;
 	Mat mat_L;
@@ -49,6 +50,7 @@ protected:
 	double focalLength;
 	double kappa1;
 	double kappa2;
+  QDebug cout;
 };
 
 #endif // CALIBRATION_EXPERIMENTS_H

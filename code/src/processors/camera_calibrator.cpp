@@ -2,7 +2,6 @@
 #include <fstream>
 
 using namespace cv;
-using namespace std;
 
 // The following are just used to make sorting easier; it's more convenient than overriding the Point2d class
 Point2d lineP1 = Point2d(0,0);
@@ -13,7 +12,7 @@ bool lineComp(Point2d a, Point2d b){
 	return (CamCalibrator::pointLineDistance(a, lineP1, lineP2) < CamCalibrator::pointLineDistance(b, lineP1, lineP2));
 }
 
-CamCalibrator::CamCalibrator(std::list<Point> points2d, std::list<Point3d> points3d, int width, int height)
+CamCalibrator::CamCalibrator(std::list<Point> points2d, std::list<Point3d> points3d, int width, int height) :cout(QtDebugMsg)
 {
   assert(points2d.size() == 63 && points3d.size() == 63);
   calPtsInImg = new Point2d[points2d.size()];
@@ -36,7 +35,7 @@ CamCalibrator::CamCalibrator(std::list<Point> points2d, std::list<Point3d> point
 }
 
 // Basic constructor
-CamCalibrator::CamCalibrator(int argc, char *argv[])
+CamCalibrator::CamCalibrator(int argc, char *argv[]) : cout(QtDebugMsg)
 {
 	calPtsInImg = new Point2d[63];
 	calPtsInWorld = new Point3d[63];
@@ -52,7 +51,7 @@ CamCalibrator::CamCalibrator(int argc, char *argv[])
 	} else {
           in_arg = (char*) def_arg;
 	}
-	ifstream inFile(in_arg, ios::in);
+        std::ifstream inFile(in_arg, std::ios::in);
 	inFile >> imageLengthX;
 	inFile >> imageLengthY;
 
@@ -66,7 +65,7 @@ CamCalibrator::CamCalibrator(int argc, char *argv[])
 	inFile.close();
 
 	// READ IN WORLD POINTS
-	ifstream inFile2("r11-r14-r71-r74-L11-L15-L71-L75.txt", ios::in);
+        std::ifstream inFile2("r11-r14-r71-r74-L11-L15-L71-L75.txt", std::ios::in);
 	for (int i = 0; i < 63; i++){
 		inFile2 >> in_x;
 		inFile2 >> in_y;
