@@ -40,7 +40,7 @@ signals:
   void progress(int value) const;
   void newMessage(QString msg) const;
   void newPOI(QPoint);
-  void removePOI(QPoint);
+  void clearPOIs();
 
 protected:
   virtual void run();

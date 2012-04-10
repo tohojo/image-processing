@@ -231,7 +231,7 @@ void ProcessingGUI::set_processor(Processor *proc)
   connect(current_processor, SIGNAL(progress(int)), this, SLOT(setProgress(int)));
   connect(current_processor, SIGNAL(newMessage(QString)), SLOT(newMessage(QString)));
   connect(current_processor, SIGNAL(newPOI(QPoint)), current_image, SLOT(addPOI(QPoint)));
-  connect(current_processor, SIGNAL(removePOI(QPoint)), current_image, SLOT(addPOI(QPoint)));
+  connect(current_processor, SIGNAL(clearPOIs()), current_image, SLOT(clearPOIs()));
   if(m_batch) {
     current_processor->set_input(input_image);
 	current_processor->set_input_name(filename);
