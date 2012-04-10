@@ -38,7 +38,6 @@ void POIItem::contextMenuEvent(QGraphicsSceneContextMenuEvent * event)
   QAction *removeAction = menu.addAction("&Remove POI");
   QAction *selectedAction = menu.exec(event->screenPos());
   if(selectedAction == removeAction) {
-    qDebug("Removing POI at (%d,%d)", p.x(), p.y());
     ImageGraphicsItem *parent = static_cast<ImageGraphicsItem *>(parentItem());
     parent->removePOI(this);
   }
