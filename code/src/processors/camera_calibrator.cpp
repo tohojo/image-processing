@@ -12,16 +12,24 @@ bool lineComp(Point2d a, Point2d b){
 	return (CamCalibrator::pointLineDistance(a, lineP1, lineP2) < CamCalibrator::pointLineDistance(b, lineP1, lineP2));
 }
 
-CamCalibrator::CamCalibrator(std::list<Point> points2d, std::list<Point3d> points3d, int width, int height) :cout(QtDebugMsg)
+CamCalibrator::CamCalibrator(std::list<Point> points2d, std::list<Point3d> points3d, int width, int height, std::vector<point_correspondence> corr) :cout(QtDebugMsg)
 {
-  assert(points2d.size() == 63 && points3d.size() == 63);
-  calPtsInImg = new Point2d[points2d.size()];
-  calPtsInWorld = new Point3d[points3d.size()];
   obj = new VirtualCalibrationObject();
   mat_R = Mat(3, 3, CV_64F, Scalar::all(0));
   mat_T = Mat(3, 3, CV_64F, Scalar::all(0));
   imageLengthX = width;
   imageLengthY = height;
+  mapping = corr;
+
+  if(!corr.empty()) {
+    calPtsInImg = 0;
+    calPtsInWorld = 0;
+    return;
+  }
+  assert(points2d.size() == 63 && points3d.size() == 63);
+
+  calPtsInImg = new Point2d[points2d.size()];
+  calPtsInWorld = new Point3d[points3d.size()];
 
   int j = 0;
   for(std::list<Point>::iterator i = points2d.begin(); i != points2d.end(); ++i) {
@@ -78,8 +86,8 @@ CamCalibrator::CamCalibrator(int argc, char *argv[]) : cout(QtDebugMsg)
 
 CamCalibrator::~CamCalibrator()
 {
-  delete calPtsInImg;
-  delete calPtsInWorld;
+  if(calPtsInImg) delete calPtsInImg;
+  if(calPtsInWorld) delete calPtsInWorld;
   delete obj;
 
 }
@@ -367,6 +375,7 @@ void CamCalibrator::mapPtsToCalibrationPts()
 		//		cout << " POINT found: <" << (i->worldPt.x) << "," << (i->worldPt.y) << "," << (i->worldPt.z)
 		//			<< "     [" << (i->imagePt.x) << "," << (i->imagePt.y) << "] \n";
 	}
+        cout << "Mapping size:" << mapping.size();
 
 }
 

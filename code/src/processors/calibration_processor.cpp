@@ -2,7 +2,6 @@
 #include "util.h"
 #include "fast_hessian.h"
 #include "threshold_segmenter.h"
-#include "camera_calibrator.h"
 #include <QRegExp>
 #include <QDebug>
 
@@ -33,9 +32,11 @@ void CalibrationProcessor::run()
       findPOIs();
       break;
       case STAGE_2:
-      loadPoints3d();
-      emit progress(10);
-      adjustPOIs();
+        if(m_corr.empty()) {
+          loadPoints3d();
+          emit progress(10);
+          adjustPOIs();
+        }
       emit progress(40);
       calibrate();
       }
@@ -81,10 +82,12 @@ void CalibrationProcessor::findPOIs()
 void CalibrationProcessor::adjustPOIs()
 {
   mutex.lock();
+  bool cont = (m_corr.size() == 0);
   Mat input = output_image; // threshold ed version from stage 1
   QList<Point> pois(POIs);
   emit clearPOIs();
   mutex.unlock();
+  if(!cont) return;
   QList<Point> newPois;
 
   //bool printed = false;
@@ -132,13 +135,16 @@ void CalibrationProcessor::calibrate()
   int width = input_image.cols;
   mutex.unlock();
 
-  if(points3d.size() != 63 || pois.size() != 63) {
+  if(m_corr.empty() && (points3d.size() != 63 || pois.size() != 63)) {
     qWarning("Need 63 points (both 2D and 3D). Unable to continue (have %d/%d)",
              pois.size(), points3d.size());
     return;
   }
-  CamCalibrator calib(pois.toStdList(), points3d.toStdList(), width, height);
-  calib.mapPtsToCalibrationPts();
+  CamCalibrator calib(pois.toStdList(), points3d.toStdList(), width, height, m_corr.toStdVector());
+  if(m_corr.empty()) {
+    calib.mapPtsToCalibrationPts();
+    m_corr = QVector<point_correspondence>::fromStdVector(calib.getMapping());
+  }
   calib.calibrate();
 }
 
@@ -156,6 +162,25 @@ void CalibrationProcessor::addPOI(QPoint p)
   if(m_stage == STAGE_1) {
     Processor::addPOI(p);
   }
+}
+
+void CalibrationProcessor::deletePOI(QPoint p)
+{
+  if(m_stage == STAGE_2) {
+    mutex.lock();
+    int j = 0;
+    for(QVector<point_correspondence>::iterator i = m_corr.begin();
+        i != m_corr.end(); ++i) {
+      j++;
+      if(i->imagePt.x == p.x() && i->imagePt.y == p.y()) {
+        qDebug("%d: Removing point correspondence: (%d,%d) -> (%f,%f,%f)", j, p.x(), p.y(),
+               i->worldPt.x, i->worldPt.y, i->worldPt.z);
+        i = m_corr.erase(i);
+      }
+    }
+    mutex.unlock();
+  }
+  Processor::deletePOI(p);
 }
 
 void CalibrationProcessor::loadPoints3d()
@@ -202,6 +227,8 @@ void CalibrationProcessor::setStage(ProcessingStage s)
   QMutexLocker locker(&mutex);
   if(m_stage == s) return;
   m_stage = s;
+  if(s == STAGE_1)
+    m_corr.clear();
   mutex.unlock();
   process();
 }

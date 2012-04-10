@@ -3,12 +3,10 @@
 
 #include <QtCore/QFileInfo>
 #include "processor.h"
-#include "region.h"
-#include "rpoint.h"
+#include "camera_calibrator.h"
 #include <cv.h>
 
 using namespace cv;
-namespace IP = ImageProcessing;
 
 class CalibrationProcessor : public Processor
 {
@@ -37,6 +35,7 @@ public:
 
 public slots:
   void addPOI(QPoint);
+  void deletePOI(QPoint);
 
 private:
   void run();
@@ -49,6 +48,7 @@ private:
   bool parsePoint(QString line, Point3d *p);
   QFileInfo m_points3d_file;
   QList<Point3d> m_points3d;
+  QVector<point_correspondence> m_corr;
   ProcessingStage m_stage;
   double m_threshold;
 
