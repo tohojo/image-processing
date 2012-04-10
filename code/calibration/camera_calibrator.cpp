@@ -18,10 +18,12 @@ bool lineComp(Point2d a, Point2d b){
 CamCalibrator::CamCalibrator(int argc, char *argv[])
 {
 	calPtsInImg = new Point2d[63];
+	calPtsInWorld = new Point3d[63];
 	obj = new CalibrationObject();
 	mat_R = Mat(3, 3, CV_64F, Scalar::all(0));
 	mat_T = Mat(3, 3, CV_64F, Scalar::all(0));
 
+	// READ IN IMAGE POINTS
 	char *in_arg;
 	if (argc > 1) {
 		in_arg = argv[1];
@@ -32,39 +34,87 @@ CamCalibrator::CamCalibrator(int argc, char *argv[])
 	inFile >> imageLengthX;
 	inFile >> imageLengthY;
 
-	double in_x, in_y;
+	double in_x, in_y, in_z;
 	for (int i = 0; i < 63; i++){
 		inFile >> in_x;
 		inFile >> in_y;
 		calPtsInImg[i] = Point2d(in_x, in_y);
-		cout << i << ". x " << in_x << "y " << in_y << "\n";
+		//cout << i << ". x " << in_x << "y " << in_y << "\n";
 	}
 	inFile.close();
+
+	// READ IN WORLD POINTS
+	ifstream inFile2("r11-r14-r71-r74-L11-L15-L71-L75.txt", ios::in);
+	for (int i = 0; i < 63; i++){
+		inFile2 >> in_x;
+		inFile2 >> in_y;
+		inFile2 >> in_z;
+		calPtsInWorld[i] = Point3d(in_x, in_y, in_z);
+		//cout << i << ". x " << in_x << "y " << in_y << "\n";
+	}
+	inFile2.close();
 }
 
 CamCalibrator::~CamCalibrator()
 {
 }
 
-// Get image coordinates of calibration points
-// Currently assumes the image has been properly segmented into 63 calibration objects
-void CamCalibrator::getPtsFromSegmentedImage()
-{
-	cout << "Getting points from segmented image...\n";
-
-}
 
 // Match image calibration points to measured points of the calibration object
-void CamCalibrator::matchPtsToCalibrationPts()
+void CamCalibrator::mapPtsToCalibrationPts()
 {
 	cout << "Matching image points to measured points... \n";
 
-	//for (int i = 0; i < 63; i++){ cout << "Debug: x " << calPtsInImg[i].x << ", y " << calPtsInImg[i].y << "\n"; }
+	// "calPtsInWorld" array is in the form:
+	// R11...R14	0-3
+	// R21...R24	4-7
+	// R31...R34	8-11
+	// R41...R44	12-15
+	// R51...R54	16-19
+	// R61...R64	20-23
+	// R71...R74	24-27
+	// L11...L15	28-32
+	// L21...L25	33-37
+	// L31...L35	38-42
+	// L41...L45	43-47
+	// L51...L55	48-52
+	// L61...L65	53-57
+	// L71...L75	58-62
+	for (int i = 0; i < 35; i++){
+		obj->lMeasurements[i] = calPtsInWorld[62-i]; // Top row left
+	}
+	//
+	obj->rMeasurements[0] = calPtsInWorld[24]; // Top row left
+	obj->rMeasurements[1] = calPtsInWorld[25];
+	obj->rMeasurements[2] = calPtsInWorld[26];
+	obj->rMeasurements[3] = calPtsInWorld[27]; // Top row right
+	obj->rMeasurements[4] = calPtsInWorld[20];
+	obj->rMeasurements[5] = calPtsInWorld[21];
+	obj->rMeasurements[6] = calPtsInWorld[22];
+	obj->rMeasurements[7] = calPtsInWorld[23];
+	obj->rMeasurements[8] = calPtsInWorld[16];
+	obj->rMeasurements[9] = calPtsInWorld[17];
+	obj->rMeasurements[10] = calPtsInWorld[18];
+	obj->rMeasurements[11] = calPtsInWorld[19];
+	obj->rMeasurements[12] = calPtsInWorld[12];
+	obj->rMeasurements[13] = calPtsInWorld[13];
+	obj->rMeasurements[14] = calPtsInWorld[14];
+	obj->rMeasurements[15] = calPtsInWorld[15];
+	obj->rMeasurements[16] = calPtsInWorld[8];
+	obj->rMeasurements[17] = calPtsInWorld[9];
+	obj->rMeasurements[18] = calPtsInWorld[10];
+	obj->rMeasurements[19] = calPtsInWorld[11];
+	obj->rMeasurements[20] = calPtsInWorld[4];
+	obj->rMeasurements[21] = calPtsInWorld[5];
+	obj->rMeasurements[22] = calPtsInWorld[6];
+	obj->rMeasurements[23] = calPtsInWorld[7];
+	obj->rMeasurements[24] = calPtsInWorld[0]; // Bottom row left
+	obj->rMeasurements[25] = calPtsInWorld[1];
+	obj->rMeasurements[26] = calPtsInWorld[2];
+	obj->rMeasurements[27] = calPtsInWorld[3]; // Bottom row right
 
 	// 1. Sort calibration image points by x value
 	std::sort(calPtsInImg, calPtsInImg+63, compareX);
-
-	//for (int i = 0; i < 63; i++){ cout << "Sort debug: x " << calPtsInImg[i].x << ", y " << calPtsInImg[i].y << "\n"; }
 
 	// 2. Divide Left (35) and Right (28) image points based on x value
 	Point2d Left[35];
@@ -111,11 +161,6 @@ void CamCalibrator::matchPtsToCalibrationPts()
 		if (squareDistance < minimise){ index = i; minimise = squareDistance; }
 	}
 	Point2d Right14 = Right[index];
-
-	/*cout << "Debug corner pts: L75: x = " << Left75.x << ", y = " << Left75.y << "\n";
-	cout << "Debug corner pts: L15: x = " << Left15.x << ", y = " << Left15.y << "\n";
-	cout << "Debug corner pts: R74: x = " << Right74.x << ", y = " << Right74.y << "\n";
-	cout << "Debug corner pts: R14: x = " << Right14.x << ", y = " << Right14.y << "\n";*/
 
 	// 4. Get two inner corner points on each side: take 7 rightmost Left face points and 7 leftmost Right points;
 	//		find mean x for the vertical line separating the two faces; find points (x,top) and (x,bottom) on image;
@@ -166,11 +211,6 @@ void CamCalibrator::matchPtsToCalibrationPts()
 	}
 	Point2d Right11 = Right[index];
 
-	/*cout << "Debug corner pts: L71: x = " << Left71.x << ", y = " << Left71.y << "\n";
-	cout << "Debug corner pts: L11: x = " << Left11.x << ", y = " << Left15.y << "\n";
-	cout << "Debug corner pts: R71: x = " << Right71.x << ", y = " << Right71.y << "\n";
-	cout << "Debug corner pts: R11: x = " << Right11.x << ", y = " << Right11.y << "\n";*/
-
 	// 5. We now have 8 corner points identified, four for each face. From these corner points,
 	//		we know the horizontal lines representing the top and bottom of each face.
 	//		Sort Left or Right each time according to new criteria: distance to a particular line of our choice.
@@ -179,6 +219,7 @@ void CamCalibrator::matchPtsToCalibrationPts()
 		double dist = pointLineDistance(Left[i], Left75, Left71);
 		//cout << "(Debug) distance to top Left line: " << dist << "\n";
 	}
+
 
 	// 6.a) For all points in Left face, find distance from point to top Left line. Take five closest.
 	lineSort(Left75, Left71, Left, 35);	// Sorts Left by distance to top line
@@ -300,6 +341,26 @@ void CamCalibrator::matchPtsToCalibrationPts()
 		}
 		cout << "\n";
 	}
+
+	// Final, most important step:
+	for (int i = 0; i <35; i++){
+		point_correspondence pt_cor;
+		pt_cor.imagePt = obj->lAssocImagePts_RAW[i];
+		pt_cor.worldPt = obj->lMeasurements[i];
+		mapping.push_back(pt_cor);
+	}
+	for (int i = 0; i <28; i++){
+		point_correspondence pt_cor;
+		pt_cor.imagePt = obj->rAssocImagePts_RAW[i];
+		pt_cor.worldPt = obj->rMeasurements[i];
+		mapping.push_back(pt_cor);
+	}
+	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
+		//		cout << " POINT found: <" << (i->worldPt.x) << "," << (i->worldPt.y) << "," << (i->worldPt.z)
+		//			<< "     [" << (i->imagePt.x) << "," << (i->imagePt.y) << "] \n";
+	}
+
+
 }
 
 // Performing Tsai calibration. SEE Tsai section G: "Calibrating a Camera Using Monoview Noncoplanar Points"
@@ -322,46 +383,52 @@ void CamCalibrator::calibrate()
 	// 1. Calculate adjusted image coordinates, xd and yd, for image frame. Put in ADJ.
 	// 2. Change row i of X to xd.
 	// 3. Change row i of M to [yd*Xw, yd*Yw, yd*Zw, yd, -xdXw, -xdYw, -xdZw].
+	/*
 	for (int i = 0; i < 35; i++){
-		double xd = ( obj->lAssocImagePts_RAW[i].x - imageCX ) / sx;
-		double yd = obj->lAssocImagePts_RAW[i].y - imageCY;
-		obj->lAssocImagePts_ADJ[i].x = xd;
-		obj->lAssocImagePts_ADJ[i].y = yd;
-		mat_X.at<double>(i,0) = xd;
-		mat_M.at<double>(i,0) = yd*obj->lMeasurements[i].x;
-		mat_M.at<double>(i,1) = yd*obj->lMeasurements[i].y;
-		mat_M.at<double>(i,2) = yd*obj->lMeasurements[i].z;
-		mat_M.at<double>(i,3) = yd;
-		mat_M.at<double>(i,4) = -xd*obj->lMeasurements[i].x;
-		mat_M.at<double>(i,5) = -xd*obj->lMeasurements[i].y;
-		mat_M.at<double>(i,6) = -xd*obj->lMeasurements[i].z;
+	double xd = ( obj->lAssocImagePts_RAW[i].x - imageCX ) / sx;
+	double yd = obj->lAssocImagePts_RAW[i].y - imageCY;
+	obj->lAssocImagePts_ADJ[i].x = xd;
+	obj->lAssocImagePts_ADJ[i].y = yd;
+	mat_X.at<double>(i,0) = xd;
+	mat_M.at<double>(i,0) = yd*obj->lMeasurements[i].x;
+	mat_M.at<double>(i,1) = yd*obj->lMeasurements[i].y;
+	mat_M.at<double>(i,2) = yd*obj->lMeasurements[i].z;
+	mat_M.at<double>(i,3) = yd;
+	mat_M.at<double>(i,4) = -xd*obj->lMeasurements[i].x;
+	mat_M.at<double>(i,5) = -xd*obj->lMeasurements[i].y;
+	mat_M.at<double>(i,6) = -xd*obj->lMeasurements[i].z;
 	}
 	for (int i = 0; i < 28; i++){
-		double xd = (obj->rAssocImagePts_RAW[i].x - imageCX) / sx;
-		double yd = obj->rAssocImagePts_RAW[i].y - imageCY;
-		obj->rAssocImagePts_ADJ[i].x = xd;
-		obj->rAssocImagePts_ADJ[i].y = yd;
-		mat_X.at<double>(i+35,0) = xd;
-		mat_M.at<double>(i+35,0) = yd*obj->rMeasurements[i].x;
-		mat_M.at<double>(i+35,1) = yd*obj->rMeasurements[i].y;
-		mat_M.at<double>(i+35,2) = yd*obj->rMeasurements[i].z;
-		mat_M.at<double>(i+35,3) = yd;
-		mat_M.at<double>(i+35,4) = -xd*obj->rMeasurements[i].x;
-		mat_M.at<double>(i+35,5) = -xd*obj->rMeasurements[i].y;
-		mat_M.at<double>(i+35,6) = -xd*obj->rMeasurements[i].z;
+	double xd = (obj->rAssocImagePts_RAW[i].x - imageCX) / sx;
+	double yd = obj->rAssocImagePts_RAW[i].y - imageCY;
+	obj->rAssocImagePts_ADJ[i].x = xd;
+	obj->rAssocImagePts_ADJ[i].y = yd;
+	mat_X.at<double>(i+35,0) = xd;
+	mat_M.at<double>(i+35,0) = yd*obj->rMeasurements[i].x;
+	mat_M.at<double>(i+35,1) = yd*obj->rMeasurements[i].y;
+	mat_M.at<double>(i+35,2) = yd*obj->rMeasurements[i].z;
+	mat_M.at<double>(i+35,3) = yd;
+	mat_M.at<double>(i+35,4) = -xd*obj->rMeasurements[i].x;
+	mat_M.at<double>(i+35,5) = -xd*obj->rMeasurements[i].y;
+	mat_M.at<double>(i+35,6) = -xd*obj->rMeasurements[i].z;
 	}
+	*/
 
-	/*cout << "Matrix M...\n";
-	for (int i = 0; i < 63; i++){
-	for (int j = 0; j < 7; j++){
-	cout << " " << mat_M.at<double>(i,j);
+	int counter = 0;
+	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
+		double xd = (i->imagePt.x - imageCX ) / sx;
+		double yd = i->imagePt.y - imageCY;
+		i->imagePt_adj = Point2d(xd, yd);
+		mat_X.at<double>(counter,0) = xd;
+		mat_M.at<double>(counter,0) = yd*(i->worldPt.x);
+		mat_M.at<double>(counter,1) = yd*(i->worldPt.y);
+		mat_M.at<double>(counter,2) = yd*(i->worldPt.z);
+		mat_M.at<double>(counter,3) = yd;
+		mat_M.at<double>(counter,4) = -xd*(i->worldPt.x);
+		mat_M.at<double>(counter,5) = -xd*(i->worldPt.y);
+		mat_M.at<double>(counter,6) = -xd*(i->worldPt.z);
+		counter++;
 	}
-	cout << "\n";
-	}
-	cout << "Matrix X...\n";
-	for (int i = 0; i < 63; i++){
-	cout << " " << mat_X.at<double>(i,0) << "\n";
-	}*/
 
 	// Now solve using the pseudo-inverse technique to generate matrix L:
 	// L = (M^transpose * M)^inverse * (M^transpose * X)
@@ -384,18 +451,31 @@ void CamCalibrator::calibrate()
 	printf("T(y) [sign currently unknown]: %e \n", ty_sign_unknown);
 
 	// Get a reference point not close to the image centre (easy enough to just check the left face)
-	int pointIndex = 0;
-	double distance = 0;
-	for (int i = 0; i < 35; i++)
+	point_correspondence index_pc;
+	double distance = 0;	
+	/*for (int i = 0; i < 35; i++)
 	{
-		double xdiff = obj->lAssocImagePts_ADJ[i].x;
-		double ydiff = obj->lAssocImagePts_ADJ[i].y;
+	double xdiff = obj->lAssocImagePts_ADJ[i].x;
+	double ydiff = obj->lAssocImagePts_ADJ[i].y;
+	double squareDistance = sqrt( (xdiff * xdiff) + (ydiff * ydiff) );
+	if (squareDistance > distance){
+	pointIndex = i;
+	distance = squareDistance;
+	}
+	}
+	*/
+	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
+		double xdiff = i->imagePt_adj.x;
+		double ydiff = i->imagePt_adj.y;
 		double squareDistance = sqrt( (xdiff * xdiff) + (ydiff * ydiff) );
 		if (squareDistance > distance){
-			pointIndex = i;
+			index_pc.imagePt = i->imagePt;
+			index_pc.worldPt = i->worldPt;
+			index_pc.imagePt_adj = i->imagePt_adj;
 			distance = squareDistance;
 		}
 	}
+
 	// Now start calculating parameters of R and T
 	mat_R.at<double>(0,0) = a1*ty_sign_unknown; // r11
 	mat_R.at<double>(0,1) = a2*ty_sign_unknown; // r12
@@ -408,13 +488,12 @@ void CamCalibrator::calibrate()
 	// Calibration step 2: determine sign of ty
 
 	// Use our distant reference point to check whether ty has the correct sign
-	double Xw = obj->lMeasurements[pointIndex].x;
-	double Yw = obj->lMeasurements[pointIndex].y;
+	double Xw = index_pc.worldPt.x;
+	double Yw = index_pc.worldPt.y;
 	double xSign = mat_R.at<double>(0,0)*Xw + mat_R.at<double>(0,1)*Yw + mat_R.at<double>(0,2)*Yw + mat_T.at<double>(0,0);
 	double ySign = mat_R.at<double>(1,0)*Xw + mat_R.at<double>(1,1)*Yw + mat_R.at<double>(1,2)*Yw + ty_sign_unknown;
-	double XS = obj->lAssocImagePts_ADJ[pointIndex].x;
-	double YS = obj->lAssocImagePts_ADJ[pointIndex].y;
-
+	double XS = index_pc.imagePt.x;
+	double YS = index_pc.imagePt.y;
 	if ( (xSign > 0 && XS <= 0) || (xSign <= 0 && XS > 0) || (ySign > 0 && YS <= 0) || (ySign <= 0 && YS > 0) ) {
 		cout << "Debug: signs are different, ty has wrong sign.\n";
 		mat_T.at<double>(1,0) = ty_sign_unknown*-1;
@@ -562,7 +641,7 @@ void CamCalibrator::calibrate()
 	//	cout << "> Squared error (" << i << "): " << Fff.at<double>(2,0) << "\n";
 	//}
 
-//	if (kappa1 < 0) kappa1*=-1.0;
+	//	if (kappa1 < 0) kappa1*=-1.0;
 
 	cout << "\n****************\n\n";
 	cout << "~~~ Camera parameters: ~~~\n\n";
@@ -578,6 +657,8 @@ void CamCalibrator::calibrate()
 	cout << "focal length = " << focalLength << "\n";
 	cout << "kappa = " << kappa1 << "\n";
 	cout << "\n****************\n\n";
+
+	checkResults();
 }
 
 // Calculates best fit of focalLength and Tz for a given kappa
@@ -585,26 +666,40 @@ void CamCalibrator::calibrate()
 Mat CamCalibrator::computeLeastSquaresForKappa(double kappa){
 	Mat mat_M2a = Mat(63, 2, CV_64F, Scalar::all(0));
 	Mat mat_Ua = Mat(63, 1, CV_64F, Scalar::all(0));
-	for (int i = 0; i < 35; i++){
-		double yi = mat_R.at<double>(1,0)*obj->lMeasurements[i].x + mat_R.at<double>(1,1)*obj->lMeasurements[i].y + mat_R.at<double>(1,2)*obj->lMeasurements[i].z + mat_T.at<double>(1,0);
-		double wi = mat_R.at<double>(2,0)*obj->lMeasurements[i].x + mat_R.at<double>(2,1)*obj->lMeasurements[i].y + mat_R.at<double>(2,2)*obj->lMeasurements[i].z;
-		double rSq = sqrt( ((1.0/sx) * obj->lAssocImagePts_ADJ[i].x)*((1.0/sx) * obj->lAssocImagePts_ADJ[i].x)
-			+ ( obj->lAssocImagePts_ADJ[i].y * obj->lAssocImagePts_ADJ[i].y ) );
-		double kappa_error = obj->lAssocImagePts_ADJ[i].y * kappa * (rSq * rSq);
-		mat_M2a.at<double>(i,0) = yi;
-		mat_M2a.at<double>(i,1) = (obj->lAssocImagePts_ADJ[i].y * -1.0) - kappa_error;
-		mat_Ua.at<double>(i,0) = (wi * obj->lAssocImagePts_ADJ[i].y) + (wi*kappa_error);
+	/*for (int i = 0; i < 35; i++){
+	double yi = mat_R.at<double>(1,0)*obj->lMeasurements[i].x + mat_R.at<double>(1,1)*obj->lMeasurements[i].y + mat_R.at<double>(1,2)*obj->lMeasurements[i].z + mat_T.at<double>(1,0);
+	double wi = mat_R.at<double>(2,0)*obj->lMeasurements[i].x + mat_R.at<double>(2,1)*obj->lMeasurements[i].y + mat_R.at<double>(2,2)*obj->lMeasurements[i].z;
+	double rSq = sqrt( ((1.0/sx) * obj->lAssocImagePts_ADJ[i].x)*((1.0/sx) * obj->lAssocImagePts_ADJ[i].x)
+	+ ( obj->lAssocImagePts_ADJ[i].y * obj->lAssocImagePts_ADJ[i].y ) );
+	double kappa_error = obj->lAssocImagePts_ADJ[i].y * kappa * (rSq * rSq);
+	mat_M2a.at<double>(i,0) = yi;
+	mat_M2a.at<double>(i,1) = (obj->lAssocImagePts_ADJ[i].y * -1.0) - kappa_error;
+	mat_Ua.at<double>(i,0) = (wi * obj->lAssocImagePts_ADJ[i].y) + (wi*kappa_error);
 	}
 	for (int i = 0; i < 28; i++){
-		double yi = mat_R.at<double>(1,0)*obj->rMeasurements[i].x + mat_R.at<double>(1,1)*obj->rMeasurements[i].y + mat_R.at<double>(1,2)*obj->rMeasurements[i].z + mat_T.at<double>(1,0);
-		double wi = mat_R.at<double>(2,0)*obj->rMeasurements[i].x + mat_R.at<double>(2,1)*obj->rMeasurements[i].y + mat_R.at<double>(2,2)*obj->rMeasurements[i].z;
-		double rSq = sqrt( ((1.0/sx) * obj->rAssocImagePts_ADJ[i].x)*((1.0/sx) * obj->rAssocImagePts_ADJ[i].x)
-			+ ( obj->rAssocImagePts_ADJ[i].y * obj->rAssocImagePts_ADJ[i].y ) );
-		double kappa_error = obj->rAssocImagePts_ADJ[i].y * kappa * (rSq * rSq);
-		mat_M2a.at<double>(i+35,0) = yi;
-		mat_M2a.at<double>(i+35,1) = (obj->rAssocImagePts_ADJ[i].y * -1.0) - kappa_error;
-		mat_Ua.at<double>(i+35,0) = (wi*obj->rAssocImagePts_ADJ[i].y) + (wi*kappa_error);
+	double yi = mat_R.at<double>(1,0)*obj->rMeasurements[i].x + mat_R.at<double>(1,1)*obj->rMeasurements[i].y + mat_R.at<double>(1,2)*obj->rMeasurements[i].z + mat_T.at<double>(1,0);
+	double wi = mat_R.at<double>(2,0)*obj->rMeasurements[i].x + mat_R.at<double>(2,1)*obj->rMeasurements[i].y + mat_R.at<double>(2,2)*obj->rMeasurements[i].z;
+	double rSq = sqrt( ((1.0/sx) * obj->rAssocImagePts_ADJ[i].x)*((1.0/sx) * obj->rAssocImagePts_ADJ[i].x)
+	+ ( obj->rAssocImagePts_ADJ[i].y * obj->rAssocImagePts_ADJ[i].y ) );
+	double kappa_error = obj->rAssocImagePts_ADJ[i].y * kappa * (rSq * rSq);
+	mat_M2a.at<double>(i+35,0) = yi;
+	mat_M2a.at<double>(i+35,1) = (obj->rAssocImagePts_ADJ[i].y * -1.0) - kappa_error;
+	mat_Ua.at<double>(i+35,0) = (wi*obj->rAssocImagePts_ADJ[i].y) + (wi*kappa_error);
+	}*/
+
+	int count = 0;
+	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
+		double yi = mat_R.at<double>(1,0)*i->worldPt.x + mat_R.at<double>(1,1)*i->worldPt.y + mat_R.at<double>(1,2)*i->worldPt.z + mat_T.at<double>(1,0);
+		double wi = mat_R.at<double>(2,0)*i->worldPt.x + mat_R.at<double>(2,1)*i->worldPt.y + mat_R.at<double>(2,2)*i->worldPt.z;
+		double rSq = sqrt( ((1.0/sx) * i->imagePt_adj.x)*((1.0/sx) * i->imagePt_adj.x)
+			+ ( i->imagePt_adj.y * i->imagePt_adj.y ) );
+		double kappa_error = i->imagePt_adj.y * kappa * (rSq * rSq);
+		mat_M2a.at<double>(count,0) = yi;
+		mat_M2a.at<double>(count,1) = (i->imagePt_adj.y * -1.0) - kappa_error;
+		mat_Ua.at<double>(count,0) = (wi * i->imagePt_adj.y) + (wi*kappa_error);
+		count++;
 	}
+
 	// Now solve using the pseudo-inverse technique to generate matrix F:
 	Mat M2trans_M2_inv = (mat_M2a.t() * (mat_M2a)).inv(DECOMP_SVD);
 	Mat M2trans_U = mat_M2a.t() * mat_Ua;
@@ -614,28 +709,43 @@ Mat CamCalibrator::computeLeastSquaresForKappa(double kappa){
 	double output_foc = F.at<double>(0,0);
 	double output_Tz = F.at<double>(1,0);
 	double currentSquaredError = 0.0;
+	/*
 	for (int i = 0; i < 35; i++){
-		double yi = mat_R.at<double>(1,0)*obj->lMeasurements[i].x + mat_R.at<double>(1,1)*obj->lMeasurements[i].y + mat_R.at<double>(1,2)*obj->lMeasurements[i].z + mat_T.at<double>(1,0);
-		double wi = mat_R.at<double>(2,0)*obj->lMeasurements[i].x + mat_R.at<double>(2,1)*obj->lMeasurements[i].y + mat_R.at<double>(2,2)*obj->lMeasurements[i].z;
-		double rSq = sqrt( ((1.0/sx) * obj->lAssocImagePts_ADJ[i].x)*((1.0/sx) * obj->lAssocImagePts_ADJ[i].x)
-			+ ( obj->lAssocImagePts_ADJ[i].y * obj->lAssocImagePts_ADJ[i].y ) );
-		double kappa_error = obj->lAssocImagePts_ADJ[i].y * kappa * (rSq * rSq);
-		double output1 = (yi * output_foc) +
-			(((obj->lAssocImagePts_ADJ[i].y * -1.0) - kappa_error) * output_Tz);
-		double output2 = (wi * obj->lAssocImagePts_ADJ[i].y) + (wi*kappa_error);
-		double sq_error = (output1-output2)*(output1-output2);
-		//cout << "Err " << sq_error << "\n";
-		currentSquaredError += sq_error;
+	double yi = mat_R.at<double>(1,0)*obj->lMeasurements[i].x + mat_R.at<double>(1,1)*obj->lMeasurements[i].y + mat_R.at<double>(1,2)*obj->lMeasurements[i].z + mat_T.at<double>(1,0);
+	double wi = mat_R.at<double>(2,0)*obj->lMeasurements[i].x + mat_R.at<double>(2,1)*obj->lMeasurements[i].y + mat_R.at<double>(2,2)*obj->lMeasurements[i].z;
+	double rSq = sqrt( ((1.0/sx) * obj->lAssocImagePts_ADJ[i].x)*((1.0/sx) * obj->lAssocImagePts_ADJ[i].x)
+	+ ( obj->lAssocImagePts_ADJ[i].y * obj->lAssocImagePts_ADJ[i].y ) );
+	double kappa_error = obj->lAssocImagePts_ADJ[i].y * kappa * (rSq * rSq);
+	double output1 = (yi * output_foc) +
+	(((obj->lAssocImagePts_ADJ[i].y * -1.0) - kappa_error) * output_Tz);
+	double output2 = (wi * obj->lAssocImagePts_ADJ[i].y) + (wi*kappa_error);
+	double sq_error = (output1-output2)*(output1-output2);
+	//cout << "Err " << sq_error << "\n";
+	currentSquaredError += sq_error;
 	}
 	for (int i = 0; i < 28; i++){
-		double yi = mat_R.at<double>(1,0)*obj->rMeasurements[i].x + mat_R.at<double>(1,1)*obj->rMeasurements[i].y + mat_R.at<double>(1,2)*obj->rMeasurements[i].z + mat_T.at<double>(1,0);
-		double wi = mat_R.at<double>(2,0)*obj->rMeasurements[i].x + mat_R.at<double>(2,1)*obj->rMeasurements[i].y + mat_R.at<double>(2,2)*obj->rMeasurements[i].z;
-		double rSq = sqrt( ((1.0/sx) * obj->rAssocImagePts_ADJ[i].x)*((1.0/sx) * obj->rAssocImagePts_ADJ[i].x)
-			+ ( obj->rAssocImagePts_ADJ[i].y * obj->rAssocImagePts_ADJ[i].y ) );
-		double kappa_error = obj->rAssocImagePts_ADJ[i].y * kappa * (rSq * rSq);
+	double yi = mat_R.at<double>(1,0)*obj->rMeasurements[i].x + mat_R.at<double>(1,1)*obj->rMeasurements[i].y + mat_R.at<double>(1,2)*obj->rMeasurements[i].z + mat_T.at<double>(1,0);
+	double wi = mat_R.at<double>(2,0)*obj->rMeasurements[i].x + mat_R.at<double>(2,1)*obj->rMeasurements[i].y + mat_R.at<double>(2,2)*obj->rMeasurements[i].z;
+	double rSq = sqrt( ((1.0/sx) * obj->rAssocImagePts_ADJ[i].x)*((1.0/sx) * obj->rAssocImagePts_ADJ[i].x)
+	+ ( obj->rAssocImagePts_ADJ[i].y * obj->rAssocImagePts_ADJ[i].y ) );
+	double kappa_error = obj->rAssocImagePts_ADJ[i].y * kappa * (rSq * rSq);
+	double output1 = (yi * output_foc) +
+	(((obj->rAssocImagePts_ADJ[i].y * -1.0) - kappa_error) * output_Tz);
+	double output2 = (wi * obj->rAssocImagePts_ADJ[i].y) + (wi*kappa_error);
+	double sq_error = (output1-output2)*(output1-output2);
+	//cout << "Err " << sq_error << "\n";
+	currentSquaredError += sq_error;
+	}
+	*/
+	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
+		double yi = mat_R.at<double>(1,0)*i->worldPt.x + mat_R.at<double>(1,1)*i->worldPt.y + mat_R.at<double>(1,2)*i->worldPt.z + mat_T.at<double>(1,0);
+		double wi = mat_R.at<double>(2,0)*i->worldPt.x + mat_R.at<double>(2,1)*i->worldPt.y + mat_R.at<double>(2,2)*i->worldPt.z;
+		double rSq = sqrt( ((1.0/sx) * i->imagePt_adj.x)*((1.0/sx) * i->imagePt_adj.x)
+			+ ( i->imagePt_adj.y * i->imagePt_adj.y ) );
+		double kappa_error = i->imagePt_adj.y * kappa * (rSq * rSq);
 		double output1 = (yi * output_foc) +
-			(((obj->rAssocImagePts_ADJ[i].y * -1.0) - kappa_error) * output_Tz);
-		double output2 = (wi * obj->rAssocImagePts_ADJ[i].y) + (wi*kappa_error);
+			(((i->imagePt_adj.y * -1.0) - kappa_error) * output_Tz);
+		double output2 = (wi * i->imagePt_adj.y) + (wi*kappa_error);
 		double sq_error = (output1-output2)*(output1-output2);
 		//cout << "Err " << sq_error << "\n";
 		currentSquaredError += sq_error;
@@ -667,29 +777,52 @@ void CamCalibrator::checkResults(){
 	perspective.at<double>(2,2) = 1.0/focalLength;
 	double x_error_divd_sx = 0.0;
 	double y_error_nil = 0.0;
+	/*
 	for (int i = 0; i < 35; i++){
-		Point3d pt = obj->lMeasurements[i];
-		Point2d pt_ADJ = obj->lAssocImagePts_ADJ[i];
-		Mat pt1 = Mat(4, 1, CV_64F, Scalar::all(1));
-		pt1.at<double>(0,0) = pt.x;
-		pt1.at<double>(1,0) = pt.y;
-		pt1.at<double>(2,0) = pt.z;
-		pt1 = transform * pt1;
-		pt1 = perspective * pt1;
-		pt1.at<double>(0,0) /= pt1.at<double>(2,0);
-		pt1.at<double>(1,0) /= pt1.at<double>(2,0);
-		pt1.at<double>(2,0) = 1.0;
-		double xx = pt1.at<double>(0,0);
-		double yy = pt1.at<double>(1,0);
-		double x_nil = xx - xx * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
-		double y_nil = yy - yy * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
-		double x_divd_sx = x_nil/sx;
-		y_error_nil += sqrt( (pt_ADJ.y - y_nil)*(pt_ADJ.y - y_nil) );
-		x_error_divd_sx += sqrt( (pt_ADJ.x - x_divd_sx)*(pt_ADJ.x - x_divd_sx) );
+	Point3d pt = obj->lMeasurements[i];
+	Point2d pt_ADJ = obj->lAssocImagePts_ADJ[i];
+	Mat pt1 = Mat(4, 1, CV_64F, Scalar::all(1));
+	pt1.at<double>(0,0) = pt.x;
+	pt1.at<double>(1,0) = pt.y;
+	pt1.at<double>(2,0) = pt.z;
+	pt1 = transform * pt1;
+	pt1 = perspective * pt1;
+	pt1.at<double>(0,0) /= pt1.at<double>(2,0);
+	pt1.at<double>(1,0) /= pt1.at<double>(2,0);
+	pt1.at<double>(2,0) = 1.0;
+	double xx = pt1.at<double>(0,0);
+	double yy = pt1.at<double>(1,0);
+	double x_nil = xx - xx * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+	double y_nil = yy - yy * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+	double x_divd_sx = x_nil/sx;
+	y_error_nil += sqrt( (pt_ADJ.y - y_nil)*(pt_ADJ.y - y_nil) );
+	x_error_divd_sx += sqrt( (pt_ADJ.x - x_divd_sx)*(pt_ADJ.x - x_divd_sx) );
 	}
 	for (int i = 0; i < 28; i++){
-		Point3d pt = obj->rMeasurements[i];
-		Point2d pt_ADJ = obj->rAssocImagePts_ADJ[i];
+	Point3d pt = obj->rMeasurements[i];
+	Point2d pt_ADJ = obj->rAssocImagePts_ADJ[i];
+	Mat pt1 = Mat(4, 1, CV_64F, Scalar::all(1));
+	pt1.at<double>(0,0) = pt.x;
+	pt1.at<double>(1,0) = pt.y;
+	pt1.at<double>(2,0) = pt.z;
+	pt1 = transform * pt1;
+	pt1 = perspective * pt1;
+	pt1.at<double>(0,0) /= pt1.at<double>(2,0);
+	pt1.at<double>(1,0) /= pt1.at<double>(2,0);
+	pt1.at<double>(2,0) = 1.0;
+	double xx = pt1.at<double>(0,0);
+	double yy = pt1.at<double>(1,0);
+	double x_nil = xx - xx * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+	double y_nil = yy - yy * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+	double x_divd_sx = x_nil/sx;
+	y_error_nil += sqrt( (pt_ADJ.y - y_nil)*(pt_ADJ.y - y_nil) );
+	x_error_divd_sx += sqrt( (pt_ADJ.x - x_divd_sx)*(pt_ADJ.x - x_divd_sx) );
+	}
+	*/
+
+	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
+		Point3d pt = i->worldPt;
+		Point2d pt_ADJ = i->imagePt_adj;
 		Mat pt1 = Mat(4, 1, CV_64F, Scalar::all(1));
 		pt1.at<double>(0,0) = pt.x;
 		pt1.at<double>(1,0) = pt.y;
@@ -707,6 +840,7 @@ void CamCalibrator::checkResults(){
 		y_error_nil += sqrt( (pt_ADJ.y - y_nil)*(pt_ADJ.y - y_nil) );
 		x_error_divd_sx += sqrt( (pt_ADJ.x - x_divd_sx)*(pt_ADJ.x - x_divd_sx) );
 	}
+
 	cout << " === mean x pixel error: " << x_error_divd_sx/63.0 << "\n";
 	cout << " === mean y pixel error: " << y_error_nil/63.0 << "\n";
 
@@ -749,10 +883,83 @@ void CamCalibrator::checkResults(){
 	double squaredErrorY = 0.0;
 	double squaredErrorZ = 0.0;
 
+	/*
 	for (int i = 0; i < 35; i++){
-		Point3d ideal = obj->lMeasurements[i];
-		Point2d i_ADJ = obj->lAssocImagePts_ADJ[i];
-		Point2d i_RAW = obj->lAssocImagePts_RAW[i];
+	Point3d ideal = obj->lMeasurements[i];
+	Point2d i_ADJ = obj->lAssocImagePts_ADJ[i];
+	Point2d i_RAW = obj->lAssocImagePts_RAW[i];
+	Mat iPoint = Mat(4, 1, CV_64F, Scalar::all(1));
+	iPoint.at<double>(0,0) = i_ADJ.x;
+	iPoint.at<double>(1,0) = i_ADJ.y;		
+	double xx = iPoint.at<double>(0,0);
+	double yy = iPoint.at<double>(1,0);
+	iPoint.at<double>(0,0) = xx + xx * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+	iPoint.at<double>(1,0) = yy + yy * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+	iPoint.at<double>(0,0) /= sx;
+	iPoint.at<double>(2,0) = focalLength;
+	iPoint.at<double>(3,0) = 1;
+	Mat i_factorZ = perspective_inv * iPoint;
+	Mat i_real = Mat(4, 1, CV_64F, Scalar::all(0));
+	i_real.at<double>(0,0) = translate_inv.at<double>(0,3);
+	i_real.at<double>(1,0) = translate_inv.at<double>(1,3);
+	i_real.at<double>(2,0) = translate_inv.at<double>(2,3);
+	i_real = rotate_inv * i_real;
+	i_factorZ = rotate_inv * i_factorZ;
+	double calc_x = i_factorZ.at<double>(0,0)*camToOrigin + i_real.at<double>(0,0);
+	double calc_y = i_factorZ.at<double>(1,0)*camToOrigin + i_real.at<double>(1,0);
+	double calc_z = i_factorZ.at<double>(2,0)*camToOrigin + i_real.at<double>(2,0);
+	//		cout << "================\n";
+	//		cout << "Xw: " << ideal.x << "  Yw: " << ideal.y << "  Zw: " << ideal.z << "\n";
+	//		cout << "X = " << calc_x << "  Y = " << calc_y << "  Z = " << calc_z << "\n";
+	double err = sqrt ( (calc_x-ideal.x)*(calc_x-ideal.x) +
+	(calc_y-ideal.y)*(calc_y-ideal.y) + (calc_z-ideal.z)*(calc_z-ideal.z) );
+	//		cout << "SQ ERROR: " << err << "\n";
+	totalSquaredError += err;
+	squaredErrorX += sqrt ((calc_x-ideal.x)*(calc_x-ideal.x));
+	squaredErrorY += sqrt ((calc_y-ideal.y)*(calc_y-ideal.y));
+	squaredErrorZ += sqrt ((calc_z-ideal.z)*(calc_z-ideal.z));
+	}
+	for (int i = 0; i < 28; i++){
+	Point3d ideal = obj->rMeasurements[i];
+	Point2d i_ADJ = obj->rAssocImagePts_ADJ[i];
+	Point2d i_RAW = obj->rAssocImagePts_RAW[i];
+	Mat iPoint = Mat(4, 1, CV_64F, Scalar::all(1));
+	iPoint.at<double>(0,0) = i_ADJ.x;
+	iPoint.at<double>(1,0) = i_ADJ.y;
+	double xx = iPoint.at<double>(0,0);
+	double yy = iPoint.at<double>(1,0);
+	iPoint.at<double>(0,0) = xx + xx * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+	iPoint.at<double>(1,0) = yy + yy * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+	iPoint.at<double>(0,0) /= sx;
+	iPoint.at<double>(2,0) = focalLength;
+	iPoint.at<double>(3,0) = 1;
+	Mat i_factorZ = perspective_inv * iPoint;
+	Mat i_real = Mat(4, 1, CV_64F, Scalar::all(0));
+	i_real.at<double>(0,0) = translate_inv.at<double>(0,3);
+	i_real.at<double>(1,0) = translate_inv.at<double>(1,3);
+	i_real.at<double>(2,0) = translate_inv.at<double>(2,3);
+	i_real = rotate_inv * i_real;
+	i_factorZ = rotate_inv * i_factorZ;
+	double calc_x = i_factorZ.at<double>(0,0)*camToOrigin + i_real.at<double>(0,0);
+	double calc_y = i_factorZ.at<double>(1,0)*camToOrigin + i_real.at<double>(1,0);
+	double calc_z = i_factorZ.at<double>(2,0)*camToOrigin + i_real.at<double>(2,0);
+	//		cout << "================\n";
+	//		cout << "Xw: " << ideal.x << "  Yw: " << ideal.y << "  Zw: " << ideal.z << "\n";
+	//		cout << "X = " << calc_x << "  Y = " << calc_y << "  Z = " << calc_z << "\n";
+	double err = sqrt ( (calc_x-ideal.x)*(calc_x-ideal.x) +
+	(calc_y-ideal.y)*(calc_y-ideal.y) + (calc_z-ideal.z)*(calc_z-ideal.z) );
+	//		cout << "SQ ERROR: " << err << "\n";
+	totalSquaredError += err;
+	squaredErrorX += sqrt ((calc_x-ideal.x)*(calc_x-ideal.x));
+	squaredErrorY += sqrt ((calc_y-ideal.y)*(calc_y-ideal.y));
+	squaredErrorZ += sqrt ((calc_z-ideal.z)*(calc_z-ideal.z));
+	}
+	*/
+
+	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
+		Point3d ideal = i->worldPt;
+		Point2d i_ADJ = i->imagePt_adj;
+		Point2d i_RAW = i->imagePt;
 		Mat iPoint = Mat(4, 1, CV_64F, Scalar::all(1));
 		iPoint.at<double>(0,0) = i_ADJ.x;
 		iPoint.at<double>(1,0) = i_ADJ.y;		
@@ -773,52 +980,18 @@ void CamCalibrator::checkResults(){
 		double calc_x = i_factorZ.at<double>(0,0)*camToOrigin + i_real.at<double>(0,0);
 		double calc_y = i_factorZ.at<double>(1,0)*camToOrigin + i_real.at<double>(1,0);
 		double calc_z = i_factorZ.at<double>(2,0)*camToOrigin + i_real.at<double>(2,0);
-//		cout << "================\n";
-//		cout << "Xw: " << ideal.x << "  Yw: " << ideal.y << "  Zw: " << ideal.z << "\n";
-//		cout << "X = " << calc_x << "  Y = " << calc_y << "  Z = " << calc_z << "\n";
+		//		cout << "================\n";
+		//		cout << "Xw: " << ideal.x << "  Yw: " << ideal.y << "  Zw: " << ideal.z << "\n";
+		//		cout << "X = " << calc_x << "  Y = " << calc_y << "  Z = " << calc_z << "\n";
 		double err = sqrt ( (calc_x-ideal.x)*(calc_x-ideal.x) +
 			(calc_y-ideal.y)*(calc_y-ideal.y) + (calc_z-ideal.z)*(calc_z-ideal.z) );
-//		cout << "SQ ERROR: " << err << "\n";
+		//		cout << "SQ ERROR: " << err << "\n";
 		totalSquaredError += err;
 		squaredErrorX += sqrt ((calc_x-ideal.x)*(calc_x-ideal.x));
 		squaredErrorY += sqrt ((calc_y-ideal.y)*(calc_y-ideal.y));
 		squaredErrorZ += sqrt ((calc_z-ideal.z)*(calc_z-ideal.z));
 	}
-	for (int i = 0; i < 28; i++){
-		Point3d ideal = obj->rMeasurements[i];
-		Point2d i_ADJ = obj->rAssocImagePts_ADJ[i];
-		Point2d i_RAW = obj->rAssocImagePts_RAW[i];
-		Mat iPoint = Mat(4, 1, CV_64F, Scalar::all(1));
-		iPoint.at<double>(0,0) = i_ADJ.x;
-		iPoint.at<double>(1,0) = i_ADJ.y;
-		double xx = iPoint.at<double>(0,0);
-		double yy = iPoint.at<double>(1,0);
-		iPoint.at<double>(0,0) = xx + xx * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
-		iPoint.at<double>(1,0) = yy + yy * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
-		iPoint.at<double>(0,0) /= sx;
-		iPoint.at<double>(2,0) = focalLength;
-		iPoint.at<double>(3,0) = 1;
-		Mat i_factorZ = perspective_inv * iPoint;
-		Mat i_real = Mat(4, 1, CV_64F, Scalar::all(0));
-		i_real.at<double>(0,0) = translate_inv.at<double>(0,3);
-		i_real.at<double>(1,0) = translate_inv.at<double>(1,3);
-		i_real.at<double>(2,0) = translate_inv.at<double>(2,3);
-		i_real = rotate_inv * i_real;
-		i_factorZ = rotate_inv * i_factorZ;
-		double calc_x = i_factorZ.at<double>(0,0)*camToOrigin + i_real.at<double>(0,0);
-		double calc_y = i_factorZ.at<double>(1,0)*camToOrigin + i_real.at<double>(1,0);
-		double calc_z = i_factorZ.at<double>(2,0)*camToOrigin + i_real.at<double>(2,0);
-//		cout << "================\n";
-//		cout << "Xw: " << ideal.x << "  Yw: " << ideal.y << "  Zw: " << ideal.z << "\n";
-//		cout << "X = " << calc_x << "  Y = " << calc_y << "  Z = " << calc_z << "\n";
-		double err = sqrt ( (calc_x-ideal.x)*(calc_x-ideal.x) +
-			(calc_y-ideal.y)*(calc_y-ideal.y) + (calc_z-ideal.z)*(calc_z-ideal.z) );
-//		cout << "SQ ERROR: " << err << "\n";
-		totalSquaredError += err;
-		squaredErrorX += sqrt ((calc_x-ideal.x)*(calc_x-ideal.x));
-		squaredErrorY += sqrt ((calc_y-ideal.y)*(calc_y-ideal.y));
-		squaredErrorZ += sqrt ((calc_z-ideal.z)*(calc_z-ideal.z));
-	}
+
 	cout << "TOTAL ERROR: " << totalSquaredError << "\n";
 	cout << "MEAN ERROR: " << totalSquaredError/63.0 << "\n";
 	cout << "x ERROR: " << squaredErrorX/63.0 << "\n";
@@ -826,10 +999,6 @@ void CamCalibrator::checkResults(){
 	cout << "z ERROR: " << squaredErrorZ/63.0 << "\n";
 
 
-
-	// #2. Work out how to apply calculations in inverse order to image point,
-	//		to transform into real world measurement
-	// #3. Fix my descent optimisation.
 	// #4. Combine with QT, step 1: output calibration results to text panel.
 	// #5. Combine with QT, step 2: add a processor that does this (still working from txt file of pts).
 	// #6. Combine with QT, step 3: change the processor so that you click on patches in an image,

@@ -4,14 +4,14 @@
 Initial investigation:\\
 - "Straight lines ought to be straight" - \cite{straightlines} .\\
 - "Applying and removing lens distortion in post production" - \cite{postproduction} .\\
-- The IPOL_distort algorithm is based on \cite{algebraic-distortion} .\\\\
+- The IPOLdistort algorithm is based on \cite{algebraic-distortion} .\\\\
 Algorithm:\\
 1. We use opencv to automatically extract corners from a distorted chessboard image.\\
 2. We reconstruct segments that should be straight lines from these points, using a naive algorithm which relies on the fact that opencv finds corners in a set order; the algorithm only works if all the internal points are found.\\
 3. For optimal distortion removal, we use use multiple lines, both vertical and horizontal.\\
 4. The actual distortion removal consists of first modelling the distortion (by determining the radial distortion coefficients) and then correcting the image based on that model. This is done using an open-source ANSI C library which uses an optimizer to determine the undistorted coefficients by minimizing the error between the radial distortion model and the image data.\\
-5. Note that this usage of the algorithm only works within certain constraints: only on relatively 'clean' images of [distorted] chessboards (due to opencv), and only on uncompressed .tif images (due to the library we refer to as IPOL_distort).\\
-6. SEE THE IPOL_distort README FOR A GOOD EXPLANATION; it is based on \cite{algebraic-distortion}.\\\\
+5. Note that this usage of the algorithm only works within certain constraints: only on relatively 'clean' images of [distorted] chessboards (due to opencv), and only on uncompressed .tif images (due to the library we refer to as IPOLdistort).\\
+6. SEE THE IPOLdistort README FOR A GOOD EXPLANATION; it is based on \cite{algebraic-distortion}.\\\\
 Other useful references\\
 \begin{verbatim}
 http://dl.acm.org/citation.cfm?id=1924387

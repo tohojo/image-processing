@@ -10,9 +10,8 @@
 int main(int argc, char *argv[])
 {
 	CamCalibrator cc(argc, argv);
-	cc.getPtsFromSegmentedImage();	// Stage 1: get image coordinates of calibration points
-	cc.matchPtsToCalibrationPts();	// Stage 2: match image calibration points to measured points
-	cc.calibrate();					// Stage 3: do the camera calibration
-	cc.checkResults();				// Stage 4: back-project rays using the calculated information
+									// Stage 1: get image coordinates of calibration points
+	cc.mapPtsToCalibrationPts();	// Stage 2: match image calibration points to measured points
+	cc.calibrate();					// Stage 3: do the camera calibration and check results
 	return 0;
 }

@@ -7,6 +7,12 @@
 
 using namespace cv;
 
+struct point_correspondence {
+	Point2f imagePt;
+	Point2f imagePt_adj;
+	Point3f worldPt;
+};
+
 // Class containing the algorithm that actually does the calibration work
 class CamCalibrator
 {
@@ -16,17 +22,17 @@ public:
 	~CamCalibrator();
 	void lineSort(Point2d line1, Point2d line2, Point2d * leftOrRightArray, int arrayLength);
 	static double pointLineDistance(Point2d p, Point2d lineEnd1, Point2d lineEnd2);
-	void getPtsFromSegmentedImage();
-	void matchPtsToCalibrationPts();
+	void mapPtsToCalibrationPts();
 	void calibrate();
 	void checkResults();
 	Mat computeLeastSquaresForKappa(double kappa);
 	double imageLengthX;
 	double imageLengthY;
 
-private:
+protected:
 	// X/Y/Z values of actual calibration points in world coordinate system
-	CalibrationObject* obj;
+	VirtualCalibrationObject* obj;
+	vector<point_correspondence> mapping;
 	Mat mat_M;
 	Mat mat_X;
 	Mat mat_L;
@@ -35,11 +41,11 @@ private:
 	Mat mat_M2;
 	Mat mat_U;
 	Point2d* calPtsInImg; //x,y for each calibration point (63 of them)
+	Point3d* calPtsInWorld;
 	double sx;
 	double focalLength;
 	double kappa1;
 	double kappa2;
-
 };
 
 #endif // CALIBRATION_EXPERIMENTS_H
