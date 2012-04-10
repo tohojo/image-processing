@@ -28,6 +28,7 @@ public:
 private:
   void run();
   void loadPoints3d();
+  void findPOIs();
   bool parsePoint(QString line, Point3f *p);
   QFileInfo m_points3d_file;
   QList<Point3f> m_points3d;

@@ -60,14 +60,19 @@ void ImageGraphicsItem::clearPOIs()
   }
 }
 
-void ImageGraphicsItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+void ImageGraphicsItem::addPOI(QPoint p)
 {
-  QPoint p = event->pos().toPoint();
   qDebug("Adding POI at (%d,%d)", p.x(), p.y());
   emit newPOI(p);
 
   POIItem * poi = new POIItem(this);
   poi->setPos(p);
+}
+
+void ImageGraphicsItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+  QPoint p = event->pos().toPoint();
+  addPOI(p);
 }
 
 void ImageGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)

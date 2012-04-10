@@ -1,5 +1,7 @@
 #include "calibration_processor.h"
 #include "util.h"
+#include "fast_hessian.h"
+#include "threshold_segmenter.h"
 #include <QDebug>
 
 CalibrationProcessor::CalibrationProcessor(QObject *parent)
@@ -20,8 +22,8 @@ void CalibrationProcessor::run()
     mutex.unlock();
     if(!isEmpty) {
       emit progress(0);
-      qDebug()<< m_points3d_file.canonicalFilePath();
       loadPoints3d();
+      findPOIs();
       if(abort) return;
       if(!restart) {
         emit progress(100);
@@ -35,6 +37,33 @@ void CalibrationProcessor::run()
     restart = false;
     mutex.unlock();
   }
+}
+
+void CalibrationProcessor::findPOIs()
+{
+  mutex.lock();
+  Mat input = input_image;
+  ThresholdSegmenter seg(input_image, false);
+  seg.compute(true);
+  output_image = seg.output();
+  emit updated();
+  mutex.unlock();
+
+  FastHessian fh(input, 4, 4, 2, 500);
+  fh.compute();
+  QList<KeyPoint> kps = fh.interestPoints();
+  qDebug("Found %d keypoints", kps.size());
+
+  foreach(KeyPoint kp, kps) {
+    QPoint p(qRound(kp.pt.x), qRound(kp.pt.y));
+    bool exists = false;
+    foreach(Point pt, POIs) {
+      QPoint d = QPoint(pt.x, pt.y)-p;
+      if(d.manhattanLength() < 20) exists = true;
+    }
+    if(!exists) emit newPOI(p);
+  }
+
 }
 
 void CalibrationProcessor::loadPoints3d()
@@ -62,6 +91,7 @@ void CalibrationProcessor::loadPoints3d()
   mutex.lock();
   m_points3d = points;
   mutex.unlock();
+  qDebug("Loaded %d 3D points", points.size());
 }
 
 bool CalibrationProcessor::parsePoint(QString line, Point3f *p)

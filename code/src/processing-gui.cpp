@@ -219,6 +219,7 @@ void ProcessingGUI::set_processor(Processor *proc)
 {
   if(current_processor != NULL) {
     current_processor->disconnect(this);
+    current_processor->disconnect(current_image);
     this->disconnect(current_processor);
     current_processor->cancel();
   }
@@ -229,6 +230,7 @@ void ProcessingGUI::set_processor(Processor *proc)
   connect(current_processor, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)));
   connect(current_processor, SIGNAL(progress(int)), this, SLOT(setProgress(int)));
   connect(current_processor, SIGNAL(newMessage(QString)), SLOT(newMessage(QString)));
+  connect(current_processor, SIGNAL(newPOI(QPoint)), current_image, SLOT(addPOI(QPoint)));
   if(m_batch) {
     current_processor->set_input(input_image);
 	current_processor->set_input_name(filename);
