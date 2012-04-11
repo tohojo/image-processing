@@ -17,7 +17,7 @@ using namespace cv;
 
 float dist(Point a, Point b)
 {
-  return sqrt(pow(a.x+b.x,2)+pow(a.y+b.y,2));
+  return sqrt(pow(a.x-b.x,2)+pow(a.y-b.y,2));
 }
 
 int main(int argc, char** argv)
@@ -53,26 +53,30 @@ int main(int argc, char** argv)
 
   float threshold = 1;
   float step = 5;
-  float max = 600;
-  float dist_fuzz = 20;
+  float max = 200;
+  float dist_fuzz = 15;
   list<KeyPoint> kpts;
 
-  int matches;
+  int matches, not_matched;
 
-  cout << "threshold,matches,false-neg,false-pos" << endl;
+  cout << "threshold,matches,not-matched,false-pos" << endl;
 
 
   for(;threshold <= max; threshold += step) {
     matches = 0;
+    not_matched = 0;
     FastHessian fh(img, 4, 4, 2, threshold);
     fh.compute();
     kpts = fh.interestPoints().toStdList();
-    for(list<KeyPoint>::iterator i = kpts.begin(); i != kpts.end(); ++i) {
-      for(list<Point>::iterator j = points.begin(); j != points.end(); ++j) {
-        if(dist(i->pt, *j) <= dist_fuzz) matches++;
+    for(list<Point>::iterator j = points.begin(); j != points.end(); ++j) {
+      bool nomatch = true;
+      for(list<KeyPoint>::iterator i = kpts.begin(); i != kpts.end(); ++i) {
+        //cout << "Keypoint: (" << i->pt.x << "," << i->pt.y << ") Point: (" << j->x << "," << j->y << ") Dist: " << dist(i->pt, *j) << endl;
+        if(dist(i->pt, *j) <= dist_fuzz) { matches++; nomatch = false; }
       }
+      if(nomatch) not_matched++;
     }
-    cout << threshold << "," << matches << "," << points.size()-matches << "," << kpts.size()-matches << endl;
+    cout << threshold << "," << matches << "," << not_matched << "," << kpts.size()-matches << endl;
   }
 
 }
