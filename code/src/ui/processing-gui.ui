@@ -144,6 +144,7 @@
     </property>
     <addaction name="action_Clear_POIs"/>
     <addaction name="actionSavePOIs"/>
+    <addaction name="actionLoadPOIs"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menu_View"/>
@@ -334,6 +335,11 @@
   <action name="actionSavePOIs">
    <property name="text">
     <string>&amp;Save POIs</string>
+   </property>
+  </action>
+  <action name="actionLoadPOIs">
+   <property name="text">
+    <string>&amp;Load POIs</string>
    </property>
   </action>
  </widget>

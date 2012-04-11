@@ -73,6 +73,7 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   connect(action_open_image, SIGNAL(activated()), this, SLOT(open_image()));
   connect(actionSaveOutput, SIGNAL(activated()), this, SLOT(save_output()));
   connect(actionSavePOIs, SIGNAL(activated()), this, SLOT(save_POIs()));
+  connect(actionLoadPOIs, SIGNAL(activated()), this, SLOT(load_POIs()));
 
   readSettings();
 
@@ -275,6 +276,37 @@ void ProcessingGUI::save_POIs()
   }
 }
 
+void ProcessingGUI::load_POIs()
+{
+  if(current_processor->get_output().empty()) {
+    QMessageBox msgbox(QMessageBox::Critical, tr("No image loaded"),
+                       tr("Unable to load POIs: No processor output."),
+                       QMessageBox::Ok, this);
+    msgbox.exec();
+    return;
+  }
+
+  if(current_processor->poiCount() > 0) {
+    QMessageBox msgbox(QMessageBox::Question, tr("Replace existing POIs?"),
+                       tr("POIs already exist. Replace with loaded, or keep them (and load additional POIs from file)?"),
+                       QMessageBox::NoButton, this);
+    QPushButton* btn = msgbox.addButton("&Replace", QMessageBox::AcceptRole);
+    msgbox.setDefaultButton(btn);
+    msgbox.addButton("&Keep", QMessageBox::RejectRole);
+    msgbox.exec();
+    if(msgbox.clickedButton() == btn) {
+      current_image->clearPOIs();
+    }
+  }
+
+  QString filename = QFileDialog::getOpenFileName(this, tr("Select POI file"),
+                                                  open_directory,
+                                                  tr("Text files (*.txt)"));
+  if(!filename.isNull()) {
+    read_POIs(filename);
+  }
+}
+
 void ProcessingGUI::write_POIs(QString filename)
 {
   QFile file(filename);
@@ -298,68 +330,109 @@ void ProcessingGUI::write_POIs(QString filename)
   }
 }
 
-void ProcessingGUI::set_processor(Processor *proc)
+void ProcessingGUI::read_POIs(QString filename)
 {
-  if(current_processor != NULL) {
-    current_processor->disconnect(this);
-    current_processor->disconnect(current_image);
-    this->disconnect(current_processor);
-    current_processor->cancel();
+  QFile file(filename);
+  if(!file.open(QIODevice::ReadOnly)) {
+    if(m_batch) {
+      qFatal("Unable to read POIs from '%s': %s.",
+             filename.toLocal8Bit().data(), file.errorString().toLocal8Bit().data());
+      return;
+    }
+    QMessageBox msgbox(QMessageBox::Critical, tr("Unable to load POIs"),
+                       tr("The POIs could not be read from '%1':\n%2.").arg(filename).arg(file.errorString()),
+                       QMessageBox::Ok, this);
+    msgbox.exec();
+  } else {
+    QTextStream stream(&file);
+    int x,y;
+    bool x_ok, y_ok;
+    QRegExp r("[,\\s]+");
+    int c = 0;
+    int height = current_processor->get_output().rows;
+    int width = current_processor->get_output().cols;
+    QList<Point> POIs = current_processor->getPOIs();
+    while(!stream.atEnd()) {
+      QString line = stream.readLine();
+      x = line.section(r, 0, 0).toInt(&x_ok);
+      y = line.section(r, 1, 1).toInt(&y_ok);
+      if(x_ok && y_ok) {
+        if(POIs.contains(Point(x,y))) {
+          qDebug("POI already exists: (%d,%d)", x, y);
+        } else if(x > width-1 || y > height-1) {
+          qDebug("POI out of bounds: (%d,%d)", x, y);
+        } else {
+          current_image->addPOI(QPoint(x,y));
+          c++;
+        }
+      }
+    }
+    qDebug() << "Loaded" << c << "POIs from file:" << filename;
   }
+}
 
-  current_processor = proc;
-  connect(this, SIGNAL(image_changed()), current_processor, SLOT(process()));
-  connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));
-  connect(current_processor, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)));
-  connect(current_processor, SIGNAL(progress(int)), this, SLOT(setProgress(int)));
-  connect(current_processor, SIGNAL(newMessage(QString)), SLOT(newMessage(QString)));
-  connect(current_processor, SIGNAL(newPOI(QPoint)), current_image, SLOT(addPOI(QPoint)));
-  connect(current_processor, SIGNAL(clearPOIs()), current_image, SLOT(clearPOIs()));
-  if(m_batch) {
+  void ProcessingGUI::set_processor(Processor *proc)
+  {
+    if(current_processor != NULL) {
+      current_processor->disconnect(this);
+      current_processor->disconnect(current_image);
+      this->disconnect(current_processor);
+      current_processor->cancel();
+    }
+
+    current_processor = proc;
+    connect(this, SIGNAL(image_changed()), current_processor, SLOT(process()));
+    connect(current_processor, SIGNAL(updated()), this, SLOT(update_output()));
+    connect(current_processor, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)));
+    connect(current_processor, SIGNAL(progress(int)), this, SLOT(setProgress(int)));
+    connect(current_processor, SIGNAL(newMessage(QString)), SLOT(newMessage(QString)));
+    connect(current_processor, SIGNAL(newPOI(QPoint)), current_image, SLOT(addPOI(QPoint)));
+    connect(current_processor, SIGNAL(clearPOIs()), current_image, SLOT(clearPOIs()));
+    if(m_batch) {
+      current_processor->set_input(input_image);
+      current_processor->set_input_name(input_filename);
+      current_processor->run_once();
+      return;
+    }
+    m_properties->clear();
+    m_properties->addObject(current_processor);
+
     current_processor->set_input(input_image);
     current_processor->set_input_name(input_filename);
-    current_processor->run_once();
-    return;
-  }
-  m_properties->clear();
-  m_properties->addObject(current_processor);
-
-  current_processor->set_input(input_image);
-  current_processor->set_input_name(input_filename);
-  current_processor->process();
-}
-
-void ProcessingGUI::new_processor(const QModelIndex & current)
-{
-  int row = current.row();
-  set_processor(processor_model->get_processor(row));
-}
-
-void ProcessingGUI::setProgress(int value)
-{
-  if(value < 100) {
-    m_inprogress = true;
-    processButton->setText(tr("Cancel processing"));
-  } else {
-    m_inprogress = false;
-    processButton->setText(tr("Re-process"));
-  }
-}
-
-void ProcessingGUI::process_button_clicked()
-{
-  if(m_inprogress) {
-    current_processor->cancel();
-    setProgress(100);
-    progressBar->setValue(100);
-  } else {
     current_processor->process();
   }
-}
 
-void ProcessingGUI::newMessage(QString msg)
-{
-  QString message = QString("%1: %2");
-  message = message.arg(QTime::currentTime().toString("hh:mm:ss.zzz"), msg);
-  textOutput->appendPlainText(message);
-}
+  void ProcessingGUI::new_processor(const QModelIndex & current)
+  {
+    int row = current.row();
+    set_processor(processor_model->get_processor(row));
+  }
+
+  void ProcessingGUI::setProgress(int value)
+  {
+    if(value < 100) {
+      m_inprogress = true;
+      processButton->setText(tr("Cancel processing"));
+    } else {
+      m_inprogress = false;
+      processButton->setText(tr("Re-process"));
+    }
+  }
+
+  void ProcessingGUI::process_button_clicked()
+  {
+    if(m_inprogress) {
+      current_processor->cancel();
+      setProgress(100);
+      progressBar->setValue(100);
+    } else {
+      current_processor->process();
+    }
+  }
+
+  void ProcessingGUI::newMessage(QString msg)
+  {
+    QString message = QString("%1: %2");
+    message = message.arg(QTime::currentTime().toString("hh:mm:ss.zzz"), msg);
+    textOutput->appendPlainText(message);
+  }
