@@ -33,9 +33,15 @@ int main(int argc, char** argv)
   list<Point> points;
 
   int in_x, in_y;
+  char sep;
   while(in) {
     if(getline(in, line)) {
-      stringstream(line) >> in_x >> in_y;
+      stringstream stream(line);
+      stream >> in_x >> ws;
+      sep = stream.peek();
+      if(sep == ',')
+        stream.get(sep);
+      stream >> ws >> in_y;
       points.push_back(Point(in_x, in_y));
     }
   }
@@ -48,7 +54,7 @@ int main(int argc, char** argv)
   float threshold = 1;
   float step = 5;
   float max = 600;
-  float dist_fuzz = 2;
+  float dist_fuzz = 20;
   list<KeyPoint> kpts;
 
   int matches;
