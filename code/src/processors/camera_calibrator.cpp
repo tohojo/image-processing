@@ -383,7 +383,7 @@ void CamCalibrator::mapPtsToCalibrationPts()
 void CamCalibrator::calibrate()
 {
 
-	std::ofstream outFile("o.txt", std::ios::out);
+	std::ofstream outFile("image_points.txt", std::ios::out);
 	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
 		outFile << i->imagePt.x << " "  << i->imagePt.y << "\n";
 	}
