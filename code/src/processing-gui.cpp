@@ -224,14 +224,6 @@ void ProcessingGUI::save_output()
                                           open_directory,
                                           tr("Images (*.png *.jpg *.jpeg *.tif)"));
   if(!filename.isNull()) {
-    QFileInfo info(filename);
-    if(info.isDir()) {
-      QMessageBox msgbox(QMessageBox::Critical, tr("Unable to save image"),
-                         tr("The output '%1' is a directory.").arg(filename),
-                         QMessageBox::Ok, this);
-      msgbox.exec();
-      return;
-    }
     save_image(filename);
   }
 }
@@ -241,13 +233,21 @@ void ProcessingGUI::save_image(QString filename)
   QImage img = Util::mat_to_qimage(current_processor->get_output());
   QFileInfo info(filename);
 
-  if(info.isDir()) {
+  QImageWriter writer(filename);
+  if(!writer.write(img)) {
     if(m_batch) {
-      qFatal("Output file '%s' is a directory.", filename.toLocal8Bit().data());
+      qFatal("Unable to save output to '%s': %s.",
+             filename.toLocal8Bit().data(), writer.errorString().toLocal8Bit().data());
       return;
     }
     QMessageBox msgbox(QMessageBox::Critical, tr("Unable to save image"),
-                       tr("The output file '%1' is a directory.").arg(filename),
+                       tr("The output image could not be saved to '%1':\n%2.").arg(filename).arg(writer.errorString()),
+                       QMessageBox::Ok, this);
+    msgbox.exec();
+  } else{
+    qDebug() << "Output image saved to:" << filename;
+  }
+}
                        QMessageBox::Ok, this);
     msgbox.exec();
   } else {
