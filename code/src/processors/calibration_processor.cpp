@@ -169,13 +169,15 @@ void CalibrationProcessor::deletePOI(QPoint p)
   if(m_stage == STAGE_2) {
     mutex.lock();
     int j = 0;
+	bool deleted = false;
     for(QVector<point_correspondence>::iterator i = m_corr.begin();
-        i != m_corr.end(); ++i) {
+        i != m_corr.end() && deleted == false; i++) {
       j++;
       if(i->imagePt.x == p.x() && i->imagePt.y == p.y()) {
         qDebug("%d: Removing point correspondence: (%d,%d) -> (%f,%f,%f)", j, p.x(), p.y(),
                i->worldPt.x, i->worldPt.y, i->worldPt.z);
         i = m_corr.erase(i);
+		deleted = true; // Otherwise it is impossible to delete the last point
       }
     }
     mutex.unlock();
