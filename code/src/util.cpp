@@ -55,7 +55,7 @@ namespace Util {
 
   Mat load_image(QString filename)
   {
-    QByteArray bytes = filename.toUtf8();
+    QByteArray bytes = filename.toLocal8Bit();
     qDebug("Loading file: %s", bytes.constData());
     return imread(bytes.constData(), 0);
   }
