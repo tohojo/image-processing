@@ -708,6 +708,7 @@ void CamCalibrator::checkResults(){
 	cout << " === mean y pixel error: " << y_error_nil/mapping.size() << "\n";
 	cout << "\nNUMBER OF POINTS BEING CONSIDERED: " << mapping.size() << "\n";
 
+
 	cout << "\nFinding mean squared error by back-projecting rays to calibration points.\n";
 	Mat rotate = Mat(4, 4, CV_64F, Scalar::all(0));
 	for (int i = 0; i < 3; i++){
@@ -724,10 +725,6 @@ void CamCalibrator::checkResults(){
 	translate.at<double>(1,3) = mat_T.at<double>(1,0);
 	translate.at<double>(2,3) = mat_T.at<double>(2,0);
 
-	double camToOrigin = sqrt( mat_T.at<double>(0,0)*mat_T.at<double>(0,0)
-		+ mat_T.at<double>(1,0)*mat_T.at<double>(1,0)
-		+ mat_T.at<double>(2,0)*mat_T.at<double>(2,0) );
-	cout << "Distance from camera to origin: " << camToOrigin << "\n";
 	Mat rotate_inv = rotate.t();
 	Mat translate_inv = Mat(4, 4, CV_64F, Scalar::all(0));
 	for (int i = 0; i < 4; i++){
@@ -768,9 +765,28 @@ void CamCalibrator::checkResults(){
 		i_real.at<double>(2,0) = translate_inv.at<double>(2,3);
 		i_real = rotate_inv * i_real;
 		i_factorZ = rotate_inv * i_factorZ;
-		double calc_x = i_factorZ.at<double>(0,0)*camToOrigin + i_real.at<double>(0,0);
-		double calc_y = i_factorZ.at<double>(1,0)*camToOrigin + i_real.at<double>(1,0);
-		double calc_z = i_factorZ.at<double>(2,0)*camToOrigin + i_real.at<double>(2,0);
+		double calc_x;
+		double calc_y;
+		double calc_z;
+		if (ideal.x == 0) { // Solve for x = 0
+			calc_x = 0;
+			double solvedValue = -1.0 * i_real.at<double>(0,0) / i_factorZ.at<double>(0,0); 
+			calc_y = i_factorZ.at<double>(1,0)*solvedValue + i_real.at<double>(1,0);
+			calc_z = i_factorZ.at<double>(2,0)*solvedValue + i_real.at<double>(2,0);
+		} else if (ideal.y == 0) { // Solve for y = 0
+			calc_y = 0;
+			double solvedValue = -1.0 * i_real.at<double>(1,0) / i_factorZ.at<double>(1,0); 
+			calc_x = i_factorZ.at<double>(0,0)*solvedValue + i_real.at<double>(0,0);
+			calc_z = i_factorZ.at<double>(2,0)*solvedValue + i_real.at<double>(2,0);
+		} else {
+			double camToOrigin = sqrt( mat_T.at<double>(0,0)*mat_T.at<double>(0,0)
+				+ mat_T.at<double>(1,0)*mat_T.at<double>(1,0)
+				+ mat_T.at<double>(2,0)*mat_T.at<double>(2,0) );
+			cout << "Distance from camera to origin: " << camToOrigin << "\n";
+			calc_x = i_factorZ.at<double>(0,0)*camToOrigin + i_real.at<double>(0,0);
+			calc_y = i_factorZ.at<double>(1,0)*camToOrigin + i_real.at<double>(1,0);
+			calc_z = i_factorZ.at<double>(2,0)*camToOrigin + i_real.at<double>(2,0);
+		}
 		//		cout << "================\n";
 		//		cout << "Xw: " << ideal.x << "  Yw: " << ideal.y << "  Zw: " << ideal.z << "\n";
 		//		cout << "X = " << calc_x << "  Y = " << calc_y << "  Z = " << calc_z << "\n";
