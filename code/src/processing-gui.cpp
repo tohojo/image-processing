@@ -1,6 +1,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
 #include <QtGui/QImage>
+#include <QtGui/QImageWriter>
 #include <QtGui/QPixmap>
 #include <QtGui/QGraphicsPixmapItem>
 #include <QtGui/QBitmap>
@@ -54,8 +55,6 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   // Start out by selection first index.
   processor_selection->setCurrentIndex(processor_model->index(0), QItemSelectionModel::SelectCurrent);
 
-  connect(action_open_image, SIGNAL(activated()), this, SLOT(open_image()));
-
   connect(output_zoom, SIGNAL(valueChanged(int)), this, SLOT(zoom_output(int)));
   connect(output_view, SIGNAL(zoomUpdated(int)),
           output_zoom, SLOT(setValue(int)));
@@ -70,6 +69,9 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   connect(propertiesDock, SIGNAL(closed(bool)),
           action_Properties, SLOT(setChecked(bool)));
 
+  // Saving and loading images & POIs
+  connect(action_open_image, SIGNAL(activated()), this, SLOT(open_image()));
+  connect(actionSaveOutput, SIGNAL(activated()), this, SLOT(save_output()));
   readSettings();
 
 }
@@ -216,6 +218,55 @@ void ProcessingGUI::load_image(QString filename)
   output_view->setTransform(transform);
 }
 
+void ProcessingGUI::save_output()
+{
+  filename = QFileDialog::getSaveFileName(this, tr("Select file name"),
+                                          open_directory,
+                                          tr("Images (*.png *.jpg *.jpeg *.tif)"));
+  if(!filename.isNull()) {
+    QFileInfo info(filename);
+    if(info.isDir()) {
+      QMessageBox msgbox(QMessageBox::Critical, tr("Unable to save image"),
+                         tr("The output '%1' is a directory.").arg(filename),
+                         QMessageBox::Ok, this);
+      msgbox.exec();
+      return;
+    }
+    save_image(filename);
+  }
+}
+
+void ProcessingGUI::save_image(QString filename)
+{
+  QImage img = Util::mat_to_qimage(current_processor->get_output());
+  QFileInfo info(filename);
+
+  if(info.isDir()) {
+    if(m_batch) {
+      qFatal("Output file '%s' is a directory.", filename.toLocal8Bit().data());
+      return;
+    }
+    QMessageBox msgbox(QMessageBox::Critical, tr("Unable to save image"),
+                       tr("The output file '%1' is a directory.").arg(filename),
+                       QMessageBox::Ok, this);
+    msgbox.exec();
+  } else {
+    QImageWriter writer(filename);
+    if(!writer.write(img)) {
+        if(m_batch) {
+        qFatal("Unable to save output to '%s': %s.",
+               filename.toLocal8Bit().data(), writer.errorString().toLocal8Bit().data());
+        return;
+      }
+      QMessageBox msgbox(QMessageBox::Critical, tr("Unable to save image"),
+                         tr("The output image could not be saved to '%1':\n%2.").arg(filename).arg(writer.errorString()),
+                         QMessageBox::Ok, this);
+      msgbox.exec();
+    } else{
+      qDebug() << "Output image saved to:" << filename;
+    }
+  }
+}
 void ProcessingGUI::set_processor(Processor *proc)
 {
   if(current_processor != NULL) {
