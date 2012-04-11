@@ -27,6 +27,7 @@ public:
 
   virtual QString name() {return "Processor";}
   int poiCount() {QMutexLocker l(&mutex); return POIs.size();}
+  QList<Point> getPOIs() { QMutexLocker l(&mutex); return POIs; }
 
 public slots:
   void process();

@@ -115,7 +115,7 @@
      <x>0</x>
      <y>0</y>
      <width>1000</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -143,6 +143,7 @@
      <string>&amp;POIs</string>
     </property>
     <addaction name="action_Clear_POIs"/>
+    <addaction name="actionSavePOIs"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menu_View"/>
@@ -187,7 +188,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="input_filename">
+      <widget class="QLabel" name="input_label">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -325,6 +326,11 @@
   <action name="actionSaveOutput">
    <property name="text">
     <string>&amp;Save output</string>
+   </property>
+  </action>
+  <action name="actionSavePOIs">
+   <property name="text">
+    <string>&amp;Save POIs</string>
    </property>
   </action>
  </widget>
