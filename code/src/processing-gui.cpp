@@ -222,6 +222,13 @@ void ProcessingGUI::load_image(QString filename)
 
 void ProcessingGUI::save_output()
 {
+  if(current_processor->get_output().empty()) {
+    QMessageBox msgbox(QMessageBox::Critical, tr("No output to save"),
+                       tr("Currently no processor output, so nothing so save."),
+                       QMessageBox::Ok, this);
+    msgbox.exec();
+    return;
+  }
   QString filename = QFileDialog::getSaveFileName(this, tr("Select file name"),
                                           open_directory,
                                           tr("Images (*.png *.jpg *.jpeg *.tif)"));
@@ -253,6 +260,13 @@ void ProcessingGUI::save_image(QString filename)
 
 void ProcessingGUI::save_POIs()
 {
+  if(current_processor->poiCount() == 0) {
+    QMessageBox msgbox(QMessageBox::Critical, tr("No POIs to save"),
+                       tr("No POIs selected, so nothing so save."),
+                       QMessageBox::Ok, this);
+    msgbox.exec();
+    return;
+  }
   QString filename = QFileDialog::getSaveFileName(this, tr("Select file name"),
                                                QString("%1/%2.txt").arg(open_directory).arg(QFileInfo(input_filename).baseName()),
                                                tr("Text files (*.txt)"));
