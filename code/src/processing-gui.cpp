@@ -1,6 +1,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
 #include <QtGui/QImage>
+#include <QtGui/QImageWriter>
 #include <QtGui/QPixmap>
 #include <QtGui/QGraphicsPixmapItem>
 #include <QtGui/QBitmap>
@@ -54,8 +55,6 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
   // Start out by selection first index.
   processor_selection->setCurrentIndex(processor_model->index(0), QItemSelectionModel::SelectCurrent);
 
-  connect(action_open_image, SIGNAL(activated()), this, SLOT(open_image()));
-
   connect(output_zoom, SIGNAL(valueChanged(int)), this, SLOT(zoom_output(int)));
   connect(output_view, SIGNAL(zoomUpdated(int)),
           output_zoom, SLOT(setValue(int)));
@@ -69,6 +68,11 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
           actionProcessors, SLOT(setChecked(bool)));
   connect(propertiesDock, SIGNAL(closed(bool)),
           action_Properties, SLOT(setChecked(bool)));
+
+  // Saving and loading images & POIs
+  connect(action_open_image, SIGNAL(activated()), this, SLOT(open_image()));
+  connect(actionSaveOutput, SIGNAL(activated()), this, SLOT(save_output()));
+  connect(actionSavePOIs, SIGNAL(activated()), this, SLOT(save_POIs()));
 
   readSettings();
 
@@ -169,11 +173,11 @@ void ProcessingGUI::update_output()
 
 void ProcessingGUI::open_image()
 {
-  filename = QFileDialog::getOpenFileName(this, tr("Select image"),
+  input_filename = QFileDialog::getOpenFileName(this, tr("Select image"),
                                                   open_directory,
                                                   tr("Images (*.png *.jpg *.jpeg *.tif)"));
-  if(!filename.isNull()) {
-    load_image(filename);
+  if(!input_filename.isNull()) {
+    load_image(input_filename);
   }
 }
 
@@ -201,7 +205,7 @@ void ProcessingGUI::load_image(QString filename)
   current_processor->set_input_name(filename);
   QImage qImg = Util::mat_to_qimage(input_image);
   input_view->setImage(qImg);
-  input_filename->setText(fileinfo.fileName());
+  input_label->setText(QString("%1 - %2x%3px").arg(fileinfo.fileName()).arg(qImg.width()).arg(qImg.height()));
   emit image_changed();
 
   // Scale the graphics view to leave 15 pixels of air on each side
@@ -214,6 +218,84 @@ void ProcessingGUI::load_image(QString filename)
   QTransform transform = QTransform::fromScale(scale, scale);
   output_view->centerOn(current_image);
   output_view->setTransform(transform);
+}
+
+void ProcessingGUI::save_output()
+{
+  if(current_processor->get_output().empty()) {
+    QMessageBox msgbox(QMessageBox::Critical, tr("No output to save"),
+                       tr("Currently no processor output, so nothing so save."),
+                       QMessageBox::Ok, this);
+    msgbox.exec();
+    return;
+  }
+  QString filename = QFileDialog::getSaveFileName(this, tr("Select file name"),
+                                          open_directory,
+                                          tr("Images (*.png *.jpg *.jpeg *.tif)"));
+  if(!filename.isNull()) {
+    save_image(filename);
+  }
+}
+
+void ProcessingGUI::save_image(QString filename)
+{
+  QImage img = Util::mat_to_qimage(current_processor->get_output());
+  QFileInfo info(filename);
+
+  QImageWriter writer(filename);
+  if(!writer.write(img)) {
+    if(m_batch) {
+      qFatal("Unable to save output to '%s': %s.",
+             filename.toLocal8Bit().data(), writer.errorString().toLocal8Bit().data());
+      return;
+    }
+    QMessageBox msgbox(QMessageBox::Critical, tr("Unable to save image"),
+                       tr("The output image could not be saved to '%1':\n%2.").arg(filename).arg(writer.errorString()),
+                       QMessageBox::Ok, this);
+    msgbox.exec();
+  } else{
+    qDebug() << "Output image saved to:" << filename;
+  }
+}
+
+void ProcessingGUI::save_POIs()
+{
+  if(current_processor->poiCount() == 0) {
+    QMessageBox msgbox(QMessageBox::Critical, tr("No POIs to save"),
+                       tr("No POIs selected, so nothing so save."),
+                       QMessageBox::Ok, this);
+    msgbox.exec();
+    return;
+  }
+  QString filename = QFileDialog::getSaveFileName(this, tr("Select file name"),
+                                               QString("%1/%2.txt").arg(open_directory).arg(QFileInfo(input_filename).baseName()),
+                                               tr("Text files (*.txt)"));
+  if(!filename.isNull()) {
+    write_POIs(filename);
+  }
+}
+
+void ProcessingGUI::write_POIs(QString filename)
+{
+  QFile file(filename);
+  if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+    if(m_batch) {
+      qFatal("Unable to save POIs to '%s': %s.",
+             filename.toLocal8Bit().data(), file.errorString().toLocal8Bit().data());
+      return;
+    }
+    QMessageBox msgbox(QMessageBox::Critical, tr("Unable to save POIs"),
+                       tr("The POIs could not be saved to '%1':\n%2.").arg(filename).arg(file.errorString()),
+                       QMessageBox::Ok, this);
+    msgbox.exec();
+  } else {
+    QTextStream stream(&file);
+    QList<Point> POIs = current_processor->getPOIs();
+    foreach(Point p, POIs) {
+      stream << p.x << "," << p.y << "\n";
+    }
+    qDebug() << "POIs saved to file:" << filename;
+  }
 }
 
 void ProcessingGUI::set_processor(Processor *proc)
@@ -235,7 +317,7 @@ void ProcessingGUI::set_processor(Processor *proc)
   connect(current_processor, SIGNAL(clearPOIs()), current_image, SLOT(clearPOIs()));
   if(m_batch) {
     current_processor->set_input(input_image);
-	current_processor->set_input_name(filename);
+    current_processor->set_input_name(input_filename);
     current_processor->run_once();
     return;
   }
@@ -243,7 +325,7 @@ void ProcessingGUI::set_processor(Processor *proc)
   m_properties->addObject(current_processor);
 
   current_processor->set_input(input_image);
-  current_processor->set_input_name(filename);
+  current_processor->set_input_name(input_filename);
   current_processor->process();
 }
 

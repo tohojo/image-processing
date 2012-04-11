@@ -68,9 +68,10 @@ void GraphicsView::setTransform(const QTransform & matrix, bool combine)
 void GraphicsView::drawForeground(QPainter *painter, const QRectF &/*rect*/)
 {
   int height = 30;
-  int textSize = 14; // Height of text bounding box, in pixels
+  int textSize = 16; // Height of text bounding box, in pixels
   QBrush bg = QBrush(QColor::fromRgb(0, 0, 0, 200));
   QPen text = QPen(QColor::fromRgb(220,220,0));
+  QFont font("Sans", 10);
   QString string("Drag to move. Scroll to zoom. Double click to add a POI. Right click on a POI to remove it.");
 
 
@@ -93,7 +94,9 @@ void GraphicsView::drawForeground(QPainter *painter, const QRectF &/*rect*/)
   painter->drawPolygon(rect);
 
   painter->setPen(text);
-  QRectF textPos(QPoint(10,(height-textSize)/2),
-                 QSize(vp.width(), textSize));
+  painter->setFont(font);
+  int ypos = (height-textSize)/2;
+  QRectF textPos(QPoint(10,ypos),
+                 QSize(vp.width(), height-ypos));
   painter->drawText(textPos, Qt::AlignLeft, string);
 }

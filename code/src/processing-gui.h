@@ -34,7 +34,7 @@ private:
   ProcessorModel *processor_model;
   QItemSelectionModel *processor_selection;
   ImageGraphicsItem *current_image;
-  QString filename;
+  QString input_filename;
   void readSettings();
   void closeEvent(QCloseEvent *event);
 
@@ -46,7 +46,11 @@ public slots:
 private slots:
   void zoom_output(int value);
   void open_image();
+  void save_output();
+  void save_POIs();
   void load_image(QString filename);
+  void save_image(QString filename);
+  void write_POIs(QString filename);
   void update_output();
   void new_processor(const QModelIndex & current);
   void setProgress(int value);
