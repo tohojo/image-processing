@@ -201,7 +201,7 @@ void ProcessingGUI::load_image(QString filename)
   current_processor->set_input_name(filename);
   QImage qImg = Util::mat_to_qimage(input_image);
   input_view->setImage(qImg);
-  input_filename->setText(fileinfo.fileName());
+  input_filename->setText(QString("%1 - %2x%3px").arg(fileinfo.fileName()).arg(qImg.width()).arg(qImg.height()));
   emit image_changed();
 
   // Scale the graphics view to leave 15 pixels of air on each side
