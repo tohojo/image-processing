@@ -1,0 +1,590 @@
+*********************LENS DISTORTION MODEL: OUTPUT FILE*********************
+
+****************************************************************************
+******************CALCULATED USING NORMALIZED COORDINATES*******************
+**************************SOLUTION IN PIXELS********************************
+****************************************************************************
+
+
+TRIVIAL SOLUTION
+Emin =	2.359222369405638e+007 	with Na=4
+Vmin =	1.463074488171576e+002 	with Na=4
+D =	1.424435714799645e+002 	with Na=4
+
+Distortion parameters:
+a[0] = 1.000000000000000e+000
+a[1] = 0.000000000000000e+000
+a[2] = 0.000000000000000e+000
+a[3] = 0.000000000000000e+000
+a[4] = 0.000000000000000e+000
+
+CPU_time=0.000000 (seconds) 
+*************************************************************************
+
+
+
+*************************************************************************
+***********************ALGEBRAIC METHOD: WITHOUT ZOOM********************
+*************************************************************************
+Na (degree of  lens distortion model polynom) = 2
+1 parameter, 1 iteration, variables updated: 2
+
+Emin =	6.050693533021698e+003 with Na=2. Improvement = 	99.974353
+Vmin =	1.134387115645487e-001 with Na=2. Improvement = 	99.922466
+D =	9.973857571129326e-002 with Na=2. Improvement = 	99.929980
+
+Distortion parameters:
+a[0] = 1.000000000000000e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.430857737046358e-007
+
+CPU_time=0.000000 (seconds)
+------------------------------
+
+Na (degree of  lens distortion model polynom)= 4
+1 parameter, 2 iterations, variables updated: 2, 4
+
+Emin =	6.076632490574201e+003 with Na=4. Improvement = 	99.974243
+Vmin =	1.149429810949899e-001 with Na=4. Improvement = 	99.921437
+D =	1.011182081020579e-001 with Na=4. Improvement = 	99.929012
+
+Distortion parameters:
+a[0] = 1.000000000000000e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.430857737046358e-007
+a[3] = 0.000000000000000e+000
+a[4] = 5.561125153458620e-017
+
+CPU_time=0.000000 (seconds)
+------------------------------
+
+Na (degree of  lens distortion model polynom) = 4
+2 parameters, 1 iteration, variables updated: 2, 4
+
+Emin =	5.844177586800367e+003 with Na=4. Improvement = 	99.975228
+Vmin =	1.137399082067771e-001 with Na=4. Improvement = 	99.922260
+D =	1.012394267942706e-001 with Na=4. Improvement = 	99.928927
+
+
+Distortion parameters:
+a[0] = 1.000000000000000e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.461312471016874e-007
+a[3] = 0.000000000000000e+000
+a[4] = 1.534932703309508e-015
+
+CPU_time=0.000000 (seconds)
+*************************************************************************
+
+
+
+*************************************************************************
+***********************ALGEBRAIC METHOD: WITH ZOOM***********************
+*************************************************************************
+Na (degree of  lens distortion model polynom) = 2
+1 parameter, 1 iteration, variables updated: 2
+
+Emin =	8.117926743908708e+003 with Na=2. Improvement = 	99.965591
+Vmin =	1.313957356828631e-001 with Na=2. Improvement = 	99.910192
+D =	1.155269074448950e-001 with Na=2. Improvement = 	99.918896
+
+Distortion parameters:
+a[0] = 1.076242140282665e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.539949393358783e-007
+
+CPU_time=0.000000 (seconds)
+------------------------------
+
+Na (degree of  lens distortion model polynom)= 4
+1 parameter, 2 iterations, variables updated: 2, 4
+
+Emin =	8.152049392312610e+003 with Na=4. Improvement = 	99.965446
+Vmin =	1.331325872571691e-001 with Na=4. Improvement = 	99.909005
+D =	1.171200584432894e-001 with Na=4. Improvement = 	99.917778
+
+Distortion parameters:
+a[0] = 1.076219750247488e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.539917356403718e-007
+a[3] = 0.000000000000000e+000
+a[4] = 5.984992723750259e-017
+
+CPU_time=0.000000 (seconds)
+------------------------------
+
+Na (degree of  lens distortion model polynom) = 4
+2 parameters, 1 iteration, variables updated: 2, 4
+
+Emin =	7.872805639129753e+003 with Na=4. Improvement = 	99.966630
+Vmin =	1.320127676623983e-001 with Na=4. Improvement = 	99.909770
+D =	1.175040242101376e-001 with Na=4. Improvement = 	99.917508
+
+
+Distortion parameters:
+a[0] = 1.077336890587534e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.574325833702106e-007
+a[3] = 0.000000000000000e+000
+a[4] = 1.653639625844584e-015
+
+CPU_time=0.016000 (seconds)
+*************************************************************************
+
+
+
+*************************************************************************
+***********************GRADIENT METHOD: WITHOUT ZOOM*********************
+*************************************************************************
+Na (degree of  lens distortion model polynom) = 2
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]
+
+Emin =	6.311113550434885e+003 with Na=2. Improvement = 	99.973249
+Vmin =	1.078829804768732e-001 with Na=2. Improvement = 	99.926263
+D =	9.525036798525022e-002 with Na=2. Improvement = 	99.933131
+
+
+Distortion parameters:
+a[0] = 1.000000000000000e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.438203083857856e-007
+
+Number ot gradient iterations= 2
+CPU_time = 0.000000 (seconds)
+f_evaluations = 50
+------------------------------
+
+Na (degree of  lens distortion model polynom) = 4
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]	k[4]
+
+Emin =	1.824183245765291e+005 with Na=4. Improvement = 	99.226786
+Vmin =	1.879624382977336e+000 with Na=4. Improvement = 	98.715291
+D =	1.761703966938549e+000 with Na=4. Improvement = 	98.763227
+
+
+Distortion parameters:
+a[0] = 1.000000000000000e+000
+a[1] = 0.000000000000000e+000
+a[2] = -7.651473276007095e-008
+a[3] = 0.000000000000000e+000
+a[4] = -3.222717927461719e-014
+
+Number ot gradient iterations= 50
+CPU_time = 0.078000 (seconds)
+f_evaluations = 1162
+*************************************************************************
+
+*************************************************************************
+***********************GRADIENT METHOD: WITH ZOOM************************
+*************************************************************************
+Na (degree of  lens distortion model polynom) = 2
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]
+
+Emin =	8.480323522987568e+003 with Na=2. Improvement = 	99.964055
+Vmin =	1.250564653777678e-001 with Na=2. Improvement = 	99.914525
+D =	1.104129149337037e-001 with Na=2. Improvement = 	99.922487
+
+
+Distortion parameters:
+a[0] = 1.076655111727592e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.548448701937946e-007
+
+Number ot gradient iterations= 2
+CPU_time = 0.000000 (seconds)
+f_evaluations = 50
+------------------------------
+
+Na (degree of  lens distortion model polynom) = 4
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]	k[4]
+
+Emin =	2.236586586245807e+005 with Na=4. Improvement = 	99.051981
+Vmin =	2.081276098627058e+000 with Na=4. Improvement = 	98.577464
+D =	1.950704828289364e+000 with Na=4. Improvement = 	98.630542
+
+
+Distortion parameters:
+a[0] = 1.052275147297244e+000
+a[1] = 0.000000000000000e+000
+a[2] = -8.051455168551290e-008
+a[3] = 0.000000000000000e+000
+a[4] = -3.391185981817248e-014
+
+Number ot gradient iterations= 50
+CPU_time = 0.078000 (seconds)
+f_evaluations = 1162
+*************************************************************************
+
+*************************************************************************
+************ALGEBRAIC METHOD + GRADIENT: WITHOUT ZOOM********************
+*************************************************************************
+Na (degree of  lens distortion model polynom) = 2
+1 parameter, 1 iteration, variables updated: 2
+
+Emin =	6.050693533021698e+003 with Na=2. Improvement = 	99.974353
+Vmin =	1.134387115645487e-001 with Na=2. Improvement = 	99.922466
+D =	9.973857571129326e-002 with Na=2. Improvement = 	99.929980
+
+
+Distortion parameters:
+a[0] = 1.000000000000000e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.430857737046358e-007
+
+CPU_time=0.000000 (seconds)
+*
+*******ALGEBRAIC METHOD FINISHED. START GRADIENT OPTIMIZATION************
+*************************************************************************
+
+*************************************************************************
+***********************GRADIENT METHOD: WITHOUT ZOOM*********************
+*************************************************************************
+Na (degree of  lens distortion model polynom) = 2
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]
+
+Emin =	6.311113550434885e+003 with Na=2. Improvement = 	99.973249
+Vmin =	1.078829804768732e-001 with Na=2. Improvement = 	99.926263
+D =	9.525036798525022e-002 with Na=2. Improvement = 	99.933131
+
+
+Distortion parameters:
+a[0] = 1.000000000000000e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.438203083857856e-007
+
+Number ot gradient iterations= 2
+CPU_time = 0.000000 (seconds)
+f_evaluations = 50
+------------------------------
+
+Na (degree of  lens distortion model polynom) = 4
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]	k[4]
+
+Emin =	1.824183245765291e+005 with Na=4. Improvement = 	99.226786
+Vmin =	1.879624382977336e+000 with Na=4. Improvement = 	98.715291
+D =	1.761703966938549e+000 with Na=4. Improvement = 	98.763227
+
+
+Distortion parameters:
+a[0] = 1.000000000000000e+000
+a[1] = 0.000000000000000e+000
+a[2] = -7.651473276007095e-008
+a[3] = 0.000000000000000e+000
+a[4] = -3.222717927461719e-014
+
+Number ot gradient iterations= 50
+CPU_time = 0.094000 (seconds)
+f_evaluations = 1162
+*************************************************************************
+
+
+Na (degree of  lens distortion model polynom)= 4
+1 parameter, 2 iterations, variables updated: 2, 4
+
+Emin =	6.050693533021698e+003 with Na=2. Improvement = 	99.974353
+Vmin =	1.134387115645487e-001 with Na=2. Improvement = 	99.922466
+D =	9.973857571129326e-002 with Na=2. Improvement = 	99.929980
+
+
+Distortion parameters:
+a[0] = 1.000000000000000e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.430857737046358e-007
+
+CPU_time=0.000000 (seconds)
+*************************************************************************
+
+*******ALGEBRAIC METHOD FINISHED. START GRADIENT OPTIMIZATION************
+
+*************************************************************************
+
+*************************************************************************
+***********************GRADIENT METHOD: WITHOUT ZOOM*********************
+*************************************************************************
+Na (degree of  lens distortion model polynom) = 2
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]
+
+Emin =	6.311113550434885e+003 with Na=2. Improvement = 	99.973249
+Vmin =	1.078829804768732e-001 with Na=2. Improvement = 	99.926263
+D =	9.525036798525022e-002 with Na=2. Improvement = 	99.933131
+
+
+Distortion parameters:
+a[0] = 1.000000000000000e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.438203083857856e-007
+
+Number ot gradient iterations= 2
+CPU_time = 0.000000 (seconds)
+f_evaluations = 50
+------------------------------
+
+Na (degree of  lens distortion model polynom) = 4
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]	k[4]
+
+Emin =	1.824183245765291e+005 with Na=4. Improvement = 	99.226786
+Vmin =	1.879624382977336e+000 with Na=4. Improvement = 	98.715291
+D =	1.761703966938549e+000 with Na=4. Improvement = 	98.763227
+
+
+Distortion parameters:
+a[0] = 1.000000000000000e+000
+a[1] = 0.000000000000000e+000
+a[2] = -7.651473276007095e-008
+a[3] = 0.000000000000000e+000
+a[4] = -3.222717927461719e-014
+
+Number ot gradient iterations= 50
+CPU_time = 0.093000 (seconds)
+f_evaluations = 1162
+*************************************************************************
+
+------------------------------
+
+Na (degree of  lens distortion model polynom) = 4
+2 parameters, 1 iteration, variables updated: 2, 4
+
+Emin =	1.346100853963082e+004 with Na=2. Improvement = 	99.942943
+Vmin =	1.501933577382381e-001 with Na=2. Improvement = 	99.897344
+D =	1.398927304143774e-001 with Na=2. Improvement = 	99.901791
+
+
+Distortion parameters:
+a[0] = 1.000000000000000e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.461312471016910e-007
+
+CPU_time=0.000000 (seconds)
+*************************************************************************
+
+*******ALGEBRAIC METHOD FINISHED. START GRADIENT OPTIMIZATION************
+
+*************************************************************************
+
+*************************************************************************
+***********************GRADIENT METHOD: WITHOUT ZOOM*********************
+*************************************************************************
+Na (degree of  lens distortion model polynom) = 2
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]
+
+Emin =	6.311113550434885e+003 with Na=2. Improvement = 	99.973249
+Vmin =	1.078829804768732e-001 with Na=2. Improvement = 	99.926263
+D =	9.525036798525022e-002 with Na=2. Improvement = 	99.933131
+
+
+Distortion parameters:
+a[0] = 1.000000000000000e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.438203083857856e-007
+
+Number ot gradient iterations= 2
+CPU_time = 0.000000 (seconds)
+f_evaluations = 50
+------------------------------
+
+Na (degree of  lens distortion model polynom) = 4
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]	k[4]
+
+Emin =	1.824183245765291e+005 with Na=4. Improvement = 	99.226786
+Vmin =	1.879624382977336e+000 with Na=4. Improvement = 	98.715291
+D =	1.761703966938549e+000 with Na=4. Improvement = 	98.763227
+
+
+Distortion parameters:
+a[0] = 1.000000000000000e+000
+a[1] = 0.000000000000000e+000
+a[2] = -7.651473276007095e-008
+a[3] = 0.000000000000000e+000
+a[4] = -3.222717927461719e-014
+
+Number ot gradient iterations= 50
+CPU_time = 0.094000 (seconds)
+f_evaluations = 1162
+*************************************************************************
+
+*************************************************************************
+************ALGEBRAIC METHOD + GRADIENT: WITH ZOOM***********************
+*************************************************************************
+Na (degree of  lens distortion model polynom) = 2
+1 parameter, 1 iteration, variables updated: 2
+
+Emin =	8.117926743908708e+003 with Na=2. Improvement = 	99.965591
+Vmin =	1.313957356828631e-001 with Na=2. Improvement = 	99.910192
+D =	1.155269074448950e-001 with Na=2. Improvement = 	99.918896
+
+
+Distortion parameters:
+a[0] = 1.076242140282665e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.539949393358783e-007
+
+CPU_time=0.000000 (seconds)
+*
+*******ALGEBRAIC METHOD FINISHED. START GRADIENT OPTIMIZATION************
+*************************************************************************
+
+*************************************************************************
+***********************GRADIENT METHOD: WITH ZOOM************************
+*************************************************************************
+Na (degree of  lens distortion model polynom) = 2
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]
+
+Emin =	8.473964660364203e+003 with Na=2. Improvement = 	99.964082
+Vmin =	1.250632619449140e-001 with Na=2. Improvement = 	99.914520
+D =	1.104125883153661e-001 with Na=2. Improvement = 	99.922487
+
+
+Distortion parameters:
+a[0] = 1.076652520253046e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.548395361631624e-007
+
+Number ot gradient iterations= 2
+CPU_time = 0.000000 (seconds)
+f_evaluations = 29
+------------------------------
+
+Na (degree of  lens distortion model polynom) = 4
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]	k[4]
+
+Emin =	1.825160217449702e+005 with Na=4. Improvement = 	99.226372
+Vmin =	1.714605602450032e+000 with Na=4. Improvement = 	98.828080
+D =	1.603509003240824e+000 with Na=4. Improvement = 	98.874285
+
+
+Distortion parameters:
+a[0] = 1.054807660917945e+000
+a[1] = 0.000000000000000e+000
+a[2] = -8.816754028346914e-008
+a[3] = 0.000000000000000e+000
+a[4] = -3.046644095242719e-014
+
+Number ot gradient iterations= 50
+CPU_time = 0.078000 (seconds)
+f_evaluations = 1172
+*************************************************************************
+
+
+Na (degree of  lens distortion model polynom)= 4
+1 parameter, 2 iterations, variables updated: 2, 4
+
+Emin =	8.117926743908708e+003 with Na=2. Improvement = 	99.965591
+Vmin =	1.313957356828631e-001 with Na=2. Improvement = 	99.910192
+D =	1.155269074448950e-001 with Na=2. Improvement = 	99.918896
+
+
+Distortion parameters:
+a[0] = 1.076242140282665e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.539949393358783e-007
+
+CPU_time=0.000000 (seconds)
+*************************************************************************
+
+*******ALGEBRAIC METHOD FINISHED. START GRADIENT OPTIMIZATION************
+
+*************************************************************************
+
+*************************************************************************
+***********************GRADIENT METHOD: WITH ZOOM************************
+*************************************************************************
+Na (degree of  lens distortion model polynom) = 2
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]
+
+Emin =	8.473964660364203e+003 with Na=2. Improvement = 	99.964082
+Vmin =	1.250632619449140e-001 with Na=2. Improvement = 	99.914520
+D =	1.104125883153661e-001 with Na=2. Improvement = 	99.922487
+
+
+Distortion parameters:
+a[0] = 1.076652520253046e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.548395361631624e-007
+
+Number ot gradient iterations= 2
+CPU_time = 0.000000 (seconds)
+f_evaluations = 29
+------------------------------
+
+Na (degree of  lens distortion model polynom) = 4
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]	k[4]
+
+Emin =	1.825160217449702e+005 with Na=4. Improvement = 	99.226372
+Vmin =	1.714605602450032e+000 with Na=4. Improvement = 	98.828080
+D =	1.603509003240824e+000 with Na=4. Improvement = 	98.874285
+
+
+Distortion parameters:
+a[0] = 1.054807660917945e+000
+a[1] = 0.000000000000000e+000
+a[2] = -8.816754028346914e-008
+a[3] = 0.000000000000000e+000
+a[4] = -3.046644095242719e-014
+
+Number ot gradient iterations= 50
+CPU_time = 0.093000 (seconds)
+f_evaluations = 1172
+*************************************************************************
+
+------------------------------
+
+Na (degree of  lens distortion model polynom) = 4
+2 parameters, 1 iteration, variables updated: 2, 4
+
+Emin =	1.817529511472195e+004 with Na=2. Improvement = 	99.922961
+Vmin =	1.745229969939297e-001 with Na=2. Improvement = 	99.880715
+D =	1.625537835831523e-001 with Na=2. Improvement = 	99.885882
+
+
+Distortion parameters:
+a[0] = 1.077955835427164e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.575230305515167e-007
+
+CPU_time=0.000000 (seconds)
+*************************************************************************
+
+*******ALGEBRAIC METHOD FINISHED. START GRADIENT OPTIMIZATION************
+
+*************************************************************************
+
+*************************************************************************
+***********************GRADIENT METHOD: WITH ZOOM************************
+*************************************************************************
+Na (degree of  lens distortion model polynom) = 2
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]
+
+Emin =	8.472058351396841e+003 with Na=2. Improvement = 	99.964090
+Vmin =	1.250653920843885e-001 with Na=2. Improvement = 	99.914519
+D =	1.104125702810242e-001 with Na=2. Improvement = 	99.922487
+
+
+Distortion parameters:
+a[0] = 1.076651739239026e+000
+a[1] = 0.000000000000000e+000
+a[2] = -1.548379286038029e-007
+
+Number ot gradient iterations= 2
+CPU_time = 0.000000 (seconds)
+f_evaluations = 29
+------------------------------
+
+Na (degree of  lens distortion model polynom) = 4
+MODIFIED VARIABLES THROUGH OPTIMIZATION:	k[2]	k[4]
+
+Emin =	1.825707722837410e+005 with Na=4. Improvement = 	99.226140
+Vmin =	1.715091121604745e+000 with Na=4. Improvement = 	98.827749
+D =	1.603967507223024e+000 with Na=4. Improvement = 	98.873963
+
+
+Distortion parameters:
+a[0] = 1.054804048582333e+000
+a[1] = 0.000000000000000e+000
+a[2] = -8.815673073106600e-008
+a[3] = 0.000000000000000e+000
+a[4] = -3.047120411348923e-014
+
+Number ot gradient iterations= 50
+CPU_time = 0.094000 (seconds)
+f_evaluations = 1161
+*************************************************************************
