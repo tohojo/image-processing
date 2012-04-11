@@ -202,7 +202,7 @@ void CamCalibrator::mapPtsToCalibrationPts()
 	for (int i = 28; i < 35; i++){ meanX += Left[i].x; }
 	for (int i = 0; i < 7; i++){ meanX += Right[i].x; }
 	meanX /= 14.0;
-	cout << "(Debug): Mean x-value of line separating two faces in image: " << meanX << "\n";
+//	cout << "(Debug): Mean x-value of line separating two faces in image: " << meanX << "\n";
 
 	// (a) Left face, top-centre
 	index = 0; minimise = 1000000;
@@ -383,7 +383,7 @@ void CamCalibrator::mapPtsToCalibrationPts()
 void CamCalibrator::calibrate()
 {
 
-	std::ofstream outFile("o.txt", std::ios::out);
+	std::ofstream outFile("image_points.txt", std::ios::out);
 	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
 		outFile << i->imagePt.x << " "  << i->imagePt.y << "\n";
 	}
@@ -442,7 +442,7 @@ void CamCalibrator::calibrate()
 	double a3 = mat_L.at<double>(2,0);		double a4 = mat_L.at<double>(3,0);
 	double a5 = mat_L.at<double>(4,0); double a6 = mat_L.at<double>(5,0); double a7 = mat_L.at<double>(6,0);
 	double ty_sign_unknown = 1.0 / sqrt( a5*a5 + a6*a6 + a7*a7 );
-	cout << "T(y) [sign currently unknown]: " << ty_sign_unknown << "\n";
+//	cout << "T(y) [sign currently unknown]: " << ty_sign_unknown << "\n";
 
 	// Get a reference point not close to the image centre (easy enough to just check the left face)
 	point_correspondence index_pc;
@@ -478,18 +478,18 @@ void CamCalibrator::calibrate()
 	double XS = index_pc.imagePt.x;
 	double YS = index_pc.imagePt.y;
 	if ( (xSign > 0 && XS <= 0) || (xSign <= 0 && XS > 0) || (ySign > 0 && YS <= 0) || (ySign <= 0 && YS > 0) ) {
-		cout << "Debug: signs are different, ty has wrong sign.\n";
 		mat_T.at<double>(1,0) = ty_sign_unknown*-1;
+		cout << "Changing sign of Ty. Ty = " << mat_T.at<double>(1,0) << "\n";
 	} else {
-		cout << "Debug: signs are the same, ty has correct sign.\n";
 		mat_T.at<double>(1,0) = ty_sign_unknown;
+		cout << "Sign of Ty is correct. Ty = " << mat_T.at<double>(1,0) << "\n";
 	}
 	// We now have tx, ty.
 
 	// Calibration step 3: determine true scaling factor sx
 
 	sx = (sqrt( (mat_T.at<double>(1,0)) * (mat_T.at<double>(1,0)) )) * (sqrt(a1*a1 + a2*a2 + a3*a3));
-	cout << "sx " << sx << "\n";
+	//cout << "sx " << sx << "\n";
 
 	// Calibration step 4: compute 3d rotation matrix R and tx
 
@@ -584,10 +584,8 @@ void CamCalibrator::calibrate()
 		}
 	} while (step > minstep);
 
-	cout << "Kappa(1) = " << kappa1 << "\n";
-	cout << "Kappa determined at step size " << step << "\n";
-	cout << "Error with this kappa = " << kap.at<double>(2,0) << "\n";
-	cout << "f with this kappa = " << kap.at<double>(0,0) << "; Tz = " << kap.at<double>(1,0) << "\n";
+	cout << "Kappa(1) = " << kappa1 << " ;  determined at step size " << step << "\n";
+	cout << "Calculated error: " << kap.at<double>(2,0) << " ;  calculated f: " << kap.at<double>(0,0) << " ;  calculated Tz: " << kap.at<double>(1,0) << "\n";
 
 	// Set our estimate for focal length and tz
 	focalLength = kap.at<double>(0,0);
@@ -672,7 +670,7 @@ Mat CamCalibrator::computeLeastSquaresForKappa(double kappa){
 // Back-project rays using the calculated matrices R, T, and values s, focalLength, deltaX, deltaY
 void CamCalibrator::checkResults(){
 
-	cout << "Checking results...\nFinding error when applying calibration parameters in forward direction.\n";
+	cout << "Checking results: finding error when applying calibration parameters to world points.\n";
 	Mat transform = Mat(4, 4, CV_64F, Scalar::all(0));
 	for (int i = 0; i < 3; i++){
 		for (int j = 0; j < 3; j++){
@@ -711,9 +709,8 @@ void CamCalibrator::checkResults(){
 		x_error_divd_sx += sqrt( (pt_ADJ.x - x_divd_sx)*(pt_ADJ.x - x_divd_sx) );
 	}
 
-	cout << " === mean x pixel error: " << x_error_divd_sx/mapping.size() << "\n";
-	cout << " === mean y pixel error: " << y_error_nil/mapping.size() << "\n";
-	cout << "\nNUMBER OF POINTS BEING CONSIDERED: " << mapping.size() << "\n";
+	cout << " Mean x pixel error: " << x_error_divd_sx/mapping.size() << "\n";
+	cout << " Mean y pixel error: " << y_error_nil/mapping.size() << "\n";
 
 	cout << "\nFinding mean squared error by back-projecting rays to calibration points.\n";
 	Mat rotate = Mat(4, 4, CV_64F, Scalar::all(0));
@@ -731,10 +728,6 @@ void CamCalibrator::checkResults(){
 	translate.at<double>(1,3) = mat_T.at<double>(1,0);
 	translate.at<double>(2,3) = mat_T.at<double>(2,0);
 
-	double camToOrigin = sqrt( mat_T.at<double>(0,0)*mat_T.at<double>(0,0)
-		+ mat_T.at<double>(1,0)*mat_T.at<double>(1,0)
-		+ mat_T.at<double>(2,0)*mat_T.at<double>(2,0) );
-	cout << "Distance from camera to origin: " << camToOrigin << "\n";
 	Mat rotate_inv = rotate.t();
 	Mat translate_inv = Mat(4, 4, CV_64F, Scalar::all(0));
 	for (int i = 0; i < 4; i++){
@@ -753,6 +746,8 @@ void CamCalibrator::checkResults(){
 	double squaredErrorX = 0.0;
 	double squaredErrorY = 0.0;
 	double squaredErrorZ = 0.0;
+	double lowestSquaredError = 1000000.0;
+	double highestSquaredError = -1.0;
 
 	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
 		Point3d ideal = i->worldPt;
@@ -775,9 +770,28 @@ void CamCalibrator::checkResults(){
 		i_real.at<double>(2,0) = translate_inv.at<double>(2,3);
 		i_real = rotate_inv * i_real;
 		i_factorZ = rotate_inv * i_factorZ;
-		double calc_x = i_factorZ.at<double>(0,0)*camToOrigin + i_real.at<double>(0,0);
-		double calc_y = i_factorZ.at<double>(1,0)*camToOrigin + i_real.at<double>(1,0);
-		double calc_z = i_factorZ.at<double>(2,0)*camToOrigin + i_real.at<double>(2,0);
+		double calc_x;
+		double calc_y;
+		double calc_z;
+		if (ideal.x == 0) { // Solve for x = 0
+			calc_x = 0;
+			double solvedValue = -1.0 * i_real.at<double>(0,0) / i_factorZ.at<double>(0,0); 
+			calc_y = i_factorZ.at<double>(1,0)*solvedValue + i_real.at<double>(1,0);
+			calc_z = i_factorZ.at<double>(2,0)*solvedValue + i_real.at<double>(2,0);
+		} else if (ideal.y == 0) { // Solve for y = 0
+			calc_y = 0;
+			double solvedValue = -1.0 * i_real.at<double>(1,0) / i_factorZ.at<double>(1,0); 
+			calc_x = i_factorZ.at<double>(0,0)*solvedValue + i_real.at<double>(0,0);
+			calc_z = i_factorZ.at<double>(2,0)*solvedValue + i_real.at<double>(2,0);
+		} else {
+			double camToOrigin = sqrt( mat_T.at<double>(0,0)*mat_T.at<double>(0,0)
+				+ mat_T.at<double>(1,0)*mat_T.at<double>(1,0)
+				+ mat_T.at<double>(2,0)*mat_T.at<double>(2,0) );
+			cout << "Using distance from camera to origin: " << camToOrigin << "\n";
+			calc_x = i_factorZ.at<double>(0,0)*camToOrigin + i_real.at<double>(0,0);
+			calc_y = i_factorZ.at<double>(1,0)*camToOrigin + i_real.at<double>(1,0);
+			calc_z = i_factorZ.at<double>(2,0)*camToOrigin + i_real.at<double>(2,0);
+		}
 		//		cout << "================\n";
 		//		cout << "Xw: " << ideal.x << "  Yw: " << ideal.y << "  Zw: " << ideal.z << "\n";
 		//		cout << "X = " << calc_x << "  Y = " << calc_y << "  Z = " << calc_z << "\n";
@@ -788,10 +802,14 @@ void CamCalibrator::checkResults(){
 		squaredErrorX += sqrt ((calc_x-ideal.x)*(calc_x-ideal.x));
 		squaredErrorY += sqrt ((calc_y-ideal.y)*(calc_y-ideal.y));
 		squaredErrorZ += sqrt ((calc_z-ideal.z)*(calc_z-ideal.z));
+		if (lowestSquaredError > err) lowestSquaredError = err;
+		if (highestSquaredError < err) highestSquaredError = err;
 	}
 
 	cout << "TOTAL ERROR: " << totalSquaredError << "\n";
 	cout << "MEAN ERROR: " << totalSquaredError/mapping.size() << "\n";
+	cout << "LOWEST POINT ERROR: " << lowestSquaredError << "\n";
+	cout << "HIGHEST POINT ERROR: " << highestSquaredError << "\n";
 	cout << "x ERROR: " << squaredErrorX/mapping.size() << "\n";
 	cout << "y ERROR: " << squaredErrorY/mapping.size() << "\n";
 	cout << "z ERROR: " << squaredErrorZ/mapping.size() << "\n";
