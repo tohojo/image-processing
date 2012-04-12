@@ -21,13 +21,14 @@ to the XZ plane.
 
 \begin{figure}[hb]
   \centering
-  \includegraphics[width=0.5\textwidth]{figures/calibration-object}
-  \caption{Calibration object. The left face has 35 calibration points
-    (the centres of the circles), and the right face has 28. The
-    distance between point centres is 1,5 inches. The world coordinate
-    system is chosen to be a right-handed coordinate system, centred
-    at the bottom corned of the cube, so the left face corresponds to
-    the YZ plane, and the right face corresponds to the XZ plane.}
+  \includegraphics[width=0.7\textwidth]{figures/calibration-object}
+  \caption[Calibration object]{Calibration object. The left face has
+    35 calibration points (the centres of the circles), and the right
+    face has 28. The distance between point centres is 1,5 inches. The
+    world coordinate system is chosen to be a right-handed coordinate
+    system, centred at the bottom corned of the cube, so the left face
+    corresponds to the YZ plane, and the right face corresponds to the
+    XZ plane.}
   \label{fig:calib-object}
 \end{figure}
 
@@ -103,6 +104,19 @@ to the non-coplanar cases, equation (15) in \cite{TSAI} has to be
 re-derived from the earlier equation (8b), because the it is no longer
 true that $z_w=0$. Also, it proved tricky to get the back-projection
 working correctly.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figures/calibration-means}
+  \caption[Mean calibration errors]{Mean calibration errors for all
+    calibration points. Each set of bars is from a different image of
+    the same calibration object. The images are taken with two
+    different cameras, two with each camera. The lone bar on the right
+    is the mean error calculated from the first image, but with only
+    the 8 centre-most calibration points.}
+  \label{fig:calib-errors}
+\end{figure}
+
 
 %Calibration experiments:\\
 %
