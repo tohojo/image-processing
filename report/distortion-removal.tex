@@ -35,20 +35,75 @@ To test our program, we created a suite of 22 different chessboard images. Each 
 We present our findings for each artificial chessboard image.
 \begin{enumerate}
   \item The undistorted baseline image. The output appeared unchanged, as expected. 
-0.999994200427223
 $0.999994200427223$
--0.0000000000398119706872993
 $-0.0000000000398119706872993$
-4.80105142502336E-015
-$4.80105142502336E-015$
+$4.80105142502336 \times 10^-015$
 
   \item 
   \item 
 \end{enumerate}
 
+Plain chessboard
+Colour chessboard
+Barrel distortion
+Pincushion distortion
+Tilted 22.5 degrees
+Tilted 45 degrees
+Tilted 45 degrees, barrel
+Tilted 45 degrees, pincushion
+Tilted 22.5 degrees, barrel
+Tilted 22.5 degrees, pincushion
+Shifted barrel distortion
+Shifted pincushion distortion
+Gauss 10 barrel
+Gauss 10 pincushion
+Spread 10 pincushion
+Spread 20 pincushion
+Spread 10 barrel
+Spread 20 barrel
+Barrel plus stretched edge
+Pincushion plus stretched edge
+Pseudo-Pincushion distortion in board corner
+Pseudo-Barrel distortion in board corner
+
+
+Unchanged, as expected.
+Unable to detect corners for straight lines.
+Corrected perfectly.
+Only found 47 corners. Using these for straight lines let it correct the image but lost the corners.
+Unchanged, as expected.
+Unchanged, as expected.
+Corrected perfectly.
+Corrected, but chessboard corners became rounded and some noise added.
+Corrected perfectly.
+Corrected, but chessboard corners became rounded and some noise added.
+Not properly corrected, presumably due to assumption that distortion centre = image centre.
+Only found 47 corners, and was unable to generate lines from these.
+Unable to detect corners for straight lines.
+Only found 37 corners in a circular pattern in the middle, and was unable to generate lines from these.
+Only found 42 corners; falsely constructed lines resulting in weird 15a pattern. Surprisingly successful when cut down to 36 corners, losing the chessboard corners but still correcting middle. See 15b.
+Unable to detect corners for straight lines.
+Corrected perfectly.
+Only found 28 corners, and was unable to generate lines from these.
+Found corners, but supposedly undistorted image was almost unchanged.
+Finds 27 to 33 corners in the middle, but unable to construct lines to run distortion on them
+Finds corners, almost no change to ‘undistorted’ image.
+Finds 47 corners, unable to reconstruct lines.
+
+
+
 Note that \cite{algebraic-distortion} states, "we will always take the center of the image as distortion center".
 
-
+\[
+  \kappa
+\]
+\[
+ k_{0}
+ k_{1}
+ k_{2}
+ k_{3}
+ k_{4}
+\]
 
 
 We also ran a number of chessboard images from internet searches and created by hand from distorted grids likewise acquired from internet searches. These confirmed our results on the artificial chessboard suite. It also demonstrated that images of chessboards of strange dimensionalities (such as 4x10 or 14x16) can still be corrected, assuming the size of each chessboard square remains the same, and that the algorithm often cannot handle extreme camera angles or unusual types of noise (such as blotches or heavy noise only at the corners of squares).
