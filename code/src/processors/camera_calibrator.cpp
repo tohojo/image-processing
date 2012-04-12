@@ -409,7 +409,9 @@ void CamCalibrator::calibrate()
 	int counter = 0;
 	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
 		double xd = (i->imagePt.x - imageCX ) / sx;
-		//double yd = i->imagePt.y - imageCY;
+                // This simultaneously adjusts 0 to be in the middle
+                // of the image, and flips the Y coordinates (because
+                // OpenCV uses top-left corner as 0,0).
 		double yd = imageCY - i->imagePt.y;
 		i->imagePt_adj = Point2d(xd, yd);
 		mat_X.at<double>(counter,0) = xd;
@@ -776,12 +778,12 @@ void CamCalibrator::checkResults(){
 		double calc_z;
 		if (ideal.x == 0) { // Solve for x = 0
 			calc_x = 0;
-			double solvedValue = -1.0 * i_real.at<double>(0,0) / i_factorZ.at<double>(0,0); 
+			double solvedValue = -1.0 * i_real.at<double>(0,0) / i_factorZ.at<double>(0,0);
 			calc_y = i_factorZ.at<double>(1,0)*solvedValue + i_real.at<double>(1,0);
 			calc_z = i_factorZ.at<double>(2,0)*solvedValue + i_real.at<double>(2,0);
 		} else if (ideal.y == 0) { // Solve for y = 0
 			calc_y = 0;
-			double solvedValue = -1.0 * i_real.at<double>(1,0) / i_factorZ.at<double>(1,0); 
+			double solvedValue = -1.0 * i_real.at<double>(1,0) / i_factorZ.at<double>(1,0);
 			calc_x = i_factorZ.at<double>(0,0)*solvedValue + i_real.at<double>(0,0);
 			calc_z = i_factorZ.at<double>(2,0)*solvedValue + i_real.at<double>(2,0);
 		} else {
