@@ -3,8 +3,9 @@
 \subsection{Image segmentation}
 \label{sec:segmentation}
 
-We implemented two image segmentation algorithms: a simple thresholding algorithm, and a split and merge algorithm as described in the lecture slides. In both cases, the algorithm takes as input a greyscale image and outputs a segmented image. In the case of simple thresholding, the output image is divided into binary regions. In the case of the split and merge algorithm, the output image is divided into arbitrarily many regions, each one assigned a greyscale colour based on a rotating set of grey values.\\
+We implemented two image segmentation algorithms: a simple thresholding algorithm, and a split and merge algorithm as described in the lecture slides. In both cases, the algorithm takes as input a greyscale image and outputs a segmented image. In the case of simple thresholding, the output image is divided into binary regions. In the case of the split and merge algorithm, the output image is divided into arbitrarily many regions, each one assigned a greyscale colour based on a rotating set of grey values.
 
+\subsubsection{Implementation notes}
 The visible parameters and properties of the segmentation algorithms are:
 \begin{itemize}
 \item "Segmenting mode"; specifies the thresholding algorithm with either a global or adaptive threshold, or the split and merge algorithm.
@@ -21,4 +22,18 @@ Typically, the behaviour of the "split" step would require input images with wid
 
 In our implementation, the split and merge algorithm represents regions using the Region class. Unfortunately, in an attempt to be more efficient (by storing and processing fewer pixels), the Region class only stores the points of the regions' borders. The unforeseen downside of this is that the algorithm breaks down when non-convex regions exist. When the convexity assumption is broken, there are cases where regions that should have been merged escape the merging process, because certain pixels are included in checks that should not be. The result is that the segmentation process is less than perfect. The obvious solution to this implementation problem is to store all pixels which make up the region.
 
- In the "merge" step of the split and merge segmentation, regions are compared to each other rather naively (i.e. every region is compared to every other region). This slows the implementation considerably when there are more than a few hundred regions after the split step (which occurs for low values of the delta parameter and for extremely heterogeneous images). The solution would be to only consider merging regions that are neighbouring; this is unfortunately impossible to do efficiently with the current region representation. Regions are merged using 4-connectivity, in as far as the algorithm checks, for each pixel on the boundary of a region, in four directions to determine whether the region can be merged.
+In the "merge" step of the split and merge segmentation, regions are compared to each other rather naively (i.e. every region is compared to every other region). This slows the implementation considerably when there are more than a few hundred regions after the split step (which occurs for low values of the delta parameter and for extremely heterogeneous images). The solution would be to only consider merging regions that are neighbouring; this is unfortunately impossible to do efficiently with the current region representation. Regions are merged using 4-connectivity, in as far as the algorithm checks, for each pixel on the boundary of a region, in four directions to determine whether the region can be merged.
+
+\subsubsection{Experimental process.}
+
+\paragraph{Experimental parameters.}
+To test the capability of our segmenting algorithms, we...
+(SUBJECTIVE TESTS OF ALL 3) - 20 randomly googled images, say which is best of the thresholding, try to correlate this with how much the adaptive threshold changed from the global, and say how split \& merge did (is it recognisable?)
+(FOR TWO TINY TEST IMAGES TAKEN FROM OUR CALIBRATION PHOTOS: IDENTIFY NUMBER OF REGIONS; USE SPLIT/MERGE WITH VARIOUS PARAMS, SEE HOW MANY REGIONS IT RETURNS; GRAPH)
+
+\paragraph{Experimental results.}
+
+
+
+
+
