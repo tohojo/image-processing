@@ -1,28 +1,123 @@
 % vim:ft=tex
 % rubber: module xelatex
 \subsection{Camera calibration}
+For the camera calibration part of the application, we have
+implemented the calibration algorithm from \cite{TSAI}, which is a
+classical and often cited calibration method. The article encompasses
+several different methods of calibration; we are implementing the
+method that the article describes as ``the monoview non-coplanar
+case''. That is, we the calibration is performed from a single image
+of a calibration object that has calibration points in several (world)
+planes.
 
-- We implemented Tsai calibration from \cite{TSAI}, choosing it as a historically proven and well-documented form of camera calibration.\\\\
-- The calibration object we used takes the form of two adjacent faces of a cube, painted with circular calibration points; the left face has 35 calibration points and the right face 28 calibration points.\\\\
-- The type of camera calibration which Tsai describes as 'the monoview noncoplanar case' is performed here - the calibration object has points on multiple planes and calibration is performed with a single image/view.\\\\
-Implementation procedure:
-\begin{itemize}
-  \item For the following we take (0,0) to be the top-left pixel position of an image window or frame.
-  \item We initially used ImageJ to segment an image and extract the 63 calibration point features.
-  \item The calibration image data is now automatically determined from the image, using feature extraction algorithms described elsewhere in this report. Using the image size and a list of measurements of the calibration points in the world coordinate system, our program is able to automatically map the image points to the known locations (in world coordinates, in inches) of measured points on the object. This is done by a naive mapping which only works when two conditions are met: (a) No points from the left face in the image are further to the right (i.e. have higher x values than) any points from the right face. (b) The two 'outermost' calibration points on each face are those that are closest to the two image corners on that side. Together, these conditions mean that as the angle of the photograph (and thus the camera coordinate system) deviates more than 45 degrees from a "level" position in the world coordinate system, the calibration algortihm will become likely to fail.
-  \item The calibration function derives the transformation matrix [R | T] to convert world coordinates into camera coordinates, and finds the scale factor sx, and the internal camera values for the focal length f and the lens distortion error [kappa]. This all follows the Tsai paper.
-  \item Radial distortion is calculated as far as [kappa 1]. The literature suggests that this is sufficient for reasonably high accuracy using cameras without significant lens distortion.
-  \item Note: for some time, my approximation for kappa was broken. The gradient descent was broken so that it stuck at 1 times 10 to the power -8. This is now fixed.
-  \item Some difficulties were encountered in implementing the camera calibration. One problem was that in following the Tsai paper, the author states that the final calibration stage (finding f, kappa and the z-component of the translation vector) for the monoview noncoplanar case is "exactly the same as that for the coplanar case". However, it is not explained that the equation (15) for the coplanar case is derived by setting zw = 0 (due to the fact that the z position is identical for points in the plane). This does not, of course, follow for the noncoplanar case, so the equation must be re-derived from earlier equation (8b), and this was not immediately obvious.
-  \item Back-projection of rays also proved a difficult problem for some time.
-\end{itemize}
-Other notes\\
-- Experiments... Patrice suggests we "create a line (using image points and known points of the camera geometry, optical centre, etc) which intersects with the calibration plane in a given point (e.g. Z=0 in world coordinates)."\\
-- Assignment states "You need to evaluate the accuracy of the calibration data by comparing the true and reconstructed 3D coordinates of the disks in the calibration pattern. You may find useful to provide the average and standard deviation of the reconstructed 3D points errors. You may use the radius of ambiguity measure as in Tsai publication."\\
-- Back-projection now works... to a degree. The error between the real 3d point and the predicted 3d point is on the order of ~1.2 inches. This is so huge that I suspect systematic error - either a problem with the physical calibration object or (much more likely) a problem in my implementation of the algorithm. Note that x and y error (the distance ALONG each face) is much more substantial than z error.\\
-\\
-Calibration experiments:\\
--> On eight images (2 low grade, 2 high grade, 2 low grade distorted, 2 high grade distorted)...\\
--> Compare backprojection accuracy... mean, variance, worst hit, best hit, breakdown into (x,y,z) \\
--> Compare kappa calculated (should be higher with lens distortion... but using actual fisheye distortion may be so high that the polynomial kappa model is unsuitable for it, as \cite{straightlines} (I believe ot was) suggests can happen).\\
--> Subjectively, look at the resulting translation and rotation matrices and consider what they mean, as well as the sx and focalLength.\\
+Our calibration object can be seen in figure~\ref{fig:calib-object}.
+It consists of two adjacent faces of a cube, each of which has a
+number of circular calibration points. The left face has 35 points,
+and the right face 28. The distance between point centres is 1,5
+inches. The world coordinate system is chosen to be a right-handed
+coordinate system, centred at the bottom corned of the cube, so the
+left face corresponds to the YZ plane, and the right face corresponds
+to the XZ plane.
+
+\begin{figure}[hb]
+  \centering
+  \includegraphics[width=0.5\textwidth]{figures/calibration-object}
+  \caption{Calibration object. The left face has 35 calibration points
+    (the centres of the circles), and the right face has 28. The
+    distance between point centres is 1,5 inches. The world coordinate
+    system is chosen to be a right-handed coordinate system, centred
+    at the bottom corned of the cube, so the left face corresponds to
+    the YZ plane, and the right face corresponds to the XZ plane.}
+  \label{fig:calib-object}
+\end{figure}
+
+\subsubsection{Implementation notes}
+The implementation overall follows the procedure laid out in
+\cite{TSAI}. However, a few notes on the implementation are
+appropriate:
+
+\paragraph{Implemented parts of the algorithm.}
+As mentioned, we implement the calibration method that Tsai refers to
+as ``the monoview non-coplanar case''. The calibration function derives
+the transformation matrix, composed of the rotation matrix, $R$ and
+the translation matrix $T$, find the scale factor $s_x$, and the
+intrinsic camera values $f$ (focal length) and $\kappa$ (radial
+distortion parameter). The radial distortion is calculated as far as
+$\kappa_1$. The literature suggests that this is sufficient for
+reasonably high accuracy using cameras without significant lens
+distortion \cite{algebraic-distortion}.
+
+\paragraph{Mapping of image coordinates to world coordinates.}
+The world coordinates of the points are measured manually, in units of
+inches. These are given as input to the program in the form of a
+space-separated text file. The image coordinate points are found by
+first running the SURF feature point extraction algorithm described in
+section~\ref{sec:features} on the input image, with a relatively high
+threshold value (500). The feature points detected using this
+algorithm are shown to the user on a binary image (obtained using
+adaptive thresholding -- see the description of the segmentation
+algorithms in section~\ref{sec:segmentation}), who then has the option
+of removing and adding points.
+
+These user-corrected points are fed to the second stage of the
+calibration algorithm. This stage assumes that there are exactly 63
+points selected on the image, and furthermore takes as input exactly
+63 3D points (corresponding to the 63 circles on the calibration
+object). The image points are first corrected to be closer to the
+centre of the circle. This is done by flood filling the binary image
+from each point with a threshold of 0 (i.e. finding all pixels of the
+same colour as the point), and taking the average x and y values from
+this region. This means that the user does not have to select points
+that are exactly at the centre of the calibration region, but can
+click anywhere within it.
+
+Following this correction, the image points are mapped to the real
+world coordinate points. This is done by a brute-force algorithm
+relying on the fact that
+\begin{inparaenum}[(a)]
+  \item the right and left faces are entirely disjoint in the
+    horizontal direction, i.e. no points on the right face have
+    x-coordinates lower than any points on the left face, and
+  \item the top and bottom outermost points in each face are the
+    points closest to the respective image corners on that side of the
+    image.
+\end{inparaenum}
+This algorithm does impose some limitations on the possible viewing
+angles of the calibration object. For example, if the image is rotated
+by enough to make the faces overlap in the horizontal direction, the
+first assumption breaks down and the image point to world point
+mapping fails.
+
+\paragraph{Back-projection.}
+To test the error ratio of the calibration, we reverse the direction
+of projection, by projecting the rays from the camera through the
+image coordinate points onto the corresponding face planes in world
+coordinates (taking into account the (reversed) calibration
+parameters). This allows us to measure the distance between these
+derived world coordinates and the known ones as an error radius.
+
+\paragraph{Implementation problems.}
+We have encountered a few problems in our implementation. Primarily,
+it was not completely obvious to us that, in going from the coplanar
+to the non-coplanar cases, equation (15) in \cite{TSAI} has to be
+re-derived from the earlier equation (8b), because the it is no longer
+true that $z_w=0$. Also, it proved tricky to get the back-projection
+working correctly.
+
+%Calibration experiments:\\
+%
+%-> On eight images (2 low grade, 2 high grade, 2 low grade distorted,
+%2 high grade distorted)...\\
+%
+%-> Compare backprojection accuracy... mean, variance, worst hit, best
+%hit, breakdown into (x,y,z) \\
+%
+%-> Compare kappa calculated (should be higher with lens distortion...
+%but using actual fisheye distortion may be so high that the polynomial
+%kappa model is unsuitable for it, as \cite{straightlines} (I believe
+%ot was) suggests can happen).\\
+%
+%-> Subjectively, look at the resulting translation and rotation
+%matrices and consider what they mean, as well as the sx and
+%focalLength.\\
+%
