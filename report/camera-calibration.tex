@@ -105,7 +105,89 @@ re-derived from the earlier equation (8b), because the it is no longer
 true that $z_w=0$. Also, it proved tricky to get the back-projection
 working correctly.
 
-\begin{figure}[ht]
+\subsection{Experimental results}
+For testing the calibration, we have run the program on four different
+pictures of the calibration object, taken with two different cameras.
+In this section, we go thnrough the results, first by doing some sanity
+checking on the values from observations of the environment, and then
+by looking at the errors from the back-projection estimates.
+
+\begin{table}[htb]
+  \centering
+  \begin{tabular}{c c c c c c}
+    \toprule
+    \multicolumn{3}{c}{\textbf{Rotation}} & \multicolumn{3}{c}{\textbf{Translation}}\\
+    \midrule
+    \multicolumn{3}{c}{$R=\begin{bmatrix}0.69 & -0.72 & 0.08\\
+    0.14 & 0.25 & 0.96\\
+    -0.70 & -0.65 & 0.28\end{bmatrix}$} &
+    \multicolumn{3}{c}{$T=\begin{bmatrix}0.00\\-6.76\\-16.80\end{bmatrix}$} \\
+    \midrule
+    \multicolumn{2}{c}{\textbf{Scaling}} &
+    \multicolumn{2}{c}{\textbf{Focal length}} &
+    \multicolumn{2}{c}{\textbf{Distortion}}\\
+    \midrule
+    \multicolumn{2}{c}{$s_x =0.998$} &
+    \multicolumn{2}{c}{$f=-2424.61$} &
+    \multicolumn{2}{c}{$\kappa_1=-1.76 \cdot 10^{-8}$}\\
+    \bottomrule
+  \end{tabular}
+  \caption[Calibration results]{Calibration results. This is the
+    results of calibration for the first image (labelled 160019 in
+    figure~\ref{fig:calib-errors}).}
+  \label{tbl:calib-results}
+\end{table}
+
+One of the results of the calibration can be seen in
+table~\ref{tbl:calib-results}. Looking at the translation vector,
+according to the calibration, the corner of the calibration object is
+just under 17 inches in front of the camera (or camera plane) and just
+under 7 inches below it. These figures are roughly consistent with the
+distance from which the picture is taken, so the calibration does not
+appear to be completely off.
+
+Furthermore, in table~\ref{tbl:focal-lengths} is a comparison
+between the focal length results for the four images. From this, it is
+apparent that images taken with the same camera have similar focal
+lengths, and the focal lenghts of images taken with different cameras
+are quite different. These two sanity tests together suggest that the
+results of the calibration are not completely off.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{c c}
+    \toprule
+    \textbf{Image} & \textbf{Focal length}\\
+    \midrule
+    160019 & -2424.61\\
+    160027 & -2412.75\\
+    0025 & -4887.01\\
+    0026 & -4701.72\\
+    \bottomrule
+  \end{tabular}
+  \caption[Focal length values for the test images]{Focal length
+    values for the test images. The images are taken pairwise with two
+    different cameras; this is reflected in the focal length values,
+    in that images taken with the same camera have very similar focal
+    lengths, and there is a large variation between the two cameras.}
+  \label{tbl:focal-lengths}
+\end{table}
+
+To test the size of error in the calibration values, we have
+implemented a back-projection test, as described in the previous
+section. From this, we have obtained mean radii of error, i.e. the
+distances from the back-projected points to the known locations of the
+interest points. These are summarised in
+figure~\ref{fig:calib-errors}. The mean errors are roughly four times
+the errors Tsai reports in his paper (mean error $0.7$ mm $\simeq0.02$
+inches). The fifth column of the figure shows the mean error for one
+of the images, using only the eight centre-most calibration points.
+This error is not much different from when all 63 points are used, and
+we suspect at least not significantly\footnote{We have unfortunately
+  misplaced the data that would allow us to confirm this with a proper
+  statistical model.}.
+
+\begin{figure}[htb]
   \centering
   \includegraphics[width=0.7\textwidth]{figures/calibration-means}
   \caption[Mean calibration errors]{Mean calibration errors for all
@@ -116,6 +198,7 @@ working correctly.
     the 8 centre-most calibration points.}
   \label{fig:calib-errors}
 \end{figure}
+
 
 
 %Calibration experiments:\\
