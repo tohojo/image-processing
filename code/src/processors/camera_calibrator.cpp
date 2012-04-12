@@ -409,7 +409,8 @@ void CamCalibrator::calibrate()
 	int counter = 0;
 	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
 		double xd = (i->imagePt.x - imageCX ) / sx;
-		double yd = i->imagePt.y - imageCY;
+		//double yd = i->imagePt.y - imageCY;
+		double yd = imageCY - i->imagePt.y;
 		i->imagePt_adj = Point2d(xd, yd);
 		mat_X.at<double>(counter,0) = xd;
 		mat_M.at<double>(counter,0) = yd*(i->worldPt.x);
