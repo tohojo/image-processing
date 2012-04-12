@@ -19,7 +19,7 @@ coordinate system, centred at the bottom corned of the cube, so the
 left face corresponds to the YZ plane, and the right face corresponds
 to the XZ plane.
 
-\begin{figure}[HBO]
+\begin{figure}[hb]
   \centering
   \includegraphics[width=0.5\textwidth]{figures/calibration-object}
   \caption{Calibration object. The left face has 35 calibration points
@@ -36,7 +36,7 @@ The implementation overall follows the procedure laid out in
 \cite{TSAI}. However, a few notes on the implementation are
 appropriate:
 
-\paragraph{Implemented parts of the algorithm}
+\paragraph{Implemented parts of the algorithm.}
 As mentioned, we implement the calibration method that Tsai refers to
 as ``the monoview non-coplanar case''. The calibration function derives
 the transformation matrix, composed of the rotation matrix, $R$ and
@@ -47,7 +47,7 @@ $\kappa_1$. The literature suggests that this is sufficient for
 reasonably high accuracy using cameras without significant lens
 distortion \cite{algebraic-distortion}.
 
-\paragraph{Mapping of image coordinates to world coordinates}
+\paragraph{Mapping of image coordinates to world coordinates.}
 The world coordinates of the points are measured manually, in units of
 inches. These are given as input to the program in the form of a
 space-separated text file. The image coordinate points are found by
@@ -74,10 +74,10 @@ click anywhere within it.
 Following this correction, the image points are mapped to the real
 world coordinate points. This is done by a brute-force algorithm
 relying on the fact that
-\begin{inparaenum}
+\begin{inparaenum}[(a)]
   \item the right and left faces are entirely disjoint in the
     horizontal direction, i.e. no points on the right face have
-    x-coordinates lower than any points on the left face and
+    x-coordinates lower than any points on the left face, and
   \item the top and bottom outermost points in each face are the
     points closest to the respective image corners on that side of the
     image.
@@ -88,8 +88,7 @@ by enough to make the faces overlap in the horizontal direction, the
 first assumption breaks down and the image point to world point
 mapping fails.
 
-\paragraph{Back-projection}
-
+\paragraph{Back-projection.}
 To test the error ratio of the calibration, we reverse the direction
 of projection, by projecting the rays from the camera through the
 image coordinate points onto the corresponding face planes in world
@@ -97,8 +96,7 @@ coordinates (taking into account the (reversed) calibration
 parameters). This allows us to measure the distance between these
 derived world coordinates and the known ones as an error radius.
 
-\paragraph{Implementation problems}
-
+\paragraph{Implementation problems.}
 We have encountered a few problems in our implementation. Primarily,
 it was not completely obvious to us that, in going from the coplanar
 to the non-coplanar cases, equation (15) in \cite{TSAI} has to be
