@@ -1,6 +1,7 @@
 % vim:ft=tex
 % rubber: module xelatex
 \subsection{Face features extraction}
+\label{sec:features}
 
 The first scale-invariant feature extraction algorithm was SIFT, described in \cite{SIFT}. SIFT is designed to be able to reliably detect features in altered (e.g. contrast-shifted, re-oriented or scaled) images. SIFT uses a database of training images with identified features to attempt to classify objects in new images based on their feature vectors. Image features are assumed to be the maxima and minima of the difference of Gaussians applied to the images. Outliers are discovered and removed by comparing each image feature with the model, verified by least squares.
 
