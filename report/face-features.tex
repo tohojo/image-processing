@@ -12,3 +12,10 @@ The three implementations (ours, OpenCV and OpenSURF) use different threshold va
 
 The interpolation between points to get subpixel accuracy for interest points follows the method in \cite{inv-features}; this essentially amounts to solving a linear system using pixel differences as approximations for the derivatives. In \cite{SURF}, it is implied that this process should be used to iteratively interpolate keypoint locations, and discard those that do not converge. However, both OpenCV and OpenSURF appear to simply use the interpolation deltas to discard keypoints that interpolate to a different point, rather than attempting to iterate towards convergence. Our program follows these implementations in abandoning the iterative paradigm. We found, though, that using interpolation for subpixel accuracy \emph{at all} appears to make our implementation 'worse' (in that its results diverge from that of the OpenCV and OpenSURF implementations). Why this should be the case is unclear.
 
+\paragraph{Experimental process.}
+To test the capability of our own algorithm implementation, we ran it on six images of human faces. Credit is given to the Massachusetts Institute of Technology and to the Center for Biological and Computational Learning for providing the database of facial images; see \cite{database}. The forward-facing images subset of the MIT-CBCL database was used. We first manually extracted features from the original images, identifying 10 interest points (eye centres, eye corners, mouth corners, mouth centre, tip of nose) in each case. 
+For each face, we tested 40 threshold values (from 1 to 196, differing by 5 in each case). We noted the number of interest points correctly identified as features (counting a hit within 15 pixels of the manually identified feature as a success). As well as these true positives, we also noted the number of false negatives (interest points not identified as features) and false positives (other points incorrectly identified as features).
+
+
+
+
