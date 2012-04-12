@@ -1,33 +1,23 @@
 % vim:ft=tex
 % rubber: module xelatex
 \subsection{Image segmentation}
-We have implemented a simple thresholding algorithm, and a split and
-merge image segmentation algorithm from the description on the lecture
-slides. Key points:
 
+We implemented two image segmentation algorithms: a simple thresholding algorithm, and a split and merge algorithm as described in the lecture slides. In both cases, the algorithm takes as input a greyscale image and outputs a segmented image. In the case of simple thresholding, the output image is divided into binary regions. In the case of the split and merge algorithm, the output image is divided into arbitrarily many regions, each one assigned a greyscale colour based on a rotating set of grey values.\\
+
+The visible parameters and properties of the segmentation algorithms are:
 \begin{itemize}
-
-\item The thresholding algorithm splits pixels into background and
-  foreground on a threshold which is the mean of the pixel
-  intensities. Optionally, this can be adapted iteratively by
-  adjusting the threshold to be halfway between the means of the upper
-  and lower half, until the threshold converges. No attempt is made to
-  figure out which parts of the image are background and which are
-  foreground. Instead, a user parameter sets whether the background in
-  the original image is light or dark.
-\item Regions in the split and merge algorithm are represented using
-  the Region class, which unfortunately tries to be a bit too clever,
-  and so represents regions using the points of their border. This
-  works well for convex regions, but breaks down when regions have
-  weird shapes. This means that because the convexity assumption
-  breaks down, in some cases regions that could have been merged will
-  not be, since pixels will be included in checks that should not. In
-  general it makes the segmentation less than perfect. Solution:
-  Actually store the pixels that make up the region.
-\item In the merge step of the split and merge segmentation, regions
-  are matched to each other rather naively (i.e. all regions are
-  matched to each other). This makes the implementation rather slow
-  when there are more than a few hundred regions after the split step.
-  Solution: Only merge regions that are neighbouring (this will be
-  easier given a better region representation).
+\item "Segmenting mode"; specifies the thresholding algorithm with either a global or adaptive threshold, or the split and merge algorithm.
+\item "Dark background" (default false); specifies whether the input image has a dark or light background.
+\item "Delta" (default 50); this is the parameter used for the uniformity predicate in the split and merge algorithm.
+\item "Threshold"; this value updates with the calculated global or adapted threshold when the thresholding algorithm is being used.\\
 \end{itemize}
+
+The 'global threshold' form of the thresholding algorithm takes the mean of all the pixel intensities in the image, and sorts each pixel as belonging to the background or the foreground based on this threshold. The 'adaptive threshold' option begins with the global threshold, then iteratively adjusts it to be halfway between the means of the current background and foreground, adjusting what qualifies as a background or foreground pixel accordingly until the threshold converges. This simple algorithm has a user parameter which sets whether the background in the original image is light or dark; no attempt is made to automatically determine this property.
+
+The split and merge algorithm is a form of contextual segmentation. The image begins as a single region. In each iteration of the "split" step, every region is quartered into subregions. This process continues until all regions are uniform. Then the "merge" step begins. In each iteration, adjacent regions are merged if the uniformity predicate would hold for the resulting superregion.
+
+Typically, the behaviour of the "split" step would require input images with width and height powers of 2. This restriction is overcome by padding the edges with zero-intensity pixels to extend the image to the nearest power of 2. Regions made entirely of padding are then removed before the "merge" step. Regions made partly of padding are included in the "merge" step, but the resulting image is cropped back to its original parameters for the display.
+
+In our implementation, the split and merge algorithm represents regions using the Region class. Unfortunately, in an attempt to be more efficient (by storing and processing fewer pixels), the Region class only stores the points of the regions' borders. The unforeseen downside of this is that the algorithm breaks down when non-convex regions exist. When the convexity assumption is broken, there are cases where regions that should have been merged escape the merging process, because certain pixels are included in checks that should not be. The result is that the segmentation process is less than perfect. The obvious solution to this implementation problem is to store all pixels which make up the region.
+
+ In the "merge" step of the split and merge segmentation, regions are compared to each other rather naively (i.e. every region is compared to every other region). This slows the implementation considerably when there are more than a few hundred regions after the split step (which occurs for low values of the delta parameter and for extremely heterogeneous images). The solution would be to only consider merging regions that are neighbouring; this is unfortunately impossible to do efficiently with the current region representation. Regions are merged using 4-connectivity, in as far as the algorithm checks, for each pixel on the boundary of a region, in four directions to determine whether the region can be merged.
