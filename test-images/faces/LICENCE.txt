@@ -1,0 +1,22 @@
+MIT LICENSE AGREEMENT:
+
+Copyright 2003 -2005 Massachusetts Institute of Technology.
+All Rights Reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of one or more images by downloading such images from this site, subject to the agreement of the following conditions and restrictions:
+
+1. You may use and reproduce images from this database, or parts of this database, for research purposes only. As such, these images may be published and/or presented in academic journals or scientific conference proceedings, or used in classroom settings and other similar academic settings, provided that attribution is given as described in item 2.
+
+2. The above copyright notice of M.I.T. shall be included in any use, publication, or presentation of any image of the database. In addition, the following acknowledgement and citation shall be used as appropriate. "Credit is hereby given to the Massachusetts Institute of Technology and to the Center for Biological and Computational Learning for providing the database of facial images." If results are published in conjunction with the database of images, the following paper should be cited: "B. Weyrauch, J. Huang, B. Heisele, and V. Blanz. Component-based Face Recognition with 3D Morphable Models, First IEEE Workshop on Face Processing in Video, Washington, D.C., 2004."
+
+3. You may not distribute the downloaded images, or any portion thereof, to anyone else.
+
+4. You may use the images to create new images but shall not modify the downloaded images themselves.
+
+5. You may not use the images for any commercial use, sale, or distribution of any kind.
+
+6. You agree that title to the copyright of the database of images will at all times remain with M.I.T. The names and trademarks of M.I.T. may not be used to advertise, endorse, promote, or to be used in connection with any publicity, pertaining to the images without specific prior written permission of M.I.T. In addition and except for the copyright notice and acknowledgement in item 2, you shall not use the name of "Massachusetts Institute of Technology," or any variation, adaptation, or abbreviation thereof, or of any of its trustees, officers, faculty, students, employees, or agents, or any trademark owned by M.I.T. in any promotional material, naming convention, or other public announcement or disclosure without the prior written consent and approval of M.I.T.
+
+7. YOU UNDERSTAND AND ACKNOWLEDGE THAT THIS DATABASE OF IMAGES IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY, NON-INFRINGEMENT AND FITNESS FOR A PARTICULAR PURPOSE.
+
+IN NO EVENT SHALL M.I.T., ITS TRUSTEES, DIRECTORS, OFFICERS, EMPLOYEES AND AFFILIATES BE LIABLE FOR INCIDENTAL OR CONSEQUENTIAL DAMAGES OF ANY KIND, INCLUDING ECONOMIC DAMAGES OR INJURY TO PROPERTY AND LOST PROFITS, REGARDLESS OF WHETHER M.I.T. SHALL BE ADVISED, SHALL HAVE OTHER REASON TO KNOW, OR IN FACT SHALL KNOW OF THE POSSIBILITY OF THE FOREGOING.
