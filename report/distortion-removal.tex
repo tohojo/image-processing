@@ -34,77 +34,67 @@ To test our program, we created a suite of 22 different chessboard images. Each 
 \paragraph{Experimental results.}
 We present our findings for each artificial chessboard image.
 \begin{enumerate}
-  \item The undistorted baseline image. The output appeared unchanged, as expected. 
-$0.999994200427223$
-$-0.0000000000398119706872993$
-$4.80105142502336 \times 10^-015$
-
-  \item 
-  \item 
+  \item \textbf{The undistorted baseline image.} The output appeared unchanged, as expected. The IPOLdistortion algorithm still managed to find some distortion. Note, though, that $\kappa_{0}$ is very close to $1$ and $\kappa_{2}$ and $\kappa_{4}$ are very close to $0$:\\
+   $ \kappa_{0}$ : $0.999994200427223$\\
+   $ \kappa_{2}$ : $-3.98119706872993 \times 10^{-011}$\\
+   $ \kappa_{4}$ : $4.80105142502336 \times 10^{-015}$
+  \item \textbf{A coloured version of the baseline image.} Although dark colours and light colours were alternated in a checkerboard pattern, OpenCV was unable to detect any corner points with which to extract straight lines.
+  \item \textbf{A version with $90\%$ barrel distortion applied in the GIMP image editing program.} The output appeared perfectly corrected. The algorithm found the following distortion model:\\
+   $ \kappa_{0}$ : $0.949263220519037$\\
+   $ \kappa_{2}$ : $1.769950227314560 \times 10^{-006}$\\
+   $ \kappa_{4}$ : $-2.582254153320966 \times 10^{-013}$
+  \item \textbf{A version with $90\%$ pincushion distortion likewise applied in the GIMP image editing program.} Our program was only able to find 47 corners. Using straight lines based on these 47 points allowed the program to correct the image, but not perfectly: the chessboard corners remained distorted. The algorithm found the following distortion model:\\
+   $ \kappa_{0}$ : $1.071119593409116$\\
+   $ \kappa_{2}$ : $-1.977158205506767 \times 10^{-006}$\\
+   $ \kappa_{4}$ : $1.188341242264043 \times 10^{-014}$
+  \item \textbf{A standard chessboard tilted $22.5^o$.} The output was unchanged, as expected.
+  \item \textbf{A standard chessboard tilted $45^o$.} The output was again unchanged.
+  \item \textbf{A chessboard with barrel distortion, tilted $45^o$.} The output image appeared perfectly corrected. The algorithm found the following distortion model:\\
+   $ \kappa_{0}$ : $0.9686762617113327$\\
+   $ \kappa_{2}$ : $1.027638980622977 \times 10^{-006}$\\
+   $ \kappa_{4}$ : $2.103241906415995 \times 10^{-013}$
+  \item \textbf{A chessboard with pincushion distortion, tilted $45^o$.} The algorithm was able to find all corners. However, the corrected image had the corners of its chessboard rounded, and some minor noise was add. The algorithm found the following distortion model:\\
+   $ \kappa_{0}$ : $1.032806607967469$\\
+   $ \kappa_{2}$ : $-7.264872008702564 \times 10^{-007}$\\
+   $ \kappa_{4}$ : $-3.242474093224431 \times 10^{-012}$
+  \item \textbf{A chessboard with barrel distortion, tilted $22.5^o$.} This was essentially the same as for the $45^o$ case. The algorithm found the following distortion model:\\
+GORN OFF\\
+  \item \textbf{A chessboard with pincushion distortion, tilted $22.5^o$.} This was essentially the same as for the $45^o$ case. The algorithm found the following distortion model:\\
+   $ \kappa_{0}$ : $1.033106718621702$\\
+   $ \kappa_{2}$ : $-7.409798474883854 \times 10^{-007}$\\
+   $ \kappa_{4}$ : $-3.126229979935852 \times 10^{-012}$
+  \item \textbf{A chessboard with barrel distortion, shifted within a larger image so that the centre of the board was not near the image centre.} This image was not properly corrected. As \cite{algebraic-distortion} states, "we will always take the center of the image as distortion center". Hence the failure of the algorithm on this input. The algorithm found the following distortion model:\\
+   $ \kappa_{0}$ : $1.025584574469791$\\
+   $ \kappa_{2}$ : $-1.109909378582727 \times 10^{-006}$\\
+   $ \kappa_{4}$ : $6.822970734639966 \times 10^{-012}$
+  \item \textbf{A chessboard with pincushion distortion, similarly shifted within a larger image.} The algorithm could only find 47 corners in the image, and was unable to generate lines from these.
+  \item \textbf{A barrel-distorted chessboard with a 10-pixel-wide Gaussian filter applied in GIMP.} The program was unable to detect any corner points with which to extract straight lines.
+  \item \textbf{A pincushion-distorted chessboard with the same Gaussian filter.} The program was able to identify 37 of the corner points, but was again unable to extract straight lines using these.
+  \item \textbf{A pincushion-distorted chessboard with noise added as the "spread" function in GIMP (set to $10\%$).} The program only found 42 corners. For the first time, it wrongly decided that it had extracted valid lines, and applied the IPOLdistortion functions. These false lines resulted in the strange pattern in figure XXXXXXXX. Surprisingly, when the corners it found were reduced to 36 by the experimenter, the program managed to extract proper line segments, and apply distortion removal correctly. The output image for this had the corners of its chessboard lost (as in previous cases for pincushion distortion) but un-distorted the middle of the chessboard correctly. See 15b. The algorithm initially found the following distortion model:\\
+   $ \kappa_{0}$ : $2.196137397890600$\\
+   $ \kappa_{2}$ : $-9.717713325573065 \times 10^{-005}$\\
+   $ \kappa_{4}$ : $9.424873711854491 \times 10^{-010}$\\
+The algorithm then found the following (correct) distortion model:\\
+   $ \kappa_{0}$ : $1.026807247150139$\\
+   $ \kappa_{2}$ : $-1.318339975621756 \times 10^{-006}$\\
+   $ \kappa_{4}$ : $-7.024131328406179 \times 10^{-012}$
+  \item \textbf{A similar pincushion-distorted chessboard, this time with $20\%$ noise.} The program was unable to detect any corner points with which to extract straight lines.
+  \item \textbf{A barrel-distorted chessboard, with $10\%$ "spread" noise.} The output image appeared perfectly corrected. The algorithm found the following distortion model:\\
+   $ \kappa_{0}$ : $0.9536020990600429$\\
+   $ \kappa_{2}$ : $1.548196267634160 \times 10^{-006}$\\
+   $ \kappa_{4}$ : $1.618813812151320 \times 10^{-012}$
+  \item \textbf{A similar barrel-distorted chessboard, this time with $20\%$ noise.} The program could only find 28 of the chessboard corners, and was unable to extract lines from the image based on these.
+  \item \textbf{A barrel-distorted chessboard with one edge of the board "stretched" unevenly towards the image edge.} The program found all corners correctly, but the supposedly corrected image appeared almost unchanged from its original state. This suggests the algorithm is not equipped to handle non-radial distortion. The algorithm found the following distortion model:\\
+   $ \kappa_{0}$ : $1.026810332882990$\\
+   $ \kappa_{2}$ : $-9.847350544109156 \times 10^{-007}$\\
+   $ \kappa_{4}$ : $4.754725445596508 \times 10^{-012}$
+  \item \textbf{A pincushion-distorted chessboard, with one edge stretched similarly.} The program could find 27 to 33 corners in the middle (depending on the user's specification of the chessboard dimensionality), but was unable to extract line segments from the image.
+  \item \textbf{A chessboard with one of its quadrants distorted by a function similar, but not identical, to pincushion distortion.} The program found all corners correctly, but the supposedly corrected image appeared almost unchanged from its original state. This is more evidence that the algorithm cannot correct non-radial distortion. The algorithm found the following distortion model:\\
+   $ \kappa_{0}$ : $1.106768272125357$\\
+   $ \kappa_{2}$ : $-6.637108668940288 \times 10^{-006}$\\
+   $ \kappa_{4}$ : $6.535378782144173 \times 10^{-011}$
+  \item \textbf{A chessboard with one of its quadrants distorted this time by a function similar, but not identical, to barrel distortion.} The program could find 47 of the corners, but was unable to extract lines from the image.
 \end{enumerate}
-
-Plain chessboard
-Colour chessboard
-Barrel distortion
-Pincushion distortion
-Tilted 22.5 degrees
-Tilted 45 degrees
-Tilted 45 degrees, barrel
-Tilted 45 degrees, pincushion
-Tilted 22.5 degrees, barrel
-Tilted 22.5 degrees, pincushion
-Shifted barrel distortion
-Shifted pincushion distortion
-Gauss 10 barrel
-Gauss 10 pincushion
-Spread 10 pincushion
-Spread 20 pincushion
-Spread 10 barrel
-Spread 20 barrel
-Barrel plus stretched edge
-Pincushion plus stretched edge
-Pseudo-Pincushion distortion in board corner
-Pseudo-Barrel distortion in board corner
-
-
-Unchanged, as expected.
-Unable to detect corners for straight lines.
-Corrected perfectly.
-Only found 47 corners. Using these for straight lines let it correct the image but lost the corners.
-Unchanged, as expected.
-Unchanged, as expected.
-Corrected perfectly.
-Corrected, but chessboard corners became rounded and some noise added.
-Corrected perfectly.
-Corrected, but chessboard corners became rounded and some noise added.
-Not properly corrected, presumably due to assumption that distortion centre = image centre.
-Only found 47 corners, and was unable to generate lines from these.
-Unable to detect corners for straight lines.
-Only found 37 corners in a circular pattern in the middle, and was unable to generate lines from these.
-Only found 42 corners; falsely constructed lines resulting in weird 15a pattern. Surprisingly successful when cut down to 36 corners, losing the chessboard corners but still correcting middle. See 15b.
-Unable to detect corners for straight lines.
-Corrected perfectly.
-Only found 28 corners, and was unable to generate lines from these.
-Found corners, but supposedly undistorted image was almost unchanged.
-Finds 27 to 33 corners in the middle, but unable to construct lines to run distortion on them
-Finds corners, almost no change to ‘undistorted’ image.
-Finds 47 corners, unable to reconstruct lines.
-
-
-
-Note that \cite{algebraic-distortion} states, "we will always take the center of the image as distortion center".
-
-\[
-  \kappa
-\]
-\[
- k_{0}
- k_{1}
- k_{2}
- k_{3}
- k_{4}
-\]
-
 
 We also ran a number of chessboard images from internet searches and created by hand from distorted grids likewise acquired from internet searches. These confirmed our results on the artificial chessboard suite. It also demonstrated that images of chessboards of strange dimensionalities (such as 4x10 or 14x16) can still be corrected, assuming the size of each chessboard square remains the same, and that the algorithm often cannot handle extreme camera angles or unusual types of noise (such as blotches or heavy noise only at the corners of squares).
 
@@ -113,6 +103,15 @@ We also ran a number of chessboard images from internet searches and created by 
 -> Finally, comparison with camera calibration results: we generated lists of lines for each face of three images, 0027, 0027 with barrel distortion, and 0027 with pincushion distortion. We generated straight lines from the image calibration points, which obviously ought to lie on straight lines. For each case, we used all horizontal lines and the two outer vertical lines from each face. We ran distortion removal on these, and compared the kappa-0, kappa-2 and kappa-4 output of the distortion algorithm to the kappa-1 found by calibration.\\
 
 (INSERT CHARTS HERE)
+
+
+
+ $ \kappa_{0}$
+ $ \kappa_{1}$
+ $ \kappa_{2}$
+ $ \kappa_{3}$
+ $ \kappa_{4}$
+
 
 
 
