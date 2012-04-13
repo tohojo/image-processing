@@ -75,7 +75,7 @@ We present our findings for each artificial chessboard image.
    $ \kappa_{0}$ : $2.196137397890600$\\
    $ \kappa_{2}$ : $-9.717713325573065 \times 10^{-005}$\\
    $ \kappa_{4}$ : $9.424873711854491 \times 10^{-010}$\\
-The algorithm then found the following (correct) distortion model:\\
+Note the unprecedentedly large value for $\kappa_{0}$. When running on 36 corners, the algorithm returned the following (correct) distortion model, which is much closer to the case for the baseline pincushion-distorted chessboard image:\\
    $ \kappa_{0}$ : $1.026807247150139$\\
    $ \kappa_{2}$ : $-1.318339975621756 \times 10^{-006}$\\
    $ \kappa_{4}$ : $-7.024131328406179 \times 10^{-012}$
@@ -83,25 +83,27 @@ The algorithm then found the following (correct) distortion model:\\
   \item \textbf{A barrel-distorted chessboard, with $10\%$ "spread" noise.} The output image appeared perfectly corrected. The algorithm found the following distortion model:\\
    $ \kappa_{0}$ : $0.9536020990600429$\\
    $ \kappa_{2}$ : $1.548196267634160 \times 10^{-006}$\\
-   $ \kappa_{4}$ : $1.618813812151320 \times 10^{-012}$
+   $ \kappa_{4}$ : $1.618813812151320 \times 10^{-012}$\\
+   Note that the first two $\kappa$ coefficients are very similar (within the same order of magnitude) to those found for the baseline barrel-distorted chessboard image, on which this noisy image was based. This indicates a certain robustness of the algorithm.
   \item \textbf{A similar barrel-distorted chessboard, this time with $20\%$ noise.} The program could only find 28 of the chessboard corners, and was unable to extract lines from the image based on these.
   \item \textbf{A barrel-distorted chessboard with one edge of the board "stretched" unevenly towards the image edge.} The program found all corners correctly, but the supposedly corrected image appeared almost unchanged from its original state. This suggests the algorithm is not equipped to handle non-radial distortion. The algorithm found the following distortion model:\\
    $ \kappa_{0}$ : $1.026810332882990$\\
    $ \kappa_{2}$ : $-9.847350544109156 \times 10^{-007}$\\
-   $ \kappa_{4}$ : $4.754725445596508 \times 10^{-012}$
+   $ \kappa_{4}$ : $4.754725445596508 \times 10^{-012}$\\
+  As with the case for a barrel-distorted image of a non-central chessboard, we have values $\kappa_{0} > 1$, $\kappa_{2}$ < 0, $\kappa_{4}$ > 0, which correlate with pincushion distortion. This is further evidence that the IPOLdistortion algorithm cannot fit a suitable distortion model to unexpected types of distortion.
   \item \textbf{A pincushion-distorted chessboard, with one edge stretched similarly.} The program could find 27 to 33 corners in the middle (depending on the user's specification of the chessboard dimensionality), but was unable to extract line segments from the image.
-  \item \textbf{A chessboard with one of its quadrants distorted by a function similar, but not identical, to pincushion distortion.} The program found all corners correctly, but the supposedly corrected image appeared almost unchanged from its original state. This is more evidence that the algorithm cannot correct non-radial distortion. The algorithm found the following distortion model:\\
-   $ \kappa_{0}$ : $1.106768272125357$\\
-   $ \kappa_{2}$ : $-6.637108668940288 \times 10^{-006}$\\
-   $ \kappa_{4}$ : $6.535378782144173 \times 10^{-011}$
+  \item \textbf{A chessboard with one of its quadrants distorted by a function similar, but not identical, to pincushion distortion.} The program found all corners correctly, but the supposedly corrected image appeared almost unchanged from its original state. This is more evidence that the algorithm cannot correct non-radial distortion. The distortion model returned by the algorithm was very similar in $\kappa$ signs and magnitude to that for the "stretched edge" and "non central" barrel-distorted chessboards. It appears that the IPOLdistortion library attempts to model these various forms of unexpected distortion in similar ways (but fails in each case).
   \item \textbf{A chessboard with one of its quadrants distorted this time by a function similar, but not identical, to barrel distortion.} The program could find 47 of the corners, but was unable to extract lines from the image.
 \end{enumerate}
 
-We also ran a number of chessboard images from internet searches and created by hand from distorted grids likewise acquired from internet searches. These confirmed our results on the artificial chessboard suite. It also demonstrated that images of chessboards of strange dimensionalities (such as 4x10 or 14x16) can still be corrected, assuming the size of each chessboard square remains the same, and that the algorithm often cannot handle extreme camera angles or unusual types of noise (such as blotches or heavy noise only at the corners of squares).
+\paragraph{Other tests.}
+We also ran our program on a wide range of pseudo-chessboard images obtained in various ways: from internet searches, created by hand from distorted grids drawn by hand, or created by hand from distorted grids acquired from internet searches. These tests confirmed our results from running the program on our artificial chessboard suite. We confirmed that images of chessboards of strange dimensionalities (such as 4x10 or 14x16) can still be corrected, assuming the sizes of the chessboard squares are reasonable. We noted that the algorithm often cannot handle extreme camera angles or unusual types of noise (such as "ink blotch" style noise, or significant noise at the corner-points of chessboard squares).
 
-\paragraph{Comparison with camera calibration results.}
+\subsubsection{Comparison with camera calibration results.}
 
--> Finally, comparison with camera calibration results: we generated lists of lines for each face of three images, 0027, 0027 with barrel distortion, and 0027 with pincushion distortion. We generated straight lines from the image calibration points, which obviously ought to lie on straight lines. For each case, we used all horizontal lines and the two outer vertical lines from each face. We ran distortion removal on these, and compared the kappa-0, kappa-2 and kappa-4 output of the distortion algorithm to the kappa-1 found by calibration.\\
+The process of camera calibration also involves determining the lens distortion parameters of the camera used to create an image. We now test our results with Tsai calibration from section~\ref{sec:segmentation}. We took an image of the distortion object, and the images of its artificially barrel-distorted and pincushion-distorted variants, and generated lists of lines for each. These lines were created from the image calibration points, which ought to lie on straight lines on each face. For each of the three images, we used all horizontal lines on each face as well as the two outer vertical lines from each face, for a total of 18 lines per image. We ran the IPOLdistortion library directly on these, and compared the $\kappa_{0}$, $\kappa_{2}$, and $\kappa_{4} coefficients that were output to the $\kappa_{1}$ found by Tsai calibration.
+
+
 
 (INSERT CHARTS HERE)
 
