@@ -101,8 +101,43 @@ We also ran our program on a wide range of pseudo-chessboard images obtained in 
 
 \subsubsection{Comparison with camera calibration results.}
 
-The process of camera calibration also involves determining the lens distortion parameters of the camera used to create an image. We now test our results with Tsai calibration from section~\ref{sec:segmentation}. We took an image of the distortion object, and the images of its artificially barrel-distorted and pincushion-distorted variants, and generated lists of lines for each. These lines were created from the image calibration points, which ought to lie on straight lines on each face. For each of the three images, we used all horizontal lines on each face as well as the two outer vertical lines from each face, for a total of 18 lines per image. We ran the IPOLdistortion library directly on these, and compared the $\kappa_{0}$, $\kappa_{2}$, and $\kappa_{4} coefficients that were output to the $\kappa_{1}$ found by Tsai calibration.
+The process of camera calibration also involves determining the lens distortion parameters of the camera used to create an image. We now test our results with Tsai calibration from section~\ref{sec:calibration}. We took an image of the distortion object, and the images of its artificially barrel-distorted and pincushion-distorted variants, and generated lists of lines for each. These lines were created from the image calibration points, which ought to lie on straight lines on each face. For each of the three images, we used all horizontal lines on each face as well as the two outer vertical lines from each face, for a total of 18 lines per image. We ran the IPOLdistortion library directly on these, and compared the $\kappa_{0}$, $\kappa_{2}$, and $\kappa_{4}$ coefficients that were output to the $\kappa_{1}$ found by Tsai calibration.
 
+\begin{table}[htb]
+  \centering
+  \begin{tabular}{c c c c c c c c c c}
+    \toprule
+    \multicolumn{2}{c}{\textbf{ }} &
+    \multicolumn{2}{c}{\textbf{$\kappa_{0}$ (IPOLdistortion)}} &
+    \multicolumn{2}{c}{\textbf{$\kappa_{2}$ (IPOLdistortion)}} &
+    \multicolumn{2}{c}{\textbf{$\kappa_{4}$ (IPOLdistortion)}} &
+    \multicolumn{2}{c}{\textbf{$\kappa_{1}$ (Tsai)}}\\
+    \midrule
+    \multicolumn{2}{c}{\textbf{Normal calibration image}} &
+    \multicolumn{2}{c}{$1.0063$} &
+    \multicolumn{2}{c}{$-2.7462 \times 10^{-08}$} &
+    \multicolumn{2}{c}{$1.9261 \times 10^{-14}$} &
+    \multicolumn{2}{c}{$-1.5133 \times 10^{-08}$} \\
+    \midrule
+    \multicolumn{2}{c}{\textbf{Barrel-distorted image}} &
+    \multicolumn{2}{c}{$0.9659$} &
+    \multicolumn{2}{c}{$9.5358 \times 10^{-08}$} &
+    \multicolumn{2}{c}{$3.8137 \times 10^{-14}$} &
+    \multicolumn{2}{c}{$1.1943 \times 10^{-07}$} \\
+    \midrule
+    \multicolumn{2}{c}{\textbf{Pincushion-distorted image}} &
+    \multicolumn{2}{c}{$1.0583$} &
+    \multicolumn{2}{c}{$-1.3887 \times 10^{-07}$} &
+    \multicolumn{2}{c}{$-6.8060 \times 10^{-15}$} &
+    \multicolumn{2}{c}{$-1.7305 \times 10^{-06}$} \\
+    \bottomrule
+  \end{tabular}
+  \caption[Comparison of Tsai calibration and IPOLdistortion lens distortion models]{Comparison of Tsai calibration and IPOLdistortion lens distortion models. This compares the $\kappa_{0}$, $\kappa_{2}$, and $\kappa_{4}$ coefficients determined by distortion removal with the $\kappa_{1}$ found by Tsai calibration.}
+  \label{tbl:calib-distort-compare}
+\end{table}
+
+One of the results of the calibration can be seen in
+table~\ref{tbl:calib-distort-compare}.
 
 
 (INSERT CHARTS HERE)
@@ -113,16 +148,4 @@ corrected chessboard 4
 corrected chessboard 8
 corrected 11
 15 original, 15a, 15b
-
-
- $ \kappa_{0}$
- $ \kappa_{1}$
- $ \kappa_{2}$
- $ \kappa_{3}$
- $ \kappa_{4}$
-
-
-
-
-
 
