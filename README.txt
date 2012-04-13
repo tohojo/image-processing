@@ -48,3 +48,8 @@ cancel a long-running processor.
 INSTALLATION
 
 See the INSTALL file in the `code/` subdirectory.
+
+
+USAGE
+
+See the 'HOW_TO_USE' file in this directory.

@@ -46,3 +46,6 @@ cancel a long-running processor.
 
 ## Installation ##
 See the INSTALL file in the `code/` subdirectory.
+
+## Usage ##
+See the 'HOW_TO_USE' file in this directory.

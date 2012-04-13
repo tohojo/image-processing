@@ -6,17 +6,10 @@
 We implemented two image segmentation algorithms: a simple thresholding algorithm, and a split and merge algorithm as described in the lecture slides. In both cases, the algorithm takes as input a greyscale image and outputs a segmented image. In the case of simple thresholding, the output image is divided into binary regions. In the case of the split and merge algorithm, the output image is divided into arbitrarily many regions, each one assigned a greyscale colour based on a rotating set of grey values.
 
 \subsubsection{Implementation notes}
-The visible parameters and properties of the segmentation algorithms are:
-\begin{itemize}
-\item "Segmenting mode"; specifies the thresholding algorithm with either a global or adaptive threshold, or the split and merge algorithm.
-\item "Dark background" (default false); specifies whether the input image has a dark or light background.
-\item "Delta" (default 50); this is the parameter used for the uniformity predicate in the split and merge algorithm.
-\item "Threshold"; this value updates with the calculated global or adapted threshold when the thresholding algorithm is being used.\\
-\end{itemize}
 
 The 'global threshold' form of the thresholding algorithm takes the mean of all the pixel intensities in the image, and sorts each pixel as belonging to the background or the foreground based on this threshold. The 'adaptive threshold' option begins with the global threshold, then iteratively adjusts it to be halfway between the means of the current background and foreground, adjusting what qualifies as a background or foreground pixel accordingly until the threshold converges. This simple algorithm has a user parameter which sets whether the background in the original image is light or dark; no attempt is made to automatically determine this property.
 
-The split and merge algorithm is a form of contextual segmentation. The image begins as a single region. In each iteration of the "split" step, every region is quartered into subregions. This process continues until all regions are uniform. Then the "merge" step begins. In each iteration, adjacent regions are merged if the uniformity predicate would hold for the resulting superregion.
+The split and merge algorithm is a form of contextual segmentation. The image begins as a single region. In each iteration of the "split" step, every region is quartered into subregions. This process continues until all regions are uniform according to the uniformity predicate based on the value $\delta$. Then the "merge" step begins. In each iteration, adjacent regions are merged if the uniformity predicate would hold for the resulting superregion.
 
 Typically, the behaviour of the "split" step would require input images with width and height powers of 2. This restriction is overcome by padding the edges with zero-intensity pixels to extend the image to the nearest power of 2. Regions made entirely of padding are then removed before the "merge" step. Regions made partly of padding are included in the "merge" step, but the resulting image is cropped back to its original parameters for the display.
 
@@ -36,9 +29,6 @@ To test the capability of our segmenting algorithms, we...
  Complex image of a brightly-lit bridge, where the global threshold picked out some of the detail of the spars that adaptive did not
 A cartoon imaeg where it picked out text in an intensity similar to the background of that text.
 boat in waitomo caves, picked up glow-worms better and the other shrank the boat
-
-
-
 
 
 
