@@ -9,29 +9,34 @@ We implemented two image segmentation algorithms: a simple thresholding algorith
 
 The 'global threshold' form of the thresholding algorithm takes the mean of all the pixel intensities in the image, and sorts each pixel as belonging to the background or the foreground based on this threshold. The 'adaptive threshold' option begins with the global threshold, then iteratively adjusts it to be halfway between the means of the current background and foreground, adjusting what qualifies as a background or foreground pixel accordingly until the threshold converges. This simple algorithm has a user parameter which sets whether the background in the original image is light or dark; no attempt is made to automatically determine this property.
 
-The split and merge algorithm is a form of contextual segmentation. The image begins as a single region. In each iteration of the "split" step, every region is quartered into subregions. This process continues until all regions are uniform according to the uniformity predicate based on the value $\delta$. Then the "merge" step begins. In each iteration, adjacent regions are merged if the uniformity predicate would hold for the resulting superregion.
+The split and merge algorithm is a form of contextual segmentation. The image begins as a single region. In each iteration of the "split" step, every region is quartered into subregions. This process continues until all regions are uniform according to the uniformity predicate based on the value $\Delta$. Then the "merge" step begins. In each iteration, adjacent regions are merged if the uniformity predicate would hold for the resulting superregion.
 
 Typically, the behaviour of the "split" step would require input images with width and height powers of 2. This restriction is overcome by padding the edges with zero-intensity pixels to extend the image to the nearest power of 2. Regions made entirely of padding are then removed before the "merge" step. Regions made partly of padding are included in the "merge" step, but the resulting image is cropped back to its original parameters for the display.
 
 In our implementation, the split and merge algorithm represents regions using the Region class. Unfortunately, in an attempt to be more efficient (by storing and processing fewer pixels), the Region class only stores the points of the regions' borders. The unforeseen downside of this is that the algorithm breaks down when non-convex regions exist. When the convexity assumption is broken, there are cases where regions that should have been merged escape the merging process, because certain pixels are included in checks that should not be. The result is that the segmentation process is less than perfect. The obvious solution to this implementation problem is to store all pixels which make up the region.
 
-In the "merge" step of the split and merge segmentation, regions are compared to each other rather naively (i.e. every region is compared to every other region). This slows the implementation considerably when there are more than a few hundred regions after the split step (which occurs for low values of the delta parameter and for extremely heterogeneous images). The solution would be to only consider merging regions that are neighbouring; this is unfortunately impossible to do efficiently with the current region representation. Regions are merged using 4-connectivity, in as far as the algorithm checks, for each pixel on the boundary of a region, in four directions to determine whether the region can be merged.
+In the "merge" step of the split and merge segmentation, regions are compared to each other rather naively (i.e. every region is compared to every other region). This slows the implementation considerably when there are more than a few hundred regions after the split step (which occurs for low values of the delta parameter $\Delta$ and for extremely heterogeneous images). The solution would be to only consider merging regions that are neighbouring; this is unfortunately impossible to do efficiently with the current region representation. Regions are merged using 4-connectivity, in as far as the algorithm checks, for each pixel on the boundary of a region, in four directions to determine whether the region can be merged.
 
-\subsubsection{Experimental process.}
+\subsubsection{Experimental process}
 
-\paragraph{Experimental parameters.}
-To test the capability of our segmenting algorithms, we...
-(SUBJECTIVE TESTS OF ALL 3) - 20 randomly googled images, say which is best of the thresholding, try to correlate this with how much the adaptive threshold changed from the global, and say how split \& merge did (is it recognisable?)
-(FOR TWO TINY TEST IMAGES TAKEN FROM OUR CALIBRATION PHOTOS: IDENTIFY NUMBER OF REGIONS; USE SPLIT/MERGE WITH VARIOUS PARAMS, SEE HOW MANY REGIONS IT RETURNS; GRAPH)
+\paragraph{Correctness.}
+We checked the correctness of our thresholding algorithms by performing manual segmentation of very small (4x4) images.
 
-\paragraph{Experimental results.}
-13, adaptive clearly better. Of these, for 10 of them the threshold was significantly different (>20 difference). 4, about the same. In all 4 cases, threshold was about the same (within 20). 3, global was better. These last two cases were:
- Complex image of a brightly-lit bridge, where the global threshold picked out some of the detail of the spars that adaptive did not
-A cartoon imaeg where it picked out text in an intensity similar to the background of that text.
-boat in waitomo caves, picked up glow-worms better and the other shrank the boat
+\paragraph{Qualitative rating.}
+We also performed a qualitative test of the usefulness of both forms of the thresholding algorithm, and the split and merge algorithm. In this test, we took 20 randomly generated words as the basis for Google searches, and ran the segmenting algorithms on the third image returned in each case. Of the 20 images, we rated 13 the adaptive thresholding algorithm as better in 13 cases. Of these 13 cases, the adaptive threshold was significantly different (20+ units difference) from the global threshold in 10 cases. For 4 of the images, the adaptive and global thresholds gave almost identical results; in each of these cases, the global threshold was within 20 units of the adaptive threshold. Finally, we rated the global threshold as better than the adaptive threshold in 3 cases. These were:
+\begin{itemize}
+   \item \emph{A complex image of a brightly-lit bridge.} The global threshold picked out some of the detail of the spars that the adaptive threshold did not.
+   \item \emph{An image of a cartoon character.} The global threshold picked out important text in an intensity similar to the background of that text. The adaptive threshold failed to pick out this text.
+   \item \emph{An image of a boat in the Waitomo caves.} The global threshold was better able to pick out the glow-worms; the adaptive threshold also shrank the size of the boat depicted.
+\end{itemize}
+In all cases, the split and merge algorithm performed poorly due to the issues we have mentioned. For the thresholding algorithm, there appeared to be a correlation between the quality of the segmentation and the difference between the global and adaptive threshold, in that the adaptive threshold \emph{usually} appeared to perform better when this difference was significant. Of course, this was only a subjective test.
 
+\paragraph{Region-counting experiment.}
+For a basic test of the split and merge algorithm's capabilities, we took four small test images from our photos of the camera calibration object (see section~\ref{sec:calibration}). The test images were specifically chosen such that one has two clear regions, one has five clear regions, one has seven clear regions and one has ten regions. For each test image, we ran the split and merge algorithm with varying $\Delta$ values. The results are presented in figure~\ref{fig:region-counts}. From this chart we observe that the higher the value $\Delta$, the fewer regions are returned, as expected: a more relaxed uniformity predicate means more regions can be merged. By observation, an appropriate value of $\Delta$ for an image of relatively few regions appears to be between 100 and 150. We should note, however, that the current implementation of the algorithm is flawed in that it fails on non-convex regions, and the observation may not hold for a better implementation. Note also that returning the correct \emph{number} of regions is not the same as accurately determining appropriate \emph{boundaries} for those regions.
 
-
-
-
-
+\begin{figure}
+  \centering
+  \includegraphics[width=0.85\textwidth]{figures/region-counts}
+  \caption[Regions returned by split and merge algorithm]{Number of regions returned by the split and merge algorithm. The graph shows the region count for four different test images. A horizontal line of the appropriate colour shows the correct number of regions for each image.}
+  \label{fig:region-counts}
+\end{figure}

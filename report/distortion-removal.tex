@@ -15,7 +15,7 @@ We use OpenCV to automatically extract detected corner points from a (distorted)
 
 The actual distortion removal functionality provided by IPOLdistortion consists of first modelling the distortion and then correcting the image based on that model. The IPOLdistortion code only accepts .tif images in an uncompressed format, and our implementation of the algorithm imposes several more constraints on the input image. A key constraint is that the image must be of a (distorted or undistorted) chessboard pattern of at least four squares to a side for the OpenCV code to successfully extract straight lines, and extending this functionality to cover a broader class of images would be an obvious contender for further work. If the input image contains large quantities of noise, OpenCV may not recognise its lines; if it contains unexpected forms of distortion (such as wave distortion), IPOLdistortion may not be able to correctly fit a lens distortion model to it. We next investigate these restrictions and the general capabilities of the algorithm.
 
-\subsubsection{Experimental process.}
+\subsubsection{Experimental process}
 
 \paragraph{Experimental parameters.}
 To test our program, we created a suite of 22 different chessboard images. Each was based on a default image we constructed, with dimensionality 8 squares to a side. The images included variations on rotation, image position, artificial barrel and pincushion distortion, unexpected forms of distortion, and noise. We ran each image through our program and compared the results to the baseline undistorted chessboard.
@@ -130,14 +130,14 @@ Note the unprecedentedly large value for $\kappa_{0}$. When running on 36 corner
   \centering
   \subfloat[Input image]{ \label{fig:chess-21-i} \includegraphics[trim = -10mm -10mm -10mm -10mm, width=0.35\textwidth]{figures/chess_input_21} }
   \subfloat[Output image]{ \label{fig:chess-21-o} \includegraphics[trim = -10mm -10mm -10mm -10mm, width=0.35\textwidth]{figures/chess_output_21} }
-  \caption{Artificial chessboard \#21: pseudo-pincushion distortion applied to one chessboard quadrant.}
+  \caption{Artificial chessboard \#21: pseudo-pincushion distortion in one chessboard quadrant.}
   \label{fig:chess-21}
 \end{figure}
 
 \paragraph{Other tests.}
 We also ran our program on a wide range of pseudo-chessboard images obtained in various ways: from internet searches, created by hand from distorted grids drawn by hand, or created by hand from distorted grids acquired from internet searches. These tests confirmed our results from running the program on our artificial chessboard suite. We confirmed that images of chessboards of strange dimensionalities (such as 4x10 or 14x16) can still be corrected, assuming the sizes of the chessboard squares are reasonable. We noted that the algorithm often cannot handle extreme camera angles or unusual types of noise (such as ``ink blotch" style noise, or significant noise at the corner-points of chessboard squares).
 
-\subsubsection{Comparison with camera calibration results.}
+\subsubsection{Comparison with camera calibration results}
 
 The process of camera calibration also involves determining the lens distortion parameters of the camera used to create an image. We now test our results with Tsai calibration from section~\ref{sec:calibration}. We took an image of the distortion object, and the images of its artificially barrel-distorted and pincushion-distorted variants, and generated lists of lines for each. These lines were created from the image calibration points, which ought to lie on straight lines on each face. For each of the three images, we used all horizontal lines on each face as well as the two outer vertical lines from each face, for a total of 18 lines per image. We ran the IPOLdistortion library directly on these, and compared the $\kappa_{0}$, $\kappa_{2}$, and $\kappa_{4}$ coefficients that were output to the $\kappa_{1}$ found by Tsai calibration.
 
@@ -172,4 +172,4 @@ The results are presented in table~\ref{tbl:calib-distort-compare}. The distorti
 
 However, we can observe that both forms of distortion modelling have the lowest $\kappa$ coefficients for the normal image, with distortion increasing for the barrel-distorted image, and increasing significantly more (by as much as an order of magnitude) for the pincushion-distorted image. For all three image variations, the $\kappa_{1}$ calculated in Tsai calibration is closest to the $\kappa_{2}$ of IPOLdistortion - in magnitude and in sign. This is expected, given that both these $\kappa$ values are calculated by optimisation from the value $0$, whereas $\kappa_{0}$ (which might otherwise be considered equally close to $\kappa_{1}$) is calculated in the IPOLdistortion algorithm by optimisation from the value $1$.
 
-We have seen that the results of the two algorithms are within the same "ballpark area". Although we lacked the testing apparatus to say so definitively, it is almost certain that the IPOLdistortion is the better distortion corrector, given our qualitative confirmation of the success of the IPOLdistortion algorithm on test images, and the simplistic (single $\kappa$) nature of the distortion model calculated as part of our Tsai calibration.
+We have seen that the results of the two algorithms are within the same "ballpark area". Although we lacked the testing apparatus to say so definitively, it is almost certain that the IPOLdistortion is the better distortion corrector, given our qualitative confirmation of the success of the IPOLdistortion algorithm on test images, and the simplistic (single $\kappa$) nature of the distortion model calculated as part of our Tsai calibration. However, one important caveat to remember, as \cite{straightlines} points out, is that images with too high distortion (e.g. actual ``fish-eye distortion") may not be suitably modelled at all using the polynomial $\kappa$-coefficients model.

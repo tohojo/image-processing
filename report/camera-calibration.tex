@@ -13,10 +13,9 @@ case''. That is, the calibration is performed from a single image
 of a calibration object that has calibration points in several (world)
 planes.
 
-Our calibration object can be seen in figure~\ref{fig:calib-object}.
-It consists of two adjacent faces of a cube, each of which has a
-number of circular calibration points. The left face has 35 points,
-and the right face 28. The distance between point centres is 1,5
+The calibration object we used can be seen in figure~\ref{fig:calib-object}.
+It consists of two adjacent faces of a cube, the left face having 35 regularly-spaced circular calibration points,
+and the right face 28 such points. The distance between point centres is 1.5
 inches. The world coordinate system is chosen to be a right-handed
 coordinate system, centred at the bottom corned of the cube, so the
 left face corresponds to the YZ plane, and the right face corresponds
@@ -25,28 +24,18 @@ to the XZ plane.
 \begin{figure}[hb]
   \centering
   \includegraphics[width=0.7\textwidth]{figures/calibration-object}
-  \caption[Calibration object]{Calibration object. The left face has
-    35 calibration points (the centres of the circles), and the right
-    face has 28. The distance between point centres is 1,5 inches. The
-    world coordinate system is chosen to be a right-handed coordinate
-    system, centred at the bottom corned of the cube, so the left face
-    corresponds to the YZ plane, and the right face corresponds to the
-    XZ plane.}
+  \caption[Calibration object]{Calibration object, demonstrating 35 calibration points on the left face (YZ plane) and 28 on the right face (XZ plane). Calibration points correspond to the centres of the circles. The distance between point centres is 1.5 inches.}
   \label{fig:calib-object}
 \end{figure}
 
 \subsubsection{Implementation notes}
-The implementation overall follows the procedure laid out in
-\cite{TSAI}. However, a few notes on the implementation are
-appropriate:
-
-\paragraph{Implemented parts of the algorithm.}
-As mentioned, we implement the calibration method that Tsai refers to
+Our implementation closely follows the procedure laid out in
+\cite{TSAI}. As mentioned, we implement the version that Tsai refers to
 as ``the monoview non-coplanar case''. The calibration function derives
-the transformation matrix, composed of the rotation matrix, $R$ and
-the translation matrix $T$, find the scale factor $s_x$, and the
+the transformation matrix (composed of the rotation matrix, $R$ and
+the translation matrix $T$), finds the scale factor $s_x$, and determines the
 intrinsic camera values $f$ (focal length) and $\kappa$ (radial
-distortion parameter). The radial distortion is calculated as far as
+lens distortion parameter). The radial distortion is calculated as far as
 $\kappa_1$. The literature suggests that this is sufficient for
 reasonably high accuracy using cameras without significant lens
 distortion \cite{algebraic-distortion}.
@@ -57,23 +46,23 @@ inches. These are given as input to the program in the form of a
 space-separated text file. The image coordinate points are found by
 first running the SURF feature point extraction algorithm described in
 section~\ref{sec:features} on the input image, with a relatively high
-threshold value (500). The feature points detected using this
+threshold value (default 500). The feature points detected using this
 algorithm are shown to the user on a binary image (obtained using
 adaptive thresholding -- see the description of the segmentation
-algorithms in section~\ref{sec:segmentation}), who then has the option
-of removing and adding points.
+algorithms in section~\ref{sec:segmentation}). The user then has the option
+to remove or add points.
 
-These user-corrected points are fed to the second stage of the
+These user-corrected points are used as input for the second stage of the
 calibration algorithm. This stage assumes that there are exactly 63
 points selected on the image, and furthermore takes as input exactly
 63 3D points (corresponding to the 63 circles on the calibration
 object). The image points are first corrected to be closer to the
-centre of the circle. This is done by flood filling the binary image
+centre of the circle. This is done by flood filling the binary-thresholded image
 from each point with a threshold of 0 (i.e. finding all pixels of the
 same colour as the point), and taking the average x and y values from
 this region. This means that the user does not have to select points
 that are exactly at the centre of the calibration region, but can
-click anywhere within it.
+click anywhere within it to identify the region.
 
 Following this correction, the image points are mapped to the real
 world coordinate points. This is done by a brute-force algorithm
@@ -88,9 +77,9 @@ relying on the fact that
 \end{inparaenum}
 This algorithm does impose some limitations on the possible viewing
 angles of the calibration object. For example, if the image is rotated
-by enough to make the faces overlap in the horizontal direction, the
+sufficiently to make points on the faces overlap in the horizontal direction, the
 first assumption breaks down and the image point to world point
-mapping fails.
+mapping will fail.
 
 \paragraph{Back-projection.}
 To test the error ratio of the calibration, we reverse the direction
@@ -101,18 +90,18 @@ parameters). This allows us to measure the distance between these
 derived world coordinates and the known ones as an error radius.
 
 \paragraph{Implementation problems.}
-We have encountered a few problems in our implementation. Primarily,
-it was not completely obvious to us that, in going from the coplanar
+We encountered several problems during our implementation. Primarily,
+it was not immediately obvious to us that, in going from the coplanar
 to the non-coplanar cases, equation (15) in \cite{TSAI} has to be
-re-derived from the earlier equation (8b), because the it is no longer
-true that $z_w=0$. Also, it proved tricky to get the back-projection
-working correctly.
+re-derived from the earlier equation (8b), because it is no longer
+true that $z_w=0$. It also proved difficult to get the back-projection
+working correctly, due to an earlier confusion about the right-handed nature of the world coordinate system.
 
 \subsection{Experimental results}
-For testing the calibration, we have run the program on four different
-pictures of the calibration object, taken with two different cameras.
-In this section, we go thnrough the results, first by doing some sanity
-checking on the values from observations of the environment, and then
+To test the calibration, we ran the program on four different
+pictures of the calibration object: two images taken with two different cameras.
+In this section, we go through the results, first by ``sanity
+checking" the values from observations of the environment, and then
 by looking at the errors from the back-projection estimates.
 
 \begin{table}[htb]
@@ -142,19 +131,14 @@ by looking at the errors from the back-projection estimates.
 \end{table}
 
 One of the results of the calibration can be seen in
-table~\ref{tbl:calib-results}. Looking at the translation vector,
-according to the calibration, the corner of the calibration object is
-just under 17 inches in front of the camera (or camera plane) and just
-under 7 inches below it. These figures are roughly consistent with the
-distance from which the picture is taken, so the calibration does not
-appear to be completely off.
+table~\ref{tbl:calib-results}. This is a typical output of the program. First, consider the translation vector. According to the calibration, the corner of the calibration object is
+a little less than 17 inches in front of the camera (or camera plane) and slightly less than 7 inches below it. We can tell by observation that these figures are roughly consistent with the
+distance from which the picture is taken.
 
-Furthermore, in table~\ref{tbl:focal-lengths} is a comparison
-between the focal length results for the four images. From this, it is
+Furthermore, table~\ref{tbl:focal-lengths} compares the focal length results for the four images. From this data, it is
 apparent that images taken with the same camera have similar focal
 lengths, and the focal lengths of images taken with different cameras
-are quite different. These two sanity tests together suggest that the
-results of the calibration are not completely off.
+are quite different. These two sanity tests together suggest that the calibration has at least been roughly successful.
 
 \begin{table}[h]
   \centering
@@ -168,27 +152,24 @@ results of the calibration are not completely off.
     0026 & -4701.72\\
     \bottomrule
   \end{tabular}
-  \caption[Focal length values for the test images]{Focal length
+  \caption[Focal length values for the test images]{Abstract focal length
     values for the test images. The images are taken pairwise with two
     different cameras; this is reflected in the focal length values,
     in that images taken with the same camera have very similar focal
-    lengths, and there is a large variation between the two cameras.}
+    lengths, and there is a significant variation between the two cameras.}
   \label{tbl:focal-lengths}
 \end{table}
 
-To test the size of error in the calibration values, we have
+To test the quantity of error in the calibration values, we have
 implemented a back-projection test, as described in the previous
 section. From this, we have obtained mean radii of error, i.e. the
 distances from the back-projected points to the known locations of the
 interest points. These are summarised in
 figure~\ref{fig:calib-errors}. The mean errors are roughly four times
 the errors Tsai reports in his paper (mean error $0.7$ mm $\simeq0.02$
-inches). The fifth column of the figure shows the mean error for one
+inches). Note that the fifth column of the figure shows the mean error for one
 of the images, using only the eight centre-most calibration points.
-This error is not much different from when all 63 points are used, and
-we suspect at least not significantly\footnote{We have unfortunately
-  misplaced the data that would allow us to confirm this with a proper
-  statistical model.}.
+This error is not considerably\footnote{we suspect that they are in fact not \emph{significantly} different, but unfortunately, an oversight during the experimentation process meant we failed to track the data that would allow us to confirm this with a proper statistical model.} different from the case in which all 63 points are used.
 
 \begin{figure}[htb]
   \centering
@@ -201,23 +182,3 @@ we suspect at least not significantly\footnote{We have unfortunately
     the 8 centre-most calibration points.}
   \label{fig:calib-errors}
 \end{figure}
-
-
-
-%Calibration experiments:\\
-%
-%-> On eight images (2 low grade, 2 high grade, 2 low grade distorted,
-%2 high grade distorted)...\\
-%
-%-> Compare backprojection accuracy... mean, variance, worst hit, best
-%hit, breakdown into (x,y,z) \\
-%
-%-> Compare kappa calculated (should be higher with lens distortion...
-%but using actual fisheye distortion may be so high that the polynomial
-%kappa model is unsuitable for it, as \cite{straightlines} (I believe
-%ot was) suggests can happen).\\
-%
-%-> Subjectively, look at the resulting translation and rotation
-%matrices and consider what they mean, as well as the sx and
-%focalLength.\\
-%
