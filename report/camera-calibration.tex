@@ -5,13 +5,12 @@
 \label{sec:calibration}
 
 For the camera calibration part of the application, we have
-implemented the calibration algorithm from \cite{TSAI}, which is a
+implemented the calibration algorithm from \cite{TSAI}, a
 classic and often-cited calibration method. The article encompasses
 several different methods of calibration; we are implementing the
 method that the article describes as ``the monoview non-coplanar
 case''. That is, the calibration is performed from a single image
-of a calibration object that has calibration points in several (world)
-planes.
+of a calibration object that has calibration points in several (world) planes.
 
 The calibration object we used can be seen in figure~\ref{fig:calib-object}.
 It consists of two adjacent faces of a cube, the left face having 35 regularly-spaced circular calibration points,
@@ -21,7 +20,7 @@ coordinate system, centred at the bottom corned of the cube, so the
 left face corresponds to the YZ plane, and the right face corresponds
 to the XZ plane.
 
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \includegraphics[width=0.6\textwidth]{figures/calibration-object}
   \caption[Calibration object]{Calibration object, demonstrating 35 calibration points on the left face (YZ plane) and 28 on the right face (XZ plane). Calibration points correspond to the centres of the circles. The distance between point centres is 1.5 inches.}
@@ -29,9 +28,8 @@ to the XZ plane.
 \end{figure}
 
 \subsubsection{Implementation notes}
-Our implementation closely follows the procedure laid out in
-\cite{TSAI}. As mentioned, we implement the version that Tsai refers to
-as ``the monoview non-coplanar case''. The calibration function derives
+Our implementation closely follows the procedure laid out for the monoview non-coplanar case in
+\cite{TSAI}. The calibration function derives
 the transformation matrix (composed of the rotation matrix, $R$ and
 the translation matrix $T$), finds the scale factor $s_x$, and determines the
 intrinsic camera values $f$ (focal length) and $\kappa$ (radial
@@ -52,9 +50,9 @@ adaptive thresholding -- see the description of the segmentation
 algorithms in section~\ref{sec:segmentation}). The user then has the option
 to remove or add points.
 
-These user-corrected points are used as input for the second stage of the
+The user-corrected points become the input for the second stage of the
 calibration algorithm. This stage assumes that there are exactly 63
-points selected on the image, and furthermore takes as input exactly
+points selected on the image, and also requires input of exactly
 63 3D points (corresponding to the 63 circles on the calibration
 object). The image points are first corrected to be closer to the
 centre of the circle. This is done by flood filling the binary-thresholded image
@@ -133,12 +131,10 @@ by looking at the errors from the back-projection estimates.
 One of the results of the calibration can be seen in
 table~\ref{tbl:calib-results}. This is a typical output of the program. First, consider the translation vector. According to the calibration, the corner of the calibration object is
 a little less than 17 inches in front of the camera (or camera plane) and slightly less than 7 inches below it. We can tell by observation that these figures are roughly consistent with the
-distance from which the picture is taken.
-
-Furthermore, table~\ref{tbl:focal-lengths} compares the focal length results for the four images. From this data, it is
+distance from which the picture is taken. Furthermore, table~\ref{tbl:focal-lengths} compares the focal length results for the four images. From this data, it is
 apparent that images taken with the same camera have similar focal
 lengths, and the focal lengths of images taken with different cameras
-are quite different. These two sanity tests together suggest that the calibration has at least been roughly successful.
+are quite different. These two sanity tests together suggest that the calibration has been approximately successful.
 
 \begin{table}[h]
   \centering
@@ -160,7 +156,7 @@ are quite different. These two sanity tests together suggest that the calibratio
   \label{tbl:focal-lengths}
 \end{table}
 
-To test the quantity of error in the calibration values, we have
+To test the error in our calibration values, we 
 implemented a back-projection test, as described in the previous
 section. From this, we have obtained mean radii of error, i.e. the
 distances from the back-projected points to the known locations of the
@@ -169,22 +165,24 @@ figure~\ref{fig:calib-errors}. The mean errors are roughly four times
 the errors Tsai reports in his paper (mean error $0.7$ mm $\simeq0.02$
 inches). Note that the fifth column of the figure shows the mean error for one
 of the images, using only the eight centre-most calibration points.
-This error is not considerably\footnote{ we suspect that it is in fact not \emph{significantly} different, but unfortunately, an oversight during the experimentation process meant we failed to track the data that would allow us to confirm this with a proper statistical model.} different from the case in which all 63 points are used. An interesting aside: we separated out the "directionality" of the errors, i.e. the overall misplacement of points in the global X, Y and Z directions, and found that the error along the Z axis was \emph{considerably} less than that along the X and Y axes. For all the tested images and most of their artificially barrel-distorted variants, the error in the X and Y axes was between 2 and 5 times the error in the Z axis.\footnote{ Error became extremely large in many of the artificially pincushion-distorted images, so it was difficult to judge the directional proportionality of error in those cases.} This is presumably because the global X and Y axes slope away from the camera position, whereas the global Z axis is (approximately) constant with respect to the camera position.
+This error is not considerably\footnote{ we suspect that it is in fact not \emph{significantly} different, but unfortunately, an oversight during the experimentation process meant we failed to track the data that would allow us to confirm this with a proper statistical model.} different from the case in which all 63 points are used.
+
+An interesting aside: we also tested the camera calibration on the same images with barrel distortion and pincushion distortion artificially introduced, and still reasonable results. We also separated out the "directionality" of the errors, i.e. the overall misplacement of points in the global X, Y and Z directions, and found that the error along the Z axis was considerably less than that along the X and Y axes. For all the tested images and most of their artificially barrel-distorted variants, the error in the X and Y axes was between 2 and 5 times the error in the Z axis.\footnote{ Error became very large in the artificially pincushion-distorted images, so it was difficult to judge the directionality of error in those cases.} This is presumably because the global X and Y axes slope away from the camera position, whereas the global Z axis is (approximately) constant with respect to the camera position.
 
 \begin{figure}[htb]
   \centering
   \includegraphics[width=0.75\textwidth]{figures/calibration-means}
   \caption[Mean calibration errors]{Mean calibration errors for all
     calibration points. Each set of bars is from a different image of
-    the same calibration object. The images are taken with two
-    different cameras, two with each camera. The lone bar on the right
-    is the mean error calculated from the first image, but with only
+    the same calibration object. Two images each are taken with two
+    different cameras. The lone bar on the right
+    is the mean error calculated from the first image, using only
     the 8 centre-most calibration points.}
   \label{fig:calib-errors}
 \end{figure}
 
 \paragraph{Calibration point detection.}
-As mentioned, we use our implementation of the SURF feature point extraction algorithm to pick out calibration points from the segmented image. We found this method to work reasonably well. We performed a small test to see how well it identified the 63 calibration points with various thresholds. The results are given in figure~\ref{fig:calib-auto}. The blue bars correspond to true positives, or the number of calibration points successfully identified by the function. The orange bars correspond to false positives, or the number of points of interest returned which did not correspond to calibration points (and would have to be manually removed by the user for the calibration to proceed). The yellow bars correspond to false negatives, or the number of calibration points not identified as points of interest (and would have to be manually added by the user for the calibration to proceed). As we can see from the charts, a threshold of around 500 tends to be modestly successful at picking out the calibration points.
+As mentioned, we use our implementation of the SURF feature point extraction algorithm to pick out calibration points from the segmented image. We found this method to work reasonably well. We performed a small test to see how well it identified the 63 calibration points with various thresholds. The results are given in figure~\ref{fig:calib-auto}. The blue bars correspond to true positives, or the number of calibration points successfully identified by the function. The orange bars correspond to false positives, or the number of points of interest returned which did not correspond to calibration points (and would have to be manually removed by the user for the calibration to proceed). The yellow bars correspond to false negatives, or the number of calibration points not identified as points of interest (and would have to be manually added by the user for the calibration to proceed). As we can see from the charts, a threshold of around 500 proves modestly successful at picking out the calibration points.
 
 \begin{figure}[h]
   \centering
