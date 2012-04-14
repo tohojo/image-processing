@@ -1,8 +1,14 @@
 % vim:ft=tex
-\documentclass[a4paper,11pt,twoside]{scrartcl}
+\documentclass[a4paper,10pt,twoside]{scrartcl}
 \usepackage{tohojo-xe}
 \usepackage{paralist}
 \usepackage{subfig}
+
+\addtolength{\hoffset}{-0.8cm}
+\addtolength{\voffset}{-0.8cm}
+\addtolength{\textwidth}{1.6cm}
+\addtolength{\textheight}{1.6cm}
+
 %\selectlanguage{english}
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{2}
@@ -58,9 +64,8 @@
 \input{other-work}
 % \clearpage
 \input{program-structure}
-% \clearpage
 \input{conclusions}
-
+ \clearpage
 \bibliographystyle{ruc}
 \bibliography{image-processing}
 \clearpage

@@ -6,7 +6,7 @@
 
 For the camera calibration part of the application, we have
 implemented the calibration algorithm from \cite{TSAI}, which is a
-classical and often cited calibration method. The article encompasses
+classic and often-cited calibration method. The article encompasses
 several different methods of calibration; we are implementing the
 method that the article describes as ``the monoview non-coplanar
 case''. That is, the calibration is performed from a single image
@@ -21,9 +21,9 @@ coordinate system, centred at the bottom corned of the cube, so the
 left face corresponds to the YZ plane, and the right face corresponds
 to the XZ plane.
 
-\begin{figure}[hb]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.7\textwidth]{figures/calibration-object}
+  \includegraphics[width=0.6\textwidth]{figures/calibration-object}
   \caption[Calibration object]{Calibration object, demonstrating 35 calibration points on the left face (YZ plane) and 28 on the right face (XZ plane). Calibration points correspond to the centres of the circles. The distance between point centres is 1.5 inches.}
   \label{fig:calib-object}
 \end{figure}
@@ -97,7 +97,7 @@ re-derived from the earlier equation (8b), because it is no longer
 true that $z_w=0$. It also proved difficult to get the back-projection
 working correctly, due to an earlier confusion about the right-handed nature of the world coordinate system.
 
-\subsection{Experimental results}
+\subsubsection{Experimental results}
 To test the calibration, we ran the program on four different
 pictures of the calibration object: two images taken with two different cameras.
 In this section, we go through the results, first by ``sanity
@@ -154,7 +154,7 @@ are quite different. These two sanity tests together suggest that the calibratio
   \end{tabular}
   \caption[Focal length values for the test images]{Abstract focal length
     values for the test images. The images are taken pairwise with two
-    different cameras; this is reflected in the focal length values,
+    different cameras; this is reflected in the focal lengths,
     in that images taken with the same camera have very similar focal
     lengths, and there is a significant variation between the two cameras.}
   \label{tbl:focal-lengths}
@@ -169,11 +169,11 @@ figure~\ref{fig:calib-errors}. The mean errors are roughly four times
 the errors Tsai reports in his paper (mean error $0.7$ mm $\simeq0.02$
 inches). Note that the fifth column of the figure shows the mean error for one
 of the images, using only the eight centre-most calibration points.
-This error is not considerably\footnote{we suspect that they are in fact not \emph{significantly} different, but unfortunately, an oversight during the experimentation process meant we failed to track the data that would allow us to confirm this with a proper statistical model.} different from the case in which all 63 points are used.
+This error is not considerably\footnote{ we suspect that it is in fact not \emph{significantly} different, but unfortunately, an oversight during the experimentation process meant we failed to track the data that would allow us to confirm this with a proper statistical model.} different from the case in which all 63 points are used. An interesting aside: we separated out the "directionality" of the errors, i.e. the overall misplacement of points in the global X, Y and Z directions, and found that the error along the Z axis was \emph{considerably} less than that along the X and Y axes. For all the tested images and most of their artificially barrel-distorted variants, the error in the X and Y axes was between 2 and 5 times the error in the Z axis.\footnote{ Error became extremely large in many of the artificially pincushion-distorted images, so it was difficult to judge the directional proportionality of error in those cases.} This is presumably because the global X and Y axes slope away from the camera position, whereas the global Z axis is (approximately) constant with respect to the camera position.
 
 \begin{figure}[htb]
   \centering
-  \includegraphics[width=0.7\textwidth]{figures/calibration-means}
+  \includegraphics[width=0.75\textwidth]{figures/calibration-means}
   \caption[Mean calibration errors]{Mean calibration errors for all
     calibration points. Each set of bars is from a different image of
     the same calibration object. The images are taken with two
@@ -181,4 +181,16 @@ This error is not considerably\footnote{we suspect that they are in fact not \em
     is the mean error calculated from the first image, but with only
     the 8 centre-most calibration points.}
   \label{fig:calib-errors}
+\end{figure}
+
+\paragraph{Calibration point detection.}
+As mentioned, we use our implementation of the SURF feature point extraction algorithm to pick out calibration points from the segmented image. We found this method to work reasonably well. We performed a small test to see how well it identified the 63 calibration points with various thresholds. The results are given in figure~\ref{fig:calib-auto}. The blue bars correspond to true positives, or the number of calibration points successfully identified by the function. The orange bars correspond to false positives, or the number of points of interest returned which did not correspond to calibration points (and would have to be manually removed by the user for the calibration to proceed). The yellow bars correspond to false negatives, or the number of calibration points not identified as points of interest (and would have to be manually added by the user for the calibration to proceed). As we can see from the charts, a threshold of around 500 tends to be modestly successful at picking out the calibration points.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figures/calibration-auto}
+  \caption[Calibration point detection]{Calibration points detected. Each chart is from a different image of
+    the same calibration object. The images are taken with two
+    different cameras, two with each camera. Each set of bars gives the rate of true positives, false positives and false negatives for a given threshold value.}
+  \label{fig:calib-auto}
 \end{figure}

@@ -1,4 +1,13 @@
 % vim:ft=tex
 % rubber: module xelatex
+
 \section{Conclusions}
 \label{sec:conclusions}
+
+In summary, we have implemented four core image processing functions to what we consider a satisfactory level, although there remains considerable work that could be done on each of them.
+\begin{itemize}
+  \item We have implemented image segmentation in the form of basic thresholding, and a `proof of concept' of the split and merge algorithm. The thresholding proves its worth in the calibration function.
+  \item We also integrated face feature extraction into our program. This function demonstrates the capabilities of two open-source implementations of the SURF algorithm, as well as our own. This feature extraction algorithm is also useful for automatic extraction of calibration points during camera calibration.
+  \item We wrote a function that performs Tsai calibration. Testing it with back-projection, we found fairly modest radius-of-error values. Further refinement of this algorithm (for instance, more accurate modelling of lens distortion) should reduce this error considerably.
+  \item One such accurate model of radial lens distortion is implemented in our fourth function, the distortion modelling and correction algorithm. It works robustly on distorted chessboard images, providing an interesting counterpoint to the distortion model of Tsai calibration; further work would extend this to a wider range of input images.
+\end{itemize}
