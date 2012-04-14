@@ -2,6 +2,7 @@
 % rubber: module xelatex
 
 \subsection{Distortion removal}
+\label{sec:distortion}
 
 We investigated forms of distortion removal independent of camera calibration. One particularly useful and simple open-source ANSI C library we discovered was provided by the authors of \cite{algebraic-distortion}. Herein we shall refer to this IPOL library and the algorithm it describes as IPOLdistortion. This implementation estimates the lens distortion parameters of a camera (or image) based on the rectification of lines in the images, as described in e.g. \cite{straightlines}, but with some innovations.
 

@@ -34,7 +34,7 @@ In all cases, the split and merge algorithm performed poorly due to the issues w
 \paragraph{Region-counting experiment.}
 For a basic test of the split and merge algorithm's capabilities, we took four small test images from our photos of the camera calibration object (see section~\ref{sec:calibration}). The test images were specifically chosen such that one has two clear regions, one has five clear regions, one has seven clear regions and one has ten regions. For each test image, we ran the split and merge algorithm with varying $\Delta$ values. The results are presented in figure~\ref{fig:region-counts}. From this chart we observe that the higher the value $\Delta$, the fewer regions are returned, as expected: a more relaxed uniformity predicate means more regions can be merged. By observation, an appropriate value of $\Delta$ for an image of relatively few regions appears to be between 100 and 150. We should note, however, that the current implementation of the algorithm is flawed in that it fails on non-convex regions, and the observation may not hold for a better implementation. Note also that returning the correct \emph{number} of regions is not the same as accurately determining appropriate \emph{boundaries} for those regions.
 
-\begin{figure}
+\begin{figure}[h]
   \centering
   \includegraphics[width=0.8\textwidth]{figures/region-counts}
   \caption[Regions returned by split and merge algorithm]{Number of regions returned by the split and merge algorithm. The graph shows the region count for four different test images. A horizontal line of the appropriate colour shows the correct number of regions for each image.}

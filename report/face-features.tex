@@ -20,32 +20,35 @@ The interpolation between points to get subpixel accuracy for interest points fo
 \paragraph{Experimental parameters.}
 To test the capability of our own SURF algorithm implementation, we ran it on six images of human faces. Credit is given to the Massachusetts Institute of Technology and to the Center for Biological and Computational Learning for providing the database of facial images; see \cite{database}. The forward-facing images subset of the MIT-CBCL database was used. We first manually extracted features from the original images, identifying 10 interest points (eye centres, eye corners, mouth corners, mouth centre, tip of nose) in each case.
 
-For each face, we tested 40 threshold values (from 1 to 196, increasing by a gradation of 5 each time). We noted the number of interest points correctly identified as features; for this purpose we count an interest point that ``hits" within 15 pixels of the manually identified feature as a success). As well as these true positives, we also investigated the number of false negatives (interest points the algorithm fails to identify as features) and false positives (other points which the algorithm incorrectly identifies as features\footnote{i.e. they do not lie within 15 pixels of a manually identified feature point.}).
-
-\begin{figure}
+\begin{figure} [h]
   \centering
-  \subfloat[Face image 1]{ \label{fig:face-1} \includegraphics[height=0.4\textheight, width=0.8\textwidth]{figures/face1} }\\
-  \subfloat[Face image 2]{ \label{fig:face-2} \includegraphics[height=0.4\textheight, width=0.8\textwidth]{figures/face2} }
-  \caption[Face features identified by our implementation of the SURF algorithm]{Face features identified by our implementation of the SURF algorithm. Each chart corresponds to a different test image, and shows true positives (returned interest points corresponding to face features), false negatives (face features not identified by any returned interest point), and false positives (returned interest points not corresponding to face features).}
+  \subfloat[Face image 1]{ \label{fig:face-1} \includegraphics[width=0.99\textwidth]{figures/face1} }\\
+  \subfloat[Face image 2]{ \label{fig:face-2} \includegraphics[width=0.995\textwidth]{figures/face2} }
+  \caption[Face features identified by our SURF implementation (images 1 \& 2)]{Face features identified by our implementation of the SURF algorithm. Each chart shows the true positives, false negatives and false positives for one test image.}
   \label{fig:face-features-hits-1}
 \end{figure}
 
-\begin{figure}
-  \centering
-  \subfloat[Face image 3]{ \label{fig:face-3} \includegraphics[height=0.4\textheight, width=0.8\textwidth]{figures/face3} }\\
-  \subfloat[Face image 4]{ \label{fig:face-4} \includegraphics[height=0.4\textheight, width=0.8\textwidth]{figures/face4} }
-  \caption[Face features identified by our implementation of the SURF algorithm]{Face features identified by our implementation of the SURF algorithm. Each chart corresponds to a different test image, and shows true positives (returned interest points corresponding to face features), false negatives (face features not identified by any returned interest point), and false positives (returned interest points not corresponding to face features).}
-  \label{fig:face-features-hits-2}
-\end{figure}
+For each face, we tested 40 threshold values (from 1 to 196, increasing by a gradation of 5 each time). We noted the number of interest points returned that correctly identify features; for this purpose we count an interest point that ``hits" within 15 pixels of the manually identified feature as a success). As well as these true positives, we also investigated the number of false negatives (faces features which the algorithm fails to return interest points for) and false positives (other points which the algorithm incorrectly identifies as features\footnote{i.e. returned interest points which do not lie within 15 pixels of a manually identified feature point.}).
 
-\begin{figure}
+\begin{figure} [h]
   \centering
-  \subfloat[Face image 5]{ \label{fig:face-5} \includegraphics[height=0.4\textheight, width=0.8\textwidth]{figures/face5} }\\
-  \subfloat[Face image 6]{ \label{fig:face-6} \includegraphics[height=0.4\textheight, width=0.8\textwidth]{figures/face6} }
-  \caption[Face features identified by our implementation of the SURF algorithm]{Face features identified by our implementation of the SURF algorithm. Each chart corresponds to a different test image, and shows true positives (returned interest points corresponding to face features), false negatives (face features not identified by any returned interest point), and false positives (returned interest points not corresponding to face features).}
-  \label{fig:face-features-hits-3}
+  \subfloat[Face image 3]{ \label{fig:face-3} \includegraphics[width=0.99\textwidth]{figures/face3} }\\
+  \subfloat[Face image 4]{ \label{fig:face-4} \includegraphics[width=0.99\textwidth]{figures/face4} }
+  \caption[Face features identified by our SURF implementation (images 3 \& 4)]{Face features identified by our implementation of the SURF algorithm. Each chart shows the true positives, false negatives and false positives for one test image.}
+  \label{fig:face-features-hits-2}
 \end{figure}
 
 \paragraph{Experimental results.}
 We present the results of our testing in figures~\ref{fig:face-features-hits-1}, ~\ref{fig:face-features-hits-2} and ~\ref{fig:face-features-hits-3}. The charts therein plot the changes in feature extraction success, false negatives, and false positives. Note that we manually defined only $10$ features per face image. This is a relatively small number; considerably smaller than the number of "interesting" features on a human face. Therefore the number of false positives tends to dominate the total number of interest points returned. In fact, the magnitude of the false positives could not always be represented on the graphs without increasing the scale so much that the other values would become indistinguishable from zero; we therefore place an artificial limit of 150 on the Y axis.
 
+\begin{figure} [h]
+  \centering
+  \subfloat[Face image 5]{ \label{fig:face-5} \includegraphics[width=0.99\textwidth]{figures/face5} }\\
+  \subfloat[Face image 6]{ \label{fig:face-6} \includegraphics[width=0.99\textwidth]{figures/face6} }
+  \caption[Face features identified by our SURF implementation (images 5 \& 6)]{Face features identified by our implementation of the SURF algorithm. Each chart shows the true positives, false negatives and false positives for one test image.}
+  \label{fig:face-features-hits-3}
+\end{figure}
+
+\paragraph{Conclusions.}
+As expected, when the threshold increases, the total number of interest points returned decreases. There are fewer false positives, but there are also fewer genuine matches. For most of the images, half of the manually identified features are not being found by the time the threshold reaches 50. There is considerable variability between the results for the six faces. For instance, face image \#6 (figure~\ref{fig:face-6}) acquires a vast number of false positives. The performance of the algorithm on face image \#1 (figure~\ref{fig:face-1}) drops to a zero success rate much earlier than the others. Face image \#3 (figure~\ref{fig:face-3}) is unique in that it continues to match many interest points to 1 or 2 face features even at the maximum tested threshold. There is also a 
+general variability of the threshold point at which the algorithm returns more false negatives (features missed) than true positives (interest points identified correctly corresponding to features). This is as low as 66 in (figure~\ref{fig:face-4}) and as high as \emph{never} in (figure~\ref{fig:face-3}). Of course, this variability is completely expected, given the extreme heterogeneity of the human face.
