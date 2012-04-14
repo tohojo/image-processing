@@ -33,7 +33,7 @@ We present our findings for each artificial chessboard image.
    $ \kappa_{2}$ : $1.769950227314560 \times 10^{-006}$\\
    $ \kappa_{4}$ : $-2.582254153320966 \times 10^{-013}$\\
    Note that $\kappa_{2}$ and $\kappa_{4}$ are several orders of magnitude larger than in the undistorted model, and $\kappa_{0}$ is also further from the original value of $1$.
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \subfloat[Barrel-distorted input image] { \label{fig:chess-3-i} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.3\textwidth]{figures/chess_input_3} }
   \subfloat[Corrected barrel-distorted image] { \label{fig:chess-3-o} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.3\textwidth]{figures/chess_output_3} }\\
@@ -55,7 +55,7 @@ We present our findings for each artificial chessboard image.
    $ \kappa_{2}$ : $-7.264872008702564 \times 10^{-007}$\\
    $ \kappa_{4}$ : $-3.242474093224431 \times 10^{-012}$\\
    This model is not quite as similar to the non-tilted pincushion-distorted image as its barrel-distorted analogue is to its own non-tilted version. This may be because pincushion distortion stretches the chessboard pattern over a greater relative area of the image, magnifying the effects of rotation at most points.
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \subfloat[Input image]{ \label{fig:chess-8-i} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.3\textwidth]{figures/chess_input_8} }
   \subfloat[Output image]{ \label{fig:chess-8-o} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.3\textwidth]{figures/chess_output_8} }
@@ -80,7 +80,7 @@ Note the unprecedentedly large value for $\kappa_{0}$. When the corners were red
    $ \kappa_{0}$ : $1.026807247150139$\\
    $ \kappa_{2}$ : $-1.318339975621756 \times 10^{-006}$\\
    $ \kappa_{4}$ : $-7.024131328406179 \times 10^{-012}$
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \subfloat[Input image]{ \label{fig:chess-15-i} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.26\textwidth]{figures/chess_input_15} }
   \subfloat[First output image]{ \label{fig:chess-15-o1} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.26\textwidth]{figures/chess_output_15a} }
@@ -100,7 +100,7 @@ Note the unprecedentedly large value for $\kappa_{0}$. When the corners were red
    $ \kappa_{2}$ : $-9.847350544109156 \times 10^{-007}$\\
    $ \kappa_{4}$ : $4.754725445596508 \times 10^{-012}$\\
   As with the case for a barrel-distorted image of a non-central chessboard, we have values $\kappa_{0} > 1$, $\kappa_{2}$ < 0, $\kappa_{4}$ > 0, which otherwise correlate with \emph{pincushion} distortion.
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \subfloat[Input image]{ \label{fig:chess-19-i} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.3\textwidth]{figures/chess_input_19} }
   \subfloat[Output image]{ \label{fig:chess-19-o} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.3\textwidth]{figures/chess_output_19} }
@@ -109,7 +109,7 @@ Note the unprecedentedly large value for $\kappa_{0}$. When the corners were red
 \end{figure}
   \item \textbf{A pincushion-distorted chessboard, with one edge stretched.} The program could find 27 to 33 corners in the middle (depending on the user's specification of the chessboard dimensionality), but was unable to extract line segments from the image.
   \item \textbf{A chessboard with one of its quadrants distorted by a function similar, but not identical, to pincushion distortion.} The program found all corners correctly, but the supposedly corrected image was at least as distorted as its original state (see figure~\ref{fig:chess-21}). Again, the algorithm clearly cannot correct non-radial distortion. The distortion model returned by the algorithm was very similar in $\kappa$ signs and magnitude to that for the ``stretched edge" and ``non central" barrel-distorted chessboards, which it also failed to model.
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \subfloat[Input image]{ \label{fig:chess-21-i} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.3\textwidth]{figures/chess_input_21} }
   \subfloat[Output image]{ \label{fig:chess-21-o} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.3\textwidth]{figures/chess_output_21} }
