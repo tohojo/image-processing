@@ -30,7 +30,8 @@ public:
 	void calibrate();
 	void checkResults();
   std::vector<point_correspondence> getMapping() {return mapping;}
-	Mat computeLeastSquaresForKappa(double kappa);
+	Mat computeLeastSquaresForKappa(double kappa_one, double kappa_two);
+	double findStandardDeviation(double * entries, int count);
 	double imageLengthX;
 	double imageLengthY;
 
