@@ -1,0 +1,73 @@
+% vim:ft=tex
+\documentclass[a4paper,10pt,twoside]{scrartcl}
+\usepackage{tohojo-xe}
+\usepackage{paralist}
+\usepackage{subfig}
+
+\addtolength{\hoffset}{-0.8cm}
+\addtolength{\voffset}{-0.8cm}
+\addtolength{\textwidth}{1.6cm}
+\addtolength{\textheight}{1.cm}
+
+%\selectlanguage{english}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+\hypersetup{pdfauthor={Toke Høiland-Jørgensen, Ben Meadows},
+  pdftitle={Image Processing \#2}}
+\title{Image Processing \#2}
+\author{Toke Høiland-Jørgensen, Ben Meadows}
+\date{2012-05-13}
+%\fancyhead[OR,EL]{\footnotesize Draft: \timestamp}
+%\type{}
+
+\definecolor{Brown}{cmyk}{0,0.81,1,0.60}
+\definecolor{OliveGreen}{cmyk}{0.64,0,0.95,0.40}
+\definecolor{CadetBlue}{cmyk}{0.62,0.57,0.23,0}
+
+\font\2="Inconsolata" at 9pt
+\lstset{language=C++, basicstyle=\2, showstringspaces=false,
+ keywordstyle=\2\color{OliveGreen},
+ identifierstyle=\2\color{CadetBlue},
+ commentstyle=\color{Brown},
+ stringstyle=\2,
+ numberstyle=\scriptsize,
+ numbers=left, stepnumber=5,
+% captionpos=b,
+ tabsize=4, frame=tb}
+
+\begin{document}
+\hyphenation{
+}
+
+\begin{titlepage}
+    \begin{center}
+        {\Huge \sffamily \textbf{Image processing \#2\\[2cm]
+        }}%\includegraphics[height=14cm]{Figures/Frontpage}
+        %\\[2cm]
+        {\large Toke Høiland-Jørgensen \\
+        Ben Meadows\\
+        [0.5cm] }
+        \vfill
+        \textsf{COMPSCI 773, semester 1 2012\\
+        University of Auckland}
+	\end{center}
+    \clearpage
+%    \input{abstract}
+\end{titlepage}
+\tableofcontents
+\listoffigures
+\listoftables
+% \lstlistoflistings
+\clearpage
+\input{introduction}
+% \clearpage
+\input{improvements.tex}
+% \clearpage
+\input{other-work}
+% \clearpage
+\input{program-structure}
+\input{conclusions}
+\bibliographystyle{ruc}
+\bibliography{image-processing}
+\clearpage
+\end{document}
