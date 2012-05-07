@@ -1,0 +1,101 @@
+019
+ kappa-1 =  -2.84302e-08 
+ kappa-2 =  1.1337e-14 
+ MEAN ERROR:  0.0852718 
+ HIGHEST POINT ERROR:  0.223263 
+ STANDARD DEVIATION:  0.0373402 
+
+019 minus edge columns
+ kappa-1 =  -2.72677e-08 
+ kappa-2 =  9.63138e-15 
+ MEAN ERROR:  0.0760405 
+ HIGHEST POINT ERROR:  0.154544 
+ STANDARD DEVIATION:  0.0320298 
+ 
+019 barrel
+ kappa-1 =  1.00957e-07 
+ kappa-2 =  2.09752e-14 
+ MEAN ERROR:  0.0898929 
+ HIGHEST POINT ERROR:  0.232356 
+ STANDARD DEVIATION:  0.0383419 
+
+019 barrel minus edge columns
+ kappa-1 =  1.08045e-07 
+ kappa-2 =  1.34074e-14 
+ MEAN ERROR:  0.0734586 
+ HIGHEST POINT ERROR:  0.158575 
+ STANDARD DEVIATION:  0.0307394 
+ 
+019 pincushion
+ kappa-1 =  -2.85574e-06 
+ kappa-2 =  1.76859e-12 
+ MEAN ERROR:  4.65799
+ HIGHEST POINT ERROR:  113.295 
+ STANDARD DEVIATION:  14.1528 
+ 
+019 pincushion minus edge columns
+ kappa-1 =  -3.76622e-06 
+ kappa-2 =  3.37974e-12 
+ MEAN ERROR:  3.21 
+ HIGHEST POINT ERROR:  32.9407 
+ STANDARD DEVIATION:  5.05084 
+
+
+
+DSC025
+ kappa-1 =  6.91623e-09 
+ kappa-2 =  -8.61275e-15 
+ MEAN ERROR:  0.0920718 
+ HIGHEST POINT ERROR:  0.176891 
+ STANDARD DEVIATION:  0.0392627 
+
+DSC025 sans edges
+ kappa-1 =  1.52588e-08 
+ kappa-2 =  -1.45519e-14 
+ MEAN ERROR:  0.0892522 
+ HIGHEST POINT ERROR:  0.16866 
+ STANDARD DEVIATION:  0.0345314  
+
+DSC025 barrel
+ kappa-1 =  6.01239e-08 
+ kappa-2 =  2.25908e-15 
+ MEAN ERROR:  0.0874265 
+ HIGHEST POINT ERROR:  0.226677 
+ STANDARD DEVIATION:  0.0408557 
+
+DSC025 barrel sans edges
+ kappa-1 =  1.2207e-07 
+ kappa-2 =  -1.16415e-13 
+ MEAN ERROR:  0.259667 
+ HIGHEST POINT ERROR:  0.733684 
+ STANDARD DEVIATION:  0.179503 
+
+DSC025 pincushion
+ kappa-1 =  0 
+ kappa-2 =  0 
+ MEAN ERROR:  3.27076 
+ HIGHEST POINT ERROR:  35.8092
+ STANDARD DEVIATION:  4.7153 
+ 
+DSC025 pincushion sans edges
+ kappa-1 =  -1.43501e-08 
+ kappa-2 =  -4.67812e-14 
+ MEAN ERROR:  0.137344 
+ HIGHEST POINT ERROR:  0.411752 
+ STANDARD DEVIATION:  0.0893143 
+ 
+
+
+Student's (unpaired) t-tests:
+There was a statistically significant difference between the performance of calibration on the low-quality normal and pincushion-distorted images. With P-values <0.0001.
+There was a statistically significant difference between the performance of calibration on the low-quality barrel-distorted and pincushion-distorted images.
+There was a statistically significant difference between the performance of calibration on the high-quality normal and pincushion-distorted images. With P-values <0.0001.
+There was a statistically significant difference between the performance of calibration on the high-quality barrel-distorted and pincushion-distorted images.
+There was no statistically significant differences between the performance of calibration on the high-quality and low-quality images.
+There was no statistically significant difference in the performance of calibration on the low-quality or high-quality images when removing outermost columns.
+However, there was when we emphasise the cost of distortion by introducing extra artifical distortion:
+There was a statistically significant improvement in the performance of calibration on the low-quality barrel-distorted image when removing outermost columns.
+There was a statistically significant improvement in the performance of calibration on the high-quality barrel-distorted image when removing outermost columns.
+There was a statistically significant improvement in the performance of calibration on the high-quality pincushion-distorted image when removing outermost columns.
+For these last two, P-values <0.0001.
+

@@ -569,35 +569,66 @@ void CamCalibrator::calibrate()
 	// 4. Change row i, only column of mat_U to wi *y.
 
 	kappa1 = 0.0;
-	double step = 0.001;
-	double minstep = 0.0000000000001;
+	double step1 = 0.001;
+	double minstep1 = 0.00000000000001;
+	kappa2 = 0.0;
+	double step2 = 0.001;
+	double minstep2 = 0.00000000000001;
 	Mat kap;
+	int steps_taken = 0;
 	do {
-		kap = computeLeastSquaresForKappa(kappa1);
-		Mat kap_plus = computeLeastSquaresForKappa(kappa1 + step);
-		Mat kap_minus = computeLeastSquaresForKappa(kappa1 - step);
-		if( (kap.at<double>(2,0) < kap_plus.at<double>(2,0)) && (kap.at<double>(2,0) < kap_minus.at<double>(2,0)) ){
-			step = step/2.0;
+		kap = computeLeastSquaresForKappa(kappa1, kappa2);
+		double currentError = kap.at<double>(2,0);
+		//
+		double plus_plus = computeLeastSquaresForKappa(kappa1 + step1, kappa2 + step2).at<double>(2,0);
+		double plus_minus = computeLeastSquaresForKappa(kappa1 + step1, kappa2 - step2).at<double>(2,0);
+		double minus_plus = computeLeastSquaresForKappa(kappa1 - step1, kappa2 + step2).at<double>(2,0);
+		double minus_minus = computeLeastSquaresForKappa(kappa1 - step1, kappa2 - step2).at<double>(2,0);
+		//
+		double plus_same = computeLeastSquaresForKappa(kappa1 + step1, kappa2).at<double>(2,0);
+		double minus_same = computeLeastSquaresForKappa(kappa1 - step1, kappa2).at<double>(2,0);
+		double same_plus = computeLeastSquaresForKappa(kappa1, kappa2 + step2).at<double>(2,0);
+		double same_minus = computeLeastSquaresForKappa(kappa1, kappa2 - step2).at<double>(2,0);
+		//
+		if (( (currentError < plus_same) && (currentError < minus_same) ) || ( (currentError < same_plus) && (currentError < same_minus) )){
+			if ( (currentError < plus_same) && (currentError < minus_same) ) {
+				step1 = step1/2.0;
+			}
+			if ( (currentError < same_plus) && (currentError < same_minus) ){
+				step2 = step2/2.0;
+			}
 		} else {
-			if (kap_minus.at<double>(2,0) < kap_plus.at<double>(2,0)){
-				kappa1 = kappa1 - step;
-			} else {
-				kappa1 = kappa1 + step;
+			// Pick the result with the lowest error
+			if ( (plus_plus <= plus_minus) && (plus_plus <= minus_plus) && (plus_plus <= minus_minus) ){
+				kappa1 = kappa1 + step1;
+				kappa2 = kappa2 + step2;
+			} else if ( (plus_minus <= plus_plus) && (plus_minus <= minus_plus) && (plus_minus <= minus_minus) ){
+				kappa1 = kappa1 + step1;
+				kappa2 = kappa2 - step2;
+			} else if ( (minus_plus <= plus_plus) && (minus_plus <= plus_minus) && (minus_plus <= minus_minus) ){
+				kappa1 = kappa1 - step1;
+				kappa2 = kappa2 + step2;
+			} else if ( (minus_minus <= plus_plus) && (minus_minus <= plus_minus) && (minus_minus <= minus_plus) ){
+				kappa1 = kappa1 - step1;
+				kappa2 = kappa2 - step2;
 			}
 		}
-	} while (step > minstep);
+		steps_taken++;
+	} while ((step1 > minstep1 || step2 > minstep2) && steps_taken < 10000);
 
-	cout << "Kappa(1) = " << kappa1 << " ;  determined at step size " << step << "\n";
-	cout << "Calculated error: " << kap.at<double>(2,0) << " ;  calculated f: " << kap.at<double>(0,0) << " ;  calculated Tz: " << kap.at<double>(1,0) << "\n";
+	cout << "Kappa(1) = " << kappa1 << "; Kappa(2) = " << kappa2 << "\n";
+	cout << "Kappas determined at step size " << step1 << " / " << step2 << "\n";
+	cout << "Gradient descent iterations required: " << steps_taken << "\n";
+	cout << "Calculated error for k1: " << kap.at<double>(2,0) << " ;  calculated f: " << kap.at<double>(0,0) << " ;  calculated Tz: " << kap.at<double>(1,0) << "\n";
 
 	// Set our estimate for focal length and tz
 	focalLength = kap.at<double>(0,0);
 	mat_T.at<double>(2,0) = kap.at<double>(1,0);
 	// We also now have our kappa-1 value
 
-	Mat temp_1_M = computeLeastSquaresForKappa(0.0);
-	cout << "For comparison, error without kappa = " << temp_1_M.at<double>(2,0) << "\n";
-	cout << "f without kappa = " << temp_1_M.at<double>(0,0) << "; Tz = " << temp_1_M.at<double>(1,0) << "\n";
+	Mat temp_1_M = computeLeastSquaresForKappa(0.0, 0.0);
+	cout << "For comparison, error without kappas = " << temp_1_M.at<double>(2,0) << "\n";
+	cout << "f without kappas = " << temp_1_M.at<double>(0,0) << "; Tz = " << temp_1_M.at<double>(1,0) << "\n";
 
 	//for (double i = -0.00000002; i <= -0.000000005; i+=0.0000000001){
 	//	Mat Fff = computeLeastSquaresForKappa(i);
@@ -616,7 +647,8 @@ void CamCalibrator::calibrate()
 	cout << "\n";
 	cout << "sx = " << sx << "\n";
 	cout << "focal length = " << focalLength << "\n";
-	cout << "kappa = " << kappa1 << "\n";
+	cout << "kappa-1 = " << kappa1 << "\n";
+	cout << "kappa-2 = " << kappa2 << "\n";
 	cout << "\n****************\n\n";
 
 	checkResults();
@@ -624,7 +656,7 @@ void CamCalibrator::calibrate()
 
 // Calculates best fit of focalLength and Tz for a given kappa
 // Outputs a 3x1 matrix containing focalLength, Tz, error squared of solution
-Mat CamCalibrator::computeLeastSquaresForKappa(double kappa){
+Mat CamCalibrator::computeLeastSquaresForKappa(double k1, double k2){
 	Mat mat_M2a = Mat(mapping.size(), 2, CV_64F, Scalar::all(0));
 	Mat mat_Ua = Mat(mapping.size(), 1, CV_64F, Scalar::all(0));
 	int count = 0;
@@ -633,10 +665,11 @@ Mat CamCalibrator::computeLeastSquaresForKappa(double kappa){
 		double wi = mat_R.at<double>(2,0)*i->worldPt.x + mat_R.at<double>(2,1)*i->worldPt.y + mat_R.at<double>(2,2)*i->worldPt.z;
 		double rSq = sqrt( ((1.0/sx) * i->imagePt_adj.x)*((1.0/sx) * i->imagePt_adj.x)
 			+ ( i->imagePt_adj.y * i->imagePt_adj.y ) );
-		double kappa_error = i->imagePt_adj.y * kappa * (rSq * rSq);
+		double kappa_error = ( k1*(rSq*rSq) + k2*(rSq*rSq*rSq*rSq) );
+		double Yi = i->imagePt_adj.y + (i->imagePt_adj.y * kappa_error);
 		mat_M2a.at<double>(count,0) = yi;
-		mat_M2a.at<double>(count,1) = (i->imagePt_adj.y * -1.0) - kappa_error;
-		mat_Ua.at<double>(count,0) = (wi * i->imagePt_adj.y) + (wi*kappa_error);
+		mat_M2a.at<double>(count,1) = (Yi * -1.0);
+		mat_Ua.at<double>(count,0) = (wi * Yi);
 		count++;
 	}
 
@@ -655,10 +688,10 @@ Mat CamCalibrator::computeLeastSquaresForKappa(double kappa){
 		double wi = mat_R.at<double>(2,0)*i->worldPt.x + mat_R.at<double>(2,1)*i->worldPt.y + mat_R.at<double>(2,2)*i->worldPt.z;
 		double rSq = sqrt( ((1.0/sx) * i->imagePt_adj.x)*((1.0/sx) * i->imagePt_adj.x)
 			+ ( i->imagePt_adj.y * i->imagePt_adj.y ) );
-		double kappa_error = i->imagePt_adj.y * kappa * (rSq * rSq);
-		double output1 = (yi * output_foc) +
-			(((i->imagePt_adj.y * -1.0) - kappa_error) * output_Tz);
-		double output2 = (wi * i->imagePt_adj.y) + (wi*kappa_error);
+		double kappa_error = ( k1*(rSq*rSq) + k2*(rSq*rSq*rSq*rSq) );
+		double Yi = i->imagePt_adj.y + (i->imagePt_adj.y * kappa_error);
+		double output1 = (yi * output_foc) + (-Yi * output_Tz);
+		double output2 = (wi * Yi);
 		double sq_error = (output1-output2)*(output1-output2);
 		//cout << "Err " << sq_error << "\n";
 		currentSquaredError += sq_error;
@@ -705,8 +738,9 @@ void CamCalibrator::checkResults(){
 		pt1.at<double>(2,0) = 1.0;
 		double xx = pt1.at<double>(0,0);
 		double yy = pt1.at<double>(1,0);
-		double x_nil = xx - xx * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
-		double y_nil = yy - yy * kappa1 * ( sqrt(xx*xx + yy*yy) ) * ( sqrt(xx*xx + yy*yy) );
+		double r = sqrt(xx*xx + yy*yy);
+		double x_nil = xx - xx * (kappa1*(r*r) + kappa2*(r*r*r*r));
+		double y_nil = yy - yy * (kappa1*(r*r) + kappa2*(r*r*r*r));
 		double x_divd_sx = x_nil/sx;
 		y_error_nil += sqrt( (pt_ADJ.y - y_nil)*(pt_ADJ.y - y_nil) );
 		x_error_divd_sx += sqrt( (pt_ADJ.x - x_divd_sx)*(pt_ADJ.x - x_divd_sx) );
@@ -752,6 +786,9 @@ void CamCalibrator::checkResults(){
 	double lowestSquaredError = 1000000.0;
 	double highestSquaredError = -1.0;
 
+	double * errors = new double[mapping.size()];
+
+	int count = 0;
 	for (vector<point_correspondence>::iterator i = mapping.begin(); i != mapping.end(); i++){
 		Point3d ideal = i->worldPt;
 		Point2d i_ADJ = i->imagePt_adj;
@@ -807,7 +844,18 @@ void CamCalibrator::checkResults(){
 		squaredErrorZ += sqrt ((calc_z-ideal.z)*(calc_z-ideal.z));
 		if (lowestSquaredError > err) lowestSquaredError = err;
 		if (highestSquaredError < err) highestSquaredError = err;
+		errors[count] = err;
+		count++;
 	}
+
+
+	// Create a file of the errors for each point
+	// Comparing these with a t-test can see whether the calibration is more accurate on e.g. higher-quality or less-distorted images.
+	std::ofstream outFile("errors.txt", std::ios::out);
+	for (unsigned int i = 0; i < mapping.size(); i++){
+		outFile << errors[i] << "\n";
+	}
+	outFile.close();
 
 	cout << "TOTAL ERROR: " << totalSquaredError << "\n";
 	cout << "MEAN ERROR: " << totalSquaredError/mapping.size() << "\n";
@@ -816,6 +864,7 @@ void CamCalibrator::checkResults(){
 	cout << "x ERROR: " << squaredErrorX/mapping.size() << "\n";
 	cout << "y ERROR: " << squaredErrorY/mapping.size() << "\n";
 	cout << "z ERROR: " << squaredErrorZ/mapping.size() << "\n";
+	cout << "STANDARD DEVIATION: " << findStandardDeviation(errors, mapping.size()) << "\n";
 }
 
 // Sorts an array of points by distance of those points to a given line (first sets lineP1, lineP2; then sorts using lineComp)
@@ -832,4 +881,24 @@ double CamCalibrator::pointLineDistance(Point2d p, Point2d lineEnd1, Point2d lin
 	double xOnLine = lineEnd1.x + u*(lineEnd2.x - lineEnd1.x);
 	double yOnLine = lineEnd1.y + u*(lineEnd2.y - lineEnd1.y);
 	return sqrt( (p.x-xOnLine)*(p.x-xOnLine) + (p.y-yOnLine)*(p.y-yOnLine) );
+}
+
+
+double CamCalibrator::findStandardDeviation(double * entries, int count){
+	if (count < 2) {
+	} else {
+		double mean = 0;
+		for (int j = 0; j < count; j++){
+			mean += entries[j]; // step 1, find mean
+		}
+		mean /= count;
+		double sumOfSquares = 0;
+		for (int j = 0; j < count; j++){
+			// step 2, get deviations; step 3, square
+			sumOfSquares += (entries[j] - mean) * (entries[j] - mean);
+		}
+		sumOfSquares /= (count-1);
+		double stdev = sqrt(sumOfSquares);
+		return stdev;
+	}
 }
