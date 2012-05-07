@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.1415926-2.3-0.9997.5 (MiKTeX 2.9) (preloaded format=xelatex 2012.4.5)  7 MAY 2012 17:26
+This is XeTeX, Version 3.1415926-2.3-0.9997.5 (MiKTeX 2.9) (preloaded format=xelatex 2012.4.5)  7 MAY 2012 17:30
 entering extended mode
 **image-processing.tex
 
@@ -1124,4 +1124,807 @@ File: pgfsys-xetex.def 2010/02/16  (rcs-revision 1.3)
 File: pgfsys-common-pdf.def 2008/05/19  (rcs-revision 1.10)
 )
 ("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\systemlayer\pgfsys-common-pdf-via
--dvi.d
+-dvi.def"
+File: pgfsys-common-pdf-via-dvi.def 2008/05/19  (rcs-revision 1.7)
+)))
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\systemlayer\pgfsyssoftpath.code.t
+ex"
+File: pgfsyssoftpath.code.tex 2008/07/18  (rcs-revision 1.7)
+\pgfsyssoftpath@smallbuffer@items=\count286
+\pgfsyssoftpath@bigbuffer@items=\count287
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\systemlayer\pgfsysprotocol.code.t
+ex"
+File: pgfsysprotocol.code.tex 2006/10/16  (rcs-revision 1.4)
+)) ("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcore.code.tex"
+Package: pgfcore 2010/04/11 v2.10 (rcs-revision 1.7)
+ ("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\math\pgfmath.code.tex"
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\math\pgfmathcalc.code.tex"
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\math\pgfmathutil.code.tex")
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\math\pgfmathparser.code.tex"
+\pgfmath@dimen=\dimen201
+\pgfmath@count=\count288
+\pgfmath@box=\box73
+\pgfmath@toks=\toks31
+\pgfmath@stack@operand=\toks32
+\pgfmath@stack@operation=\toks33
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.code.tex"
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.basic.code.
+tex")
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.trigonometr
+ic.code.tex")
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.random.code
+.tex")
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.comparison.
+code.tex")
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.base.code.t
+ex")
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.round.code.
+tex")
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.misc.code.t
+ex"))) ("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfloat.code.tex
+"
+\c@pgfmathroundto@lastzeros=\count289
+))
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorepoints.code.tex
+"
+File: pgfcorepoints.code.tex 2010/04/09  (rcs-revision 1.20)
+Normal \dimen register pool exhausted, switching to extended pool.
+\pgf@picminx=\dimen256
+\pgf@picmaxx=\dimen257
+\pgf@picminy=\dimen258
+\pgf@picmaxy=\dimen259
+\pgf@pathminx=\dimen260
+\pgf@pathmaxx=\dimen261
+\pgf@pathminy=\dimen262
+\pgf@pathmaxy=\dimen263
+\pgf@xx=\dimen264
+\pgf@xy=\dimen265
+\pgf@yx=\dimen266
+\pgf@yy=\dimen267
+\pgf@zx=\dimen268
+\pgf@zy=\dimen269
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorepathconstruct.c
+ode.tex"
+File: pgfcorepathconstruct.code.tex 2010/08/03  (rcs-revision 1.24)
+\pgf@path@lastx=\dimen270
+\pgf@path@lasty=\dimen271
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorepathusage.code.
+tex"
+File: pgfcorepathusage.code.tex 2008/04/22  (rcs-revision 1.12)
+\pgf@shorten@end@additional=\dimen272
+\pgf@shorten@start@additional=\dimen273
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorescopes.code.tex
+"
+File: pgfcorescopes.code.tex 2010/09/08  (rcs-revision 1.34)
+\pgfpic=\box74
+\pgf@hbox=\box75
+\pgf@layerbox@main=\box76
+\pgf@picture@serial@count=\count290
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcoregraphicstate.co
+de.tex"
+File: pgfcoregraphicstate.code.tex 2008/04/22  (rcs-revision 1.9)
+\pgflinewidth=\dimen274
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcoretransformations
+.code.tex"
+File: pgfcoretransformations.code.tex 2009/06/10  (rcs-revision 1.11)
+\pgf@pt@x=\dimen275
+\pgf@pt@y=\dimen276
+\pgf@pt@temp=\dimen277
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorequick.code.tex"
+File: pgfcorequick.code.tex 2008/10/09  (rcs-revision 1.3)
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcoreobjects.code.te
+x"
+File: pgfcoreobjects.code.tex 2006/10/11  (rcs-revision 1.2)
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorepathprocessing.
+code.tex"
+File: pgfcorepathprocessing.code.tex 2008/10/09  (rcs-revision 1.8)
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorearrows.code.tex
+"
+File: pgfcorearrows.code.tex 2008/04/23  (rcs-revision 1.11)
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcoreshade.code.tex"
+File: pgfcoreshade.code.tex 2008/11/23  (rcs-revision 1.13)
+\pgf@max=\dimen278
+\pgf@sys@shading@range@num=\count291
+) ("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcoreimage.code.te
+x"
+File: pgfcoreimage.code.tex 2010/03/25  (rcs-revision 1.16)
+
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcoreexternal.code.t
+ex"
+File: pgfcoreexternal.code.tex 2010/09/01  (rcs-revision 1.17)
+\pgfexternal@startupbox=\box77
+))
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorelayers.code.tex
+"
+File: pgfcorelayers.code.tex 2010/08/27  (rcs-revision 1.2)
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcoretransparency.co
+de.tex"
+File: pgfcoretransparency.code.tex 2008/01/17  (rcs-revision 1.2)
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorepatterns.code.t
+ex"
+File: pgfcorepatterns.code.tex 2009/07/02  (rcs-revision 1.3)
+)))
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\modules\pgfmoduleshapes.code.tex"
+File: pgfmoduleshapes.code.tex 2010/09/09  (rcs-revision 1.13)
+\pgfnodeparttextbox=\box78
+) ("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\modules\pgfmoduleplot.code.tex"
+File: pgfmoduleplot.code.tex 2010/10/22  (rcs-revision 1.8)
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\pgf\compatibility\pgfcomp-version-0-65.
+sty"
+Package: pgfcomp-version-0-65 2007/07/03 v2.10 (rcs-revision 1.7)
+\pgf@nodesepstart=\dimen279
+\pgf@nodesepend=\dimen280
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\pgf\compatibility\pgfcomp-version-1-18.
+sty"
+Package: pgfcomp-version-1-18 2007/07/23 v2.10 (rcs-revision 1.1)
+)) ("C:\Program Files\MiKTeX 2.9\tex\latex\pgf\utilities\pgffor.sty"
+("C:\Program Files\MiKTeX 2.9\tex\latex\pgf\utilities\pgfkeys.sty"
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\utilities\pgfkeys.code.tex"))
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\utilities\pgffor.code.tex"
+Package: pgffor 2010/03/23 v2.10 (rcs-revision 1.18)
+\pgffor@iter=\dimen281
+\pgffor@skip=\dimen282
+\pgffor@stack=\toks34
+\pgffor@toks=\toks35
+))
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\tikz.code.tex"
+Package: tikz 2010/10/13 v2.10 (rcs-revision 1.76)
+
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\libraries\pgflibraryplothandlers.
+code.tex"
+File: pgflibraryplothandlers.code.tex 2010/05/31 v2.10 (rcs-revision 1.15)
+\pgf@plot@mark@count=\count292
+\pgfplotmarksize=\dimen283
+)
+\tikz@lastx=\dimen284
+\tikz@lasty=\dimen285
+\tikz@lastxsaved=\dimen286
+\tikz@lastysaved=\dimen287
+\tikzleveldistance=\dimen288
+\tikzsiblingdistance=\dimen289
+\tikz@figbox=\box79
+\tikz@tempbox=\box80
+\tikztreelevel=\count293
+\tikznumberofchildren=\count294
+\tikznumberofcurrentchild=\count295
+\tikz@fig@count=\count296
+
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\modules\pgfmodulematrix.code.tex"
+File: pgfmodulematrix.code.tex 2010/08/24  (rcs-revision 1.4)
+\pgfmatrixcurrentrow=\count297
+\pgfmatrixcurrentcolumn=\count298
+\pgf@matrix@numberofcolumns=\count299
+)
+\tikz@expandcount=\count300
+
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\libraries\tikz
+librarytopaths.code.tex"
+File: tikzlibrarytopaths.code.tex 2008/06/17 v2.10 (rcs-revision 1.2)
+)))
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\libraries\tikz
+libraryarrows.code.tex"
+File: tikzlibraryarrows.code.tex 2008/01/09 v2.10 (rcs-revision 1.1)
+
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\libraries\pgflibraryarrows.code.t
+ex"
+File: pgflibraryarrows.code.tex 2008/10/27 v2.10 (rcs-revision 1.9)
+\arrowsize=\dimen290
+))
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\libraries\tikz
+librarypositioning.code.tex"
+File: tikzlibrarypositioning.code.tex 2008/10/06 v2.10 (rcs-revision 1.7)
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\libraries\tikz
+libraryintersections.code.tex"
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\libraries\pgflibraryintersections
+.code.tex"
+\pgf@intersect@solutions=\count301
+)) ("C:\Program Files\MiKTeX 2.9\tex\latex\babelbib\babelbib.sty"
+Package: babelbib 2012/01/03 v1.31 babelbib: multilingual bibliographies (HH)
+\c@btxromaniannumeral=\count302
+)
+Requested font "Gentium Basic" at 10.0pt
+ -> C:/WINDOWS/Fonts/GenBasR.ttf
+Requested font "Gentium Basic/ICU" at 10.0pt
+ -> C:/WINDOWS/Fonts/GenBasR.ttf
+\g_fontspec_family_Gentium Basic_int=\count303
+Requested font "Gentium Basic/B/ICU" at 10.0pt
+ -> C:/WINDOWS/Fonts/GenBasB.ttf
+Requested font "Gentium Basic/B/B/ICU" at 10.0pt
+ -> C:/WINDOWS/Fonts/GenBasB.ttf
+Requested font "Gentium Basic/I/ICU" at 10.0pt
+ -> C:/WINDOWS/Fonts/GenBasI.ttf
+Requested font "Gentium Basic/I/I/ICU" at 10.0pt
+ -> C:/WINDOWS/Fonts/GenBasI.ttf
+Requested font "Gentium Basic/BI/ICU" at 10.0pt
+ -> C:/WINDOWS/Fonts/GenBasBI.ttf
+Requested font "Gentium Basic/BI/BI/ICU" at 10.0pt
+ -> C:/WINDOWS/Fonts/GenBasBI.ttf
+.................................................
+. fontspec info: "defining-font"
+. 
+. Font family 'GentiumBasic(0)' created for font 'Gentium Basic' with options
+. [Mapping=tex-text].
+. 
+. This font family consists of the following shapes:
+. 
+. * 'normal' with NFSS spec.:
+. <->"Gentium Basic/ICU:script=latn;language=DFLT;mapping=tex-text;"
+. 
+. * 'bold' with NFSS spec.:
+. <->"Gentium Basic/B/ICU:script=latn;language=DFLT;mapping=tex-text;"
+. 
+. * 'italic' with NFSS spec.:
+. <->"Gentium Basic/I/ICU:script=latn;language=DFLT;mapping=tex-text;"
+. 
+. * 'bold italic' with NFSS spec.:
+. <->"Gentium Basic/BI/ICU:script=latn;language=DFLT;mapping=tex-text;"
+.................................................
+Requested font "Gentium Basic/ICU:script=latn;language=DFLT;mapping=tex-text;" 
+at 10.0pt
+ -> C:/WINDOWS/Fonts/GenBasR.ttf
+.................................................
+. fontspec info: "defining-font"
+. 
+. Font family 'GentiumBasic(0)' created for font 'Gentium Basic' with options
+. [Mapping=tex-text].
+. 
+. This font family consists of the following shapes:
+.................................................
+Requested font "PT Sans" at 10.0pt
+ -> C:/WINDOWS/Fonts/PTS55F.ttf
+Requested font "PT Sans/ICU" at 10.0pt
+ -> C:/WINDOWS/Fonts/PTS55F.ttf
+\g_fontspec_family_PT Sans_int=\count304
+Requested font "PT Sans/B/ICU" at 10.0pt
+ -> C:/WINDOWS/Fonts/PTS75F.ttf
+Requested font "PT Sans/B/B/ICU" at 10.0pt
+ -> C:/WINDOWS/Fonts/PTS75F.ttf
+Requested font "PT Sans/I/ICU" at 10.0pt
+ -> C:/WINDOWS/Fonts/PTS56F.ttf
+Requested font "PT Sans/I/I/ICU" at 10.0pt
+ -> C:/WINDOWS/Fonts/PTS56F.ttf
+Requested font "PT Sans/BI/ICU" at 10.0pt
+ -> C:/WINDOWS/Fonts/PTS76F.ttf
+Requested font "PT Sans/BI/BI/ICU" at 10.0pt
+ -> C:/WINDOWS/Fonts/PTS76F.ttf
+.................................................
+. fontspec info: "defining-font"
+. 
+. Font family 'PTSans(0)' created for font 'PT Sans' with options
+. [Mapping=tex-text].
+. 
+. This font family consists of the following shapes:
+. 
+. * 'normal' with NFSS spec.:
+. <->"PT Sans/ICU:script=latn;language=DFLT;mapping=tex-text;"
+. 
+. * 'bold' with NFSS spec.:
+. <->"PT Sans/B/ICU:script=latn;language=DFLT;mapping=tex-text;"
+. 
+. * 'italic' with NFSS spec.:
+. <->"PT Sans/I/ICU:script=latn;language=DFLT;mapping=tex-text;"
+. 
+. * 'bold italic' with NFSS spec.:
+. <->"PT Sans/BI/ICU:script=latn;language=DFLT;mapping=tex-text;"
+.................................................
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\ams\math\amsmath.sty"
+Package: amsmath 2000/07/18 v2.13 AMS math features
+\@mathmargin=\skip73
+
+For additional information on amsmath, use the `?' option.
+("C:\Program Files\MiKTeX 2.9\tex\latex\ams\math\amstext.sty"
+Package: amstext 2000/06/29 v2.01
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\ams\math\amsgen.sty"
+File: amsgen.sty 1999/11/30 v2.0
+\@emptytoks=\toks36
+\ex@=\dimen291
+))
+("C:\Program Files\MiKTeX 2.9\tex\latex\ams\math\amsbsy.sty"
+Package: amsbsy 1999/11/29 v1.2d
+\pmbraise@=\dimen292
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\ams\math\amsopn.sty"
+Package: amsopn 1999/12/14 v2.01 operator names
+)
+\inf@bad=\count305
+LaTeX Info: Redefining \frac on input line 211.
+\uproot@=\count306
+\leftroot@=\count307
+LaTeX Info: Redefining \overline on input line 307.
+\classnum@=\count308
+\DOTSCASE@=\count309
+LaTeX Info: Redefining \ldots on input line 379.
+LaTeX Info: Redefining \dots on input line 382.
+LaTeX Info: Redefining \cdots on input line 467.
+\Mathstrutbox@=\box81
+\strutbox@=\box82
+\big@size=\dimen293
+LaTeX Font Info:    Redeclaring font encoding OML on input line 567.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 568.
+\macc@depth=\count310
+\c@MaxMatrixCols=\count311
+\dotsspace@=\muskip11
+\c@parentequation=\count312
+\dspbrk@lvl=\count313
+\tag@help=\toks37
+\row@=\count314
+\column@=\count315
+\maxfields@=\count316
+\andhelp@=\toks38
+\eqnshift@=\dimen294
+\alignsep@=\dimen295
+\tagshift@=\dimen296
+\tagwidth@=\dimen297
+\totwidth@=\dimen298
+\lineht@=\dimen299
+\@envbody=\toks39
+\multlinegap=\skip74
+\multlinetaggap=\skip75
+\mathdisplay@stack=\toks40
+LaTeX Info: Redefining \[ on input line 2666.
+LaTeX Info: Redefining \] on input line 2667.
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\bbm\bbm.sty"
+Package: bbm 1999/03/15 V 1.2 provides fonts for set symbols - TH
+LaTeX Font Info:    Overwriting math alphabet `\mathbbm' in version `bold'
+(Font)                  U/bbm/m/n --> U/bbm/bx/n on input line 33.
+LaTeX Font Info:    Overwriting math alphabet `\mathbbmss' in version `bold'
+(Font)                  U/bbmss/m/n --> U/bbmss/bx/n on input line 35.
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\listings\listings.sty"
+\lst@mode=\count317
+\lst@gtempboxa=\box83
+\lst@token=\toks41
+\lst@length=\count318
+\lst@currlwidth=\dimen300
+\lst@column=\count319
+\lst@pos=\count320
+\lst@lostspace=\dimen301
+\lst@width=\dimen302
+\lst@newlines=\count321
+\lst@lineno=\count322
+\lst@maxwidth=\dimen303
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\listings\lstmisc.sty"
+File: lstmisc.sty 2007/02/22 1.4 (Carsten Heinz)
+\c@lstnumber=\count323
+\lst@skipnumbers=\count324
+\lst@framebox=\box84
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\listings\listings.cfg"
+File: listings.cfg 2007/02/22 1.4 listings configuration
+))
+Package: listings 2007/02/22 1.4 (Carsten Heinz)
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\geometry\geometry.sty"
+Package: geometry 2010/09/12 v5.6 Page Geometry
+\Gm@cnth=\count325
+\Gm@cntv=\count326
+\c@Gm@tempcnt=\count327
+\Gm@bindingoffset=\dimen304
+\Gm@wd@mp=\dimen305
+\Gm@odd@mp=\dimen306
+\Gm@even@mp=\dimen307
+\Gm@layoutwidth=\dimen308
+\Gm@layoutheight=\dimen309
+\Gm@layouthoffset=\dimen310
+\Gm@layoutvoffset=\dimen311
+\Gm@dimlist=\toks42
+
+("C:\Program Files\MiKTeX 2.9\tex\xelatex\xetexconfig\geometry.cfg"))
+("C:\Program Files\MiKTeX 2.9\tex\latex\subfig\subfig.sty"
+Package: subfig 2005/06/28 ver: 1.3 subfig package
+\c@KVtest=\count328
+\sf@farskip=\skip76
+\sf@captopadj=\dimen312
+\sf@capskip=\skip77
+\sf@nearskip=\skip78
+\c@subfigure=\count329
+\c@subfigure@save=\count330
+\c@lofdepth=\count331
+\c@subtable=\count332
+\c@subtable@save=\count333
+\c@lotdepth=\count334
+\sf@top=\skip79
+\sf@bottom=\skip80
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\was\upgreek.sty"
+Package: upgreek 2003/02/12 v2.0 (WaS)
+Package upgreek Info: Using Euler Roman for upright Greek on input line 31.
+\symugrf@m=\mathgroup9
+LaTeX Font Info:    Overwriting symbol font `ugrf@m' in version `bold'
+(Font)                  U/eur/m/n --> U/eur/b/n on input line 38.
+))
+("C:\Program Files\MiKTeX 2.9\tex\latex\paralist\paralist.sty"
+Package: paralist 2002/03/18 v2.3b Extended list environments (BS)
+\pltopsep=\skip81
+\plpartopsep=\skip82
+\plitemsep=\skip83
+\plparsep=\skip84
+\pl@lab=\toks43
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\se-ascii-print.def"
+File: se-ascii-print.def 2010/03/01 v1.8 stringenc: Printable ASCII characters
+)
+Requested font "Inconsolata" at 9.0pt
+ -> C:/WINDOWS/Fonts/Inconsolata.otf
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\listings\lstlang1.sty"
+File: lstlang1.sty 2004/09/05 1.3 listings language file
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\listings\lstlang1.sty"
+File: lstlang1.sty 2004/09/05 1.3 listings language file
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\listings\lstmisc.sty"
+File: lstmisc.sty 2007/02/22 1.4 (Carsten Heinz)
+)
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\image-processing.aux")
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for MDA/cmr/m/n on input line 38.
+LaTeX Font Info:    Try loading font information for MDA+cmr on input line 38.
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\mathdesign\mdacmr.fd"
+File: mdacmr.fd 
+)
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for MDB/cmr/m/n on input line 38.
+LaTeX Font Info:    Try loading font information for MDB+cmr on input line 38.
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\mathdesign\mdbcmr.fd"
+File: mdbcmr.fd 
+)
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for EU1/lmr/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for T3/cmr/m/n on input line 38.
+LaTeX Font Info:    Try loading font information for T3+cmr on input line 38.
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\tipa\t3cmr.fd"
+File: t3cmr.fd 2001/12/31 TIPA font definitions
+)
+LaTeX Font Info:    ... okay on input line 38.
+\AtBeginShipoutBox=\box85
+Package hyperref Info: Link coloring ON on input line 38.
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\nameref.sty"
+Package: nameref 2010/04/30 v2.40 Cross-referencing by name of section
+
+("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\gettitlestring.sty"
+Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
+)
+\c@section@level=\count335
+LaTeX Info: Redefining \Ref on input line 498.
+)
+LaTeX Info: Redefining \ref on input line 38.
+LaTeX Info: Redefining \pageref on input line 38.
+LaTeX Info: Redefining \nameref on input line 38.
+
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\image-processing.out")
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\image-processing.out")
+\@outlinefile=\write4
+LaTeX Info: Redefining \Ref on input line 38.
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: subfig package v1.3 is loaded.
+Package caption Info: float package is loaded.
+Package caption Info: listings package is loaded.
+Package caption Info: End \AtBeginDocument code.
+Package lastpage Info: Please have a look at the pageslts package at
+(lastpage)             http://www.ctan.org/tex-archive/ 
+(lastpage)             macros/latex/contrib/pageslts/ 
+(lastpage)             or
+(lastpage)             http://www.ctan.org/tex-archive/ 
+(lastpage)             install/macros/latex/contrib/pageslts.tds.zip
+(lastpage)             ! on input line 38.
+ ABD: EveryShipout initializing macros
+babelbib: Set bibliography fall-back language to british
+("C:\Program Files\MiKTeX 2.9\tex\latex\babelbib\english.bdf"
+File: english.bdf 2012/01/03 v1.31 babelbib: multilingual bibliographies (HH)
+
+babelbib extension \btxifchangecaseon added to \extrasbritish
+babelbib extension \btxifchangecaseon added to \extrasenglish
+) ("C:\Program Files\MiKTeX 2.9\tex\latex\babelbib\danish.bdf"
+File: danish.bdf 2012/01/03 v1.31 babelbib: multilingual bibliographies (HH)
+
+babelbib extension \btxifchangecaseoff added to \extrasdanish
+)
+babelbib: Load BibTeX extensions \bibsbritish for british
+babelbib: Set language for keywords in the bibliography fixed to british
+babelbib: Set language for keywords in the bibliography fixed to british
+\c@lstlisting=\count336
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: twoside 
+* h-part:(L,W,R)=(71.13188pt, 455.24411pt, 71.13188pt)
+* v-part:(T,H,B)=(71.13188pt, 702.78308pt, 71.13188pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=500.76869pt
+* \textheight=731.23582pt
+* \oddsidemargin=-1.1381pt
+* \evensidemargin=-1.1381pt
+* \topmargin=-34.1381pt
+* \headheight=15.0pt
+* \headsep=18.0pt
+* \topskip=10.0pt
+* \footskip=28.45274pt
+* \marginparwidth=112.03273pt
+* \marginparsep=12.8401pt
+* \columnsep=10.0pt
+* \skip\footins=9.0pt plus 4.0pt minus 2.0pt
+* \hoffset=-22.76228pt
+* \voffset=-22.76228pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidetrue
+* \@mparswitchtrue
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+Requested font "Gentium Basic/ICU:script=latn;language=DFLT;mapping=tex-text;" 
+at 24.88pt
+ -> C:/WINDOWS/Fonts/GenBasR.ttf
+Requested font "PT Sans/ICU:script=latn;language=DFLT;mapping=tex-text;" at 24.
+88pt
+ -> C:/WINDOWS/Fonts/PTS55F.ttf
+Requested font "PT Sans/B/ICU:script=latn;language=DFLT;mapping=tex-text;" at 2
+4.88pt
+ -> C:/WINDOWS/Fonts/PTS75F.ttf
+Requested font "Gentium Basic/ICU:script=latn;language=DFLT;mapping=tex-text;" 
+at 12.0pt
+ -> C:/WINDOWS/Fonts/GenBasR.ttf
+Requested font "PT Sans/ICU:script=latn;language=DFLT;mapping=tex-text;" at 10.
+0pt
+ -> C:/WINDOWS/Fonts/PTS55F.ttf
+[1
+
+]
+Requested font "PT Sans/B/ICU:script=latn;language=DFLT;mapping=tex-text;" at 1
+0.0pt
+ -> C:/WINDOWS/Fonts/PTS75F.ttf
+Requested font "PT Sans/B/ICU:script=latn;language=DFLT;mapping=tex-text;" at 1
+4.4pt
+ -> C:/WINDOWS/Fonts/PTS75F.ttf
+Requested font "PT Sans/B/ICU:script=latn;language=DFLT;mapping=tex-text;" at 1
+7.28pt
+ -> C:/WINDOWS/Fonts/PTS75F.ttf
+
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\image-processing.toc"
+LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
+(Font)              scaled to size 6.72005pt on input line 4.
+Requested font "mdbchr7t" at 6.72005pt
+ -> mdbchr7t
+LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
+(Font)              scaled to size 4.80003pt on input line 4.
+Requested font "mdbchr7t" at 4.80003pt
+ -> mdbchr7t
+LaTeX Font Info:    Try loading font information for OML+mdbch on input line 4.
+
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\mathdesign\mdbch\omlmdbch.fd"
+File: omlmdbch.fd 2006/01/28 Fontinst v1.928 font definitions for OML/mdbch.
+)
+LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
+(Font)              scaled to size 9.60007pt on input line 4.
+Requested font "mdbchri7m" at 9.60007pt
+ -> mdbchri7m
+LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
+(Font)              scaled to size 6.72005pt on input line 4.
+Requested font "mdbchri7m" at 6.72005pt
+ -> mdbchri7m
+LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
+(Font)              scaled to size 4.80003pt on input line 4.
+Requested font "mdbchri7m" at 4.80003pt
+ -> mdbchri7m
+LaTeX Font Info:    Try loading font information for OMS+mdbch on input line 4.
+
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\mathdesign\mdbch\omsmdbch.fd"
+File: omsmdbch.fd 2006/01/28 Fontinst v1.928 font definitions for OMS/mdbch.
+)
+LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
+(Font)              scaled to size 9.60007pt on input line 4.
+Requested font "mdbchr7y" at 9.60007pt
+ -> mdbchr7y
+LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
+(Font)              scaled to size 6.72005pt on input line 4.
+Requested font "mdbchr7y" at 6.72005pt
+ -> mdbchr7y
+LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
+(Font)              scaled to size 4.80003pt on input line 4.
+Requested font "mdbchr7y" at 4.80003pt
+ -> mdbchr7y
+LaTeX Font Info:    Try loading font information for OMX+mdbch on input line 4.
+
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\mathdesign\mdbch\omxmdbch.fd"
+File: omxmdbch.fd 2006/01/28 Fontinst v1.928 font definitions for OMX/mdbch.
+)
+LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
+(Font)              scaled to size 9.60007pt on input line 4.
+Requested font "mdbchr7v" at 9.60007pt
+ -> mdbchr7v
+LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
+(Font)              scaled to size 6.72005pt on input line 4.
+Requested font "mdbchr7v" at 6.72005pt
+ -> mdbchr7v
+LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
+(Font)              scaled to size 4.80003pt on input line 4.
+Requested font "mdbchr7v" at 4.80003pt
+ -> mdbchr7v
+LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
+(Font)              scaled to size 9.60007pt on input line 4.
+Requested font "mdbchr7m" at 9.60007pt
+ -> mdbchr7m
+LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
+(Font)              scaled to size 6.72005pt on input line 4.
+Requested font "mdbchr7m" at 6.72005pt
+ -> mdbchr7m
+LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
+(Font)              scaled to size 4.80003pt on input line 4.
+Requested font "mdbchr7m" at 4.80003pt
+ -> mdbchr7m
+LaTeX Font Info:    Try loading font information for MDA+mdbch on input line 4.
+
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\mathdesign\mdbch\mdamdbch.fd"
+File: mdamdbch.fd 2006/01/28 Fontinst v1.928 font definitions for MDA/mdbch.
+)
+LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
+(Font)              scaled to size 9.60007pt on input line 4.
+Requested font "mdbchrma" at 9.60007pt
+ -> mdbchrma
+LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
+(Font)              scaled to size 6.72005pt on input line 4.
+Requested font "mdbchrma" at 6.72005pt
+ -> mdbchrma
+LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
+(Font)              scaled to size 4.80003pt on input line 4.
+Requested font "mdbchrma" at 4.80003pt
+ -> mdbchrma
+LaTeX Font Info:    Try loading font information for MDB+mdbch on input line 4.
+
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\mathdesign\mdbch\mdbmdbch.fd"
+File: mdbmdbch.fd 2006/01/28 Fontinst v1.928 font definitions for MDB/mdbch.
+)
+LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
+(Font)              scaled to size 9.60007pt on input line 4.
+Requested font "mdbchrmb" at 9.60007pt
+ -> mdbchrmb
+LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
+(Font)              scaled to size 6.72005pt on input line 4.
+Requested font "mdbchrmb" at 6.72005pt
+ -> mdbchrmb
+LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
+(Font)              scaled to size 4.80003pt on input line 4.
+Requested font "mdbchrmb" at 4.80003pt
+ -> mdbchrmb
+Requested font "eurm10" at 10.0pt
+ -> eurm10
+Requested font "eurm7" at 7.0pt
+ -> eurm7
+Requested font "eurm5" at 5.0pt
+ -> eurm5
+)
+\tf@toc=\write5
+
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\image-processing.lof")
+\tf@lof=\write6
+
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\image-processing.lot")
+\tf@lot=\write7
+Requested font "Gentium Basic/ICU:script=latn;language=DFLT;mapping=tex-text;" 
+at 8.0pt
+ -> C:/WINDOWS/Fonts/GenBasR.ttf
+ [2
+
+]
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\introduction.tex"
+Requested font "Gentium Basic/B/ICU:script=latn;language=DFLT;mapping=tex-text;
+" at 10.0pt
+ -> C:/WINDOWS/Fonts/GenBasB.ttf
+
+
+LaTeX Warning: Reference `sec:segmentation' on page 3 undefined on input line 8
+.
+
+)
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\improvements.tex"
+Requested font "PT Sans/B/ICU:script=latn;language=DFLT;mapping=tex-text;" at 1
+2.0pt
+ -> C:/WINDOWS/Fonts/PTS75F.ttf
+Requested font "PT Sans/ICU:script=latn;language=DFLT;mapping=tex-text;" at 12.
+0pt
+ -> C:/WINDOWS/Fonts/PTS55F.ttf
+)
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\other-work.tex"
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\rectification-prior.tex")
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\stereo-matching-prior.tex")
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\face-recognition-prior.tex"))
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\program-structure.tex"
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\rectification.tex")
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\stereo-matching.tex")
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\face-recognition.tex") [3
+
+])
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\conclusions.tex")
+No file image-processing.bbl.
+[4] 
+AED: lastpage setting LastPage
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 73.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 73.
+
+("C:\Documents and Settings\Ben\Desktop\University 2012\image-processing\report
+2\image-processing.aux")
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 73.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 73.
+
+
+LaTeX Warning: There were undefined references.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 35316 strings out of 429156
+ 662446 string characters out of 3168944
+ 745719 words of memory out of 3000000
+ 37959 multiletter control sequences out of 15000+200000
+ 15717 words of font info for 69 fonts, out of 3000000 for 9000
+ 786 hyphenation exceptions out of 8191
+ 83i,11n,83p,689b,407s stack positions out of 5000i,500n,10000p,200000b,50000s
+
+Output written on image-processing.pdf (4 pages).
