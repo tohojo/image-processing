@@ -1,3 +1,9 @@
 add_subdirectory(QPropertyEditor)
-add_subdirectory(OpenSURF)
-add_subdirectory(distortion)
+
+if(FEATUREPOINTS)
+  add_subdirectory(OpenSURF)
+endif()
+
+if(DISTORTION)
+  add_subdirectory(distortion)
+endif()

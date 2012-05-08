@@ -1,3 +1,5 @@
+
+
 set(image-processing_SOURCES
   main.cpp
   message-handler.cpp
@@ -13,28 +15,8 @@ set(image-processing_SOURCES
   widgets/custom_types.cpp
   widgets/file_edit_widget.cpp
   processors/processor.cpp
-  processors/feature_points.cpp
-  processors/segmenting.cpp
   processors/null_processor.cpp
-  processors/calibration_processor.cpp
-  processors/camera_calibrator.h
-  processors/camera_calibrator.cpp
-  processors/calibration_object.h
-  processors/calibration_object.cpp
-  processors/distortion-removal.cpp
   processors/processor_model.cpp
-  processors/fast_hessian.h
-  processors/fast_hessian.cpp
-  processors/response_layer.h
-  processors/response_layer.cpp
-  processors/integral_image.h
-  processors/integral_image.cpp
-  processors/rpoint.h
-  processors/rpoint.cpp
-  processors/region.h
-  processors/region.cpp
-  processors/threshold_segmenter.h
-  processors/threshold_segmenter.cpp
   util.cpp
   util.h)
 set(image-processing_HEADERS
@@ -47,13 +29,76 @@ set(image-processing_HEADERS
   widgets/qfileinfo_property.h
   widgets/file_edit_widget.h
   processors/processor.h
-  processors/feature_points.h
-  processors/segmenting.h
   processors/null_processor.h
-  processors/calibration_processor.h
-  processors/distortion-removal.h
   processors/processor_model.h
   )
+set(image-processing_LIBS
+ QPropertyEditor )
+
+if(SEGMENTING)
+  message("Building segmenting")
+  add_definitions(-DSEGMENTING)
+  set(image-processing_SOURCES ${image-processing_SOURCES}
+    processors/rpoint.h
+    processors/rpoint.cpp
+    processors/region.h
+    processors/region.cpp
+    processors/threshold_segmenter.h
+    processors/threshold_segmenter.cpp
+    processors/segmenting.cpp)
+  set(image-processing_HEADERS ${image-processing_HEADERS}
+    processors/segmenting.h)
+endif()
+
+if(FEATUREPOINTS)
+  message("Building feature point extraction")
+  add_definitions(-DFEATURE_POINTS)
+  set(image-processing_SOURCES ${image-processing_SOURCES}
+    processors/fast_hessian.h
+    processors/fast_hessian.cpp
+    processors/response_layer.h
+    processors/response_layer.cpp
+    processors/integral_image.h
+    processors/integral_image.cpp
+    processors/feature_points.cpp)
+  set(image-processing_HEADERS ${image-processing_HEADERS}
+    processors/feature_points.h)
+  set(image-processing_LIBS ${image-processing_LIBS}
+    OpenSURF)
+endif()
+
+if(CALIBRATION)
+  message("Building calibration")
+  add_definitions(-DCALIBRATION)
+  set(image-processing_SOURCES ${image-processing_SOURCES}
+    processors/calibration_processor.cpp
+    processors/camera_calibrator.h
+    processors/camera_calibrator.cpp
+    processors/calibration_object.h
+    processors/calibration_object.cpp
+# We need the thresholding and feature point stuff for calibration as well...
+    processors/threshold_segmenter.h
+    processors/threshold_segmenter.cpp
+    processors/fast_hessian.h
+    processors/fast_hessian.cpp
+    processors/response_layer.h
+    processors/response_layer.cpp
+    processors/integral_image.h
+    processors/integral_image.cpp)
+  set(image-processing_HEADERS ${image-processing_HEADERS}
+    processors/calibration_processor.h)
+endif()
+
+if(DISTORTION)
+  message("Building distortion removal")
+  add_definitions(-DDISTORTION)
+  set(image-processing_SOURCES ${image-processing_SOURCES}
+    processors/distortion-removal.cpp)
+  set(image-processing_HEADERS ${image-processing_HEADERS}
+    processors/distortion-removal.h)
+  set(image-processing_LIBS ${image-processing_LIBS}
+    distortion)
+endif()
 
 set(image-processing_FORMS ui/processing-gui.ui ui/file-edit-widget.ui)
 
@@ -78,4 +123,4 @@ add_executable(image-processing
   ${image-processing_HEADERS_MOC}
   ${image-processing_FORMS_HEADERS}
   ${image-processing_SOURCES})
-target_link_libraries(image-processing ${QT_LIBRARIES} ${OpenCV_LIBS} QPropertyEditor OpenSURF distortion)
+target_link_libraries(image-processing ${QT_LIBRARIES} ${OpenCV_LIBS} ${image-processing_LIBS})
