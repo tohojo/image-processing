@@ -14,6 +14,7 @@
 class FileEditWidget : public QWidget, private Ui::FileEditWidget
 {
   Q_OBJECT
+  Q_PROPERTY(QString text READ text WRITE setText USER true)
 public:
   FileEditWidget(QWidget *parent =0);
   FileEditWidget(const QString &contents, QWidget *parent =0);

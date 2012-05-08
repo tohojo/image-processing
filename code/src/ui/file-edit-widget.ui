@@ -13,17 +13,15 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="autoFillBackground">
+   <bool>true</bool>
+  </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <property name="margin">
     <number>0</number>
    </property>
    <item>
     <widget class="QLineEdit" name="lineEdit">
-     <property name="font">
-      <font>
-       <pointsize>6</pointsize>
-      </font>
-     </property>
      <property name="frame">
       <bool>true</bool>
      </property>
@@ -36,6 +34,12 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>25</width>
+       <height>16777215</height>
+      </size>
      </property>
      <property name="font">
       <font>

@@ -19,12 +19,14 @@ FileEditWidget::FileEditWidget(QWidget *parent)
 FileEditWidget::FileEditWidget(const QString & contents, QWidget *parent)
   :QWidget(parent)
 {
+  init();
   setText(contents);
 }
 
 void FileEditWidget::init()
 {
   setupUi(this);
+  setFocusProxy(lineEdit);
   connect(lineEdit, SIGNAL(editingFinished()), SLOT(lineeditFinished()));
   connect(lineEdit, SIGNAL(textChanged(const QString&)),
           SLOT(lineeditChanged(const QString&)));
@@ -49,7 +51,8 @@ void FileEditWidget::setText(const QString &text)
 
 void FileEditWidget::lineeditFinished()
 {
-  emit editingFinished();
+  if(!pushButton->hasFocus())
+    emit editingFinished();
 }
 
 void FileEditWidget::lineeditChanged(const QString &text)
@@ -78,6 +81,6 @@ void FileEditWidget::selectFile()
                                                   tr("Text files (*.txt)"));
   if(!filename.isNull()) {
     lineEdit->setText(filename);
-    emit editingFinished();
   }
+  lineEdit->setFocus();
 }
