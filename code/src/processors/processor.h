@@ -15,7 +15,7 @@ class Processor : public QThread
   Q_OBJECT
 
   Q_PROPERTY(QString Name READ name DESIGNABLE true USER true)
-  Q_PROPERTY(int POICount READ poiCount USER true)
+  Q_PROPERTY(int POICount READ poiCount USER true NOTIFY poiCountUpdated)
 
 public:
   Processor(QObject *parent = 0);
@@ -42,6 +42,7 @@ signals:
   void newMessage(QString msg) const;
   void newPOI(QPoint);
   void clearPOIs();
+  void poiCountUpdated();
 
 protected:
   virtual void run();

@@ -91,6 +91,7 @@ void Processor::addPOI(QPoint p)
   QMutexLocker locker(&mutex);
   Point pt(p.x(), p.y());
   POIs.append(pt);
+  emit poiCountUpdated();
 }
 
 void Processor::deletePOI(QPoint p)
@@ -98,4 +99,5 @@ void Processor::deletePOI(QPoint p)
   QMutexLocker locker(&mutex);
   Point pt(p.x(), p.y());
   POIs.removeOne(pt);
+  emit poiCountUpdated();
 }
