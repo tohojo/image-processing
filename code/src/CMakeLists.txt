@@ -36,7 +36,7 @@ set(image-processing_LIBS
  QPropertyEditor )
 
 if(SEGMENTING)
-  message("Building segmenting")
+  message(STATUS "Building segmenting")
   add_definitions(-DSEGMENTING)
   set(image-processing_SOURCES ${image-processing_SOURCES}
     processors/rpoint.h
@@ -51,7 +51,7 @@ if(SEGMENTING)
 endif()
 
 if(FEATUREPOINTS)
-  message("Building feature point extraction")
+  message(STATUS "Building feature point extraction")
   add_definitions(-DFEATURE_POINTS)
   set(image-processing_SOURCES ${image-processing_SOURCES}
     processors/fast_hessian.h
@@ -68,7 +68,7 @@ if(FEATUREPOINTS)
 endif()
 
 if(CALIBRATION)
-  message("Building calibration")
+  message(STATUS "Building calibration")
   add_definitions(-DCALIBRATION)
   set(image-processing_SOURCES ${image-processing_SOURCES}
     processors/calibration_processor.cpp
@@ -90,7 +90,7 @@ if(CALIBRATION)
 endif()
 
 if(DISTORTION)
-  message("Building distortion removal")
+  message(STATUS "Building distortion removal")
   add_definitions(-DDISTORTION)
   set(image-processing_SOURCES ${image-processing_SOURCES}
     processors/distortion-removal.cpp)

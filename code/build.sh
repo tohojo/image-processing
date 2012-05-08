@@ -2,7 +2,7 @@
 
 dir=$(dirname "$0")
 builddir="$dir/build"
-CMAKEARGS="-Wdev"
+CMAKEARGS="-Wdev -UTESTS -USEGMENTING -UFEATUREPOINTS -UCALIBRATION -UDISTORTION"
 
 if [[ "$1" == "--debug" ]]; then
     CMAKEARGS="${CMAKEARGS} -DCMAKE_BUILD_TYPE=Debug"
