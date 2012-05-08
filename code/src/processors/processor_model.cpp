@@ -16,6 +16,10 @@
   #include "distortion-removal.h"
 #endif
 
+#ifdef RECTIFICATION
+  #include "rectification_processor.h"
+#endif
+
 ProcessorModel::ProcessorModel() : QAbstractListModel()
 {
   create_processors();
@@ -67,6 +71,9 @@ void ProcessorModel::create_processors()
 #endif
 #ifdef DISTORTION
   m_processors.append(new DistortionRemoval());
+#endif
+#ifdef RECTIFICATION
+  m_processors.append(new RectificationProcessor());
 #endif
 }
 

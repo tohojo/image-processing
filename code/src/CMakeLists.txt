@@ -100,6 +100,15 @@ if(DISTORTION)
     distortion)
 endif()
 
+if(RECTIFICATION)
+  message(STATUS "Building rectification")
+  add_definitions(-DRECTIFICATION)
+  set(image-processing_SOURCES ${image-processing_SOURCES}
+    processors/rectification_processor.cpp)
+  set(image-processing_HEADERS ${image-processing_HEADERS}
+    processors/rectification_processor.h)
+endif()
+
 set(image-processing_FORMS ui/processing-gui.ui ui/file-edit-widget.ui)
 
 # QT4-specific preprocessor headers
