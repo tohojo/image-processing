@@ -1,7 +1,7 @@
 // *************************************************************************************************
 //
 // QPropertyEditor v 0.3
-//   
+//
 // --------------------------------------
 // Copyright (C) 2007 Volker Wiendl
 // Acknowledgements to Roman alias banal from qt-apps.org for the Enum enhancement
@@ -9,7 +9,7 @@
 //
 // The QPropertyEditor Library is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
-// the Free Software Foundation version 3 of the License 
+// the Free Software Foundation version 3 of the License
 //
 // The Horde3D Scene Editor is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -46,7 +46,7 @@ public:
 	virtual ~QPropertyModel();
 
 	/// QAbstractItemModel implementation
-	QModelIndex index ( int row, int column, const QModelIndex & parent = QModelIndex() ) const;	
+	QModelIndex index ( int row, int column, const QModelIndex & parent = QModelIndex() ) const;
 
 	/// QAbstractItemModel implementation
 	QModelIndex parent ( const QModelIndex & index ) const;
@@ -64,24 +64,25 @@ public:
 
 	/// QAbstractItemModel implementation
 	QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
-	
+
 	/// QAbstractItemModel implementation
 	QModelIndex buddy ( const QModelIndex & index ) const;
 
 	/**
 	 * Adds the user properties of the given class to the QPropertyModel instance
-	 * 
-	 * @param propertyObject the class inherited from QObject that contains user properties that should be 
+	 *
+	 * @param propertyObject the class inherited from QObject that contains user properties that should be
 	 *        managed by this instance
 	 */
 	void addItem(QObject* propertyObject);
 
 	/**
 	 * Creates a dataChanged signal for the given object
-	 * @param propertyObject the instance of a QObject based class that should be updated 
+	 * @param propertyObject the instance of a QObject based class that should be updated
 	 * @param parent optional model index the propertyObject is child of
 	 */
 	void updateItem ( QObject* propertyObject, const QModelIndex& parent = QModelIndex() ) ;
+
 
 	/**
 	 * Removes all objects from the model
@@ -92,12 +93,14 @@ public:
 	 * Adds custom callback that will be used to create Property instances for custom datatypes
 	 */
 	void registerCustomPropertyCB(QPropertyEditorWidget::UserTypeCB callback);
-		
+
 	/**
 	 * Adds custom callback that will be used to create Property instances for custom datatypes
 	 */
 	void unregisterCustomPropertyCB(QPropertyEditorWidget::UserTypeCB callback);
-		
+
+public slots:
+  void valueChanged();
 
 private:
 
@@ -109,6 +112,6 @@ private:
 
 	/// Custom callback
 	QList<QPropertyEditorWidget::UserTypeCB>	m_userCallbacks;
-	
+
 };
 #endif
