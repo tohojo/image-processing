@@ -1,11 +1,11 @@
 #ifndef RECTIFICATION_PROCESSOR_H
 #define RECTIFICATION_PROCESSOR_H
 
-#include "processor.h"
+#include "two_image_processor.h"
 
 using namespace cv;
 
-class RectificationProcessor : public Processor
+class RectificationProcessor : public TwoImageProcessor
 {
   Q_OBJECT
 

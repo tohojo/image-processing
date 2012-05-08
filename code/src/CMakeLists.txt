@@ -16,6 +16,7 @@ set(image-processing_SOURCES
   widgets/file_edit_widget.cpp
   processors/processor.cpp
   processors/null_processor.cpp
+  processors/two_image_processor.cpp
   processors/processor_model.cpp
   util.cpp
   util.h)
@@ -30,6 +31,7 @@ set(image-processing_HEADERS
   widgets/file_edit_widget.h
   processors/processor.h
   processors/null_processor.h
+  processors/two_image_processor.h
   processors/processor_model.h
   )
 set(image-processing_LIBS

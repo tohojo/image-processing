@@ -1,7 +1,7 @@
 #include "rectification_processor.h"
 
 RectificationProcessor::RectificationProcessor(QObject *parent)
-  : Processor(parent)
+  : TwoImageProcessor(parent)
 {
 }
 
@@ -14,7 +14,7 @@ void RectificationProcessor::run()
   forever {
     if(abort) return;
     mutex.lock();
-    output_image = input_image;
+    output_image = right_image;
     emit progress(100);
     emit updated();
     if(once) return;
