@@ -1,7 +1,7 @@
 // *************************************************************************************************
 //
 // QPropertyEditor v 0.3
-//   
+//
 // --------------------------------------
 // Copyright (C) 2007 Volker Wiendl
 // Acknowledgements to Roman alias banal from qt-apps.org for the Enum enhancement
@@ -9,7 +9,7 @@
 //
 // The QPropertyEditor Library is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
-// the Free Software Foundation version 3 of the License 
+// the Free Software Foundation version 3 of the License
 //
 // The Horde3D Scene Editor is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -49,15 +49,15 @@ QWidget *QVariantDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
 	{
 	case QVariant::Color:
 	case QVariant::Int:
-	case QMetaType::Float:	
-	case QVariant::Double:	
-	case QVariant::UserType:			
+	case QMetaType::Float:
+	case QVariant::Double:
+	case QVariant::UserType:
 		editor = p->createEditor(parent, option);
-		if (editor)	
+		if (editor)
 		{
-			if (editor->metaObject()->indexOfSignal("editFinished()") != -1)
+			if (editor->metaObject()->indexOfSignal("editingFinished()") != -1)
 			{
-				connect(editor, SIGNAL(editFinished()), m_finishedMapper, SLOT(map()));
+				connect(editor, SIGNAL(editingFinished()), m_finishedMapper, SLOT(map()));
 				m_finishedMapper->setMapping(editor, editor);
 			}
 			break; // if no editor could be created take default case
@@ -70,19 +70,19 @@ QWidget *QVariantDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
 }
 
 void QVariantDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
-{		
+{
 	m_finishedMapper->blockSignals(true);
-	QVariant data = index.model()->data(index, Qt::EditRole);	
-	
+	QVariant data = index.model()->data(index, Qt::EditRole);
+
 	switch(data.type())
 	{
-	case QVariant::Color:		 		
+	case QVariant::Color:
 	case QMetaType::Double:
 	case QMetaType::Float:
 	case QVariant::UserType:
 	case QVariant::Int:
 		if (static_cast<Property*>(index.internalPointer())->setEditorData(editor, data)) // if editor couldn't be recognized use default
-			break; 
+			break;
 	default:
 		QItemDelegate::setEditorData(editor, index);
 		break;
@@ -91,20 +91,20 @@ void QVariantDelegate::setEditorData(QWidget *editor, const QModelIndex &index) 
 }
 
 void QVariantDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
-{	
-	QVariant data = index.model()->data(index, Qt::EditRole);	
+{
+	QVariant data = index.model()->data(index, Qt::EditRole);
 	switch(data.type())
 	{
-	case QVariant::Color:		
+	case QVariant::Color:
 	case QMetaType::Double:
-	case QMetaType::Float:				
-	case QVariant::UserType: 
+	case QMetaType::Float:
+	case QVariant::UserType:
 	case QVariant::Int:
 		{
 			QVariant data = static_cast<Property*>(index.internalPointer())->editorData(editor);
 			if (data.isValid())
 			{
-				model->setData(index, data , Qt::EditRole); 
+				model->setData(index, data , Qt::EditRole);
 				break;
 			}
 		}
@@ -128,10 +128,10 @@ void QVariantDelegate::parseEditorHints(QWidget* editor, const QString& editorHi
 		QRegExp rx("(.*)(=\\s*)(.*)(;{1})");
 		rx.setMinimal(true);
 		int pos = 0;
-		while ((pos = rx.indexIn(editorHints, pos)) != -1) 
+		while ((pos = rx.indexIn(editorHints, pos)) != -1)
 		{
 			//qDebug("Setting %s to %s", qPrintable(rx.cap(1)), qPrintable(rx.cap(3)));
-			editor->setProperty(qPrintable(rx.cap(1).trimmed()), rx.cap(3).trimmed());				
+			editor->setProperty(qPrintable(rx.cap(1).trimmed()), rx.cap(3).trimmed());
 			pos += rx.matchedLength();
 		}
 		editor->blockSignals(false);
