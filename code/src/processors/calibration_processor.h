@@ -16,6 +16,7 @@ class CalibrationProcessor : public Processor
   Q_PROPERTY(QFileInfo Points3d READ points3d WRITE setPoints3d USER true)
   Q_PROPERTY(double FeatureThreshold READ threshold WRITE setThreshold USER true)
   Q_ENUMS(ProcessingStage)
+  Q_CLASSINFO("Points3d", "filetype=text;")
 
 public:
   enum ProcessingStage { STAGE_1, STAGE_2 };

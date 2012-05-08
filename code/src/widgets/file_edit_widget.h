@@ -15,15 +15,18 @@ class FileEditWidget : public QWidget, private Ui::FileEditWidget
 {
   Q_OBJECT
   Q_PROPERTY(QString text READ text WRITE setText USER true)
+  Q_PROPERTY(QString filetype READ filetype WRITE setFiletype)
 public:
   FileEditWidget(QWidget *parent =0);
   FileEditWidget(const QString &contents, QWidget *parent =0);
   ~FileEditWidget();
 
   QString text();
+  QString filetype() {return file_type;}
 
 public slots:
   void setText(const QString &text);
+  void setFiletype(const QString &fileType);
 
 private slots:
   void lineeditFinished();
@@ -33,6 +36,8 @@ private slots:
 
 private:
   void init();
+  QString file_filter;
+  QString file_type;
 
 signals:
   void editingFinished();

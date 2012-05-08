@@ -78,9 +78,21 @@ void FileEditWidget::selectFile()
   }
   QString filename = QFileDialog::getOpenFileName(this, tr("Select file"),
                                                   open_directory,
-                                                  tr("Text files (*.txt)"));
+                                                  file_filter);
   if(!filename.isNull()) {
     lineEdit->setText(filename);
   }
   lineEdit->setFocus();
+}
+
+void FileEditWidget::setFiletype(const QString& type)
+{
+  file_type = type;
+  if(type == "images") {
+    file_filter = tr("Images (*.png *.jpg *.jpeg *.tif)");
+  } else if(type == "text") {
+    file_filter = tr("Text files (*.txt)");
+  } else {
+    file_filter = tr("Any file (*.*)");
+  }
 }
