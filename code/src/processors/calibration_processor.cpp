@@ -165,10 +165,9 @@ void CalibrationProcessor::saveOutput(Mat R, Mat T)
   QString filename = m_output_file.filePath();
   mutex.unlock();
 
-  qDebug() << "Save output:" << filename;
   if(filename.isEmpty()) return;
   QFile file(filename);
-  if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+  if(!file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
     return;
   Util::write_matrix(R, &file);
   Util::write_matrix(T, &file);
