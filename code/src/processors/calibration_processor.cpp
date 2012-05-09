@@ -143,23 +143,29 @@ void CalibrationProcessor::calibrate()
              pois.size(), points3d.size());
     return;
   }
-  CamCalibrator calib(pois.toStdList(), points3d.toStdList(), width, height, m_corr.toStdVector());
-  if(m_corr.empty()) {
-    calib.mapPtsToCalibrationPts();
-    m_corr = QVector<point_correspondence>::fromStdVector(calib.getMapping());
+  Mat R,T;
+  { // Scope to make sure calibration object is destroyed (and
+    // messages output) as soon as we're done with it.
+    CamCalibrator calib(pois.toStdList(), points3d.toStdList(), width, height, m_corr.toStdVector());
+    if(m_corr.empty()) {
+      calib.mapPtsToCalibrationPts();
+      m_corr = QVector<point_correspondence>::fromStdVector(calib.getMapping());
+    }
+    calib.calibrate();
+    R = calib.getRotationMatrix();
+    T = calib.getTranslationMatrix();
   }
-  calib.calibrate();
-  saveOutput(calib.getRotationMatrix(), calib.getTranslationMatrix());
+  saveOutput(R,T);
 }
 
 void CalibrationProcessor::saveOutput(Mat R, Mat T)
 {
   mutex.lock();
-  QString filename = m_output_file.canonicalFilePath();
-  bool valid = !m_output_file.isEmpty();
+  QString filename = m_output_file.filePath();
   mutex.unlock();
 
-  if(!valid) return;
+  qDebug() << "Save output:" << filename;
+  if(filename.isEmpty()) return;
   QFile file(filename);
   if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
     return;
@@ -268,7 +274,7 @@ void CalibrationProcessor::setPoints3d(const QFileInfo f)
 void CalibrationProcessor::setOutputFile(const QFileInfo f)
 {
   QMutexLocker locker(&mutex);
-  if(f.canonicalFilePath() == m_output_file.canonicalFilePath()) return;
+  if(f.filePath() == m_output_file.filePath()) return;
   m_output_file = f;
   mutex.unlock();
   process();
