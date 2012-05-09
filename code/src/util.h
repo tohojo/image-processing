@@ -15,6 +15,7 @@ namespace Util
   uint32_t nearest_pow (uint32_t num, bool smaller = false);
   void img_to_csv(const char *filename, Mat mat);
   void write_matrix(Mat m, QIODevice *dev);
+  bool read_matrix(Mat m, QIODevice *dev);
 }
 
 #endif

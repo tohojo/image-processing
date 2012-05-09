@@ -3,6 +3,8 @@
  */
 #include "util.h"
 #include <QTextStream>
+#include <QRegExp>
+#include <QDebug>
 #include <fstream>
 
 namespace Util {
@@ -110,5 +112,55 @@ namespace Util {
       }
       out << '\n';
     }
+  }
+
+  /**
+   * Read a float-valued matrix written by write_matrix.
+   *
+   * Assumes (and checks) that the matrix to write to is the same dimensionality
+   * as the matrix in the file.
+   *
+   * Returns true if successful.
+   */
+  bool read_matrix(Mat mat, QIODevice *dev)
+  {
+    // Peek at the heading to see if we have the right dimensionality.
+    char buffer[30];
+    if(dev->peek(buffer, sizeof(buffer)) == -1) {
+      qWarning() << "Unable to peek at input";
+      return false;
+    }
+    QString header(buffer);
+    QRegExp rx("^Matrix (\\d+)x(\\d+):");
+    int rows = 0,cols = 0;
+    if(rx.indexIn(header) == -1) {
+      qWarning() << "RegExp mismatch in header.";
+      return false;
+    }
+    rows = rx.cap(1).toInt();
+    cols = rx.cap(2).toInt();
+    if(rows != mat.rows || cols != mat.cols) {
+      qWarning() << "Dimension mismatch. Matrix rows:" << mat.rows << "cols:" << mat.cols << "Input rows:" << rows << "cols:" << cols;
+      return false;
+    }
+    Mat out(rows, cols, CV_64F);
+    header = QString(dev->readLine());
+    for(int i = 0; i < rows; i++) {
+      QString line(dev->readLine());
+      if(line.isEmpty()) {
+        qWarning() << "Ran out of data prematurely.";
+        return false;
+      }
+      for(int j = 0; j < cols; j++) {
+        bool ok;
+        out.at<double>(i,j) = line.section(";", j, j).toDouble(&ok);
+        if(!ok) {
+          qWarning() << "Unable to parse double value:" << line.section(";", j, j);
+          return false;
+        }
+      }
+    }
+    out.copyTo(mat);
+    return true;
   }
 }
