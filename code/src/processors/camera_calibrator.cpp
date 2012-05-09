@@ -16,7 +16,7 @@ CamCalibrator::CamCalibrator(std::list<Point> points2d, std::list<Point3d> point
 {
   obj = new VirtualCalibrationObject();
   mat_R = Mat(3, 3, CV_64F, Scalar::all(0));
-  mat_T = Mat(3, 3, CV_64F, Scalar::all(0));
+  mat_T = Mat(3, 1, CV_64F, Scalar::all(0));
   imageLengthX = width;
   imageLengthY = height;
   mapping = corr;
@@ -49,7 +49,7 @@ CamCalibrator::CamCalibrator(int argc, char *argv[]) : cout(QtDebugMsg)
 	calPtsInWorld = new Point3d[63];
 	obj = new VirtualCalibrationObject();
 	mat_R = Mat(3, 3, CV_64F, Scalar::all(0));
-	mat_T = Mat(3, 3, CV_64F, Scalar::all(0));
+	mat_T = Mat(3, 1, CV_64F, Scalar::all(0));
 
 	// READ IN IMAGE POINTS
 	char *in_arg;
