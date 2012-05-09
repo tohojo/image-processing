@@ -64,7 +64,10 @@ void CalibrationProcessor::findPOIs()
   output_image = seg.output();
   emit progress(15);
   emit updated();
+  int num_kps = POIs.size();
   mutex.unlock();
+
+  if(num_kps) return;
 
   FastHessian fh(input, 4, 4, 2, m_threshold);
   fh.compute();
