@@ -27,6 +27,7 @@ void FileEditWidget::init()
 {
   setupUi(this);
   setFocusProxy(lineEdit);
+  open_type = READ;
   connect(lineEdit, SIGNAL(editingFinished()), SLOT(lineeditFinished()));
   connect(lineEdit, SIGNAL(textChanged(const QString&)),
           SLOT(lineeditChanged(const QString&)));
