@@ -13,6 +13,7 @@ option(FEATUREPOINTS "Build feature point extraction processor" ON)
 option(CALIBRATION "Build calibration processor" ON)
 option(DISTORTION "Build distortion removal processor" ON)
 option(RECTIFICATION "Build rectification processor" ON)
+option(STEREO "Build stereo matching processor" ON)
 option(TESTS "Build tests" OFF)
 
 

@@ -111,6 +111,17 @@ if(RECTIFICATION)
     processors/rectification_processor.h)
 endif()
 
+if(STEREO)
+  message(STATUS "Building stereo-matching")
+  add_definitions(-DSTEREO)
+  set(image-processing_SOURCES ${image-processing_SOURCES}
+#    processors/stereomatch.cpp
+    processors/stereomatch_processor.cpp)
+  set(image-processing_HEADERS ${image-processing_HEADERS}
+#    processors/stereomatch.h
+    processors/stereomatch_processor.h)
+endif()
+
 set(image-processing_FORMS ui/processing-gui.ui ui/file-edit-widget.ui)
 
 # QT4-specific preprocessor headers

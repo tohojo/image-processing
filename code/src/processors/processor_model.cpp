@@ -75,6 +75,9 @@ void ProcessorModel::create_processors()
 #ifdef RECTIFICATION
   m_processors.append(new RectificationProcessor());
 #endif
+#ifdef STEREO
+  m_processors.append(new StereoProcessor());
+#endif
 }
 
 int ProcessorModel::index_for(QString name)
