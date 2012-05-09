@@ -2,6 +2,7 @@
  * Utility functions for conversion between opencv and qt formats etc.
  */
 #include "util.h"
+#include <QTextStream>
 #include <fstream>
 
 namespace Util {
@@ -93,5 +94,20 @@ namespace Util {
 
     file.close();
 
+  }
+
+  /**
+   * Write a float-valued matrix to an IOdevice.
+   */
+  void write_matrix(Mat mat, QIODevice *dev)
+  {
+    QTextStream out(dev);
+    for(int i = 0; i < mat.rows; i++) {
+      for(int j = 0; j < mat.cols; j++) {
+        out << mat.at<double>(i,j);
+        if(j < mat.cols-1) out << ';';
+      }
+      out << '\n';
+    }
   }
 }
