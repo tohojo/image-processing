@@ -146,6 +146,24 @@ void CalibrationProcessor::calibrate()
     m_corr = QVector<point_correspondence>::fromStdVector(calib.getMapping());
   }
   calib.calibrate();
+  saveOutput(calib.getRotationMatrix(), calib.getTranslationMatrix());
+}
+
+void CalibrationProcessor::saveOutput(Mat R, Mat T)
+{
+  mutex.lock();
+  QString filename = m_output_file.canonicalFilePath();
+  bool valid = !m_output_file.isEmpty();
+  mutex.unlock();
+
+  if(!valid) return;
+  QFile file(filename);
+  if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+    return;
+  Util::write_matrix(R, &file);
+  Util::write_matrix(T, &file);
+
+  qDebug() << "Saved matrix data to file:" << filename;
 }
 
 bool CalibrationProcessor::poiExists(QPoint p)
@@ -240,6 +258,15 @@ void CalibrationProcessor::setPoints3d(const QFileInfo f)
   QMutexLocker locker(&mutex);
   if(f.canonicalFilePath() == m_points3d_file.canonicalFilePath()) return;
   m_points3d_file = f;
+  mutex.unlock();
+  process();
+}
+
+void CalibrationProcessor::setOutputFile(const QFileInfo f)
+{
+  QMutexLocker locker(&mutex);
+  if(f.canonicalFilePath() == m_output_file.canonicalFilePath()) return;
+  m_output_file = f;
   mutex.unlock();
   process();
 }

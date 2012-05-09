@@ -15,8 +15,10 @@ class CalibrationProcessor : public Processor
   Q_PROPERTY(ProcessingStage Stage READ stage WRITE setStage USER true)
   Q_PROPERTY(QFileInfo Points3d READ points3d WRITE setPoints3d USER true)
   Q_PROPERTY(double FeatureThreshold READ threshold WRITE setThreshold USER true)
+  Q_PROPERTY(QFileInfo MatrixOutput READ outputFile WRITE setOutputFile USER true)
   Q_ENUMS(ProcessingStage)
   Q_CLASSINFO("Points3d", "filetype=text;")
+  Q_CLASSINFO("MatrixOutput", "filetype=text;opentype=WRITE;")
 
 public:
   enum ProcessingStage { STAGE_1, STAGE_2 };
@@ -27,6 +29,9 @@ public:
 
   QFileInfo points3d() {QMutexLocker l(&mutex); return m_points3d_file;}
   void setPoints3d(QFileInfo f);
+
+  QFileInfo outputFile() {QMutexLocker l(&mutex); return m_output_file;}
+  void setOutputFile(QFileInfo f);
 
   ProcessingStage stage() {QMutexLocker l(&mutex); return m_stage; }
   void setStage(ProcessingStage s);
@@ -44,10 +49,12 @@ private:
   void findPOIs();
   void adjustPOIs();
   void calibrate();
+  void saveOutput(Mat R, Mat T);
   Point findCentre(Mat img);
   bool poiExists(QPoint p);
   bool parsePoint(QString line, Point3d *p);
   QFileInfo m_points3d_file;
+  QFileInfo m_output_file;
   QList<Point3d> m_points3d;
   QVector<point_correspondence> m_corr;
   ProcessingStage m_stage;
