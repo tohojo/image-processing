@@ -76,11 +76,19 @@ void FileEditWidget::selectFile()
       open_directory = info.dir().path();
     }
   }
-  QString filename = QFileDialog::getOpenFileName(this, tr("Select file"),
-                                                  open_directory,
-                                                  file_filter);
+  QString filename;
+  if(open_type == READ) {
+    filename = QFileDialog::getOpenFileName(this, tr("Select file"),
+                                                    open_directory,
+                                                    file_filter);
+  } else if (open_type == WRITE) {
+    filename = QFileDialog::getSaveFileName(this, tr("Select file"),
+                                                    open_directory,
+                                                    file_filter);
+  }
   if(!filename.isNull()) {
     lineEdit->setText(filename);
+    emit editingFinished();
   }
   lineEdit->setFocus();
 }
