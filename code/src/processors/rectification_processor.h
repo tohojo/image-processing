@@ -11,6 +11,7 @@ class RectificationProcessor : public TwoImageProcessor
   Q_PROPERTY(QFileInfo CalibrationResults READ calibrationResults
              WRITE setCalibrationResults USER true)
   Q_CLASSINFO("CalibrationResults", "filetype=text;")
+  Q_PROPERTY(double FocalLength READ focalLength WRITE setFocalLength)
 
 public:
   RectificationProcessor(QObject *parent = 0);
@@ -21,13 +22,19 @@ public:
   QFileInfo calibrationResults() {QMutexLocker l(&mutex); return calibration_results;}
   void setCalibrationResults(QFileInfo path);
 
+  double focalLength() {QMutexLocker l(&mutex); return focal_length;}
+  void setFocalLength(double length);
+
 
 private:
   void run();
   void loadCalibrationResults();
+  void calculateRectMatrix();
   QFileInfo calibration_results;
-  Mat T;
+  double focal_length;
   Mat R;
+  Mat T;
+  Mat rect;
 };
 
 #endif
