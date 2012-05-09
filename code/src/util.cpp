@@ -102,6 +102,7 @@ namespace Util {
   void write_matrix(Mat mat, QIODevice *dev)
   {
     QTextStream out(dev);
+    out << QString("Matrix %1x%2:\n").arg(mat.rows).arg(mat.cols);
     for(int i = 0; i < mat.rows; i++) {
       for(int j = 0; j < mat.cols; j++) {
         out << mat.at<double>(i,j);
