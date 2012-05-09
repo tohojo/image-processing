@@ -7,8 +7,9 @@
 
 #ifndef QFILEINFO_PROPERTY_H
 #define QFILEINFO_PROPERTY_H
-#include "Property.h"
 #include <QtCore/QFileInfo>
+#include "Property.h"
+#include "file_edit_widget.h"
 
 class QFileInfoProperty : public Property
 {
@@ -22,9 +23,13 @@ class QFileInfoProperty : public Property
   virtual QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem &option);
   virtual QVariant editorData(QWidget *editor);
   virtual bool setEditorData(QWidget *editor, const QVariant& data);
+  virtual void setEditorHints(const QString& hints);
 
 public slots:
   void editorFinished();
+
+private:
+  FileEditWidget::OpenType open_type;
 
 };
 
