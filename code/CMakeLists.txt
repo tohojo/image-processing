@@ -3,6 +3,8 @@ project(image-processing)
 find_package(OpenCV REQUIRED)
 find_package(Qt4 REQUIRED)
 
+add_definitions("-DOPENCV_VERSION=${OpenCV_VERSION_MAJOR}${OpenCV_VERSION_MINOR}")
+
 include(${QT_USE_FILE})
 add_definitions(${QT_DEFINITIONS})
 

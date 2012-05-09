@@ -10,6 +10,10 @@
 #include "surflib.h"
 #include <QDebug>
 
+#if OPENCV_VERSION == 24
+  #include "opencv2/nonfree/features2d.hpp"
+#endif
+
 
 FeaturePoints::FeaturePoints(QObject *parent)
   : Processor(parent)
