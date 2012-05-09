@@ -26,6 +26,7 @@ QFileInfo TwoImageProcessor::rightImage()
 void TwoImageProcessor::setRightImage(QFileInfo path)
 {
   QMutexLocker l(&mutex);
+  if(path.canonicalFilePath() == right_image_file.canonicalFilePath()) return;
   right_image_file = path;
   right_image = Util::load_image(right_image_file.canonicalFilePath());
   mutex.unlock();
