@@ -30,17 +30,14 @@ void StereoProcessor::run()
 }
 
 /*
-For every pixel in the right image, we extract the 7-by-7-pixel block around it and search along the same row in the
-left image for the block that best matches it. Here we search in a range of +/- 15 pixels (the disparity range)
-around the pixel's location in the first image, and we use the sum of absolute differences (SAD) to compare the image
-regions.
+For every pixel in the right image, we extract the 7-by-7-pixel block around it
+and search along the same row in the left image for the block that best matches it.
+Here we search in a range of +/- 15 pixels (the disparity range) around the
+pixel's location in the first image, and we use the sum of absolute differences (SAD)
+to compare the image regions.
+*/
 
-set outputImage to all zeroes
-disparityRange = 15;
-halfBlockSize = 3;
-blockSize = 2*halfBlockSize+1;
-nRowsLeft = number of rows in left image
-nColsLeft = number of cols in left image
+/*
 for (m = 1 ... nRowsLeft){
     // Set min/max row bounds for image block.
     minrow = max(1,m-halfBlockSize);
@@ -78,7 +75,18 @@ for (m = 1 ... nRowsLeft){
 // For display purposes, we saturate the depth map to have only positive values.
 */
 
-dynamicProgramming(){
-	//
+// left image = input_image
+// right image = right_image
+void StereoProcessor::dynamicProgramming(){
+	// nRowsLeft = number of rows in left image
+	int nRowsLeft = input_image.rows;
+	// nColsLeft = number of cols in left image
+	int nColsLeft = input_image.cols;
+	// set output image to all zeroes
+	genericDepthMap = Mat(nRowsLeft, nColsLeft, CV_64F, Scalar(0));
+	int disparityRange = 15;
+	int halfBlockSize = 3;
+	int blockSize = 2*halfBlockSize+1;
+	
 }
 

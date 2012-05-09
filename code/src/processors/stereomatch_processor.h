@@ -16,10 +16,11 @@ public:
   QString name() {return "Stereo matching";}
 
 private:
-	StereoProcessor::dynamicProgramming();
+	void StereoProcessor::dynamicProgramming();
   void run();
   Mat leftDepthMap;
   Mat rightDepthMap;
+  Mat genericDepthMap;
 };
 
 #endif
