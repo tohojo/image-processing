@@ -108,6 +108,7 @@ void CalibrationProcessor::adjustPOIs()
   mutex.lock();
   POIs = newPois;
   mutex.unlock();
+  emit poiCountUpdated();
 }
 
 Point CalibrationProcessor::findCentre(Mat img)
