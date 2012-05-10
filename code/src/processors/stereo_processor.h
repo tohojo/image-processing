@@ -2,6 +2,7 @@
 #define STEREO_PROCESSOR_H
 
 #include "two_image_processor.h"
+#include <highgui.h>
 
 using namespace cv;
 
@@ -16,7 +17,7 @@ public:
 	QString name() {return "Stereo matching";}
 
 private:
-	void StereoProcessor::dynamicProgramming();
+	bool StereoProcessor::dynamicProgramming();
 	void run();
 	Mat initial_leftDepthMap; // Takes integer values
 	Mat initial_rightDepthMap; // Takes integer values

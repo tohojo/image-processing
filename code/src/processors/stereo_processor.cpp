@@ -1,22 +1,23 @@
 #include "stereo_processor.h"
 #include <stdio.h>
 
+
 StereoProcessor::StereoProcessor(QObject *parent)
 : TwoImageProcessor(parent)
 {
 }
 
+
 StereoProcessor::~StereoProcessor()
 {
 }
+
 
 void StereoProcessor::run()
 {
 	forever {
 		if(abort) return;
-		//
-		if( (! input_image.empty()) && (! right_image.empty()) ){
-			dynamicProgramming();
+		if( dynamicProgramming() ) { // Returns true if successful
 			mutex.lock();
 			std::cout << "OUTPUT = LEFT DEPTH MAP\n";
 			output_image = correctedLeftDepthMap;
@@ -35,24 +36,21 @@ void StereoProcessor::run()
 	}
 }
 
-/*
-For every pixel in the right image, we extract the 7-by-7-pixel block around it
-and search along the same row in the left image for the block that best matches it.
-Here we search in a range of +/- 15 pixels (the disparity range) around the
-pixel's location in the first image, and we use the sum of absolute differences (SAD)
-to compare the image regions.
-*/
 
-// Need to normalise output image to [0...255]
-// For display purposes, we saturate the depth map to have only positive values.
+bool StereoProcessor::dynamicProgramming(){
 
-void StereoProcessor::dynamicProgramming(){
 	Mat left_image = input_image;
-	// numRowsLeft = number of rows in left image
-	int numRowsLeft = left_image.rows;
-	// numColsLeft = number of cols in left image
-	int numColsLeft = left_image.cols;
 
+	if( (left_image.empty()) || (right_image.empty()) ){
+		return false;
+	}
+
+	if ((left_image.rows != right_image.rows) || (left_image.cols != right_image.cols)){
+		return false;
+	}
+
+	int numRowsLeft = left_image.rows;// numRowsLeft = number of rows in left image
+	int numColsLeft = left_image.cols; // numColsLeft = number of cols in left image
 	initial_rightDepthMap = Mat(numRowsLeft, numColsLeft, CV_32S, Scalar(0)); // 32-bit signed integers
 	initial_leftDepthMap = Mat(numRowsLeft, numColsLeft, CV_32S, Scalar(0)); // 32-bit signed integers
 	correctedLeftDepthMap = Mat(numRowsLeft, numColsLeft, left_image.type(), Scalar(0)); // 8-bit unsigned chars
@@ -61,10 +59,11 @@ void StereoProcessor::dynamicProgramming(){
 	// We progress one row of the rectified images at a time, starting with the topmost.
 	for (int y_scanline = 0; y_scanline < numRowsLeft; y_scanline++){
 
+		// Dynamic programming matrix.
 		A = Mat(numColsLeft, numColsLeft, CV_32S, Scalar(0)); // A uses 32-bit signed integers
+		std::cout << "" << y_scanline << "\n";
 
-		std::cout << "NEXT LINE\n";
-
+		// A[0,0] is initialised to 0. All other elements are evaluated from upper left to lower right corner.
 		for (int i = 0; i < numColsLeft; i++){ // i counts cols
 			for (int j = 0; j < numColsLeft; j++){ // j counts cols also
 				// Images appear to be of type '0', i.e. CV_8U
@@ -83,7 +82,6 @@ void StereoProcessor::dynamicProgramming(){
 				int minimum = min(min(up, left), up_left);
 				// THE FOLLOWING TWO HAVE BEEN CORRECTED FROM (i,y) AND (j,y)
 				unsigned char valueLeft = left_image.at<unsigned char>(y_scanline, i);
-				// !!! CHANGED THE ABOVE FROM "right_image" ???
 				unsigned char valueRight = right_image.at<unsigned char>(y_scanline, j);
 				if ((i == 0) && (j == 0)){
 					A.at<int>(i, j) = 0;
@@ -95,23 +93,15 @@ void StereoProcessor::dynamicProgramming(){
 			}
 		}
 
-		/*
-		for (int i = 0; i < numColsLeft; i++){
-		for (int j = 0; j < numColsLeft; j++){
-		std::cout << " " << (unsigned int) A.at<unsigned char>(i, j);
-		}
-		std::cout << "\n";
-		}
-		*/
-
-		// beginning from A[n-1,n-1], and ending in A[0,0]...
+		// Once the matrix has been filled, a path of minimal cost can be calculated by
+		// tracing back from the lower right corner A[n-1,n-1] to upper left corner A[0,0].
 		int ii = numColsLeft - 1;
 		int jj = numColsLeft - 1;
 		while ((ii > 0) || (jj > 0)){
 			//std::cout << "i " << ii << " j " << jj << "\n";
 			//if (jj - ii != 0) std::cout << "!";
 			initial_leftDepthMap.at<int>(y_scanline, ii) = (jj - ii); // CORRECTED
-			std::cout << "ii=" << ii << ", jj=" << jj << "\n";
+			//std::cout << "ii=" << ii << ", jj=" << jj << "\n";
 			initial_rightDepthMap.at<int>(y_scanline, jj) = (ii - jj); // CORRECTED
 			int up = 1000000;
 			int left = 1000000;
@@ -120,22 +110,16 @@ void StereoProcessor::dynamicProgramming(){
 			if (jj > 0) left = A.at<int>(ii, jj - 1);
 			if ((ii > 0) && (jj > 0)) up_left = A.at<int>(ii - 1, jj - 1);
 			int minimum = min(min(up, left), up_left);
-			if (minimum == up){
+			if (minimum == up){ //std::cout << "up\n";
 				ii--;
-				//std::cout << "up\n";
-			} else if (minimum == left){
+			} else if (minimum == left){ //std::cout << "left\n";
 				jj--;
-				//std::cout << "left\n";
-			} else {
-				//std::cout << "upleft\n";
+			} else { //std::cout << "upleft\n";
 				ii--;
 				jj--;
-			}
-			if (jj-ii != 0){
-				std::cout << "dif= " << jj-ii << "\n";
 			}
 		}
-		std::cout << "SCANLINE Y = " << y_scanline << "\n";
+		emit progress(y_scanline / numRowsLeft);
 	}
 	std::cout << "STEREO MATCHING COMPLETE.\n";
 
@@ -145,36 +129,41 @@ void StereoProcessor::dynamicProgramming(){
 		}
 	}
 
-	int highestDisparity = 0;
+	int highestDisparity1 = 0;
+	int highestDisparity2 = 0;
 	for (int i = 0; i < numRowsLeft; i++){
 		for (int j = 0; j < numColsLeft; j++){
-			if (initial_leftDepthMap.at<int>(i, j) > highestDisparity){
-				highestDisparity = initial_leftDepthMap.at<int>(i, j);
+			if (initial_leftDepthMap.at<int>(i, j) > highestDisparity1){
+				highestDisparity1 = initial_leftDepthMap.at<int>(i, j);
+			}
+			if (initial_rightDepthMap.at<int>(i, j) > highestDisparity2){
+				highestDisparity2 = initial_rightDepthMap.at<int>(i, j);
 			}
 		}
 	}
 	std::cout << "\n=======================\n";
-	std::cout << "HIGHEST DISPARITY = " << highestDisparity << "\n";
+	std::cout << "HIGHEST DISPARITIES = " << highestDisparity1 << ", " << highestDisparity2 << "\n";
 	std::cout << "=======================\n";
 
-	int multiplier = 255/highestDisparity;
+	// Need to normalise output image to [0...255]
+	// For display purposes, we saturate the depth map to have only positive values.
+	int multiplier = 255/max(highestDisparity1, highestDisparity2);
 	for (int i = 0; i < numRowsLeft; i++){
 		for (int j = 0; j < numColsLeft; j++){
 			correctedLeftDepthMap.at<unsigned char>(i, j) =
 				(unsigned char)(initial_leftDepthMap.at<int>(i, j) * multiplier);
+			correctedRightDepthMap.at<unsigned char>(i, j) =
+				(unsigned char)(initial_rightDepthMap.at<int>(i, j) * multiplier);
 		}
 	}
 
+	// Outputs disparity maps to files
+	cv::imwrite("Left-Disparity-Map.png", correctedLeftDepthMap);
+	cv::imwrite("Right-Disparity-Map.png", correctedRightDepthMap);
 
-	//		At the total beginning, A[0,0] has to be initialized with 0. 
-	//		Afterwards, all others elements are evaluated in the
-	//		order from the upper left to the lower right corner.
-	//		It is absolutely necessary just to include already initialized
-	//		matrix elements for performing the Min function inside the pseudocode above.
-	//		Once the matrix has been filled, a path of minimal cost can be calculated
-	//		by tracing back through the DP matrix...
+	return true;
 
-
+	// PSEUDOCODE:
 	/*
 	Step 1: CALCULATE MATRIX
 	a1 = Right[i,y]
