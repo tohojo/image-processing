@@ -38,6 +38,8 @@ void StereoProcessor::run()
 
 bool StereoProcessor::dynamicProgramming(){
 
+	int search_boundary_tube = 40; // For efficiency. This should probably be passed from the GUI.
+
 	Mat left_image = input_image;
 
 	if( (left_image.empty()) || (right_image.empty()) ){
@@ -59,35 +61,42 @@ bool StereoProcessor::dynamicProgramming(){
 	for (int y_scanline = 0; y_scanline < numRowsLeft; y_scanline++){
 
 		// Dynamic programming matrix.
-		A = Mat(numColsLeft, numColsLeft, CV_32S, Scalar(0)); // A uses 32-bit signed integers
-		qDebug() << "" << y_scanline << "\n";
+		A = Mat(numColsLeft, numColsLeft, CV_32S, Scalar(1000000)); // A uses 32-bit signed integers
+		std::cout << y_scanline << "\n";
 
 		// A[0,0] is initialised to 0. All other elements are evaluated from upper left to lower right corner.
 		for (int i = 0; i < numColsLeft; i++){ // i counts cols
 			for (int j = 0; j < numColsLeft; j++){ // j counts cols also
-				// Images appear to be of type '0', i.e. CV_8U
-				int up_left = 1000000;
-				int up = 1000000;
-				int left = 1000000;
-				if (i > 0) {
-					up = A.at<int>(i-1, j);
-				}
-				if (j > 0) {
-					left = A.at<int>(i, j-1);
-				}
-				if ((i > 0) && (j > 0)) {
-					up_left = A.at<int>(i-1, j-1);
-				}
-				int minimum = min(min(up, left), up_left);
-				// THE FOLLOWING TWO HAVE BEEN CORRECTED FROM (i,y) AND (j,y)
-				unsigned char valueLeft = left_image.at<unsigned char>(y_scanline, i);
-				unsigned char valueRight = right_image.at<unsigned char>(y_scanline, j);
-				if ((i == 0) && (j == 0)){
-					A.at<int>(i, j) = 0;
-				} else if (valueLeft >= valueRight) {
-					A.at<int>(i, j) = minimum + (valueLeft-valueRight);
-				}  else if (valueRight >= valueLeft) {
-					A.at<int>(i,j) = minimum + (valueRight-valueLeft);
+				// All this assumes images are of type '0', i.e. CV_8U
+
+				// Improvement: everything is initialised to a cost of a million;
+				// only change this if within q pixels of the centre line.
+				if (abs(i-j) > search_boundary_tube){
+					// "search_boundary_tube" is the number of pixels from the centre to search
+				} else {
+					int up_left = 1000000;
+					int up = 1000000;
+					int left = 1000000;
+					if (i > 0) {
+						up = A.at<int>(i-1, j);
+					}
+					if (j > 0) {
+						left = A.at<int>(i, j-1);
+					}
+					if ((i > 0) && (j > 0)) {
+						up_left = A.at<int>(i-1, j-1);
+					}
+					int minimum = min(min(up, left), up_left);
+					// THE FOLLOWING TWO HAVE BEEN CORRECTED FROM (i,y) AND (j,y)
+					unsigned char valueLeft = left_image.at<unsigned char>(y_scanline, i);
+					unsigned char valueRight = right_image.at<unsigned char>(y_scanline, j);
+					if ((i == 0) && (j == 0)){
+						A.at<int>(i, j) = 0;
+					} else if (valueLeft >= valueRight) {
+						A.at<int>(i, j) = minimum + (valueLeft-valueRight);
+					}  else if (valueRight >= valueLeft) {
+						A.at<int>(i,j) = minimum + (valueRight-valueLeft);
+					}
 				}
 			}
 		}
@@ -140,9 +149,7 @@ bool StereoProcessor::dynamicProgramming(){
 			}
 		}
 	}
-	qDebug() << "\n=======================\n";
-	qDebug() << "HIGHEST DISPARITIES = " << highestDisparity1 << ", " << highestDisparity2 << "\n";
-	qDebug() << "=======================\n";
+	qDebug() << "HIGHEST DISPARITIES = " << highestDisparity1 << ", " << highestDisparity2;
 
 	// Need to normalise output image to [0...255]
 	// For display purposes, we saturate the depth map to have only positive values.
