@@ -63,6 +63,13 @@ namespace Util {
     return imread(bytes.constData(), 0);
   }
 
+  void save_image(Mat img, QString filename)
+  {
+    QByteArray bytes = filename.toLocal8Bit();
+    qDebug("Saving file: %s", bytes.constData());
+    imwrite(bytes.constData(), img);
+  }
+
   /**
    * Find the nearest power of two smaller than the number given.
    * Works by subtracting one, setting all bits to 1, then adding

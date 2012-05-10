@@ -168,10 +168,6 @@ void RectificationProcessor::rectify()
   remap(input_image, left_rectified, map_left_x, map_left_y, INTER_LINEAR);
   remap(right_image, right_rectified, map_right_x, map_right_y, INTER_LINEAR);
 
-  // Outputs rectified images to files by default
-  cv::imwrite("left_rectified.png", left_rectified);
-  cv::imwrite("right_rectified.png", right_rectified);
-
   output_image = Util::combine(left_rectified, right_rectified);
   mutex.unlock();
 }
