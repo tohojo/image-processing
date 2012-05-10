@@ -116,10 +116,10 @@ if(STEREO)
   add_definitions(-DSTEREO)
   set(image-processing_SOURCES ${image-processing_SOURCES}
 #    processors/stereomatch.cpp
-    processors/stereomatch_processor.cpp)
+    processors/stereo_processor.cpp)
   set(image-processing_HEADERS ${image-processing_HEADERS}
 #    processors/stereomatch.h
-    processors/stereomatch_processor.h)
+    processors/stereo_processor.h)
 endif()
 
 set(image-processing_FORMS ui/processing-gui.ui ui/file-edit-widget.ui)

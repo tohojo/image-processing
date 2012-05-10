@@ -20,6 +20,11 @@
   #include "rectification_processor.h"
 #endif
 
+#ifdef STEREO
+  #include "stereo_processor.h"
+#endif
+
+
 ProcessorModel::ProcessorModel() : QAbstractListModel()
 {
   create_processors();
