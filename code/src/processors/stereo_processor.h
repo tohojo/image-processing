@@ -24,6 +24,7 @@ private:
 	Mat correctedLeftDepthMap; // Mapped to 0...255 for output
 	Mat correctedRightDepthMap; // Mapped to 0...255 for output
 	Mat A; // dynamic programming matrix
+	Mat prev_path; // optimising matrix
 };
 
 #endif
