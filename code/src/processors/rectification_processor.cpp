@@ -90,7 +90,7 @@ void RectificationProcessor::calculateRectMatrix()
 
 
   mutex.lock();
-  rect.row(0) = e1.t();
+  rect.row(0) = -e1.t();
   rect.row(1) = e2.t();
   rect.row(2) = e3.t();
 
