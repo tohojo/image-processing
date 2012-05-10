@@ -143,7 +143,7 @@ namespace Util {
       qWarning() << "Dimension mismatch. Matrix rows:" << mat.rows << "cols:" << mat.cols << "Input rows:" << rows << "cols:" << cols;
       return false;
     }
-    Mat out(rows, cols, CV_64F);
+    Mat out(rows, cols, CV_32F);
     header = QString(dev->readLine());
     for(int i = 0; i < rows; i++) {
       QString line(dev->readLine());
@@ -153,9 +153,10 @@ namespace Util {
       }
       for(int j = 0; j < cols; j++) {
         bool ok;
-        out.at<double>(i,j) = line.section(";", j, j).toDouble(&ok);
+        float value = line.section(";", j, j).toFloat(&ok);
+        out.at<float>(i,j) = value;
         if(!ok) {
-          qWarning() << "Unable to parse double value:" << line.section(";", j, j);
+          qWarning() << "Unable to parse float value:" << line.section(";", j, j);
           return false;
         }
       }
