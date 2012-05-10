@@ -11,7 +11,7 @@
  */
 void checkNext(QString arg, QStringList args)
 {
-  if(args.empty() || args.first().startsWith("-")) {
+  if(args.empty()) {
     qFatal("Missing parameter for %s argument", arg.toLocal8Bit().data());
   }
 }

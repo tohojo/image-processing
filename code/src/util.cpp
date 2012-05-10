@@ -143,7 +143,7 @@ namespace Util {
       qWarning() << "Dimension mismatch. Matrix rows:" << mat.rows << "cols:" << mat.cols << "Input rows:" << rows << "cols:" << cols;
       return false;
     }
-    Mat out(rows, cols, CV_64F);
+    Mat out(rows, cols, CV_32F);
     header = QString(dev->readLine());
     for(int i = 0; i < rows; i++) {
       QString line(dev->readLine());
@@ -153,14 +153,33 @@ namespace Util {
       }
       for(int j = 0; j < cols; j++) {
         bool ok;
-        out.at<double>(i,j) = line.section(";", j, j).toDouble(&ok);
+        float value = line.section(";", j, j).toFloat(&ok);
+        out.at<float>(i,j) = value;
         if(!ok) {
-          qWarning() << "Unable to parse double value:" << line.section(";", j, j);
+          qWarning() << "Unable to parse float value:" << line.section(";", j, j);
           return false;
         }
       }
     }
     out.copyTo(mat);
     return true;
+  }
+
+
+  Mat combine(Mat l, Mat r)
+  {
+    const int gap = 5;
+    int rows = qMax(l.rows, r.rows);
+    assert(l.type() == r.type());
+    Mat combined = Mat::ones(rows, l.cols+r.cols+gap, l.type());
+    combined *= 255;
+
+    Mat roi_l(combined, Rect(0, 0, l.cols, l.rows));
+    Mat roi_r(combined, Rect(l.cols+gap, 0, r.cols, r.rows));
+
+    l.copyTo(roi_l);
+    r.copyTo(roi_r);
+
+    return combined;
   }
 }
