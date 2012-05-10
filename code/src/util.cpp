@@ -163,4 +163,22 @@ namespace Util {
     out.copyTo(mat);
     return true;
   }
+
+
+  Mat combine(Mat l, Mat r)
+  {
+    const int gap = 5;
+    int rows = qMax(l.rows, r.rows);
+    assert(l.type() == r.type());
+    Mat combined = Mat::ones(rows, l.cols+r.cols+gap, l.type());
+    combined *= 255;
+
+    Mat roi_l(combined, Rect(0, 0, l.cols, l.rows));
+    Mat roi_r(combined, Rect(l.cols+gap, 0, r.cols, r.rows));
+
+    l.copyTo(roi_l);
+    r.copyTo(roi_r);
+
+    return combined;
+  }
 }

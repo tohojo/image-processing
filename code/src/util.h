@@ -16,6 +16,7 @@ namespace Util
   void img_to_csv(const char *filename, Mat mat);
   void write_matrix(Mat m, QIODevice *dev);
   bool read_matrix(Mat m, QIODevice *dev);
+  Mat combine(Mat l, Mat r);
 }
 
 #endif
