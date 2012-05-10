@@ -2,6 +2,7 @@
 #define PROCESSING_GUI_H
 
 #include <QtGui/QApplication>
+#include <QtCore/QFileInfo>
 #include <cv.h>
 #include "ui_processing-gui.h"
 #include "processor.h"
@@ -62,4 +63,5 @@ signals:
   void image_changed();
 };
 
+Q_DECLARE_METATYPE(QFileInfo)
 #endif

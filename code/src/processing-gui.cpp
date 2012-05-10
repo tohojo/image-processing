@@ -10,6 +10,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTime>
 #include <QtCore/QSettings>
+#include <QtCore/QMetaProperty>
 #include <QDebug>
 
 #include "processing-gui.h"
@@ -140,8 +141,20 @@ void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
   if(!properties.empty()) {
     QMap<QString, QVariant>::iterator i;
     for(i = properties.begin(); i != properties.end(); ++i) {
-      if(!current_processor->setProperty(i.key().toLocal8Bit(), i.value())) {
-        qWarning() << "Error setting property: " << i.key();
+      int idx = current_processor->metaObject()->indexOfProperty(i.key().toLocal8Bit().data());
+      if(idx == -1) {
+        qWarning() << "Non-existing property:" << i.key();
+      } else {
+        QMetaProperty property = current_processor->metaObject()->property(idx);
+        if(QString(property.typeName()) == "QFileInfo") {
+          QFileInfo info(i.value().toString());
+          qDebug() << info.canonicalFilePath();
+          if(!current_processor->setProperty(i.key().toLocal8Bit(), QVariant::fromValue(info))) {
+            qWarning() << "Error setting QFileInfo property: " << i.key() << info.filePath();
+          }
+        } else if(!current_processor->setProperty(i.key().toLocal8Bit(), i.value())) {
+          qWarning() << "Error setting property: " << i.key() << i.value();
+        }
       }
     }
   }
