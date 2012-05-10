@@ -1,6 +1,5 @@
 #include "stereo_processor.h"
-#include <stdio.h>
-
+#include <QDebug>
 
 StereoProcessor::StereoProcessor(QObject *parent)
 : TwoImageProcessor(parent)
@@ -19,7 +18,7 @@ void StereoProcessor::run()
 		if(abort) return;
 		if( dynamicProgramming() ) { // Returns true if successful
 			mutex.lock();
-			std::cout << "OUTPUT = LEFT DEPTH MAP\n";
+			qDebug() << "OUTPUT = LEFT DEPTH MAP\n";
 			output_image = correctedLeftDepthMap;
 		} else {
 			mutex.lock();
@@ -61,7 +60,7 @@ bool StereoProcessor::dynamicProgramming(){
 
 		// Dynamic programming matrix.
 		A = Mat(numColsLeft, numColsLeft, CV_32S, Scalar(0)); // A uses 32-bit signed integers
-		std::cout << "" << y_scanline << "\n";
+		qDebug() << "" << y_scanline << "\n";
 
 		// A[0,0] is initialised to 0. All other elements are evaluated from upper left to lower right corner.
 		for (int i = 0; i < numColsLeft; i++){ // i counts cols
@@ -98,10 +97,10 @@ bool StereoProcessor::dynamicProgramming(){
 		int ii = numColsLeft - 1;
 		int jj = numColsLeft - 1;
 		while ((ii > 0) || (jj > 0)){
-			//std::cout << "i " << ii << " j " << jj << "\n";
-			//if (jj - ii != 0) std::cout << "!";
+			//qDebug() << "i " << ii << " j " << jj << "\n";
+			//if (jj - ii != 0) qDebug() << "!";
 			initial_leftDepthMap.at<int>(y_scanline, ii) = (jj - ii); // CORRECTED
-			//std::cout << "ii=" << ii << ", jj=" << jj << "\n";
+			//qDebug() << "ii=" << ii << ", jj=" << jj << "\n";
 			initial_rightDepthMap.at<int>(y_scanline, jj) = (ii - jj); // CORRECTED
 			int up = 1000000;
 			int left = 1000000;
@@ -110,18 +109,18 @@ bool StereoProcessor::dynamicProgramming(){
 			if (jj > 0) left = A.at<int>(ii, jj - 1);
 			if ((ii > 0) && (jj > 0)) up_left = A.at<int>(ii - 1, jj - 1);
 			int minimum = min(min(up, left), up_left);
-			if (minimum == up){ //std::cout << "up\n";
+			if (minimum == up){ //qDebug() << "up\n";
 				ii--;
-			} else if (minimum == left){ //std::cout << "left\n";
+			} else if (minimum == left){ //qDebug() << "left\n";
 				jj--;
-			} else { //std::cout << "upleft\n";
+			} else { //qDebug() << "upleft\n";
 				ii--;
 				jj--;
 			}
 		}
 		emit progress(y_scanline / numRowsLeft);
 	}
-	std::cout << "STEREO MATCHING COMPLETE.\n";
+	qDebug() << "STEREO MATCHING COMPLETE.\n";
 
 	for (int i = 0; i < numRowsLeft; i++){
 		for (int j = 0; j < numColsLeft; j++){
@@ -141,9 +140,9 @@ bool StereoProcessor::dynamicProgramming(){
 			}
 		}
 	}
-	std::cout << "\n=======================\n";
-	std::cout << "HIGHEST DISPARITIES = " << highestDisparity1 << ", " << highestDisparity2 << "\n";
-	std::cout << "=======================\n";
+	qDebug() << "\n=======================\n";
+	qDebug() << "HIGHEST DISPARITIES = " << highestDisparity1 << ", " << highestDisparity2 << "\n";
+	qDebug() << "=======================\n";
 
 	// Need to normalise output image to [0...255]
 	// For display purposes, we saturate the depth map to have only positive values.
