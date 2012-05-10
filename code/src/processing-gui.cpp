@@ -148,7 +148,6 @@ void ProcessingGUI::set_args(QMap<QString, QVariant> arguments) {
         QMetaProperty property = current_processor->metaObject()->property(idx);
         if(QString(property.typeName()) == "QFileInfo") {
           QFileInfo info(i.value().toString());
-          qDebug() << info.canonicalFilePath();
           if(!current_processor->setProperty(i.key().toLocal8Bit(), QVariant::fromValue(info))) {
             qWarning() << "Error setting QFileInfo property: " << i.key() << info.filePath();
           }
