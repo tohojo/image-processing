@@ -1,4 +1,6 @@
 #include "stereo_processor.h"
+#include "util.h"
+
 #include <QDebug>
 
 StereoProcessor::StereoProcessor(QObject *parent)
@@ -45,6 +47,9 @@ bool StereoProcessor::dynamicProgramming(){
 	// If set to 0, no smoothing. If set to 0.5, this scanline and the previous are weighted equally.
 	// 0.875 was recommended for the former form.
 	// CURRENTLY BROKEN, DON'T USE
+
+	// Next up: symmetric dynamic programming, vertical smoothing from scanline to scanline,
+	// median filter first to remove noise.
 
 	Mat left_image = input_image;
 
