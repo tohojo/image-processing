@@ -38,15 +38,48 @@ void StereoProcessor::run()
 }
 
 
+Mat StereoProcessor::medianFilter(Mat * mat, int filterSize){
+	Mat new_mat = Mat(mat->rows, mat->cols, mat->type());
+	qDebug() << "Filtering image...   ";
+	int cols = mat->cols;
+	int rows = mat->rows;
+	//qDebug() << "cols = " << cols;
+	//qDebug() << "rows = " << rows;
+	int half = filterSize/2;
+	for (int i = 0; i < rows; i++){
+		for (int j = 0; j < cols; j++){
+			int lowest_row = max(0, i-half);
+			int lowest_col = max(0, j-half);
+			int highest_row = min(rows-1, i+half);
+			int highest_col = min(cols-1, j+half);
+			std::vector<unsigned char> vec;
+			for (int ii = lowest_row; ii <= highest_row; ii++){
+				for (int jj = lowest_col; jj <= highest_col; jj++){
+					vec.push_back(mat->at<unsigned char>(ii, jj));
+				}
+			}
+			sort(vec.begin(), vec.end());
+			//qDebug() << "VEC SIZE " << vec.size();
+			unsigned char newValue = vec.at(vec.size()/2);
+			new_mat.at<unsigned char>(i,j) = newValue;
+		}
+	}
+	qDebug() << "done.";
+	return new_mat;
+}
+
+
 bool StereoProcessor::dynamicProgramming(){
 
 	// ALL THESE SHOULD BE PASSED FROM THE GUI.
-	int max_expected_disparity_bounds = 30; // For efficiency.
+	int max_expected_disparity_bounds = 40; // For efficiency.
 	int hard_multiplier = -1; // For middlebury tests etc where the distribution is known.
 	double smoothness_weight = 0.0; // Weight of the previous scanline. Should be [0 to 0.5].
 	// If set to 0, no smoothing. If set to 0.5, this scanline and the previous are weighted equally.
-	// 0.875 was recommended for the former form.
-	// CURRENTLY BROKEN, DON'T USE
+	// 0.875 was recommended for the former form.	// CURRENTLY BROKEN, DON'T USE
+	int denoise_matrix_length = 3; // must be odd number. 0 = no de-noise-ing
+	double weight_porcupine = 1.0;
+	double weight_smooth = 1.0;
 
 	// Next up: symmetric dynamic programming, vertical smoothing from scanline to scanline,
 	// median filter first to remove noise.
@@ -59,6 +92,14 @@ bool StereoProcessor::dynamicProgramming(){
 
 	if ((left_image.rows != right_image.rows) || (left_image.cols != right_image.cols)){
 		return false;
+	}
+
+	if( (denoise_matrix_length > 0) && ((denoise_matrix_length % 2) != 0)) { // Odds only
+		left_image = medianFilter(&left_image, denoise_matrix_length);
+		right_image = medianFilter(&right_image, denoise_matrix_length);
+		mutex.lock();
+		output_image = Util::combine(left_image, right_image);
+		emit updated();
 	}
 
 	int numRowsLeft = left_image.rows;// numRowsLeft = number of rows in left image
@@ -156,9 +197,9 @@ bool StereoProcessor::dynamicProgramming(){
 			int up = 1000000;
 			int left = 1000000;
 			int up_left = 1000000;
-			if (ii > 0) up = A.at<int>(ii - 1, jj);
-			if (jj > 0) left = A.at<int>(ii, jj - 1);
-			if ((ii > 0) && (jj > 0)) up_left = A.at<int>(ii - 1, jj - 1);
+			if (ii > 0) up = A.at<int>(ii - 1, jj) * weight_porcupine;
+			if (jj > 0) left = A.at<int>(ii, jj - 1) * weight_porcupine;
+			if ((ii > 0) && (jj > 0)) up_left = A.at<int>(ii - 1, jj - 1) * weight_smooth;
 			int minimum = min(min(up, left), up_left);
 			// Weight pathdirection goes here
 			// 4.6
@@ -173,6 +214,7 @@ bool StereoProcessor::dynamicProgramming(){
 		}
 		if (smoothness_weight > 0.0)   prev_path = A.clone(); // We only use prev_path if we are smoothing.
 		emit progress(y_scanline / numRowsLeft);
+		emit updated();
 	}
 	qDebug() << "STEREO MATCHING COMPLETE.\n";
 
@@ -226,7 +268,7 @@ bool StereoProcessor::dynamicProgramming(){
 	a1 = Right[i,y]
 	a2 = Left[j,y]
 	a3 = diff(a1,a2)
-	a4 = a3*scale + weight // denoise
+	a4 = a3*scale + weight // denoise (DONE)
 	a5 = f(a4, smooth[i,j])
 	b1 = A[i-1,j]
 	b2 = A[i,j-1]

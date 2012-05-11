@@ -16,6 +16,8 @@ public:
 
 	QString name() {return "Stereo matching";}
 
+	Mat medianFilter(Mat * mat, int filtersize);
+
 private:
 	bool dynamicProgramming();
 	void run();
