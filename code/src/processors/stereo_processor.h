@@ -17,7 +17,7 @@ public:
 	QString name() {return "Stereo matching";}
 
 private:
-	bool StereoProcessor::dynamicProgramming();
+	bool dynamicProgramming();
 	void run();
 	Mat initial_leftDepthMap; // Takes integer values
 	Mat initial_rightDepthMap; // Takes integer values

@@ -6,6 +6,7 @@
  */
 
 #include "processor.h"
+#include "util.h"
 
 Processor::Processor(QObject *parent)
   :QThread(parent)
@@ -13,6 +14,7 @@ Processor::Processor(QObject *parent)
   abort = false;
   restart = false;
   once = false;
+  connect(this, SIGNAL(updated()), this, SLOT(saveOutput()));
 }
 
 Processor::~Processor()
@@ -100,4 +102,26 @@ void Processor::deletePOI(QPoint p)
   Point pt(p.x(), p.y());
   POIs.removeOne(pt);
   emit poiCountUpdated();
+}
+
+QFileInfo Processor::imageOutput()
+{
+  QMutexLocker l(&mutex);
+  return image_output_file;
+}
+
+void Processor::setImageOutput(QFileInfo path)
+{
+  QMutexLocker l(&mutex);
+  if(path.filePath() == image_output_file.filePath()) return;
+  image_output_file = path;
+}
+
+void Processor::saveOutput()
+{
+  QMutexLocker l(&mutex);
+  QString filename = image_output_file.filePath();
+  if(!filename.isEmpty()) {
+    Util::save_image(output_image, filename);
+  }
 }

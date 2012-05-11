@@ -7,6 +7,7 @@
 #include <QtCore/QMutexLocker>
 #include <QtCore/QWaitCondition>
 #include <QtCore/QPoint>
+#include <QtCore/QFileInfo>
 
 using namespace cv;
 
@@ -17,6 +18,9 @@ class Processor : public QThread
   Q_PROPERTY(QString Name READ name DESIGNABLE true USER true)
   Q_PROPERTY(int POICount READ poiCount USER true NOTIFY poiCountUpdated)
 
+  Q_PROPERTY(QFileInfo ImageOutput READ imageOutput WRITE setImageOutput USER true)
+  Q_CLASSINFO("ImageOutput", "filetype=images;opentype=WRITE;")
+
 public:
   Processor(QObject *parent = 0);
   virtual ~Processor();
@@ -24,6 +28,10 @@ public:
   void set_input(const Mat img);
   void set_input_name(QString filename);
   Mat get_output();
+
+  QFileInfo imageOutput();
+  void setImageOutput(QFileInfo path);
+
 
   virtual QString name() {return "Processor";}
   int poiCount() {QMutexLocker l(&mutex); return POIs.size();}
@@ -33,6 +41,7 @@ public slots:
   void process();
   void run_once();
   void cancel();
+  void saveOutput();
   virtual void addPOI(QPoint);
   virtual void deletePOI(QPoint);
 
@@ -55,6 +64,7 @@ protected:
   bool once;
   QList<Point> POIs;
   QString input_image_filename;
+  QFileInfo image_output_file;
 };
 
 #endif
