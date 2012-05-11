@@ -6,6 +6,13 @@
 StereoProcessor::StereoProcessor(QObject *parent)
 : TwoImageProcessor(parent)
 {
+	denoise_matrix_length = 3;
+	max_expected_disparity_bounds = 40;
+	hard_multiplier = -1;
+	smoothness_weight = 0.0; // Currently does not work.
+	denoise_matrix_length = 3; // Must be odd number. 0 = no de-noise-ing
+	weight_porcupine = 1.0;
+	weight_smooth = 1.0;
 }
 
 
@@ -18,6 +25,7 @@ void StereoProcessor::run()
 {
 	forever {
 		if(abort) return;
+		emit progress(0);
 		if( dynamicProgramming() ) { // Returns true if successful
 			mutex.lock();
 			qDebug() << "OUTPUT = LEFT DEPTH MAP\n";
@@ -43,8 +51,6 @@ Mat StereoProcessor::medianFilter(Mat * mat, int filterSize){
 	qDebug() << "Filtering image...   ";
 	int cols = mat->cols;
 	int rows = mat->rows;
-	//qDebug() << "cols = " << cols;
-	//qDebug() << "rows = " << rows;
 	int half = filterSize/2;
 	for (int i = 0; i < rows; i++){
 		for (int j = 0; j < cols; j++){
@@ -59,7 +65,6 @@ Mat StereoProcessor::medianFilter(Mat * mat, int filterSize){
 				}
 			}
 			sort(vec.begin(), vec.end());
-			//qDebug() << "VEC SIZE " << vec.size();
 			unsigned char newValue = vec.at(vec.size()/2);
 			new_mat.at<unsigned char>(i,j) = newValue;
 		}
@@ -71,18 +76,7 @@ Mat StereoProcessor::medianFilter(Mat * mat, int filterSize){
 
 bool StereoProcessor::dynamicProgramming(){
 
-	// ALL THESE SHOULD BE PASSED FROM THE GUI.
-	int max_expected_disparity_bounds = 40; // For efficiency.
-	int hard_multiplier = -1; // For middlebury tests etc where the distribution is known.
-	double smoothness_weight = 0.0; // Weight of the previous scanline. Should be [0 to 0.5].
-	// If set to 0, no smoothing. If set to 0.5, this scanline and the previous are weighted equally.
-	// 0.875 was recommended for the former form.	// CURRENTLY BROKEN, DON'T USE
-	int denoise_matrix_length = 3; // must be odd number. 0 = no de-noise-ing
-	double weight_porcupine = 1.0;
-	double weight_smooth = 1.0;
-
 	// Next up: symmetric dynamic programming, vertical smoothing from scanline to scanline,
-	// median filter first to remove noise.
 
 	Mat left_image = input_image;
 
@@ -104,17 +98,23 @@ bool StereoProcessor::dynamicProgramming(){
 
 	int numRowsLeft = left_image.rows;// numRowsLeft = number of rows in left image
 	int numColsLeft = left_image.cols; // numColsLeft = number of cols in left image
-	initial_rightDepthMap = Mat(numRowsLeft, numColsLeft, CV_32S, Scalar(0)); // 32-bit signed integers
 	initial_leftDepthMap = Mat(numRowsLeft, numColsLeft, CV_32S, Scalar(0)); // 32-bit signed integers
+	initial_rightDepthMap = Mat(numRowsLeft, numColsLeft, CV_32S, Scalar(0)); // 32-bit signed integers
+	initial_leftDepthMap_B = Mat(numRowsLeft, numColsLeft, CV_32S, Scalar(0)); // 32-bit signed integers
+	initial_rightDepthMap_B = Mat(numRowsLeft, numColsLeft, CV_32S, Scalar(0)); // 32-bit signed integers
 	correctedLeftDepthMap = Mat(numRowsLeft, numColsLeft, left_image.type(), Scalar(0)); // 8-bit unsigned chars
 	correctedRightDepthMap = Mat(numRowsLeft, numColsLeft, left_image.type(), Scalar(0)); // 8-bit unsigned chars
 
+	costMat = Mat(numRowsLeft, 2, CV_32S); // First column stores costs of paths in scanlines in forward direction, second for backward direction
+	
 	// Set up main dynamic programming matrix and previous path matrix.
 	if (smoothness_weight > 0.0){
-		A = Mat(numColsLeft, numColsLeft, CV_32F, Scalar(1000000)); // A uses 32-bit signed floats
-		prev_path = Mat(numColsLeft, numColsLeft, CV_32F, Scalar(1000000)); // 32-bit signed floats
+		A = Mat(numColsLeft, numColsLeft, CV_32F, Scalar(10000000)); // A uses 32-bit signed floats
+		A_b = Mat(numColsLeft, numColsLeft, CV_32F, Scalar(10000000)); // A_b uses 32-bit signed floats
+		prev_path = Mat(numColsLeft, numColsLeft, CV_32F, Scalar(10000000)); // 32-bit signed floats
 	} else {
-		A = Mat(numColsLeft, numColsLeft, CV_32S, Scalar(1000000)); // A uses 32-bit signed integers
+		A = Mat(numColsLeft, numColsLeft, CV_32S, Scalar(10000000)); // A uses 32-bit signed integers
+		A_b = Mat(numColsLeft, numColsLeft, CV_32S, Scalar(10000000)); // A_b uses 32-bit signed integers
 	}
 
 	// We progress one row of the rectified images at a time, starting with the topmost.
@@ -122,19 +122,19 @@ bool StereoProcessor::dynamicProgramming(){
 
 		std::cout << "L" << y_scanline << "\n";
 
+		
 		// A[0,0] is initialised to 0. All other elements are evaluated from upper left to lower right corner.
 		for (int i = 0; i < numColsLeft; i++){ // i counts cols
 			for (int j = 0; j < numColsLeft; j++){ // j counts cols also
 				// All this assumes images are of type '0', i.e. CV_8U
-
 				// Improvement: everything is initialised to a cost of a million;
 				// only change this if within q pixels of the centre line.
 				if (abs(i-j) > max_expected_disparity_bounds){
 					// "max_expected_disparity_bounds" is the number of pixels from the centre to search
 				} else {
-					int up_left = 1000000;
-					int up = 1000000;
-					int left = 1000000;
+					int up_left = 10000000;
+					int up = 10000000;
+					int left = 10000000;
 					if (i > 0) {
 						up = A.at<int>(i-1, j);
 					}
@@ -149,11 +149,11 @@ bool StereoProcessor::dynamicProgramming(){
 					/*
 					// 'minimum' is weighted by previous paths (scanlines)
 					if (i != 0 && smoothness_weight > 0.0){
-						//std::cout << "M " << minimum << "\n";
-						//std::cout << "P " << prev_path.at<int>(i, j) << "\n";
-						prev_path.at<int>(i, j) = (int)(prev_path.at<int>(i, j) * smoothness_weight); // Weighting
-						minimum = minimum - prev_path.at<int>(i, j); // Reusing paths
-						// WHY DOES THAT HAPPEN AFTERWARD? IT'S NEVER READ!
+					//std::cout << "M " << minimum << "\n";
+					//std::cout << "P " << prev_path.at<int>(i, j) << "\n";
+					prev_path.at<int>(i, j) = (int)(prev_path.at<int>(i, j) * smoothness_weight); // Weighting
+					minimum = minimum - prev_path.at<int>(i, j); // Reusing paths
+					// WHY DOES THAT HAPPEN AFTERWARD? IT'S NEVER READ!
 					}
 					*/
 
@@ -179,8 +179,8 @@ bool StereoProcessor::dynamicProgramming(){
 		// A has now been calculated.
 
 		if (y_scanline > 0 && smoothness_weight > 0.0){
-			prev_path = prev_path*smoothness_weight;
-			A = A*(1.0-smoothness_weight);
+			prev_path = smoothness_weight*prev_path;
+			A = (1.0-smoothness_weight)*A;
 			A = A+prev_path;
 		}
 
@@ -188,21 +188,23 @@ bool StereoProcessor::dynamicProgramming(){
 		// tracing back from the lower right corner A[n-1,n-1] to upper left corner A[0,0].
 		int ii = numColsLeft - 1;
 		int jj = numColsLeft - 1;
+		int cost = 0;
 		while ((ii > 0) || (jj > 0)){
 			//qDebug() << "i " << ii << " j " << jj << "\n";
 			//if (jj - ii != 0) qDebug() << "!";
 			initial_leftDepthMap.at<int>(y_scanline, ii) = (jj - ii);
 			//qDebug() << "ii=" << ii << ", jj=" << jj << "\n";
 			initial_rightDepthMap.at<int>(y_scanline, jj) = (ii - jj);
-			int up = 1000000;
-			int left = 1000000;
-			int up_left = 1000000;
+			int up = 10000000;
+			int left = 10000000;
+			int up_left = 10000000;
 			if (ii > 0) up = A.at<int>(ii - 1, jj) * weight_porcupine;
 			if (jj > 0) left = A.at<int>(ii, jj - 1) * weight_porcupine;
 			if ((ii > 0) && (jj > 0)) up_left = A.at<int>(ii - 1, jj - 1) * weight_smooth;
 			int minimum = min(min(up, left), up_left);
 			// Weight pathdirection goes here
 			// 4.6
+			cost += minimum;
 			if (minimum == up_left){ //std::cout << "upleft\n";
 				ii--;
 				jj--;
@@ -212,50 +214,149 @@ bool StereoProcessor::dynamicProgramming(){
 				ii--;
 			}
 		}
+		costMat.at<int>(y_scanline,0) = cost;
+
+
+		// Now we move on to the backwards matrix, which is essentially the same
+
+
+		// A_b[n-1,n-1] is initialised to 0. All other elements are evaluated from lower right to upper left corner.
+		for (int i = numColsLeft-1; i >= 0; i--){ // i counts cols
+			for (int j = numColsLeft-1; j >= 0; j--){ // j counts cols also
+				// All this assumes images are of type '0', i.e. CV_8U
+
+				// Improvement: everything is initialised to a cost of a million;
+				// only change this if within q pixels of the centre line.
+				if (abs(i-j) > max_expected_disparity_bounds){
+					// "max_expected_disparity_bounds" is the number of pixels from the centre to search
+				} else {
+					int down_right = 10000000;
+					int down = 10000000;
+					int right = 10000000;
+					if (i < numColsLeft-1) {
+						down = A_b.at<int>(i+1, j);
+					}
+					if (j < numColsLeft-1) {
+						right = A_b.at<int>(i, j+1);
+					}
+					if ((i < numColsLeft-1) && (j < numColsLeft-1)) {
+						down_right = A_b.at<int>(i+1, j+1);
+					}
+					int minimum = min(min(down, right), down_right);
+
+					unsigned char valueLeft = left_image.at<unsigned char>(y_scanline, i);
+					unsigned char valueRight = right_image.at<unsigned char>(y_scanline, j);
+					if ((i == numColsLeft-1) && (j == numColsLeft-1)){
+						A_b.at<int>(i, j) = 0;
+					} else {
+						unsigned char difference;
+						if (valueLeft >= valueRight) {
+							difference = valueLeft-valueRight;
+						} else {
+							difference = valueRight-valueLeft;
+						}
+						// Denoise goes here
+						// Smoothing goes here
+						A_b.at<int>(i,j) = minimum + difference;
+						//std::cout << A.at<int>(i,j) << " ";
+					}
+				}
+			}
+		}
+		// A_b has now been calculated.
+
+		// Once the backwards matrix has been filled, a path of minimal cost can be calculated by
+		// tracing back from the upper left corner A[0,0] to the lower right corner A[n-1,n-1].
+		ii = 0;
+		jj = 0;
+		cost = 0;
+		while ((ii < numColsLeft-1) || (jj < numColsLeft-1)){
+			//qDebug() << "i " << ii << " j " << jj << "\n";
+			//if (jj - ii != 0) qDebug() << "!";
+			initial_leftDepthMap_B.at<int>(y_scanline, ii) = (jj - ii);
+			//qDebug() << "ii=" << ii << ", jj=" << jj << "\n";
+			initial_rightDepthMap_B.at<int>(y_scanline, jj) = (ii - jj);
+			int down = 10000000;
+			int right = 10000000;
+			int down_right = 10000000;
+			if (ii < numColsLeft-1) down = A_b.at<int>(ii + 1, jj) * weight_porcupine;
+			if (jj < numColsLeft-1) right = A_b.at<int>(ii, jj + 1) * weight_porcupine;
+			if ((ii < numColsLeft-1) && (jj < numColsLeft-1)) down_right = A_b.at<int>(ii + 1, jj + 1) * weight_smooth;
+			int minimum = min(min(down, right), down_right);
+			// Weight pathdirection goes here
+			// 4.6
+			cost += minimum;
+			if (minimum == down_right){ //std::cout << "down_right\n";
+				ii++;
+				jj++;
+			} else if (minimum == right){ //std::cout << "right\n";
+				jj++;
+			} else { //std::cout << "down\n";
+				ii++;
+			}
+		}
+		costMat.at<int>(y_scanline,1) = cost;
+
 		if (smoothness_weight > 0.0)   prev_path = A.clone(); // We only use prev_path if we are smoothing.
 		emit progress(y_scanline / numRowsLeft);
-		emit updated();
+	//	emit updated();
+
 	}
 	qDebug() << "STEREO MATCHING COMPLETE.\n";
-
 	for (int i = 0; i < numRowsLeft; i++){
 		for (int j = 0; j < numColsLeft; j++){
 			initial_leftDepthMap.at<int>(i, j) = abs(initial_leftDepthMap.at<int>(i, j));
+			initial_rightDepthMap.at<int>(i, j) = abs(initial_rightDepthMap.at<int>(i, j));
+			initial_leftDepthMap_B.at<int>(i, j) = abs(initial_leftDepthMap_B.at<int>(i, j));
+			initial_rightDepthMap_B.at<int>(i, j) = abs(initial_rightDepthMap_B.at<int>(i, j));
+			// FIXED
 		}
 	}
 
-	int highestDisparity1 = 0;
-	int highestDisparity2 = 0;
+	int highestDisparityL1 = 0;
+	int highestDisparityL2 = 0;
+	int highestDisparityR1 = 0;
+	int highestDisparityR2 = 0;
 	for (int i = 0; i < numRowsLeft; i++){
 		for (int j = 0; j < numColsLeft; j++){
-			if (initial_leftDepthMap.at<int>(i, j) > highestDisparity1){
-				highestDisparity1 = initial_leftDepthMap.at<int>(i, j);
-			}
-			if (initial_rightDepthMap.at<int>(i, j) > highestDisparity2){
-				highestDisparity2 = initial_rightDepthMap.at<int>(i, j);
-			}
+			if (initial_leftDepthMap.at<int>(i, j) > highestDisparityL1) highestDisparityL1 = initial_leftDepthMap.at<int>(i, j);
+			if (initial_leftDepthMap_B.at<int>(i, j) > highestDisparityL2) highestDisparityL2 = initial_leftDepthMap_B.at<int>(i, j);
+			if (initial_rightDepthMap.at<int>(i, j) > highestDisparityR1) highestDisparityR1 = initial_rightDepthMap.at<int>(i, j);
+			if (initial_rightDepthMap_B.at<int>(i, j) > highestDisparityR2) highestDisparityR2 = initial_rightDepthMap_B.at<int>(i, j);
 		}
 	}
-	qDebug() << "HIGHEST DISPARITIES = " << highestDisparity1 << ", " << highestDisparity2;
+	qDebug() << "HIGHEST DISPARITIES = {L " << highestDisparityL1 << ", R " << highestDisparityR1 << "}";
+	qDebug() << "HIGHEST DISPARITIES = {L " << highestDisparityL2 << ", R " << highestDisparityR2 << "}";
 
 	// Need to normalise output image to [0...255]
 	// For display purposes, we saturate the depth map to have only positive values.
-	float multiplier = 255.0/((float)(max(highestDisparity1, highestDisparity2)));
+	float multiplier = 255.0/((float)( max(max(highestDisparityL1, highestDisparityL2), max(highestDisparityR1, highestDisparityR2)) ) );
 	if (hard_multiplier > 0){
 		multiplier = 4; // Puts in a hard multiplier, e.g. for middlebury tests where it is known
 	}
 	for (int i = 0; i < numRowsLeft; i++){
-		for (int j = 0; j < numColsLeft; j++){
-			correctedLeftDepthMap.at<unsigned char>(i, j) =
-				(unsigned char) min(((int)(initial_leftDepthMap.at<int>(i, j) * multiplier)),255);
-			correctedRightDepthMap.at<unsigned char>(i, j) =
-				(unsigned char) min(((int)(initial_rightDepthMap.at<int>(i, j) * multiplier)),255);
+		if (costMat.at<int>(i,0) < costMat.at<int>(i,1)){ // Use forwards depth map for left image
+			for (int j = 0; j < numColsLeft; j++){
+				correctedLeftDepthMap.at<unsigned char>(i, j) =
+					(unsigned char) min(((int)(initial_leftDepthMap.at<int>(i, j) * multiplier)),255);
+				correctedRightDepthMap.at<unsigned char>(i, j) =
+					(unsigned char) min(((int)(initial_rightDepthMap.at<int>(i, j) * multiplier)),255);
+			}
+		} else { // Use backwards depth map for left image
+			for (int j = 0; j < numColsLeft; j++){
+				correctedLeftDepthMap.at<unsigned char>(i, j) =
+					(unsigned char) min(((int)(initial_leftDepthMap_B.at<int>(i, j) * multiplier)),255);
+				correctedRightDepthMap.at<unsigned char>(i, j) =
+					(unsigned char) min(((int)(initial_rightDepthMap_B.at<int>(i, j) * multiplier)),255);
+			}
 		}
 	}
 
 	// Outputs disparity maps to files
 	cv::imwrite("Left-Disparity-Map.png", correctedLeftDepthMap);
 	cv::imwrite("Right-Disparity-Map.png", correctedRightDepthMap);
+	//cv::imwrite("Left-Disparity-Map-B.png", correctedLeftDepthMap_B);
+	//cv::imwrite("Right-Disparity-Map-B.png", correctedRightDepthMap_B);
 
 	return true;
 
@@ -295,5 +396,51 @@ bool StereoProcessor::dynamicProgramming(){
 	// Write disparity map
 	disparity[i,y] = j
 	*/
+}
+
+
+
+
+void StereoProcessor::setMatrixLength(const int mat_length){
+	QMutexLocker locker(&mutex);
+	if(denoise_matrix_length == mat_length) return;
+	denoise_matrix_length = mat_length;
+	mutex.unlock();
+	process();
+}
+void StereoProcessor::setDisparityBounds(const int a){
+	QMutexLocker locker(&mutex);
+	if(max_expected_disparity_bounds == a) return;
+	max_expected_disparity_bounds = a;
+	mutex.unlock();
+	process();
+}
+void StereoProcessor::setHardMultiplier(const int a){
+	QMutexLocker locker(&mutex);
+	if(hard_multiplier == a) return;
+	hard_multiplier = a;
+	mutex.unlock();
+	process();
+}
+void StereoProcessor::setSmoothnessWeight(const double a){
+	QMutexLocker locker(&mutex);
+	if(smoothness_weight == a) return;
+	smoothness_weight = a;
+	mutex.unlock();
+	process();
+}
+void StereoProcessor::setWeightPorcupine(const double a){
+	QMutexLocker locker(&mutex);
+	if(weight_porcupine == a) return;
+	weight_porcupine = a;
+	mutex.unlock();
+	process();
+}
+void StereoProcessor::setWeightSmooth(const double a){
+	QMutexLocker locker(&mutex);
+	if(weight_smooth == a) return;
+	weight_smooth = a;
+	mutex.unlock();
+	process();
 }
 
