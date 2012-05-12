@@ -14,9 +14,8 @@ class StereoProcessor : public TwoImageProcessor
 	Q_PROPERTY(int MatrixSize READ matrixLength WRITE setMatrixLength USER true)
 	Q_PROPERTY(int DispBounds READ disparityBounds WRITE setDisparityBounds USER true)
 	Q_PROPERTY(int HardMultiplier READ hardMultiplier WRITE setHardMultiplier USER true)
-	Q_PROPERTY(double SmoothnessWeight READ smoothnessWeight WRITE setSmoothnessWeight USER true)
+	Q_PROPERTY(double VerticalSmoothness READ smoothnessWeight WRITE setSmoothnessWeight USER true)
 	Q_PROPERTY(double WeightPorcupine READ weightPorcupine WRITE setWeightPorcupine USER true)
-	Q_PROPERTY(double WeightSmooth READ weightSmooth WRITE setWeightSmooth USER true)
 
 public:
 	StereoProcessor(QObject *parent = 0);
@@ -41,9 +40,6 @@ public:
 	double weightPorcupine() {QMutexLocker locker(&mutex); return weight_porcupine;}
 	void setWeightPorcupine(const double a);
 
-	double weightSmooth() {QMutexLocker locker(&mutex); return weight_smooth;}
-	void setWeightSmooth(const double a);
-
 private:
 	bool dynamicProgramming();
 	void run();
@@ -67,7 +63,6 @@ private:
 	// If set to 0, no smoothing. If set to 0.5, this scanline and the previous are weighted equally.
 	// 0.875 was recommended for the former form.	// CURRENTLY BROKEN, DON'T USE
 	double weight_porcupine;
-	double weight_smooth;
 
 };
 

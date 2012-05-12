@@ -12,7 +12,6 @@ StereoProcessor::StereoProcessor(QObject *parent)
 	smoothness_weight = 0.4; // Sometimes works.
 	denoise_matrix_length = 3; // Must be odd number. 0 = no de-noise-ing
 	weight_porcupine = 1.0;
-	weight_smooth = 1.0;
 }
 
 
@@ -190,7 +189,7 @@ bool StereoProcessor::dynamicProgramming(){
 			int up_left = 10000000;
 			if (ii > 0) up = A.at<int>(ii - 1, jj) * weight_porcupine;
 			if (jj > 0) left = A.at<int>(ii, jj - 1) * weight_porcupine;
-			if ((ii > 0) && (jj > 0)) up_left = A.at<int>(ii - 1, jj - 1) * weight_smooth;
+			if ((ii > 0) && (jj > 0)) up_left = A.at<int>(ii - 1, jj - 1);
 			int minimum = min(min(up, left), up_left);
 			// Weight pathdirection goes here
 			// 4.6
@@ -277,7 +276,7 @@ bool StereoProcessor::dynamicProgramming(){
 			int down_right = 10000000;
 			if (ii < numColsLeft-1) down = A_b.at<int>(ii + 1, jj) * weight_porcupine;
 			if (jj < numColsLeft-1) right = A_b.at<int>(ii, jj + 1) * weight_porcupine;
-			if ((ii < numColsLeft-1) && (jj < numColsLeft-1)) down_right = A_b.at<int>(ii + 1, jj + 1) * weight_smooth;
+			if ((ii < numColsLeft-1) && (jj < numColsLeft-1)) down_right = A_b.at<int>(ii + 1, jj + 1);
 			int minimum = min(min(down, right), down_right);
 			// Weight pathdirection goes here
 			// 4.6
@@ -436,11 +435,5 @@ void StereoProcessor::setWeightPorcupine(const double a){
 	mutex.unlock();
 	process();
 }
-void StereoProcessor::setWeightSmooth(const double a){
-	QMutexLocker locker(&mutex);
-	if(weight_smooth == a) return;
-	weight_smooth = a;
-	mutex.unlock();
-	process();
-}
+
 
