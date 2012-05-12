@@ -9,7 +9,7 @@ StereoProcessor::StereoProcessor(QObject *parent)
 	denoise_matrix_length = 3;
 	max_expected_disparity_bounds = 40;
 	hard_multiplier = -1;
-	smoothness_weight = 0.0; // Currently does not work.
+	smoothness_weight = 0.4; // Sometimes works.
 	denoise_matrix_length = 3; // Must be odd number. 0 = no de-noise-ing
 	weight_porcupine = 1.0;
 	weight_smooth = 1.0;
@@ -106,12 +106,13 @@ bool StereoProcessor::dynamicProgramming(){
 	correctedRightDepthMap = Mat(numRowsLeft, numColsLeft, left_image.type(), Scalar(0)); // 8-bit unsigned chars
 
 	costMat = Mat(numRowsLeft, 2, CV_32S); // First column stores costs of paths in scanlines in forward direction, second for backward direction
-	
+
 	// Set up main dynamic programming matrix and previous path matrix.
 	if (smoothness_weight > 0.0){
 		A = Mat(numColsLeft, numColsLeft, CV_32F, Scalar(10000000)); // A uses 32-bit signed floats
 		A_b = Mat(numColsLeft, numColsLeft, CV_32F, Scalar(10000000)); // A_b uses 32-bit signed floats
-		prev_path = Mat(numColsLeft, numColsLeft, CV_32F, Scalar(10000000)); // 32-bit signed floats
+		prev_path_F = Mat(numColsLeft, numColsLeft, CV_32F, Scalar(10000000)); // 32-bit signed floats
+		prev_path_B = Mat(numColsLeft, numColsLeft, CV_32F, Scalar(10000000)); // 32-bit signed floats
 	} else {
 		A = Mat(numColsLeft, numColsLeft, CV_32S, Scalar(10000000)); // A uses 32-bit signed integers
 		A_b = Mat(numColsLeft, numColsLeft, CV_32S, Scalar(10000000)); // A_b uses 32-bit signed integers
@@ -122,7 +123,7 @@ bool StereoProcessor::dynamicProgramming(){
 
 		std::cout << "L" << y_scanline << "\n";
 
-		
+
 		// A[0,0] is initialised to 0. All other elements are evaluated from upper left to lower right corner.
 		for (int i = 0; i < numColsLeft; i++){ // i counts cols
 			for (int j = 0; j < numColsLeft; j++){ // j counts cols also
@@ -146,17 +147,6 @@ bool StereoProcessor::dynamicProgramming(){
 					}
 					int minimum = min(min(up, left), up_left);
 
-					/*
-					// 'minimum' is weighted by previous paths (scanlines)
-					if (i != 0 && smoothness_weight > 0.0){
-					//std::cout << "M " << minimum << "\n";
-					//std::cout << "P " << prev_path.at<int>(i, j) << "\n";
-					prev_path.at<int>(i, j) = (int)(prev_path.at<int>(i, j) * smoothness_weight); // Weighting
-					minimum = minimum - prev_path.at<int>(i, j); // Reusing paths
-					// WHY DOES THAT HAPPEN AFTERWARD? IT'S NEVER READ!
-					}
-					*/
-
 					unsigned char valueLeft = left_image.at<unsigned char>(y_scanline, i);
 					unsigned char valueRight = right_image.at<unsigned char>(y_scanline, j);
 					if ((i == 0) && (j == 0)){
@@ -179,9 +169,9 @@ bool StereoProcessor::dynamicProgramming(){
 		// A has now been calculated.
 
 		if (y_scanline > 0 && smoothness_weight > 0.0){
-			prev_path = smoothness_weight*prev_path;
-			A = (1.0-smoothness_weight)*A;
-			A = A+prev_path;
+			prev_path_B = smoothness_weight * prev_path_B;
+			A = (1.0 - smoothness_weight) * A;
+			A = A + prev_path_B;
 		}
 
 		// Once the matrix has been filled, a path of minimal cost can be calculated by
@@ -265,6 +255,12 @@ bool StereoProcessor::dynamicProgramming(){
 		}
 		// A_b has now been calculated.
 
+		if (y_scanline > 0 && smoothness_weight > 0.0){
+			prev_path_F = smoothness_weight * prev_path_F;
+			A_b = (1.0 - smoothness_weight) * A_b;
+			A_b = A_b + prev_path_F;
+		}
+
 		// Once the backwards matrix has been filled, a path of minimal cost can be calculated by
 		// tracing back from the upper left corner A[0,0] to the lower right corner A[n-1,n-1].
 		ii = 0;
@@ -296,10 +292,15 @@ bool StereoProcessor::dynamicProgramming(){
 			}
 		}
 		costMat.at<int>(y_scanline,1) = cost;
+ 
+		// We only use prev_path if we are smoothing.
+		if (smoothness_weight > 0.0){
+			prev_path_F = A.clone();
+			prev_path_B = A_b.clone();
+		}
 
-		if (smoothness_weight > 0.0)   prev_path = A.clone(); // We only use prev_path if we are smoothing.
 		emit progress(y_scanline / numRowsLeft);
-	//	emit updated();
+		//	emit updated();
 
 	}
 	qDebug() << "STEREO MATCHING COMPLETE.\n";

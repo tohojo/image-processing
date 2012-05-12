@@ -55,7 +55,8 @@ private:
 	Mat correctedRightDepthMap; // Mapped to 0...255 for output
 	Mat A; // dynamic programming matrix
 	Mat A_b; // backwards dynamic programming matrix
-	Mat prev_path; // optimising matrix
+	Mat prev_path_F; // optimising matrix
+	Mat prev_path_B; // optimising matrix
 	Mat costMat;
 
 	// PARAMETERS
