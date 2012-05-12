@@ -260,7 +260,6 @@ bool StereoProcessor::dynamicProgramming(){
 	return true;
 
 
-	// The path found in the coarse step becomes a stencil for the fine step
 
 	// PSEUDOCODE:
 	/*
