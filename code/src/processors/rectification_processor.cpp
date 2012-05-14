@@ -120,8 +120,12 @@ void RectificationProcessor::rectify()
     return;
   }
   mutex.lock();
-  Mat Rl = rect;
-  Mat Rr = R * rect;
+  Mat Rl = rect.inv(DECOMP_SVD);
+  Mat Rr = (R * rect).inv(DECOMP_SVD);
+
+  Mat left_img = input_image;
+  Mat right_img = right_image;
+  mutex.unlock();
 
   qDebug() << "Rl:";
   qDebug() << Rl.at<float>(0,0) << Rl.at<float>(0,1) << Rl.at<float>(0,2);
@@ -135,50 +139,54 @@ void RectificationProcessor::rectify()
 
   qDebug() << "Focal length:" << focal_length;
 
-  Mat map_left_x(input_image.rows, input_image.cols, CV_32F);
-  Mat map_left_y(input_image.rows, input_image.cols, CV_32F);
-  Mat map_right_x(input_image.rows, input_image.cols, CV_32F);
-  Mat map_right_y(input_image.rows, input_image.cols, CV_32F);
+  Mat map_left_x(left_img.rows, left_img.cols, CV_32F);
+  Mat map_left_y(left_img.rows, left_img.cols, CV_32F);
+  Mat map_right_x(left_img.rows, left_img.cols, CV_32F);
+  Mat map_right_y(left_img.rows, left_img.cols, CV_32F);
 
-  Mat left_rectified = Mat::zeros(input_image.rows, input_image.cols, input_image.type());
-  Mat right_rectified = Mat::zeros(right_image.rows, right_image.cols, right_image.type());
+  Mat left_rectified = Mat::zeros(left_img.rows, left_img.cols, left_img.type());
+  Mat right_rectified = Mat::zeros(right_img.rows, right_img.cols, right_img.type());
 
-  float x_offset = input_image.cols/2;
-  float y_offset = input_image.rows/2;
-  qDebug() << x_offset << y_offset;
+  float x_offset = left_img.cols/2;
+  float y_offset = left_img.rows/2;
+  qDebug() << "Offsets:" << x_offset << y_offset;
 
-  for(int x = 0; x < input_image.cols; x++) {
-    for(int y = 0; y < input_image.rows; y++) {
-      Mat source(3,1,CV_32F);
-      source.at<float>(0) = x - x_offset;
-      source.at<float>(1) = y_offset - y;
-      source.at<float>(2) = focal_length;
-      Mat left(Rl*source);
+  for(int x = 0; x < left_img.cols; x++) {
+    for(int y = 0; y < left_img.rows; y++) {
+      Mat dest(3,1,CV_32F);
+      float rx,ry;
+      rx = x_offset-x;
+      ry = y_offset-y;
+      dest.at<float>(0) = rx;
+      dest.at<float>(1) = ry;
+      dest.at<float>(2) = focal_length;
+      Mat left(Rl*dest);
       float rect_l = left.at<float>(2);
       left *= focal_length/rect_l;
-      Mat right(Rr*source);
+      Mat right(Rr*dest);
       float rect_r = right.at<float>(2);
       right *= focal_length/rect_r;
 
       Point src(x,y);
-      map_left_x.at<float>(src) = left.at<float>(0)+x_offset;
+      map_left_x.at<float>(src) = x_offset - left.at<float>(0);
       map_left_y.at<float>(src) = y_offset - left.at<float>(1);
 
-      map_right_x.at<float>(src) = right.at<float>(0)+x_offset;
+      map_right_x.at<float>(src) = x_offset - right.at<float>(0);
       map_right_y.at<float>(src) = y_offset - right.at<float>(1);
-
-      if(x==y && x < 100) {
-        qDebug("Source: (%f,%f,%f)", source.at<float>(0), source.at<float>(1), source.at<float>(2));
+      if(rx==ry && qAbs(rx) < 10) {
+        qDebug("Dest: (%f,%f,%f)", dest.at<float>(0), dest.at<float>(1), dest.at<float>(2));
         qDebug("Left: (%f,%f,%f)", left.at<float>(0), left.at<float>(1), left.at<float>(2));
-        qDebug("Left: (%d,%d) --> (%f,%f)", src.x, src.y, map_left_x.at<float>(src), map_left_y.at<float>(src));
-        qDebug("Right: (%d,%d) --> (%f,%f)", src.x, src.y, map_right_x.at<float>(src), map_right_y.at<float>(src));
+        qDebug("Right: (%f,%f,%f)", right.at<float>(0), right.at<float>(1), right.at<float>(2));
+
       }
     }
   }
 
-  remap(input_image, left_rectified, map_left_x, map_left_y, INTER_LINEAR);
-  remap(right_image, right_rectified, map_right_x, map_right_y, INTER_LINEAR);
+  remap(left_img, left_rectified, map_left_x, map_left_y, INTER_LINEAR);
+  emit progress(55);
+  remap(right_img, right_rectified, map_right_x, map_right_y, INTER_LINEAR);
 
+  mutex.lock();
   output_image = Util::combine(left_rectified, right_rectified);
   mutex.unlock();
 }
