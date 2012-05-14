@@ -9,6 +9,7 @@
 #define POIITEM_H
 
 #include <QtGui/QGraphicsEllipseItem>
+#include <QtGui/QGraphicsLineItem>
 #include <QtGui/QGraphicsSceneContextMenuEvent>
 
 class POIItem : public QGraphicsEllipseItem
@@ -18,9 +19,13 @@ public:
   POIItem(const QRectF &rect, QGraphicsItem *parent = 0);
   ~POIItem();
 
+public slots:
+  void setLine(bool v);
+
 private:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
   void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  QGraphicsLineItem *line;
 };
 
 #endif

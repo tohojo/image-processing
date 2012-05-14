@@ -145,6 +145,8 @@
     <addaction name="action_Clear_POIs"/>
     <addaction name="actionSavePOIs"/>
     <addaction name="actionLoadPOIs"/>
+    <addaction name="separator"/>
+    <addaction name="action_Draw_lines"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menu_View"/>
@@ -340,6 +342,14 @@
   <action name="actionLoadPOIs">
    <property name="text">
     <string>&amp;Load POIs</string>
+   </property>
+  </action>
+  <action name="action_Draw_lines">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Draw lines</string>
    </property>
   </action>
  </widget>

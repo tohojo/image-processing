@@ -66,6 +66,7 @@ void ImageGraphicsItem::addPOI(QPoint p)
 
   POIItem * poi = new POIItem(this);
   poi->setPos(p);
+  poi->setLine(poi_lines);
 }
 
 void ImageGraphicsItem::removePOI(QPoint p)
@@ -91,4 +92,13 @@ void ImageGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
   scene()->clearSelection();
   event->ignore();
+}
+
+void ImageGraphicsItem::setPOILines(bool v)
+{
+  poi_lines = v;
+ foreach(QGraphicsItem * item, childItems()) {
+    POIItem * poi = static_cast<POIItem*>(item);
+    poi->setLine(poi_lines);
+ }
 }

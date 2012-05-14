@@ -26,6 +26,7 @@ public slots:
   void clearPOIs();
   void addPOI(QPoint p);
   void removePOI(QPoint p);
+  void setPOILines(bool v);
 
 signals:
   void newPOI(QPoint p);
@@ -36,6 +37,7 @@ private:
   void mousePressEvent(QGraphicsSceneMouseEvent *event);
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
   void init();
+  bool poi_lines;
 };
 
 #endif
