@@ -59,10 +59,15 @@ void POIItem::setLine(bool v)
     QPointF start(0, p.y());
     QPointF end(boundRect.right(), p.y());
     line = new QGraphicsLineItem(QLineF(mapFromParent(start), mapFromParent(end)), this);
-    line->setPen(QPen(QColor(255,0,0)));
+    QPen pen(QColor(255,0,0));
+    line->setPen(pen);
+    setPen(pen);
+    setBrush(QBrush(QColor(0,0,0,0)));
   } else {
     if(!line) return;
     delete line;
     line = 0;
+    setPen(QPen(QColor(0,0,0)));
+    setBrush(QBrush(QColor(255,0,0)));
   }
 }
