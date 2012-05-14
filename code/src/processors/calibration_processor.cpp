@@ -145,6 +145,7 @@ void CalibrationProcessor::calibrate()
     return;
   }
   Mat R,T;
+  double f;
   { // Scope to make sure calibration object is destroyed (and
     // messages output) as soon as we're done with it.
     CamCalibrator calib(pois.toStdList(), points3d.toStdList(), width, height, m_corr.toStdVector());
@@ -155,11 +156,12 @@ void CalibrationProcessor::calibrate()
     calib.calibrate();
     R = calib.getRotationMatrix();
     T = calib.getTranslationMatrix();
+    f = calib.getFocalLength();
   }
-  saveOutput(R,T);
+  saveOutput(R,T,f);
 }
 
-void CalibrationProcessor::saveOutput(Mat R, Mat T)
+void CalibrationProcessor::saveOutput(Mat R, Mat T, double f)
 {
   mutex.lock();
   QString filename = m_output_file.filePath();
@@ -169,6 +171,10 @@ void CalibrationProcessor::saveOutput(Mat R, Mat T)
   QFile file(filename);
   if(!file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
     return;
+  {
+    QTextStream out(&file);
+    out << f << "\n";
+  }
   Util::write_matrix(R, &file);
   Util::write_matrix(T, &file);
 

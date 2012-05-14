@@ -41,7 +41,6 @@ void RectificationProcessor::loadCalibrationResults()
   mutex.lock();
   QString filename = calibration_results.canonicalFilePath();
   bool valid = calibration_results.exists();
-  mutex.unlock();
 
   if(!valid) return;
 
@@ -49,13 +48,24 @@ void RectificationProcessor::loadCalibrationResults()
   QFile file(filename);
   if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
     return;
+  QString flString = file.readLine();
+  bool ok;
+  float f1,f2;
+  f1 = flString.toFloat(&ok);
+  if(!ok) return;
   if(!Util::read_matrix(Rl,&file)) return;
   if(!Util::read_matrix(Tl,&file)) return;
+  flString = file.readLine();
+  f2 = flString.toFloat(&ok);
+  if(!ok) return;
   if(!Util::read_matrix(Rr,&file)) return;
   if(!Util::read_matrix(Tr,&file)) return;
 
-  R = Rl.inv()*Rr;
-  T = -Tl+Tr;
+  qDebug() << "Focal lengths:" << f1 << f2;
+
+  R = Rl.inv(DECOMP_SVD)*Rr;
+  T = Tr-Tl;
+  focal_length = (f1+f2)/2;
 
 
   qDebug() << "Matrix R:";
@@ -71,6 +81,7 @@ void RectificationProcessor::loadCalibrationResults()
   if(T.at<float>(0,0) < 0)
     qWarning() << "X-component of translation vector is < 0 - switched right and left images?";
 
+  mutex.unlock();
   calculateRectMatrix();
 }
 
