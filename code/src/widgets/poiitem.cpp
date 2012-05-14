@@ -9,13 +9,15 @@
 #include <QtGui/QCursor>
 #include <QtGui/QColor>
 #include <QtGui/QBrush>
+#include <QtGui/QPen>
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 #include <QDebug>
 #include "imagegraphicsitem.h"
 
 POIItem::POIItem(QGraphicsItem *parent)
-  : QGraphicsEllipseItem(parent)
+  : QGraphicsEllipseItem(parent),
+    line(0)
 {
   setFlags(QGraphicsItem::ItemIsSelectable);
   setCursor(Qt::PointingHandCursor);
@@ -46,4 +48,21 @@ void POIItem::contextMenuEvent(QGraphicsSceneContextMenuEvent * event)
 void POIItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
   event->ignore();
+}
+
+void POIItem::setLine(bool v)
+{
+  if(v) {
+    if(line) return;
+    QPointF p = pos();
+    QRectF boundRect = parentItem()->boundingRect();
+    QPointF start(0, p.y());
+    QPointF end(boundRect.right(), p.y());
+    line = new QGraphicsLineItem(QLineF(mapFromParent(start), mapFromParent(end)), this);
+    line->setPen(QPen(QColor(255,0,0)));
+  } else {
+    if(!line) return;
+    delete line;
+    line = 0;
+  }
 }
