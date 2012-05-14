@@ -39,10 +39,10 @@ public:
 
 	double weightPorcupine() {QMutexLocker locker(&mutex); return weight_porcupine;}
 	void setWeightPorcupine(const double a);
+	bool dynamicProgramming(const char * lName, const char * rName);
+	void run();
 
 private:
-	bool dynamicProgramming();
-	void run();
 	Mat initial_leftDepthMap; // Takes integer values
 	Mat initial_rightDepthMap; // Takes integer values
 	Mat initial_leftDepthMap_B; // Takes integer values

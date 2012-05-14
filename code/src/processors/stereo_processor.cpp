@@ -25,7 +25,7 @@ void StereoProcessor::run()
 	forever {
 		if(abort) return;
 		emit progress(0);
-		if( dynamicProgramming() ) { // Returns true if successful
+		if( dynamicProgramming("Left-Disparity-Map.png", "Right-Disparity-Map.png") ) { // Returns true if successful
 			mutex.lock();
 			qDebug() << "OUTPUT = LEFT DEPTH MAP\n";
 			output_image = Util::combine(correctedLeftDepthMap,correctedRightDepthMap);
@@ -73,7 +73,7 @@ Mat StereoProcessor::medianFilter(Mat * mat, int filterSize){
 }
 
 
-bool StereoProcessor::dynamicProgramming(){
+bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rightName){
 
 	// Next up: symmetric dynamic programming, vertical smoothing from scanline to scanline,
 
@@ -356,8 +356,8 @@ bool StereoProcessor::dynamicProgramming(){
 	}
 
 	// Outputs disparity maps to files
-	cv::imwrite("Left-Disparity-Map.png", correctedLeftDepthMap);
-	cv::imwrite("Right-Disparity-Map.png", correctedRightDepthMap);
+	cv::imwrite(leftName, correctedLeftDepthMap);
+	cv::imwrite(rightName, correctedRightDepthMap);
 	//cv::imwrite("Left-Disparity-Map-B.png", correctedLeftDepthMap_B);
 	//cv::imwrite("Right-Disparity-Map-B.png", correctedRightDepthMap_B);
 
