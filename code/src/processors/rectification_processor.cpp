@@ -63,8 +63,8 @@ void RectificationProcessor::loadCalibrationResults()
 
   qDebug() << "Focal lengths:" << f1 << f2;
 
-  R = Rl.inv(DECOMP_SVD)*Rr;
-  T = Tr-Tl;
+  R = Rl*Rr.inv(DECOMP_SVD);
+  T = R*Tr-Tl;
   focal_length = (f1+f2)/2;
 
 
@@ -95,13 +95,13 @@ void RectificationProcessor::calculateRectMatrix()
   Mat dz = Mat::zeros(3,1,CV_32F);
   dz.at<float>(2,0) = 1;
   Mat e2;
-  normalize(e1.cross(dz), e2);
+  normalize(dz.cross(e1), e2);
   Mat e3;
   normalize(e1.cross(e2), e3);
 
 
   mutex.lock();
-  rect.row(0) = -e1.t();
+  rect.row(0) = e1.t();
   rect.row(1) = e2.t();
   rect.row(2) = e3.t();
 
@@ -137,7 +137,8 @@ void RectificationProcessor::rectify()
   qDebug() << Rr.at<float>(1,0) << Rr.at<float>(1,1) << Rr.at<float>(1,2);
   qDebug() << Rr.at<float>(2,0) << Rr.at<float>(2,1) << Rr.at<float>(2,2);
 
-  qDebug() << "Focal length:" << focal_length;
+  float flength = qAbs(focal_length);
+  qDebug() << "Focal length:" << flength;
 
   Mat map_left_x(left_img.rows, left_img.cols, CV_32F);
   Mat map_left_y(left_img.rows, left_img.cols, CV_32F);
@@ -151,27 +152,28 @@ void RectificationProcessor::rectify()
   float y_offset = left_img.rows/2;
   qDebug() << "Offsets:" << x_offset << y_offset;
 
+
   for(int x = 0; x < left_img.cols; x++) {
     for(int y = 0; y < left_img.rows; y++) {
       Mat dest(3,1,CV_32F);
       float rx,ry;
-      rx = x_offset-x;
+      rx = x-x_offset;
       ry = y_offset-y;
       dest.at<float>(0) = rx;
       dest.at<float>(1) = ry;
-      dest.at<float>(2) = focal_length;
+      dest.at<float>(2) = flength;
       Mat left(Rl*dest);
       float rect_l = left.at<float>(2);
-      left *= focal_length/rect_l;
+      left *= flength/rect_l;
       Mat right(Rr*dest);
       float rect_r = right.at<float>(2);
-      right *= focal_length/rect_r;
+      right *= flength/rect_r;
 
       Point src(x,y);
-      map_left_x.at<float>(src) = x_offset - left.at<float>(0);
+      map_left_x.at<float>(src) = left.at<float>(0) + x_offset;
       map_left_y.at<float>(src) = y_offset - left.at<float>(1);
 
-      map_right_x.at<float>(src) = x_offset - right.at<float>(0);
+      map_right_x.at<float>(src) = right.at<float>(0) + x_offset;
       map_right_y.at<float>(src) = y_offset - right.at<float>(1);
       if(rx==ry && qAbs(rx) < 10) {
         qDebug("Dest: (%f,%f,%f)", dest.at<float>(0), dest.at<float>(1), dest.at<float>(2));
