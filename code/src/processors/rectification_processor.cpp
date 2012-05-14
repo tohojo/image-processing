@@ -152,8 +152,11 @@ void RectificationProcessor::rectify()
   float y_offset = left_img.rows/2;
   qDebug() << "Offsets:" << x_offset << y_offset;
 
+  emit progress(20);
 
   for(int x = 0; x < left_img.cols; x++) {
+	  int prog = 20 + (int)(70*((double)x / (double)left_img.cols)); // 20% to 90%
+	  if (prog % 5 == 0) emit progress(prog);
     for(int y = 0; y < left_img.rows; y++) {
       Mat dest(3,1,CV_32F);
       float rx,ry;
@@ -183,10 +186,16 @@ void RectificationProcessor::rectify()
       }
     }
   }
-
+  
+  emit progress(90);
   remap(left_img, left_rectified, map_left_x, map_left_y, INTER_LINEAR);
-  emit progress(55);
+  emit progress(95);
   remap(right_img, right_rectified, map_right_x, map_right_y, INTER_LINEAR);
+
+  if(false){
+  	cv::imwrite("Left-Rect.png", left_rectified);
+	cv::imwrite("Right-Rect.png", right_rectified);
+  }
 
   mutex.lock();
   output_image = Util::combine(left_rectified, right_rectified);

@@ -89,9 +89,12 @@ bool StereoProcessor::dynamicProgramming(){
 
 	if( (denoise_matrix_length > 0) && ((denoise_matrix_length % 2) != 0)) { // Odds only
 		left_image = medianFilter(&left_image, denoise_matrix_length);
+		emit progress(5);
 		right_image = medianFilter(&right_image, denoise_matrix_length);
+		emit progress(10);
 		mutex.lock();
 		output_image = Util::combine(left_image, right_image);
+		emit progress(15);
 		emit updated();
 	}
 
@@ -298,8 +301,8 @@ bool StereoProcessor::dynamicProgramming(){
 			prev_path_B = A_b.clone();
 		}
 
-		emit progress(y_scanline / numRowsLeft);
-		//	emit updated();
+		int prog = 15 + (int)(85.0*((double)y_scanline / (double)numRowsLeft));
+		if (prog % 5 == 0) emit progress(prog);
 
 	}
 	qDebug() << "STEREO MATCHING COMPLETE.\n";
