@@ -42,7 +42,7 @@ void RectificationProcessor::loadCalibrationResults()
   QString filename = calibration_results.canonicalFilePath();
   bool valid = calibration_results.exists();
 
-  if(!valid) return;
+  if(!valid) {mutex.unlock(); return;}
 
   Mat Rl(3,3,CV_32F),Rr(3,3,CV_32F),Tl(3,1,CV_32F),Tr(3,1,CV_32F);
   QFile file(filename);
