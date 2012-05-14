@@ -140,7 +140,7 @@ void RectificationProcessor::rectify()
   qDebug() << Rr.at<float>(1,0) << Rr.at<float>(1,1) << Rr.at<float>(1,2);
   qDebug() << Rr.at<float>(2,0) << Rr.at<float>(2,1) << Rr.at<float>(2,2);
 
-  float flength = qAbs(focal_length);
+  float flength = -qAbs(focal_length);
   qDebug() << "Focal length:" << flength;
 
   Mat map_left_x(left_img.rows, left_img.cols, CV_32F);
