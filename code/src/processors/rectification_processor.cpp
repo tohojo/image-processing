@@ -66,8 +66,25 @@ void RectificationProcessor::loadCalibrationResults()
 
   qDebug() << "Focal lengths:" << f1 << f2;
 
+  // Calculate the needed rotation matrix and translation vector
+  //
+  // The rotation matrix should be rotating from the right image to
+  // the left image, and is found by composing the inversion of the
+  // right-image rotation matrix (which takes the world coordinate
+  // system into the right camera coordinate system) with the
+  // left-image rotation matrix (which takes the world coordinate
+  // system into the left camera coordinate system).
+  //
+  // The translation vector is the difference between the two
+  // translation vectors; the right translation vector is in the right
+  // camera reference system, so it first have to be rotated by the
+  // rotation matrix just computed, so the result becomes a
+  // translation vector in the left camera reference frame.
   R = Rl*Rr.inv(DECOMP_SVD);
   T = R*Tr-Tl;
+
+  // The focal length should be the same for both cameras, so we take
+  // the average of the measured values.
   focal_length = (f1+f2)/2;
 
 
@@ -94,6 +111,17 @@ void RectificationProcessor::calculateRectMatrix()
   Mat e1;
   normalize(T, e1);
   mutex.unlock();
+
+  // Compute the components of the rectification matrix.
+  //
+  // Using the fact that applying the rotation to an identity matrix
+  // yields the same rotation matrix, we can construct the rotation
+  // matrix by constructing an orthonormal base with the x coordinate
+  // in the direction of the translation of the two camera origins.
+  //
+  // The orthonormal base is constructed using the cross product. It
+  // is different from the slides because we want a right-hand
+  // coordinate system.
 
   Mat dz = Mat::zeros(3,1,CV_32F);
   dz.at<float>(2,0) = 1;
