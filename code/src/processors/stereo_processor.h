@@ -39,6 +39,7 @@ public:
 
 	double weightPorcupine() {QMutexLocker locker(&mutex); return weight_porcupine;}
 	void setWeightPorcupine(const double a);
+
 	bool dynamicProgramming(const char * lName, const char * rName);
 	void run();
 
