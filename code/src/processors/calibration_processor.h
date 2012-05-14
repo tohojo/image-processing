@@ -49,7 +49,7 @@ private:
   void findPOIs();
   void adjustPOIs();
   void calibrate();
-  void saveOutput(Mat R, Mat T);
+  void saveOutput(Mat R, Mat T, double f);
   Point findCentre(Mat img);
   bool poiExists(QPoint p);
   bool parsePoint(QString line, Point3d *p);

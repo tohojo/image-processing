@@ -37,6 +37,7 @@ public:
 
   Mat getRotationMatrix() {return mat_R;}
   Mat getTranslationMatrix() {return mat_T;}
+  double getFocalLength() {return focalLength;}
 
 protected:
 	// X/Y/Z values of actual calibration points in world coordinate system
