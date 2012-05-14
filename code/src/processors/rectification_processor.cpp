@@ -22,7 +22,6 @@ void RectificationProcessor::run()
 {
   forever {
     if(abort) return;
-    loadCalibrationResults();
     emit progress(10);
     rectify();
     emit progress(100);
@@ -38,11 +37,15 @@ void RectificationProcessor::run()
 
 void RectificationProcessor::loadCalibrationResults()
 {
-  mutex.lock();
+  QMutexLocker l(&mutex);
   QString filename = calibration_results.canonicalFilePath();
   bool valid = calibration_results.exists();
 
-  if(!valid) {mutex.unlock(); return;}
+  if(!valid) {
+    rect = Mat::eye(3,3,CV_32F);
+    R = Mat::eye(3,3,CV_32F);
+    return;
+  }
 
   Mat Rl(3,3,CV_32F),Rr(3,3,CV_32F),Tl(3,1,CV_32F),Tr(3,1,CV_32F);
   QFile file(filename);
@@ -199,6 +202,7 @@ void RectificationProcessor::setCalibrationResults(QFileInfo path)
   if(path.canonicalFilePath() == calibration_results.canonicalFilePath()) return;
   calibration_results = path;
   mutex.unlock();
+  loadCalibrationResults();
   process();
 }
 
