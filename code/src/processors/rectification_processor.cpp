@@ -80,7 +80,7 @@ void RectificationProcessor::loadCalibrationResults()
   // camera reference system, so it first have to be rotated by the
   // rotation matrix just computed, so the result becomes a
   // translation vector in the left camera reference frame.
-  R = Rl*Rr.inv(DECOMP_SVD);
+  R = Rl*Rr.inv();
   T = R*Tr-Tl;
 
   // The focal length should be the same for both cameras, so we take
@@ -151,8 +151,8 @@ void RectificationProcessor::rectify()
     return;
   }
   mutex.lock();
-  Mat Rl = rect.inv(DECOMP_SVD);
-  Mat Rr = (R * rect).inv(DECOMP_SVD);
+  Mat Rl = rect.inv();
+  Mat Rr = (R * rect).inv();
 
   Mat left_img = input_image;
   Mat right_img = right_image;
