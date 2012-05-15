@@ -30,6 +30,7 @@ void ImageGraphicsItem::init()
 {
   setFlags(QGraphicsItem::ItemIsSelectable);
   setCursor(Qt::CrossCursor);
+  poi_lines = false;
 }
 
 ImageGraphicsItem::~ImageGraphicsItem()
