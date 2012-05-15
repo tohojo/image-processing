@@ -11,6 +11,7 @@
 TwoImageProcessor::TwoImageProcessor(QObject *parent)
   : Processor(parent)
 {
+  twoimage_output = false;
 }
 
 TwoImageProcessor::~TwoImageProcessor()
@@ -48,6 +49,10 @@ void TwoImageProcessor::setRightOutput(QFileInfo path)
 
 void TwoImageProcessor::saveOutput()
 {
+  if(!twoimage_output) {
+    Processor::saveOutput();
+    return;
+  }
   QMutexLocker l(&mutex);
   QString filename_l = image_output_file.filePath();
   if(!filename_l.isEmpty()) {
@@ -65,4 +70,5 @@ void TwoImageProcessor::set_output_images(Mat l, Mat r)
   output_image = Util::combine(l,r);
   left_output = l;
   right_output = r;
+  twoimage_output = true;
 }

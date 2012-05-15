@@ -44,6 +44,7 @@ protected:
   Mat left_output;
   QFileInfo right_image_file;
   QFileInfo right_image_output;
+  bool twoimage_output;
 };
 
 #endif
