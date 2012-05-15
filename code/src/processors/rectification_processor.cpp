@@ -241,14 +241,7 @@ void RectificationProcessor::rectify()
   emit progress(95);
   remap(right_img, right_rectified, map_right_x, map_right_y, INTER_CUBIC);
 
-  if(false){
-    cv::imwrite("Left-Rect.png", left_rectified);
-    cv::imwrite("Right-Rect.png", right_rectified);
-  }
-
-  mutex.lock();
-  output_image = Util::combine(left_rectified, right_rectified);
-  mutex.unlock();
+  set_output_images(left_rectified, right_rectified);
 }
 
 void RectificationProcessor::setCalibrationResults(QFileInfo path)
