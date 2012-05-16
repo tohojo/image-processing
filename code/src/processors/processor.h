@@ -41,7 +41,7 @@ public slots:
   void process();
   void run_once();
   void cancel();
-  void saveOutput();
+  virtual void saveOutput();
   virtual void addPOI(QPoint);
   virtual void deletePOI(QPoint);
 

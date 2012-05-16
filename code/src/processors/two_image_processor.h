@@ -35,12 +35,16 @@ public:
   void setRightOutput(QFileInfo path);
 
 public slots:
-  void saveRightOutput();
+  void saveOutput();
 
 protected:
+  void set_output_images(Mat l, Mat r);
   Mat right_image;
+  Mat right_output;
+  Mat left_output;
   QFileInfo right_image_file;
   QFileInfo right_image_output;
+  bool twoimage_output;
 };
 
 #endif
