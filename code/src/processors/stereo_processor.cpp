@@ -25,7 +25,8 @@ void StereoProcessor::run()
 	forever {
 		if(abort) return;
 		emit progress(0);
-		if( dynamicProgramming("Left-Disparity-Map.png", "Right-Disparity-Map.png") ) { // Returns true if successful
+
+		if( dynamicProgramming("Left-Disparity-Map.png", "Right-Disparity-Map.png", input_image, right_image) ) { // Returns true if successful
 			mutex.lock();
 			qDebug() << "OUTPUT = LEFT DEPTH MAP\n";
 			output_image = Util::combine(correctedLeftDepthMap,correctedRightDepthMap);
@@ -33,6 +34,7 @@ void StereoProcessor::run()
 			mutex.lock();
 			output_image = right_image;
 		}
+
 		emit progress(100);
 		emit updated();
 		if(once) return;
@@ -42,6 +44,82 @@ void StereoProcessor::run()
 		restart = false;
 		mutex.unlock();
 	}
+
+
+
+	// INITIAL TEST: HARDMULT / CALCULATED MULT
+	// Proceed thereafter under assumption of HARDMULT
+	// FURTHER TESTS: LEFT/RIGHT, SMOOTHED/NOT, MEDIAN MATRIX LENGTH
+	/*
+	qDebug() << "STARTING TESTING.";
+	setMatrixLength(0);
+	testProgram(0.4, -1, "tests/con_imL_mat0_dyn_smooth.png", "tests/con_imR_mat0_dyn_smooth.png", "tests/con_imL.png", "tests/con_imR.png");
+	testProgram(0.4, -1, "tests/ted_imL_mat0_dyn_smooth.png", "tests/ted_imR_mat0_dyn_smooth.png", "tests/ted_imL.png", "tests/ted_imR.png");
+	testProgram(0.4, -1, "tests/tsu_imL_mat0_dyn_smooth.png", "tests/tsu_imR_mat0_dyn_smooth.png", "tests/tsu_imL.png", "tests/tsu_imR.png");
+	testProgram(0.4, -1, "tests/ven_imL_mat0_dyn_smooth.png", "tests/ven_imR_mat0_dyn_smooth.png", "tests/ven_imL.png", "tests/ven_imR.png");
+	testProgram(0.0, -1, "tests/con_imL_mat0_dyn.png", "tests/con_imR_mat0_dyn.png", "tests/con_imL.png", "tests/con_imR.png");
+	testProgram(0.0, -1, "tests/ted_imL_mat0_dyn.png", "tests/ted_imR_mat0_dyn.png", "tests/ted_imL.png", "tests/ted_imR.png");
+	testProgram(0.0, -1, "tests/tsu_imL_mat0_dyn.png", "tests/tsu_imR_mat0_dyn.png", "tests/tsu_imL.png", "tests/tsu_imR.png");
+	testProgram(0.0, -1, "tests/ven_imL_mat0_dyn.png", "tests/ven_imR_mat0_dyn.png", "tests/ven_imL.png", "tests/ven_imR.png");
+	qDebug() << "Set 2.";
+	//
+	setMatrixLength(0);
+	testProgram(0.4, 4, "tests/con_imL_mat0_hardmult_smooth.png", "tests/con_imR_mat0_hardmult_smooth.png", "tests/con_imL.png", "tests/con_imR.png");
+	testProgram(0.4, 4, "tests/ted_imL_mat0_hardmult_smooth.png", "tests/ted_imR_mat0_hardmult_smooth.png", "tests/ted_imL.png", "tests/ted_imR.png");
+	testProgram(0.4, 16, "tests/tsu_imL_mat0_hardmult_smooth.png", "tests/tsu_imR_mat0_hardmult_smooth.png", "tests/tsu_imL.png", "tests/tsu_imR.png");
+	testProgram(0.4, 8, "tests/ven_imL_mat0_hardmult_smooth.png", "tests/ven_imR_mat0_hardmult_smooth.png", "tests/ven_imL.png", "tests/ven_imR.png");
+	testProgram(0.0, 4, "tests/con_imL_mat0_hardmult.png", "tests/con_imR_mat0_hardmult.png", "tests/con_imL.png", "tests/con_imR.png");
+	testProgram(0.0, 4, "tests/ted_imL_mat0_hardmult.png", "tests/ted_imR_mat0_hardmult.png", "tests/ted_imL.png", "tests/ted_imR.png");
+	testProgram(0.0, 16, "tests/tsu_imL_mat0_hardmult.png", "tests/tsu_imR_mat0_hardmult.png", "tests/tsu_imL.png", "tests/tsu_imR.png");
+	testProgram(0.0, 8, "tests/ven_imL_mat0_hardmult.png", "tests/ven_imR_mat0_hardmult.png", "tests/ven_imL.png", "tests/ven_imR.png");
+	qDebug() << "Set 3.";
+	//
+	setMatrixLength(3);
+	testProgram(0.4, 4, "tests/con_imL_mat3_hardmult_smooth.png", "tests/con_imR_mat3_hardmult_smooth.png", "tests/con_imL.png", "tests/con_imR.png");
+	testProgram(0.4, 4, "tests/ted_imL_mat3_hardmult_smooth.png", "tests/ted_imR_mat3_hardmult_smooth.png", "tests/ted_imL.png", "tests/ted_imR.png");
+	testProgram(0.4, 16, "tests/tsu_imL_mat3_hardmult_smooth.png", "tests/tsu_imR_mat3_hardmult_smooth.png", "tests/tsu_imL.png", "tests/tsu_imR.png");
+	testProgram(0.4, 8, "tests/ven_imL_mat3_hardmult_smooth.png", "tests/ven_imR_mat3_hardmult_smooth.png", "tests/ven_imL.png", "tests/ven_imR.png");
+	testProgram(0.0, 4, "tests/con_imL_mat3_hardmult.png", "tests/con_imR_mat3_hardmult.png", "tests/con_imL.png", "tests/con_imR.png");
+	testProgram(0.0, 4, "tests/ted_imL_mat3_hardmult.png", "tests/ted_imR_mat3_hardmult.png", "tests/ted_imL.png", "tests/ted_imR.png");
+	testProgram(0.0, 16, "tests/tsu_imL_mat3_hardmult.png", "tests/tsu_imR_mat3_hardmult.png", "tests/tsu_imL.png", "tests/tsu_imR.png");
+	testProgram(0.0, 8, "tests/ven_imL_mat3_hardmult.png", "tests/ven_imR_mat3_hardmult.png", "tests/ven_imL.png", "tests/ven_imR.png");
+	qDebug() << "Set 4.";
+	//
+	setMatrixLength(5);
+	testProgram(0.4, 4, "tests/con_imL_mat5_hardmult_smooth.png", "tests/con_imR_mat5_hardmult_smooth.png", "tests/con_imL.png", "tests/con_imR.png");
+	testProgram(0.4, 4, "tests/ted_imL_mat5_hardmult_smooth.png", "tests/ted_imR_mat5_hardmult_smooth.png", "tests/ted_imL.png", "tests/ted_imR.png");
+	testProgram(0.4, 16, "tests/tsu_imL_mat5_hardmult_smooth.png", "tests/tsu_imR_mat5_hardmult_smooth.png", "tests/tsu_imL.png", "tests/tsu_imR.png");
+	testProgram(0.4, 8, "tests/ven_imL_mat5_hardmult_smooth.png", "tests/ven_imR_mat5_hardmult_smooth.png", "tests/ven_imL.png", "tests/ven_imR.png");
+	testProgram(0.0, 4, "tests/con_imL_mat5_hardmult.png", "tests/con_imR_mat5_hardmult.png", "tests/con_imL.png", "tests/con_imR.png");
+	testProgram(0.0, 4, "tests/ted_imL_mat5_hardmult.png", "tests/ted_imR_mat5_hardmult.png", "tests/ted_imL.png", "tests/ted_imR.png");
+	testProgram(0.0, 16, "tests/tsu_imL_mat5_hardmult.png", "tests/tsu_imR_mat5_hardmult.png", "tests/tsu_imL.png", "tests/tsu_imR.png");
+	testProgram(0.0, 8, "tests/ven_imL_mat5_hardmult.png", "tests/ven_imR_mat5_hardmult.png", "tests/ven_imL.png", "tests/ven_imR.png");
+
+	setMatrixLength(0);
+	testProgram(0.6, 4, "tests/con_imL_mat0_hardmult_smooth0.6.png", "tests/con_imR_mat0_hardmult_smooth0.6.png", "tests/con_imL.png", "tests/con_imR.png");
+	testProgram(0.6, 4, "tests/ted_imL_mat0_hardmult_smooth0.6.png", "tests/ted_imR_mat0_hardmult_smooth0.6.png", "tests/ted_imL.png", "tests/ted_imR.png");
+	testProgram(0.6, 16, "tests/tsu_imL_mat0_hardmult_smooth0.6.png", "tests/tsu_imR_mat0_hardmult_smooth0.6.png", "tests/tsu_imL.png", "tests/tsu_imR.png");
+	testProgram(0.6, 8, "tests/ven_imL_mat0_hardmult_smooth0.6.png", "tests/ven_imR_mat0_hardmult_smooth0.6.png", "tests/ven_imL.png", "tests/ven_imR.png");
+	setMatrixLength(0);
+	testProgram(0.8, 4, "tests/con_imL_mat0_hardmult_smooth0.8.png", "tests/con_imR_mat0_hardmult_smooth0.8.png", "tests/con_imL.png", "tests/con_imR.png");
+	testProgram(0.8, 4, "tests/ted_imL_mat0_hardmult_smooth0.8.png", "tests/ted_imR_mat0_hardmult_smooth0.8.png", "tests/ted_imL.png", "tests/ted_imR.png");
+	testProgram(0.8, 16, "tests/tsu_imL_mat0_hardmult_smooth0.8.png", "tests/tsu_imR_mat0_hardmult_smooth0.8.png", "tests/tsu_imL.png", "tests/tsu_imR.png");
+	testProgram(0.8, 8, "tests/ven_imL_mat0_hardmult_smooth0.8.png", "tests/ven_imR_mat0_hardmult_smooth0.8.png", "tests/ven_imL.png", "tests/ven_imR.png");
+
+	setMatrixLength(0);
+	testProgram(0.95, 4, "tests/con_imL_mat0_hardmult_smooth0.95.png", "tests/con_imR_mat0_hardmult_smooth0.95.png", "tests/con_imL.png", "tests/con_imR.png");
+	testProgram(0.95, 4, "tests/ted_imL_mat0_hardmult_smooth0.95.png", "tests/ted_imR_mat0_hardmult_smooth0.95.png", "tests/ted_imL.png", "tests/ted_imR.png");
+	testProgram(0.95, 16, "tests/tsu_imL_mat0_hardmult_smooth0.95.png", "tests/tsu_imR_mat0_hardmult_smooth0.95.png", "tests/tsu_imL.png", "tests/tsu_imR.png");
+	testProgram(0.95, 8, "tests/ven_imL_mat0_hardmult_smooth0.95.png", "tests/ven_imR_mat0_hardmult_smooth0.95.png", "tests/ven_imL.png", "tests/ven_imR.png");
+
+	setMatrixLength(0);
+	testProgram(0.9, 4, "tests/con_imL_mat0_hardmult_smooth0.9.png", "tests/con_imR_mat0_hardmult_smooth0.9.png", "tests/con_imL.png", "tests/con_imR.png");
+	testProgram(0.9, 4, "tests/ted_imL_mat0_hardmult_smooth0.9.png", "tests/ted_imR_mat0_hardmult_smooth0.9.png", "tests/ted_imL.png", "tests/ted_imR.png");
+	testProgram(0.9, 16, "tests/tsu_imL_mat0_hardmult_smooth0.9.png", "tests/tsu_imR_mat0_hardmult_smooth0.9.png", "tests/tsu_imL.png", "tests/tsu_imR.png");
+	testProgram(0.9, 8, "tests/ven_imL_mat0_hardmult_smooth0.9.png", "tests/ven_imR_mat0_hardmult_smooth0.9.png", "tests/ven_imL.png", "tests/ven_imR.png");
+
+	qDebug() << "TESTING COMPLETE.";
+	*/
 }
 
 
@@ -73,39 +151,34 @@ Mat StereoProcessor::medianFilter(Mat * mat, int filterSize){
 }
 
 
-bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rightName){
-
-	// Next up: symmetric dynamic programming, vertical smoothing from scanline to scanline,
-
-	Mat left_image = input_image;
-
-	if( (left_image.empty()) || (right_image.empty()) ){
+bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rightName, Mat left_input, Mat right_input){
+	if( (left_input.empty()) || (right_input.empty()) ){
 		return false;
 	}
 
-	if ((left_image.rows != right_image.rows) || (left_image.cols != right_image.cols)){
+	if ((left_input.rows != right_input.rows) || (left_input.cols != right_input.cols)){
 		return false;
 	}
 
 	if( (denoise_matrix_length > 0) && ((denoise_matrix_length % 2) != 0)) { // Odds only
-		left_image = medianFilter(&left_image, denoise_matrix_length);
+		left_input = medianFilter(&left_input, denoise_matrix_length);
 		emit progress(5);
-		right_image = medianFilter(&right_image, denoise_matrix_length);
+		right_input = medianFilter(&right_input, denoise_matrix_length);
 		emit progress(10);
-		mutex.lock();
-		output_image = Util::combine(left_image, right_image);
+		//mutex.lock();
+		//output_image = Util::combine(left_input, right_input);
 		emit progress(15);
 		emit updated();
 	}
 
-	int numRowsLeft = left_image.rows;// numRowsLeft = number of rows in left image
-	int numColsLeft = left_image.cols; // numColsLeft = number of cols in left image
+	int numRowsLeft = left_input.rows;// numRowsLeft = number of rows in left image
+	int numColsLeft = left_input.cols; // numColsLeft = number of cols in left image
 	initial_leftDepthMap = Mat(numRowsLeft, numColsLeft, CV_32S, Scalar(0)); // 32-bit signed integers
 	initial_rightDepthMap = Mat(numRowsLeft, numColsLeft, CV_32S, Scalar(0)); // 32-bit signed integers
 	initial_leftDepthMap_B = Mat(numRowsLeft, numColsLeft, CV_32S, Scalar(0)); // 32-bit signed integers
 	initial_rightDepthMap_B = Mat(numRowsLeft, numColsLeft, CV_32S, Scalar(0)); // 32-bit signed integers
-	correctedLeftDepthMap = Mat(numRowsLeft, numColsLeft, left_image.type(), Scalar(0)); // 8-bit unsigned chars
-	correctedRightDepthMap = Mat(numRowsLeft, numColsLeft, left_image.type(), Scalar(0)); // 8-bit unsigned chars
+	correctedLeftDepthMap = Mat(numRowsLeft, numColsLeft, left_input.type(), Scalar(0)); // 8-bit unsigned chars
+	correctedRightDepthMap = Mat(numRowsLeft, numColsLeft, left_input.type(), Scalar(0)); // 8-bit unsigned chars
 
 	costMat = Mat(numRowsLeft, 2, CV_32S); // First column stores costs of paths in scanlines in forward direction, second for backward direction
 
@@ -149,8 +222,8 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 					}
 					int minimum = min(min(up, left), up_left);
 
-					unsigned char valueLeft = left_image.at<unsigned char>(y_scanline, i);
-					unsigned char valueRight = right_image.at<unsigned char>(y_scanline, j);
+					unsigned char valueLeft = left_input.at<unsigned char>(y_scanline, i);
+					unsigned char valueRight = right_input.at<unsigned char>(y_scanline, j);
 					if ((i == 0) && (j == 0)){
 						A.at<int>(i, j) = 0;
 					} else {
@@ -236,8 +309,8 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 					}
 					int minimum = min(min(down, right), down_right);
 
-					unsigned char valueLeft = left_image.at<unsigned char>(y_scanline, i);
-					unsigned char valueRight = right_image.at<unsigned char>(y_scanline, j);
+					unsigned char valueLeft = left_input.at<unsigned char>(y_scanline, i);
+					unsigned char valueRight = right_input.at<unsigned char>(y_scanline, j);
 					if ((i == numColsLeft-1) && (j == numColsLeft-1)){
 						A_b.at<int>(i, j) = 0;
 					} else {
@@ -294,7 +367,7 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 			}
 		}
 		costMat.at<int>(y_scanline,1) = cost;
- 
+
 		// We only use prev_path if we are smoothing.
 		if (smoothness_weight > 0.0){
 			prev_path_F = A.clone();
@@ -335,7 +408,7 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 	// For display purposes, we saturate the depth map to have only positive values.
 	float multiplier = 255.0/((float)( max(max(highestDisparityL1, highestDisparityL2), max(highestDisparityR1, highestDisparityR2)) ) );
 	if (hard_multiplier > 0){
-		multiplier = 4; // Puts in a hard multiplier, e.g. for middlebury tests where it is known
+		multiplier = hard_multiplier; // Puts in a hard multiplier, e.g. for middlebury tests where it is known
 	}
 	for (int i = 0; i < numRowsLeft; i++){
 		if (costMat.at<int>(i,0) < costMat.at<int>(i,1)){ // Use forwards depth map for left image
@@ -360,7 +433,6 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 	cv::imwrite(rightName, correctedRightDepthMap);
 	//cv::imwrite("Left-Disparity-Map-B.png", correctedLeftDepthMap_B);
 	//cv::imwrite("Right-Disparity-Map-B.png", correctedRightDepthMap_B);
-
 	return true;
 
 
@@ -439,4 +511,8 @@ void StereoProcessor::setWeightPorcupine(const double a){
 	process();
 }
 
-
+void StereoProcessor::testProgram(double smoothWeight, int hardMult, const char * lOut, const char * rOut, const char * lIn, const char * rIn){
+	setSmoothnessWeight(smoothWeight);
+	setHardMultiplier(hardMult);
+	dynamicProgramming(lOut, rOut, imread(lIn, 0), imread(rIn, 0));
+}
