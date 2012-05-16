@@ -45,8 +45,6 @@ void StereoProcessor::run()
 		mutex.unlock();
 	}
 
-
-
 	// INITIAL TEST: HARDMULT / CALCULATED MULT
 	// Proceed thereafter under assumption of HARDMULT
 	// FURTHER TESTS: LEFT/RIGHT, SMOOTHED/NOT, MEDIAN MATRIX LENGTH
@@ -117,7 +115,6 @@ void StereoProcessor::run()
 	testProgram(0.9, 4, "tests/ted_imL_mat0_hardmult_smooth0.9.png", "tests/ted_imR_mat0_hardmult_smooth0.9.png", "tests/ted_imL.png", "tests/ted_imR.png");
 	testProgram(0.9, 16, "tests/tsu_imL_mat0_hardmult_smooth0.9.png", "tests/tsu_imR_mat0_hardmult_smooth0.9.png", "tests/tsu_imL.png", "tests/tsu_imR.png");
 	testProgram(0.9, 8, "tests/ven_imL_mat0_hardmult_smooth0.9.png", "tests/ven_imR_mat0_hardmult_smooth0.9.png", "tests/ven_imL.png", "tests/ven_imR.png");
-
 	qDebug() << "TESTING COMPLETE.";
 	*/
 }
