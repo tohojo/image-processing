@@ -217,7 +217,7 @@ void RectificationProcessor::rectify()
       }
     }
   }
-  
+
   emit progress(90);
   remap(left_img, left_rectified, map_left_x, map_left_y, INTER_LINEAR);
   emit progress(95);
