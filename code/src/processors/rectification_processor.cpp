@@ -80,7 +80,7 @@ void RectificationProcessor::loadCalibrationResults()
   // camera reference system, so it first have to be rotated by the
   // rotation matrix just computed, so the result becomes a
   // translation vector in the left camera reference frame.
-  R = Rl*Rr.inv(DECOMP_SVD);
+  R = Rl*Rr.inv();
   T = R*Tr-Tl;
 
   // The focal length should be the same for both cameras, so we take
@@ -151,8 +151,8 @@ void RectificationProcessor::rectify()
     return;
   }
   mutex.lock();
-  Mat Rl = rect.inv(DECOMP_SVD);
-  Mat Rr = (R * rect).inv(DECOMP_SVD);
+  Mat Rl = rect.inv();
+  Mat Rr = (R * rect).inv();
 
   Mat left_img = input_image;
   Mat right_img = right_image;
@@ -168,7 +168,7 @@ void RectificationProcessor::rectify()
   qDebug() << Rr.at<float>(1,0) << Rr.at<float>(1,1) << Rr.at<float>(1,2);
   qDebug() << Rr.at<float>(2,0) << Rr.at<float>(2,1) << Rr.at<float>(2,2);
 
-  float flength = -qAbs(focal_length);
+  float flength = qAbs(focal_length);
   qDebug() << "Focal length:" << flength;
 
   Mat map_left_x(left_img.rows, left_img.cols, CV_32F);
@@ -185,14 +185,19 @@ void RectificationProcessor::rectify()
 
   emit progress(20);
 
+  // Readjust the centre after computing
+  float max_x_l=-10000, max_x_r=-10000, max_y_l=-1000, max_y_r=-10000;
+  float min_x_l=10000, min_x_r=10000, min_y_l=10000, min_y_r=10000;
+
   for(int x = 0; x < left_img.cols; x++) {
-	  int prog = 20 + (int)(70*((double)x / (double)left_img.cols)); // 20% to 90%
-	  if (prog % 5 == 0) emit progress(prog);
+    int prog = 20 + (int)(70*((double)x / (double)left_img.cols)); // 20% to 90%
+    if (prog % 5 == 0) emit progress(prog);
     for(int y = 0; y < left_img.rows; y++) {
+      if(abort) return;
       Mat dest(3,1,CV_32F);
       float rx,ry;
       rx = x-x_offset;
-      ry = y_offset-y;
+      ry = y-y_offset;
       dest.at<float>(0) = rx;
       dest.at<float>(1) = ry;
       dest.at<float>(2) = flength;
@@ -204,33 +209,39 @@ void RectificationProcessor::rectify()
       right *= flength/rect_r;
 
       Point src(x,y);
-      map_left_x.at<float>(src) = left.at<float>(0) + x_offset;
-      map_left_y.at<float>(src) = y_offset - left.at<float>(1);
 
-      map_right_x.at<float>(src) = right.at<float>(0) + x_offset;
-      map_right_y.at<float>(src) = y_offset - right.at<float>(1);
-      if(rx==ry && qAbs(rx) < 10) {
-        qDebug("Dest: (%f,%f,%f)", dest.at<float>(0), dest.at<float>(1), dest.at<float>(2));
-        qDebug("Left: (%f,%f,%f)", left.at<float>(0), left.at<float>(1), left.at<float>(2));
-        qDebug("Right: (%f,%f,%f)", right.at<float>(0), right.at<float>(1), right.at<float>(2));
+      float x_l = left.at<float>(0);
+      float y_l = left.at<float>(1);
+      if(x_l>max_x_l) max_x_l = x_l;
+      if(x_l<min_x_l) min_x_l = x_l;
+      if(y_l>max_y_l) max_y_l = y_l;
+      if(y_l<min_y_l) min_y_l = y_l;
 
-      }
+      map_left_x.at<float>(src) = x_l;
+      map_left_y.at<float>(src) = y_l;
+
+      float x_r = right.at<float>(0);
+      float y_r = right.at<float>(1);
+      if(x_r>max_x_r) max_x_r = x_r;
+      if(x_r<min_x_r) min_x_r = x_r;
+      if(y_r>max_y_r) max_y_r = y_r;
+      if(y_r<min_y_r) min_y_r = y_r;
+
+      map_right_x.at<float>(src) = x_r;
+      map_right_y.at<float>(src) = y_r;
     }
   }
 
+  map_left_x += (max_x_l-min_x_l)/2;
+  map_left_y += (max_y_l-min_y_l)/2;
+  map_right_x += (max_x_r-min_x_r)/2;
+  map_right_y += (max_y_r-min_y_r)/2;
   emit progress(90);
-  remap(left_img, left_rectified, map_left_x, map_left_y, INTER_LINEAR);
+  remap(left_img, left_rectified, map_left_x, map_left_y, INTER_CUBIC);
   emit progress(95);
-  remap(right_img, right_rectified, map_right_x, map_right_y, INTER_LINEAR);
+  remap(right_img, right_rectified, map_right_x, map_right_y, INTER_CUBIC);
 
-  if(false){
-  	cv::imwrite("Left-Rect.png", left_rectified);
-	cv::imwrite("Right-Rect.png", right_rectified);
-  }
-
-  mutex.lock();
-  output_image = Util::combine(left_rectified, right_rectified);
-  mutex.unlock();
+  set_output_images(left_rectified, right_rectified);
 }
 
 void RectificationProcessor::setCalibrationResults(QFileInfo path)
