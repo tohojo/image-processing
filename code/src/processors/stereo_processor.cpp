@@ -213,9 +213,9 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 					}
 					if (j > 0) {
 						left = A.at<int>(i, j-1);
-					}
-					if ((i > 0) && (j > 0)) {
-						up_left = A.at<int>(i-1, j-1);
+						if (i > 0){// && (j > 0)) {
+							up_left = A.at<int>(i-1, j-1);
+						}
 					}
 					int minimum = min(min(up, left), up_left);
 
@@ -260,9 +260,14 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 			int up = 10000000;
 			int left = 10000000;
 			int up_left = 10000000;
-			if (ii > 0) up = A.at<int>(ii - 1, jj) * weight_porcupine;
-			if (jj > 0) left = A.at<int>(ii, jj - 1) * weight_porcupine;
-			if ((ii > 0) && (jj > 0)) up_left = A.at<int>(ii - 1, jj - 1);
+			if (ii > 0) {
+				up = A.at<int>(ii - 1, jj) * weight_porcupine;
+			}
+			if (jj > 0) {
+				left = A.at<int>(ii, jj - 1) * weight_porcupine;
+				if (ii > 0)// && (jj > 0))
+					up_left = A.at<int>(ii - 1, jj - 1);
+			}
 			int minimum = min(min(up, left), up_left);
 			// Weight pathdirection goes here
 			// 4.6
@@ -300,9 +305,9 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 					}
 					if (j < numColsLeft-1) {
 						right = A_b.at<int>(i, j+1);
-					}
-					if ((i < numColsLeft-1) && (j < numColsLeft-1)) {
-						down_right = A_b.at<int>(i+1, j+1);
+						if (i < numColsLeft-1){// && (j < numColsLeft-1)) {
+							down_right = A_b.at<int>(i+1, j+1);
+						}
 					}
 					int minimum = min(min(down, right), down_right);
 
@@ -348,8 +353,11 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 			int right = 10000000;
 			int down_right = 10000000;
 			if (ii < numColsLeft-1) down = A_b.at<int>(ii + 1, jj) * weight_porcupine;
-			if (jj < numColsLeft-1) right = A_b.at<int>(ii, jj + 1) * weight_porcupine;
-			if ((ii < numColsLeft-1) && (jj < numColsLeft-1)) down_right = A_b.at<int>(ii + 1, jj + 1);
+			if (jj < numColsLeft-1){
+				right = A_b.at<int>(ii, jj + 1) * weight_porcupine;
+				if (ii < numColsLeft-1) //&& (jj < numColsLeft-1))
+					down_right = A_b.at<int>(ii + 1, jj + 1);
+			}
 			int minimum = min(min(down, right), down_right);
 			// Weight pathdirection goes here
 			// 4.6
@@ -407,6 +415,8 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 	if (hard_multiplier > 0){
 		multiplier = hard_multiplier; // Puts in a hard multiplier, e.g. for middlebury tests where it is known
 	}
+	int numForwards = 0;
+	int numBackwards = 0;
 	for (int i = 0; i < numRowsLeft; i++){
 		if (costMat.at<int>(i,0) < costMat.at<int>(i,1)){ // Use forwards depth map for left image
 			for (int j = 0; j < numColsLeft; j++){
@@ -415,6 +425,7 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 				correctedRightDepthMap.at<unsigned char>(i, j) =
 					(unsigned char) min(((int)(initial_rightDepthMap.at<int>(i, j) * multiplier)),255);
 			}
+			numForwards++;
 		} else { // Use backwards depth map for left image
 			for (int j = 0; j < numColsLeft; j++){
 				correctedLeftDepthMap.at<unsigned char>(i, j) =
@@ -422,8 +433,12 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 				correctedRightDepthMap.at<unsigned char>(i, j) =
 					(unsigned char) min(((int)(initial_rightDepthMap_B.at<int>(i, j) * multiplier)),255);
 			}
+			numBackwards++;
 		}
 	}
+
+	qDebug() << "Number of forward scanlines used: " << numForwards;
+	qDebug() << "Number of backward scanlines used: " << numBackwards;
 
 	// Outputs disparity maps to files
 	cv::imwrite(leftName, correctedLeftDepthMap);
