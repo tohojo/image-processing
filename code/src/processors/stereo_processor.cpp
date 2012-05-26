@@ -1,5 +1,6 @@
 #include "stereo_processor.h"
 #include "util.h"
+#include <fstream>
 
 #include <QDebug>
 
@@ -22,6 +23,7 @@ StereoProcessor::~StereoProcessor()
 
 void StereoProcessor::run()
 {
+	/*
 	forever {
 		if(abort) return;
 		emit progress(0);
@@ -44,6 +46,7 @@ void StereoProcessor::run()
 		restart = false;
 		mutex.unlock();
 	}
+	*/
 
 	// INITIAL TEST: HARDMULT / CALCULATED MULT
 	// Proceed thereafter under assumption of HARDMULT
@@ -117,6 +120,267 @@ void StereoProcessor::run()
 	testProgram(0.9, 8, "tests/ven_imL_mat0_hardmult_smooth0.9.png", "tests/ven_imR_mat0_hardmult_smooth0.9.png", "tests/ven_imL.png", "tests/ven_imR.png");
 	qDebug() << "TESTING COMPLETE.";
 	*/
+
+	std::ofstream o_File("RESULTS_STEREO_TESTS.txt", std::ios::out);
+
+	o_File << "tests/con_imL_mat0_dyn_smooth.png" << "\n";
+	o_File << testStereoResults("tests/con_imL_mat0_dyn_smooth.png", "tests/con_ideal_L.png") << "\n";
+	o_File << "tests/con_imR_mat0_dyn_smooth.png" << "\n";
+	o_File << testStereoResults("tests/con_imR_mat0_dyn_smooth.png", "tests/con_ideal_R.png") << "\n";
+	o_File << "tests/ted_imL_mat0_dyn_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ted_imL_mat0_dyn_smooth.png", "tests/ted_ideal_L.png") << "\n";
+	o_File << "tests/ted_imR_mat0_dyn_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ted_imR_mat0_dyn_smooth.png", "tests/ted_ideal_R.png") << "\n";
+	o_File << "tests/tsu_imL_mat0_dyn_smooth.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imL_mat0_dyn_smooth.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/tsu_imR_mat0_dyn_smooth.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imR_mat0_dyn_smooth.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/ven_imL_mat0_dyn_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ven_imL_mat0_dyn_smooth.png", "tests/ven_ideal_L.png") << "\n";
+	o_File << "tests/ven_imR_mat0_dyn_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ven_imR_mat0_dyn_smooth.png", "tests/ven_ideal_R.png") << "\n";
+	//
+	o_File << "tests/con_imL_mat0_dyn.png" << "\n";
+	o_File << testStereoResults("tests/con_imL_mat0_dyn.png", "tests/con_ideal_L.png") << "\n";
+	o_File << "tests/con_imR_mat0_dyn.png" << "\n";
+	o_File << testStereoResults("tests/con_imR_mat0_dyn.png", "tests/con_ideal_R.png") << "\n";
+	o_File << "tests/ted_imL_mat0_dyn.png" << "\n";
+	o_File << testStereoResults("tests/ted_imL_mat0_dyn.png", "tests/ted_ideal_L.png") << "\n";
+	o_File << "tests/ted_imR_mat0_dyn.png" << "\n";
+	o_File << testStereoResults("tests/ted_imR_mat0_dyn.png", "tests/ted_ideal_R.png") << "\n";
+	o_File << "tests/tsu_imL_mat0_dyn.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imL_mat0_dyn.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/tsu_imR_mat0_dyn.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imR_mat0_dyn.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/ven_imL_mat0_dyn.png" << "\n";
+	o_File << testStereoResults("tests/ven_imL_mat0_dyn.png", "tests/ven_ideal_L.png") << "\n";
+	o_File << "tests/ven_imR_mat0_dyn.png" << "\n";
+	o_File << testStereoResults("tests/ven_imR_mat0_dyn.png", "tests/ven_ideal_R.png") << "\n";
+	//
+	o_File << "tests/con_imL_mat0_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/con_imL_mat0_hardmult_smooth.png", "tests/con_ideal_L.png") << "\n";
+	o_File << "tests/con_imR_mat0_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/con_imR_mat0_hardmult_smooth.png", "tests/con_ideal_R.png") << "\n";
+	o_File << "tests/ted_imL_mat0_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ted_imL_mat0_hardmult_smooth.png", "tests/ted_ideal_L.png") << "\n";
+	o_File << "tests/ted_imR_mat0_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ted_imR_mat0_hardmult_smooth.png", "tests/ted_ideal_R.png") << "\n";
+	o_File << "tests/tsu_imL_mat0_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imL_mat0_hardmult_smooth.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/tsu_imR_mat0_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imR_mat0_hardmult_smooth.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/ven_imL_mat0_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ven_imL_mat0_hardmult_smooth.png", "tests/ven_ideal_L.png") << "\n";
+	o_File << "tests/ven_imR_mat0_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ven_imR_mat0_hardmult_smooth.png", "tests/ven_ideal_R.png") << "\n";
+	//
+	o_File << "tests/con_imL_mat0_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/con_imL_mat0_hardmult.png", "tests/con_ideal_L.png") << "\n";
+	o_File << "tests/con_imR_mat0_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/con_imR_mat0_hardmult.png", "tests/con_ideal_R.png") << "\n";
+	o_File << "tests/ted_imL_mat0_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/ted_imL_mat0_hardmult.png", "tests/ted_ideal_L.png") << "\n";
+	o_File << "tests/ted_imR_mat0_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/ted_imR_mat0_hardmult.png", "tests/ted_ideal_R.png") << "\n";
+	o_File << "tests/tsu_imL_mat0_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imL_mat0_hardmult.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/tsu_imR_mat0_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imR_mat0_hardmult.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/ven_imL_mat0_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/ven_imL_mat0_hardmult.png", "tests/ven_ideal_L.png") << "\n";
+	o_File << "tests/ven_imR_mat0_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/ven_imR_mat0_hardmult.png", "tests/ven_ideal_R.png") << "\n";
+	//
+	o_File << "tests/con_imL_mat3_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/con_imL_mat3_hardmult_smooth.png", "tests/con_ideal_L.png") << "\n";
+	o_File << "tests/con_imR_mat3_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/con_imR_mat3_hardmult_smooth.png", "tests/con_ideal_R.png") << "\n";
+	o_File << "tests/ted_imL_mat3_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ted_imL_mat3_hardmult_smooth.png", "tests/ted_ideal_L.png") << "\n";
+	o_File << "tests/ted_imR_mat3_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ted_imR_mat3_hardmult_smooth.png", "tests/ted_ideal_R.png") << "\n";
+	o_File << "tests/tsu_imL_mat3_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imL_mat3_hardmult_smooth.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/tsu_imR_mat3_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imR_mat3_hardmult_smooth.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/ven_imL_mat3_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ven_imL_mat3_hardmult_smooth.png", "tests/ven_ideal_L.png") << "\n";
+	o_File << "tests/ven_imR_mat3_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ven_imR_mat3_hardmult_smooth.png", "tests/ven_ideal_R.png") << "\n";
+	//
+	o_File << "tests/con_imL_mat3_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/con_imL_mat3_hardmult.png", "tests/con_ideal_L.png") << "\n";
+	o_File << "tests/con_imR_mat3_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/con_imR_mat3_hardmult.png", "tests/con_ideal_R.png") << "\n";
+	o_File << "tests/ted_imL_mat3_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/ted_imL_mat3_hardmult.png", "tests/ted_ideal_L.png") << "\n";
+	o_File << "tests/ted_imR_mat3_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/ted_imR_mat3_hardmult.png", "tests/ted_ideal_R.png") << "\n";
+	o_File << "tests/tsu_imL_mat3_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imL_mat3_hardmult.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/tsu_imR_mat3_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imR_mat3_hardmult.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/ven_imL_mat3_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/ven_imL_mat3_hardmult.png", "tests/ven_ideal_L.png") << "\n";
+	o_File << "tests/ven_imR_mat3_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/ven_imR_mat3_hardmult.png", "tests/ven_ideal_R.png") << "\n";
+	//
+	o_File << "tests/con_imL_mat5_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/con_imL_mat5_hardmult_smooth.png", "tests/con_ideal_L.png") << "\n";
+	o_File << "tests/con_imR_mat5_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/con_imR_mat5_hardmult_smooth.png", "tests/con_ideal_R.png") << "\n";
+	o_File << "tests/ted_imL_mat5_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ted_imL_mat5_hardmult_smooth.png", "tests/ted_ideal_L.png") << "\n";
+	o_File << "tests/ted_imR_mat5_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ted_imR_mat5_hardmult_smooth.png", "tests/ted_ideal_R.png") << "\n";
+	o_File << "tests/tsu_imL_mat5_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imL_mat5_hardmult_smooth.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/tsu_imR_mat5_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imR_mat5_hardmult_smooth.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/ven_imL_mat5_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ven_imL_mat5_hardmult_smooth.png", "tests/ven_ideal_L.png") << "\n";
+	o_File << "tests/ven_imR_mat5_hardmult_smooth.png" << "\n";
+	o_File << testStereoResults("tests/ven_imR_mat5_hardmult_smooth.png", "tests/ven_ideal_R.png") << "\n";
+	//
+	o_File << "tests/con_imL_mat5_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/con_imL_mat5_hardmult.png", "tests/con_ideal_L.png") << "\n";
+	o_File << "tests/con_imR_mat5_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/con_imR_mat5_hardmult.png", "tests/con_ideal_R.png") << "\n";
+	o_File << "tests/ted_imL_mat5_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/ted_imL_mat5_hardmult.png", "tests/ted_ideal_L.png") << "\n";
+	o_File << "tests/ted_imR_mat5_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/ted_imR_mat5_hardmult.png", "tests/ted_ideal_R.png") << "\n";
+	o_File << "tests/tsu_imL_mat5_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imL_mat5_hardmult.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/tsu_imR_mat5_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imR_mat5_hardmult.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/ven_imL_mat5_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/ven_imL_mat5_hardmult.png", "tests/ven_ideal_L.png") << "\n";
+	o_File << "tests/ven_imR_mat5_hardmult.png" << "\n";
+	o_File << testStereoResults("tests/ven_imR_mat5_hardmult.png", "tests/ven_ideal_R.png") << "\n";
+	//
+	o_File << "tests/con_imL_mat0_hardmult_smooth0.6.png" << "\n";
+	o_File << testStereoResults("tests/con_imL_mat0_hardmult_smooth0.6.png", "tests/con_ideal_L.png") << "\n";
+	o_File << "tests/con_imR_mat0_hardmult_smooth0.6.png" << "\n";
+	o_File << testStereoResults("tests/con_imR_mat0_hardmult_smooth0.6.png", "tests/con_ideal_R.png") << "\n";
+	o_File << "tests/ted_imL_mat0_hardmult_smooth0.6.png" << "\n";
+	o_File << testStereoResults("tests/ted_imL_mat0_hardmult_smooth0.6.png", "tests/ted_ideal_L.png") << "\n";
+	o_File << "tests/ted_imR_mat0_hardmult_smooth0.6.png" << "\n";
+	o_File << testStereoResults("tests/ted_imR_mat0_hardmult_smooth0.6.png", "tests/ted_ideal_R.png") << "\n";
+	o_File << "tests/tsu_imL_mat0_hardmult_smooth0.6.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imL_mat0_hardmult_smooth0.6.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/tsu_imR_mat0_hardmult_smooth0.6.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imR_mat0_hardmult_smooth0.6.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/ven_imL_mat0_hardmult_smooth0.6.png" << "\n";
+	o_File << testStereoResults("tests/ven_imL_mat0_hardmult_smooth0.6.png", "tests/ven_ideal_L.png") << "\n";
+	o_File << "tests/ven_imR_mat0_hardmult_smooth0.6.png" << "\n";
+	o_File << testStereoResults("tests/ven_imR_mat0_hardmult_smooth0.6.png", "tests/ven_ideal_R.png") << "\n";
+	//
+	o_File << "tests/con_imL_mat0_hardmult_smooth0.8.png" << "\n";
+	o_File << testStereoResults("tests/con_imL_mat0_hardmult_smooth0.8.png", "tests/con_ideal_L.png") << "\n";
+	o_File << "tests/con_imR_mat0_hardmult_smooth0.8.png" << "\n";
+	o_File << testStereoResults("tests/con_imR_mat0_hardmult_smooth0.8.png", "tests/con_ideal_R.png") << "\n";
+	o_File << "tests/ted_imL_mat0_hardmult_smooth0.8.png" << "\n";
+	o_File << testStereoResults("tests/ted_imL_mat0_hardmult_smooth0.8.png", "tests/ted_ideal_L.png") << "\n";
+	o_File << "tests/ted_imR_mat0_hardmult_smooth0.8.png" << "\n";
+	o_File << testStereoResults("tests/ted_imR_mat0_hardmult_smooth0.8.png", "tests/ted_ideal_R.png") << "\n";
+	o_File << "tests/tsu_imL_mat0_hardmult_smooth0.8.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imL_mat0_hardmult_smooth0.8.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/tsu_imR_mat0_hardmult_smooth0.8.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imR_mat0_hardmult_smooth0.8.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/ven_imL_mat0_hardmult_smooth0.8.png" << "\n";
+	o_File << testStereoResults("tests/ven_imL_mat0_hardmult_smooth0.8.png", "tests/ven_ideal_L.png") << "\n";
+	o_File << "tests/ven_imR_mat0_hardmult_smooth0.8.png" << "\n";
+	o_File << testStereoResults("tests/ven_imR_mat0_hardmult_smooth0.8.png", "tests/ven_ideal_R.png") << "\n";
+	//
+	o_File << "tests/con_imL_mat0_hardmult_smooth0.9.png" << "\n";
+	o_File << testStereoResults("tests/con_imL_mat0_hardmult_smooth0.9.png", "tests/con_ideal_L.png") << "\n";
+	o_File << "tests/con_imR_mat0_hardmult_smooth0.9.png" << "\n";
+	o_File << testStereoResults("tests/con_imR_mat0_hardmult_smooth0.9.png", "tests/con_ideal_R.png") << "\n";
+	o_File << "tests/ted_imL_mat0_hardmult_smooth0.9.png" << "\n";
+	o_File << testStereoResults("tests/ted_imL_mat0_hardmult_smooth0.9.png", "tests/ted_ideal_L.png") << "\n";
+	o_File << "tests/ted_imR_mat0_hardmult_smooth0.9.png" << "\n";
+	o_File << testStereoResults("tests/ted_imR_mat0_hardmult_smooth0.9.png", "tests/ted_ideal_R.png") << "\n";
+	o_File << "tests/tsu_imL_mat0_hardmult_smooth0.9.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imL_mat0_hardmult_smooth0.9.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/tsu_imR_mat0_hardmult_smooth0.9.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imR_mat0_hardmult_smooth0.9.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/ven_imL_mat0_hardmult_smooth0.9.png" << "\n";
+	o_File << testStereoResults("tests/ven_imL_mat0_hardmult_smooth0.9.png", "tests/ven_ideal_L.png") << "\n";
+	o_File << "tests/ven_imR_mat0_hardmult_smooth0.9.png" << "\n";
+	o_File << testStereoResults("tests/ven_imR_mat0_hardmult_smooth0.9.png", "tests/ven_ideal_R.png") << "\n";
+	//
+	o_File << "tests/con_imL_mat0_hardmult_smooth0.95.png" << "\n";
+	o_File << testStereoResults("tests/con_imL_mat0_hardmult_smooth0.95.png", "tests/con_ideal_L.png") << "\n";
+	o_File << "tests/con_imR_mat0_hardmult_smooth0.95.png" << "\n";
+	o_File << testStereoResults("tests/con_imR_mat0_hardmult_smooth0.95.png", "tests/con_ideal_R.png") << "\n";
+	o_File << "tests/ted_imL_mat0_hardmult_smooth0.95.png" << "\n";
+	o_File << testStereoResults("tests/ted_imL_mat0_hardmult_smooth0.95.png", "tests/ted_ideal_L.png") << "\n";
+	o_File << "tests/ted_imR_mat0_hardmult_smooth0.95.png" << "\n";
+	o_File << testStereoResults("tests/ted_imR_mat0_hardmult_smooth0.95.png", "tests/ted_ideal_R.png") << "\n";
+	o_File << "tests/tsu_imL_mat0_hardmult_smooth0.95.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imL_mat0_hardmult_smooth0.95.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/tsu_imR_mat0_hardmult_smooth0.95.png" << "\n";
+	o_File << testStereoResults("tests/tsu_imR_mat0_hardmult_smooth0.95.png", "tests/tsu_ideal.png") << "\n";
+	o_File << "tests/ven_imL_mat0_hardmult_smooth0.95.png" << "\n";
+	o_File << testStereoResults("tests/ven_imL_mat0_hardmult_smooth0.95.png", "tests/ven_ideal_L.png") << "\n";
+	o_File << "tests/ven_imR_mat0_hardmult_smooth0.95.png" << "\n";
+	o_File << testStereoResults("tests/ven_imR_mat0_hardmult_smooth0.95.png", "tests/ven_ideal_R.png") << "\n";
+	//
+	Mat static1 = Mat(375, 450, CV_8U);
+	for (int i = 0; i < static1.rows; i++){
+		for (int j = 0; j < static1.cols; j++){
+			static1.at<unsigned char>(i,j) = (unsigned char) (((float)rand()/(float)RAND_MAX)*255);
+		}
+	}
+	imwrite("tests/static1.png", static1);
+	o_File << "tests/con_static_L.png" << "\n";
+	o_File << testStereoResults("tests/static1.png", "tests/con_ideal_L.png") << "\n";
+	o_File << "tests/con_static_R.png" << "\n";
+	o_File << testStereoResults("tests/static1.png", "tests/con_ideal_R.png") << "\n";
+	//
+	o_File << "tests/ted_static_L.png" << "\n";
+	o_File << testStereoResults("tests/static1.png", "tests/ted_ideal_L.png") << "\n";
+	o_File << "tests/ted_static_R.png" << "\n";
+	o_File << testStereoResults("tests/static1.png", "tests/ted_ideal_R.png") << "\n";
+	//
+	Mat static2 = Mat(288, 384, CV_8U);
+	for (int i = 0; i < static2.rows; i++){
+		for (int j = 0; j < static2.cols; j++){
+			static2.at<unsigned char>(i,j) = (unsigned char) (((float)rand()/(float)RAND_MAX)*255);
+		}
+	}
+	imwrite("tests/static2.png", static2);
+	o_File << "tests/tsu_static.png" << "\n";
+	o_File << testStereoResults("tests/static2.png", "tests/tsu_ideal.png") << "\n";
+	//
+	Mat static3 = Mat(383, 434, CV_8U);
+	for (int i = 0; i < static3.rows; i++){
+		for (int j = 0; j < static3.cols; j++){
+			static3.at<unsigned char>(i,j) = (unsigned char) (((float)rand()/(float)RAND_MAX)*255);
+		}
+	}
+	imwrite("tests/static3.png", static3);
+	o_File << "tests/ven_static_L.png" << "\n";
+	o_File << testStereoResults("tests/static3.png", "tests/ven_ideal_L.png") << "\n";
+	o_File << "tests/ven_static_R.png" << "\n";
+	o_File << testStereoResults("tests/static3.png", "tests/ven_ideal_R.png") << "\n";
+	//
+	o_File << "" << "\n";
+	o_File << testStereoResults("", "") << "\n";
+
+
+//	testProgram(0.0, -1, "tests/con_imL_mat0_dyn.png", "tests/con_imR_mat0_dyn.png", "tests/con_imL.png", "tests/con_imR.png");
+//	testProgram(0.0, -1, "tests/ted_imL_mat0_dyn.png", "tests/ted_imR_mat0_dyn.png", "tests/ted_imL.png", "tests/ted_imR.png");
+//	testProgram(0.0, -1, "tests/tsu_imL_mat0_dyn.png", "tests/tsu_imR_mat0_dyn.png", "tests/tsu_imL.png", "tests/tsu_imR.png");
+//	testProgram(0.0, -1, "tests/ven_imL_mat0_dyn.png", "tests/ven_imR_mat0_dyn.png", "tests/ven_imL.png", "tests/ven_imR.png");
+	
+
+	//
+	o_File.close();
+	//
+	qDebug() << "CHECKING COMPLETE.";
+
 }
 
 
@@ -384,61 +648,150 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 
 	}
 	qDebug() << "STEREO MATCHING COMPLETE.\n";
-	for (int i = 0; i < numRowsLeft; i++){
-		for (int j = 0; j < numColsLeft; j++){
-			initial_leftDepthMap.at<int>(i, j) = abs(initial_leftDepthMap.at<int>(i, j));
-			initial_rightDepthMap.at<int>(i, j) = abs(initial_rightDepthMap.at<int>(i, j));
-			initial_leftDepthMap_B.at<int>(i, j) = abs(initial_leftDepthMap_B.at<int>(i, j));
-			initial_rightDepthMap_B.at<int>(i, j) = abs(initial_rightDepthMap_B.at<int>(i, j));
-			// FIXED
-		}
-	}
 
-	int highestDisparityL1 = 0;
-	int highestDisparityL2 = 0;
-	int highestDisparityR1 = 0;
-	int highestDisparityR2 = 0;
-	for (int i = 0; i < numRowsLeft; i++){
-		for (int j = 0; j < numColsLeft; j++){
-			if (initial_leftDepthMap.at<int>(i, j) > highestDisparityL1) highestDisparityL1 = initial_leftDepthMap.at<int>(i, j);
-			if (initial_leftDepthMap_B.at<int>(i, j) > highestDisparityL2) highestDisparityL2 = initial_leftDepthMap_B.at<int>(i, j);
-			if (initial_rightDepthMap.at<int>(i, j) > highestDisparityR1) highestDisparityR1 = initial_rightDepthMap.at<int>(i, j);
-			if (initial_rightDepthMap_B.at<int>(i, j) > highestDisparityR2) highestDisparityR2 = initial_rightDepthMap_B.at<int>(i, j);
-		}
-	}
-	qDebug() << "HIGHEST DISPARITIES = {L " << highestDisparityL1 << ", R " << highestDisparityR1 << "}";
-	qDebug() << "HIGHEST DISPARITIES = {L " << highestDisparityL2 << ", R " << highestDisparityR2 << "}";
+	if (hard_multiplier > 0){ // Use absolute values, it seems to work
 
-	// Need to normalise output image to [0...255]
-	// For display purposes, we saturate the depth map to have only positive values.
-	float multiplier = 255.0/((float)( max(max(highestDisparityL1, highestDisparityL2), max(highestDisparityR1, highestDisparityR2)) ) );
-	if (hard_multiplier > 0){
-		multiplier = hard_multiplier; // Puts in a hard multiplier, e.g. for middlebury tests where it is known
-	}
-	int numForwards = 0;
-	int numBackwards = 0;
-	for (int i = 0; i < numRowsLeft; i++){
-		if (costMat.at<int>(i,0) < costMat.at<int>(i,1)){ // Use forwards depth map for left image
+		for (int i = 0; i < numRowsLeft; i++){
 			for (int j = 0; j < numColsLeft; j++){
-				correctedLeftDepthMap.at<unsigned char>(i, j) =
-					(unsigned char) min(((int)(initial_leftDepthMap.at<int>(i, j) * multiplier)),255);
-				correctedRightDepthMap.at<unsigned char>(i, j) =
-					(unsigned char) min(((int)(initial_rightDepthMap.at<int>(i, j) * multiplier)),255);
+				initial_leftDepthMap.at<int>(i, j) = abs(initial_leftDepthMap.at<int>(i, j));
+				initial_rightDepthMap.at<int>(i, j) = abs(initial_rightDepthMap.at<int>(i, j));
+				initial_leftDepthMap_B.at<int>(i, j) = abs(initial_leftDepthMap_B.at<int>(i, j));
+				initial_rightDepthMap_B.at<int>(i, j) = abs(initial_rightDepthMap_B.at<int>(i, j));
+				// FIXED
 			}
-			numForwards++;
-		} else { // Use backwards depth map for left image
-			for (int j = 0; j < numColsLeft; j++){
-				correctedLeftDepthMap.at<unsigned char>(i, j) =
-					(unsigned char) min(((int)(initial_leftDepthMap_B.at<int>(i, j) * multiplier)),255);
-				correctedRightDepthMap.at<unsigned char>(i, j) =
-					(unsigned char) min(((int)(initial_rightDepthMap_B.at<int>(i, j) * multiplier)),255);
-			}
-			numBackwards++;
 		}
+
+		int highestDisparityL1 = 0;
+		int highestDisparityL2 = 0;
+		int highestDisparityR1 = 0;
+		int highestDisparityR2 = 0;
+		for (int i = 0; i < numRowsLeft; i++){
+			for (int j = 0; j < numColsLeft; j++){
+				if (initial_leftDepthMap.at<int>(i, j) > highestDisparityL1) highestDisparityL1 = initial_leftDepthMap.at<int>(i, j);
+				if (initial_leftDepthMap_B.at<int>(i, j) > highestDisparityL2) highestDisparityL2 = initial_leftDepthMap_B.at<int>(i, j);
+				if (initial_rightDepthMap.at<int>(i, j) > highestDisparityR1) highestDisparityR1 = initial_rightDepthMap.at<int>(i, j);
+				if (initial_rightDepthMap_B.at<int>(i, j) > highestDisparityR2) highestDisparityR2 = initial_rightDepthMap_B.at<int>(i, j);
+			}
+		}
+		qDebug() << "HIGHEST DISPARITIES = {L " << highestDisparityL1 << ", R " << highestDisparityR1 << "}";
+		qDebug() << "HIGHEST DISPARITIES = {L " << highestDisparityL2 << ", R " << highestDisparityR2 << "}";
+
+		// Need to normalise output image to [0...255]
+		// For display purposes, we saturate the depth map to have only positive values.
+		float multiplier = hard_multiplier; // Puts in a hard multiplier, e.g. for middlebury tests where it is known
+		int numForwards = 0;
+		int numBackwards = 0;
+		for (int i = 0; i < numRowsLeft; i++){
+			if (costMat.at<int>(i,0) < costMat.at<int>(i,1)){ // Use forwards depth map for left image
+				for (int j = 0; j < numColsLeft; j++){
+					correctedLeftDepthMap.at<unsigned char>(i, j) =
+						(unsigned char) min(((int)(initial_leftDepthMap.at<int>(i, j) * multiplier)),255);
+					correctedRightDepthMap.at<unsigned char>(i, j) =
+						(unsigned char) min(((int)(initial_rightDepthMap.at<int>(i, j) * multiplier)),255);
+				}
+				numForwards++;
+			} else { // Use backwards depth map for left image
+				for (int j = 0; j < numColsLeft; j++){
+					correctedLeftDepthMap.at<unsigned char>(i, j) =
+						(unsigned char) min(((int)(initial_leftDepthMap_B.at<int>(i, j) * multiplier)),255);
+					correctedRightDepthMap.at<unsigned char>(i, j) =
+						(unsigned char) min(((int)(initial_rightDepthMap_B.at<int>(i, j) * multiplier)),255);
+				}
+				numBackwards++;
+			}
+		}
+
+		qDebug() << "Number of forward scanlines used: " << numForwards;
+		qDebug() << "Number of backward scanlines used: " << numBackwards;
+
+	} else {
+		// Not using hard multiplier; adjust negative disparities instead of using absolute value.
+		// Uses the 'ignore_outliers' variable
+		int lowestDisparityL1 = 0;
+		int lowestDisparityL2 = 0;
+		int lowestDisparityR1 = 0;
+		int lowestDisparityR2 = 0;
+		for (int i = 0; i < numRowsLeft; i++){
+			for (int j = 0; j < numColsLeft; j++){
+				if (initial_leftDepthMap.at<int>(i, j) < lowestDisparityL1) lowestDisparityL1 = initial_leftDepthMap.at<int>(i, j);
+				if (initial_leftDepthMap_B.at<int>(i, j) < lowestDisparityL2) lowestDisparityL2 = initial_leftDepthMap_B.at<int>(i, j);
+				if (initial_rightDepthMap.at<int>(i, j) < lowestDisparityR1) lowestDisparityR1 = initial_rightDepthMap.at<int>(i, j);
+				if (initial_rightDepthMap_B.at<int>(i, j) < lowestDisparityR2) lowestDisparityR2 = initial_rightDepthMap_B.at<int>(i, j);
+			}
+		}
+
+		int lowestDisparity = min(lowestDisparityL1, min(lowestDisparityL2, min(lowestDisparityR1, lowestDisparityR2)));
+		lowestDisparity *= -1; //
+		lowestDisparity = (int) ( ((double) lowestDisparity) * 0.8); // We reduce the mapping because of outliers
+
+		for (int i = 0; i < numRowsLeft; i++){
+			for (int j = 0; j < numColsLeft; j++){
+				initial_leftDepthMap.at<int>(i, j) = initial_leftDepthMap.at<int>(i, j) + lowestDisparity;
+				initial_rightDepthMap.at<int>(i, j) = initial_rightDepthMap.at<int>(i, j) + lowestDisparity;
+				initial_leftDepthMap_B.at<int>(i, j) = initial_leftDepthMap_B.at<int>(i, j) + lowestDisparity;
+				initial_rightDepthMap_B.at<int>(i, j) = initial_rightDepthMap_B.at<int>(i, j) + lowestDisparity;
+				// FIXED
+			}
+		}
+
+		int highestDisparityL1 = 0;
+		int highestDisparityL2 = 0;
+		int highestDisparityR1 = 0;
+		int highestDisparityR2 = 0;
+		for (int i = 0; i < numRowsLeft; i++){
+			for (int j = 0; j < numColsLeft; j++){
+				if (initial_leftDepthMap.at<int>(i, j) > highestDisparityL1) highestDisparityL1 = initial_leftDepthMap.at<int>(i, j);
+				if (initial_leftDepthMap_B.at<int>(i, j) > highestDisparityL2) highestDisparityL2 = initial_leftDepthMap_B.at<int>(i, j);
+				if (initial_rightDepthMap.at<int>(i, j) > highestDisparityR1) highestDisparityR1 = initial_rightDepthMap.at<int>(i, j);
+				if (initial_rightDepthMap_B.at<int>(i, j) > highestDisparityR2) highestDisparityR2 = initial_rightDepthMap_B.at<int>(i, j);
+			}
+		}
+		qDebug() << "HIGHEST DISPARITIES(f) = {L " << highestDisparityL1 << ", R " << highestDisparityR1 << "}";
+		qDebug() << "HIGHEST DISPARITIES(b) = {L " << highestDisparityL2 << ", R " << highestDisparityR2 << "}";
+		qDebug() << "LOWEST DISPARITIES(f) = {L " << lowestDisparityL1 << ", R " << lowestDisparityR1 << "}";
+		qDebug() << "LOWEST DISPARITIES(b) = {L " << lowestDisparityL2 << ", R " << lowestDisparityR2 << "}";
+
+		int highestDisparity = max(max(highestDisparityL1, highestDisparityL2), max(highestDisparityR1, highestDisparityR2));
+		highestDisparity = (int) ( ((double) highestDisparity) * 0.8); // We reduce the mapping because of outliers
+
+		// Need to normalise output image to [0...255]
+		// For display purposes, we saturate the depth map to have only positive values.
+		// 0 = ???
+		// Otherwise, [1...255] = disparity map
+		float multiplier = 255.0/((float)(highestDisparity));
+		if (hard_multiplier > 0){
+			multiplier = 255.0/hard_multiplier; // Puts in a hard multiplier, e.g. for middlebury tests where it is known
+		}
+		int numForwards = 0;
+		int numBackwards = 0;
+		for (int i = 0; i < numRowsLeft; i++){
+			if (costMat.at<int>(i,0) < costMat.at<int>(i,1)){ // Use forwards depth map for left image
+				for (int j = 0; j < numColsLeft; j++){
+					correctedLeftDepthMap.at<unsigned char>(i, j) =
+						(unsigned char) max(0, min(((int)(initial_leftDepthMap.at<int>(i, j) * multiplier)),255));
+					correctedRightDepthMap.at<unsigned char>(i, j) =
+						(unsigned char) max(0, min(((int)(initial_rightDepthMap.at<int>(i, j) * multiplier)),255));
+				}
+				numForwards++;
+			} else { // Use backwards depth map for left image
+				for (int j = 0; j < numColsLeft; j++){
+					correctedLeftDepthMap.at<unsigned char>(i, j) =
+						(unsigned char) max(0, min(((int)(initial_leftDepthMap_B.at<int>(i, j) * multiplier)),255));
+					correctedRightDepthMap.at<unsigned char>(i, j) =
+						(unsigned char) max(0, min(((int)(initial_rightDepthMap_B.at<int>(i, j) * multiplier)),255));
+				}
+				numBackwards++;
+			}
+		}
+
+		qDebug() << "Number of forward scanlines used: " << numForwards;
+		qDebug() << "Number of backward scanlines used: " << numBackwards;
+
 	}
 
-	qDebug() << "Number of forward scanlines used: " << numForwards;
-	qDebug() << "Number of backward scanlines used: " << numBackwards;
+
+
+
 
 	// Outputs disparity maps to files
 	cv::imwrite(leftName, correctedLeftDepthMap);
@@ -528,3 +881,23 @@ void StereoProcessor::testProgram(double smoothWeight, int hardMult, const char 
 	setHardMultiplier(hardMult);
 	dynamicProgramming(lOut, rOut, imread(lIn, 0), imread(rIn, 0));
 }
+
+double StereoProcessor::testStereoResults(const char * testImageName, const char * idealImageName){
+	Mat testImage = imread(testImageName, 0);
+	Mat idealImage = imread(idealImageName, 0);
+	//
+	if( (testImage.empty()) || (idealImage.empty()) || (testImage.rows != idealImage.rows) || (testImage.cols != idealImage.cols)){
+		return -1;
+	}
+	//
+	double sumAbsErrors = 0;
+	for (int i = 0; i < testImage.rows; i++){
+		for (int j = 0; j < testImage.cols; j++){
+			sumAbsErrors += abs(testImage.at<unsigned char>(i,j) - idealImage.at<unsigned char>(i,j));
+		}
+	}
+	return sumAbsErrors;
+}
+
+
+

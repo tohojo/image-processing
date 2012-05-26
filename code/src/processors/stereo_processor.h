@@ -44,6 +44,7 @@ public:
 	void run();
 
 	void testProgram(double smoothWeight, int mult, const char * lOut, const char * rOut, const char * lIn, const char * rIn);
+	double testStereoResults(const char * testImageName, const char * idealImageName);
 
 private:
 	Mat initial_leftDepthMap; // Takes integer values
