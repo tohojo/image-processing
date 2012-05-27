@@ -122,6 +122,15 @@ if(STEREO)
     processors/stereo_processor.h)
 endif()
 
+if(PCA_773)
+  message(STATUS "Building PCA training")
+  add_definitions(-DPCA_773)
+  set(image-processing_SOURCES ${image-processing_SOURCES}
+  processors/pca_training_processor.cpp)
+  set(image-processing_HEADERS ${image-processing_HEADERS}
+  processors/pca_training_processor.h)
+endif()
+
 set(image-processing_FORMS ui/processing-gui.ui ui/file-edit-widget.ui)
 
 # QT4-specific preprocessor headers

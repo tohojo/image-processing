@@ -24,6 +24,10 @@
   #include "stereo_processor.h"
 #endif
 
+#ifdef PCA_773
+  #include "pca_training_processor.h"
+#endif
+
 
 ProcessorModel::ProcessorModel() : QAbstractListModel()
 {
@@ -82,6 +86,9 @@ void ProcessorModel::create_processors()
 #endif
 #ifdef STEREO
   m_processors.append(new StereoProcessor());
+#endif
+#ifdef PCA_773
+  m_processors.append(new PcaTrainingProcessor());
 #endif
 }
 
