@@ -23,7 +23,7 @@ StereoProcessor::~StereoProcessor()
 
 void StereoProcessor::run()
 {
-	/*
+	
 	forever {
 		if(abort) return;
 		emit progress(0);
@@ -46,7 +46,7 @@ void StereoProcessor::run()
 		restart = false;
 		mutex.unlock();
 	}
-	*/
+	
 
 	// INITIAL TEST: HARDMULT / CALCULATED MULT
 	// Proceed thereafter under assumption of HARDMULT
@@ -121,6 +121,7 @@ void StereoProcessor::run()
 	qDebug() << "TESTING COMPLETE.";
 	*/
 
+	/*
 	std::ofstream o_File("RESULTS_STEREO_TESTS.txt", std::ios::out);
 
 	o_File << "tests/con_imL_mat0_dyn_smooth.png" << "\n";
@@ -380,6 +381,7 @@ void StereoProcessor::run()
 	o_File.close();
 	//
 	qDebug() << "CHECKING COMPLETE.";
+	*/
 
 }
 
