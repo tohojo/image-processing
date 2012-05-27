@@ -35,6 +35,8 @@ private:
 	bool loadImages();
 
 	Mat trainingSetImages;
+	int numImages;
+	int pixelsPerImage;
 
 	QFileInfo file_list;
 
