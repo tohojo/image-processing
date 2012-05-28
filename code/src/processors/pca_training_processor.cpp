@@ -123,7 +123,7 @@ bool PcaTrainingProcessor::PCATrain(){
 	// C = sum[1...N] of yi * yi(transpose)
 	Mat covarianceMat = Mat(pixelsPerImage, pixelsPerImage, CV_64FC1, Scalar(0));
 	for (int i = 0; i < numImages; i++){
-		Mat matToAdd = trainingSetImages * trainingSetImages.t();
+		Mat matToAdd = trainingSetImages.col(i) * trainingSetImages.col(i).t();
 		covarianceMat = covarianceMat + matToAdd;
 	}
 
@@ -136,6 +136,7 @@ bool PcaTrainingProcessor::PCATrain(){
 	}
 
 
+	/*
 	// THIS IS A TEST TO SEE WHETHER THE 'eigen' FUNCTION WORKS
 	double b[5][5] = {
 	{ 1.96 , -6.49, -0.47, -7.20, -0.65},
@@ -166,6 +167,62 @@ bool PcaTrainingProcessor::PCATrain(){
 		}
 		cout << "\n";
 	}
+	*/
+
+	// Easy test
+	Mat covarianceMat2 = Mat(2, 2, CV_64FC1, Scalar(0));
+	Mat x1 = Mat(2, 1, CV_64FC1);
+	x1.at<double>(0,0) = 0;
+	x1.at<double>(1,0) = -1;
+	Mat x2 = Mat(2, 1, CV_64FC1);
+	x2.at<double>(0,0) = 1;
+	x2.at<double>(1,0) = -1;
+	Mat x3 = Mat(2, 1, CV_64FC1);
+	x3.at<double>(0,0) = 2;
+	x3.at<double>(1,0) = -1;
+	Mat x4 = Mat(2, 1, CV_64FC1);
+	x4.at<double>(0,0) = -1;
+	x4.at<double>(1,0) = 0;
+	Mat x5 = Mat(2, 1, CV_64FC1);
+	x5.at<double>(0,0) = -1;
+	x5.at<double>(1,0) = 1;
+	Mat x6 = Mat(2, 1, CV_64FC1);
+	x6.at<double>(0,0) = -1;
+	x6.at<double>(1,0) = 2;
+	covarianceMat2 = covarianceMat2 + x1.col(0) * x1.col(0).t();
+	covarianceMat2 = covarianceMat2 + x2.col(0) * x2.col(0).t();
+	covarianceMat2 = covarianceMat2 + x3.col(0) * x3.col(0).t();
+	covarianceMat2 = covarianceMat2 + x4.col(0) * x4.col(0).t();
+	covarianceMat2 = covarianceMat2 + x5.col(0) * x5.col(0).t();
+	covarianceMat2 = covarianceMat2 + x6.col(0) * x6.col(0).t();
+	//
+	Mat V;
+//	cv::Vector<double> E = cv::Vector<double>(2);
+	Mat E;
+	cout << "\nSimple case... ";
+	eigen(covarianceMat2, E, V);
+	cout << "done.\n\n";
+	//
+	cout << "\nTEST EIGENVALUES:\n";
+//	for(int i = 0; i < E.cols; i++) {
+//		std::cout << E[i];
+//		for(int j = 0; j < E.cols; j++) {
+//			std::cout << E.operator []...at<double>(i,j) << " \t";
+//		}
+//		cout << "\n";
+//	}
+//	for (MatConstIterator<double> i = E.begin(); i != E.end(); i++){
+//		cout << i* << " ! \n";
+//	}
+	cout << "\nTEST EIGENVECTORS:\n";
+	for(int i = 0; i < V.cols; i++) {
+		for(int j = 0; j < V.cols; j++) {
+			std::cout << V.at<double>(i,j) << " \t";
+		}
+		cout << "\n";
+	}
+
+
 
 
 	// 3. Find eigenvectors and eigenvalues of covariance matrix.
