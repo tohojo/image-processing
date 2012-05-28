@@ -135,40 +135,6 @@ bool PcaTrainingProcessor::PCATrain(){
 		cout << "\n";
 	}
 
-
-	/*
-	// THIS IS A TEST TO SEE WHETHER THE 'eigen' FUNCTION WORKS
-	double b[5][5] = {
-	{ 1.96 , -6.49, -0.47, -7.20, -0.65},
-	{ -6.49,  3.80, -6.39,  1.50, -6.34},
-	{ -0.47, -6.39,  4.17, -1.51,  2.67},
-	{ -7.20,  1.50, -1.51,  5.70,  1.80},
-	{ -0.65, -6.34,  2.67,  1.80, -7.10}
-	};
-	//cv::Mat E = Mat(5,1,CV_64F,Scalar(0));
-	//cv::Mat V = Mat(5,5,CV_64F,Scalar(0));
-	cv::Mat E, V;
-	cv::Mat M = Mat(5,5,CV_64FC1,b);
-	//cv::eigen(M,E,V);
-	cv::eigen(M,true,E,V);
-	//cv::eigen(M,E,V,-100000,100000);
-	//cvEigenVV(M, V, E, DBL_EPSILON, -1, -1);
-	cout << "\nTEST EIGENVALUES:\n";
-	for(int i = 0; i < E.cols; i++) {
-		for(int j = 0; j < E.cols; j++) {
-			std::cout << E.at<double>(i,j) << " \t";
-		}
-		cout << "\n";
-	}
-	cout << "\nTEST EIGENVECTORS:\n";
-	for(int i = 0; i < V.cols; i++) {
-		for(int j = 0; j < V.cols; j++) {
-			std::cout << V.at<double>(i,j) << " \t";
-		}
-		cout << "\n";
-	}
-	*/
-
 	// Easy test
 	Mat covarianceMat2 = Mat(2, 2, CV_64FC1, Scalar(0));
 	Mat x1 = Mat(2, 1, CV_64FC1);
@@ -195,27 +161,20 @@ bool PcaTrainingProcessor::PCATrain(){
 	covarianceMat2 = covarianceMat2 + x4.col(0) * x4.col(0).t();
 	covarianceMat2 = covarianceMat2 + x5.col(0) * x5.col(0).t();
 	covarianceMat2 = covarianceMat2 + x6.col(0) * x6.col(0).t();
-	//
-	Mat V;
-//	cv::Vector<double> E = cv::Vector<double>(2);
-	Mat E;
+	Mat V, E;
 	cout << "\nSimple case... ";
 	eigen(covarianceMat2, E, V);
-	cout << "done.\n\n";
-	//
+	cout << "done.\n";
 	cout << "\nTEST EIGENVALUES:\n";
-//	for(int i = 0; i < E.cols; i++) {
-//		std::cout << E[i];
-//		for(int j = 0; j < E.cols; j++) {
-//			std::cout << E.operator []...at<double>(i,j) << " \t";
-//		}
-//		cout << "\n";
-//	}
-//	for (MatConstIterator<double> i = E.begin(); i != E.end(); i++){
-//		cout << i* << " ! \n";
-//	}
+	cout << "TOTAL NUMBER OF EIGENVALUES: " << E.total() << "\n";
+	for(int i = 0; i < E.rows; i++) {
+		for(int j = 0; j < E.cols; j++) {
+			std::cout << E.at<double>(i,j) << " \t";
+		}
+		cout << "\n";
+	}
 	cout << "\nTEST EIGENVECTORS:\n";
-	for(int i = 0; i < V.cols; i++) {
+	for(int i = 0; i < V.rows; i++) {
 		for(int j = 0; j < V.cols; j++) {
 			std::cout << V.at<double>(i,j) << " \t";
 		}
@@ -235,17 +194,18 @@ bool PcaTrainingProcessor::PCATrain(){
 	cout << "\nRunning 'eigen' function... ";
 	eigen(covarianceMat, eigenvalues, eigenvectors);
 	cout << "done.\n\n";
+	cout << "TOTAL NUMBER OF EIGENVALUES: " << eigenvalues.total();
 
 	// Print eigenvalues, which are sorted descending
 	cout << "\nOUTPUT EIGENVALUES:\n";
-	for(int i = 0; i < eigenvalues.cols; i++) {
+	for(int i = 0; i < eigenvalues.rows; i++) {
 		for(int j = 0; j < eigenvalues.cols; j++) {
 			std::cout << eigenvalues.at<double>(i,j) << " \t";
 		}
 		cout << "\n";
 	}
 	cout << "\nOUTPUT EIGENVECTORS:\n";
-	for(int i = 0; i < eigenvectors.cols; i++) {
+	for(int i = 0; i < eigenvectors.rows; i++) {
 		for(int j = 0; j < eigenvectors.cols; j++) {
 			std::cout << eigenvectors.at<double>(i,j) << " \t";
 		}
