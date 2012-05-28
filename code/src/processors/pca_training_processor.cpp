@@ -8,6 +8,7 @@ PcaTrainingProcessor::PcaTrainingProcessor(QObject *parent)
 {
 	numImages = 0;
 	pixelsPerImage = 0;
+	numCompsToKeep = 10;
 }
 
 
@@ -73,7 +74,9 @@ bool PcaTrainingProcessor::loadImages(){
 		string str = qstr.toStdString();
 		str = str.erase(str.length()-1);
 		cout << "Reading: " << str << "\n";
-		Mat img = imread(str, 0); // not in colour yet
+		Mat img = imread(str, 1); // not in colour yet
+		pcaImageWidth = img.cols;
+		pcaImageHeight = img.rows;
 		img = img.reshape(img.channels(), img.rows*img.cols);
 		for (int i = 0; i < pixelsPerImage; i++){
 			trainingSetImages.at<double>(i,counter) = (0.0 + img.at<unsigned char>(i,0));
@@ -97,135 +100,177 @@ bool PcaTrainingProcessor::PCATrain(){
 	if (trainingSetImages.empty()) return false;
 	// 1. Get training images as vectors
 	// Fills "trainingSetImages"; each COLUMN is an image vector.
-	// Currently only looking at grey values
 
-	// Centre dataset with averages
-	for (int i = 0; i < trainingSetImages.rows; i++){
-		double average = 0;
-		for (int j = 0; j < trainingSetImages.cols; j++){
-			average += trainingSetImages.at<double>(i,j);
-		}
-		average /= trainingSetImages.cols;
-		for (int j = 0; j < trainingSetImages.cols; j++){
-			trainingSetImages.at<double>(i,j) -= average;
-		}
-	}
-
-	cout << "\nCentred data:\n";
-	for (int i = 0; i < trainingSetImages.rows; i++){
-		for (int j = 0; j < trainingSetImages.cols; j++){
-			cout << " " << trainingSetImages.at<double>(i,j);
-		}
-		cout << "\n";
-	}
-
-	// 2. Compute covariance matrix of centred dataset.
-	// C = sum[1...N] of yi * yi(transpose)
-	Mat covarianceMat = Mat(pixelsPerImage, pixelsPerImage, CV_64FC1, Scalar(0));
-	for (int i = 0; i < numImages; i++){
-		Mat matToAdd = trainingSetImages.col(i) * trainingSetImages.col(i).t();
-		covarianceMat = covarianceMat + matToAdd;
-	}
-
-	cout << "\nCovariance matrix:\n";
-	for (int i = 0; i < covarianceMat.rows; i++){
-		for (int j = 0; j < covarianceMat.cols; j++){
-			cout << " " << covarianceMat.at<double>(i,j);
-		}
-		cout << "\n";
-	}
-
-	// Easy test
-	Mat covarianceMat2 = Mat(2, 2, CV_64FC1, Scalar(0));
-	Mat x1 = Mat(2, 1, CV_64FC1);
-	x1.at<double>(0,0) = 0;
-	x1.at<double>(1,0) = -1;
-	Mat x2 = Mat(2, 1, CV_64FC1);
-	x2.at<double>(0,0) = 1;
-	x2.at<double>(1,0) = -1;
-	Mat x3 = Mat(2, 1, CV_64FC1);
-	x3.at<double>(0,0) = 2;
-	x3.at<double>(1,0) = -1;
-	Mat x4 = Mat(2, 1, CV_64FC1);
-	x4.at<double>(0,0) = -1;
-	x4.at<double>(1,0) = 0;
-	Mat x5 = Mat(2, 1, CV_64FC1);
-	x5.at<double>(0,0) = -1;
-	x5.at<double>(1,0) = 1;
-	Mat x6 = Mat(2, 1, CV_64FC1);
-	x6.at<double>(0,0) = -1;
-	x6.at<double>(1,0) = 2;
-	covarianceMat2 = covarianceMat2 + x1.col(0) * x1.col(0).t();
-	covarianceMat2 = covarianceMat2 + x2.col(0) * x2.col(0).t();
-	covarianceMat2 = covarianceMat2 + x3.col(0) * x3.col(0).t();
-	covarianceMat2 = covarianceMat2 + x4.col(0) * x4.col(0).t();
-	covarianceMat2 = covarianceMat2 + x5.col(0) * x5.col(0).t();
-	covarianceMat2 = covarianceMat2 + x6.col(0) * x6.col(0).t();
-	Mat V, E;
-	cout << "\nSimple case... ";
-	eigen(covarianceMat2, E, V);
-	cout << "done.\n";
-	cout << "\nTEST EIGENVALUES:\n";
-	cout << "TOTAL NUMBER OF EIGENVALUES: " << E.total() << "\n";
-	for(int i = 0; i < E.rows; i++) {
-		for(int j = 0; j < E.cols; j++) {
-			std::cout << E.at<double>(i,j) << " \t";
-		}
-		cout << "\n";
-	}
-	cout << "\nTEST EIGENVECTORS:\n";
-	for(int i = 0; i < V.rows; i++) {
-		for(int j = 0; j < V.cols; j++) {
-			std::cout << V.at<double>(i,j) << " \t";
-		}
-		cout << "\n";
-	}
-
-
-
-
-	// 3. Find eigenvectors and eigenvalues of covariance matrix.
-	// UNIT eigenvectors = principal directions.
-	// Projections of image vector x to principal directions = principal components of x.
-	cout << "\n";
-//	Mat eigenvalues = ;
-//	Mat eigenvectors = ;
-	Mat eigenvalues, eigenvectors;
-	cout << "\nRunning 'eigen' function... ";
-	eigen(covarianceMat, eigenvalues, eigenvectors);
-	cout << "done.\n\n";
-	cout << "TOTAL NUMBER OF EIGENVALUES: " << eigenvalues.total();
-
-	// Print eigenvalues, which are sorted descending
+	PCA pca(trainingSetImages, Mat(), CV_PCA_DATA_AS_COL, numCompsToKeep);
 	cout << "\nOUTPUT EIGENVALUES:\n";
-	for(int i = 0; i < eigenvalues.rows; i++) {
-		for(int j = 0; j < eigenvalues.cols; j++) {
-			std::cout << eigenvalues.at<double>(i,j) << " \t";
+	for(int i = 0; i < pca.eigenvalues.rows; i++) {
+		for(int j = 0; j < pca.eigenvalues.cols; j++) {
+			std::cout << pca.eigenvalues.at<double>(i,j) << " \t";
 		}
 		cout << "\n";
 	}
 	cout << "\nOUTPUT EIGENVECTORS:\n";
-	for(int i = 0; i < eigenvectors.rows; i++) {
-		for(int j = 0; j < eigenvectors.cols; j++) {
-			std::cout << eigenvectors.at<double>(i,j) << " \t";
+	for(int i = 0; i < pca.eigenvectors.rows; i++) {
+		for(int j = 0; j < pca.eigenvectors.cols; j++) {
+			std::cout << pca.eigenvectors.at<double>(i,j) << " \t";
 		}
 		cout << "\n";
 	}
-	cout << "\n";
 
-	// 2. Calculate eigenface vectors from training set.
-	// 3. Keep only the M eigenvectors corresponding to the highest eigenvalues.
-	//
+	qDebug() << "PCA training complete.";
+
+	// Project all training images into the principal components space
+	for(int i = 0; i < trainingSetImages.cols; i++){
+		std::string str = "PCA_projected";
+		str.append(i, '1');
+		str.append(".png");
+		Mat temp = trainingSetImages.col(i).clone();
+		Mat projected = pca.project(temp);
+	//	cout << "MAT ELEMENTS: " << projected.total() << "\n";
+	//	cout << "NEW ROWS: " << pcaImageHeight << "\n";
+	//	projected = projected.reshape(temp.channels(), pcaImageHeight);
+	//	imwrite(str, projected);
+	}
+
+
+
+
+	bool useOurWork = false;
+	if(useOurWork){
+		// Centre dataset with averages
+		for (int i = 0; i < trainingSetImages.rows; i++){
+			double average = 0;
+			for (int j = 0; j < trainingSetImages.cols; j++){
+				average += trainingSetImages.at<double>(i,j);
+			}
+			average /= trainingSetImages.cols;
+			for (int j = 0; j < trainingSetImages.cols; j++){
+				trainingSetImages.at<double>(i,j) -= average;
+			}
+		}
+
+		cout << "\nCentred data:\n";
+		for (int i = 0; i < trainingSetImages.rows; i++){
+			for (int j = 0; j < trainingSetImages.cols; j++){
+				cout << " " << trainingSetImages.at<double>(i,j);
+			}
+			cout << "\n";
+		}
+
+		// 2. Compute covariance matrix of centred dataset.
+		// C = sum[1...N] of yi * yi(transpose)
+		Mat covarianceMat = Mat(pixelsPerImage, pixelsPerImage, CV_64FC1, Scalar(0));
+		for (int i = 0; i < numImages; i++){
+			Mat matToAdd = trainingSetImages.col(i) * trainingSetImages.col(i).t();
+			covarianceMat = covarianceMat + matToAdd;
+		}
+
+		cout << "\nCovariance matrix:\n";
+		for (int i = 0; i < covarianceMat.rows; i++){
+			for (int j = 0; j < covarianceMat.cols; j++){
+				cout << " " << covarianceMat.at<double>(i,j);
+			}
+			cout << "\n";
+		}
+
+		/*
+		// Easy test
+		Mat covarianceMat2 = Mat(2, 2, CV_64FC1, Scalar(0));
+		Mat x1 = Mat(2, 1, CV_64FC1);
+		x1.at<double>(0,0) = 0;
+		x1.at<double>(1,0) = -1;
+		Mat x2 = Mat(2, 1, CV_64FC1);
+		x2.at<double>(0,0) = 1;
+		x2.at<double>(1,0) = -1;
+		Mat x3 = Mat(2, 1, CV_64FC1);
+		x3.at<double>(0,0) = 2;
+		x3.at<double>(1,0) = -1;
+		Mat x4 = Mat(2, 1, CV_64FC1);
+		x4.at<double>(0,0) = -1;
+		x4.at<double>(1,0) = 0;
+		Mat x5 = Mat(2, 1, CV_64FC1);
+		x5.at<double>(0,0) = -1;
+		x5.at<double>(1,0) = 1;
+		Mat x6 = Mat(2, 1, CV_64FC1);
+		x6.at<double>(0,0) = -1;
+		x6.at<double>(1,0) = 2;
+		covarianceMat2 = covarianceMat2 + x1.col(0) * x1.col(0).t();
+		covarianceMat2 = covarianceMat2 + x2.col(0) * x2.col(0).t();
+		covarianceMat2 = covarianceMat2 + x3.col(0) * x3.col(0).t();
+		covarianceMat2 = covarianceMat2 + x4.col(0) * x4.col(0).t();
+		covarianceMat2 = covarianceMat2 + x5.col(0) * x5.col(0).t();
+		covarianceMat2 = covarianceMat2 + x6.col(0) * x6.col(0).t();
+		Mat V, E;
+		cout << "\nSimple case... ";
+		eigen(covarianceMat2, E, V);
+		cout << "done.\n";
+		cout << "\nTEST EIGENVALUES:\n";
+		cout << "TOTAL NUMBER OF EIGENVALUES: " << E.total() << "\n";
+		for(int i = 0; i < E.rows; i++) {
+		for(int j = 0; j < E.cols; j++) {
+		std::cout << E.at<double>(i,j) << " \t";
+		}
+		cout << "\n";
+		}
+		cout << "\nTEST EIGENVECTORS:\n";
+		for(int i = 0; i < V.rows; i++) {
+		for(int j = 0; j < V.cols; j++) {
+		std::cout << V.at<double>(i,j) << " \t";
+		}
+		cout << "\n";
+		}
+		*/
+
+
+		// 3. Find eigenvectors and eigenvalues of covariance matrix.
+		// UNIT eigenvectors = principal directions.
+		// Projections of image vector x to principal directions = principal components of x.
+		Mat eigenvalues, eigenvectors;
+		cout << "\nRunning 'eigen' function... ";
+		eigen(covarianceMat, eigenvalues, eigenvectors);
+		cout << "done.\n\n";
+		cout << "TOTAL NUMBER OF EIGENVALUES: " << eigenvalues.total();
+
+		// Print eigenvalues, which are sorted descending
+		cout << "\nOUTPUT EIGENVALUES:\n";
+		for(int i = 0; i < eigenvalues.rows; i++) {
+			for(int j = 0; j < eigenvalues.cols; j++) {
+				std::cout << eigenvalues.at<double>(i,j) << " \t";
+			}
+			cout << "\n";
+		}
+		cout << "\nOUTPUT EIGENVECTORS:\n";
+		for(int i = 0; i < eigenvectors.rows; i++) {
+			for(int j = 0; j < eigenvectors.cols; j++) {
+				std::cout << eigenvectors.at<double>(i,j) << " \t";
+			}
+			cout << "\n";
+		}
+		cout << "\n";
+
+		// 2. Calculate eigenface vectors from training set.
+		// 3. Keep only the M eigenvectors corresponding to the highest eigenvalues.
+		//
+	}
 	return true;
 }
 
 
 void PcaTrainingProcessor::setFileList(QFileInfo path)
 {
-  QMutexLocker locker(&mutex);
-  if(path.canonicalFilePath() == file_list.canonicalFilePath()) return;
-  file_list = path;
-  mutex.unlock();
-  loadImages();
-  Processor::process();
+	QMutexLocker locker(&mutex);
+	if(path.canonicalFilePath() == file_list.canonicalFilePath()) return;
+	file_list = path;
+	mutex.unlock();
+	loadImages();
+	Processor::process();
+}
+
+void PcaTrainingProcessor::setNumComponentsToKeep(int num)
+{
+	QMutexLocker locker(&mutex);
+	numCompsToKeep = num;
+	mutex.unlock();
+	loadImages();
+	Processor::process();
 }
