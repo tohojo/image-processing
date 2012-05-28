@@ -120,16 +120,32 @@ bool PcaTrainingProcessor::PCATrain(){
 	qDebug() << "PCA training complete.";
 
 	// Project all training images into the principal components space
+	Mat compressed;
+	compressed.create(numCompsToKeep, trainingSetImages.cols, trainingSetImages.type());
+	Mat reconstructed;
 	for(int i = 0; i < trainingSetImages.cols; i++){
 		std::string str = "PCA_projected";
 		str.append(i, '1');
 		str.append(".png");
 		Mat temp = trainingSetImages.col(i).clone();
 		Mat projected = pca.project(temp);
-	//	cout << "MAT ELEMENTS: " << projected.total() << "\n";
-	//	cout << "NEW ROWS: " << pcaImageHeight << "\n";
-	//	projected = projected.reshape(temp.channels(), pcaImageHeight);
-	//	imwrite(str, projected);
+		//	cout << "MAT ELEMENTS: " << projected.total() << "\n";
+		//	cout << "NEW ROWS: " << pcaImageHeight << "\n";
+		//	projected = projected.reshape(temp.channels(), pcaImageHeight);
+		//	imwrite(str, projected);
+
+		// See how much  we lose
+		Mat vect = trainingSetImages.col(i), coeffs = compressed.col(i);
+		// Compress the vector. The result will be stored in column i of the output matrix.
+		pca.project(vect, coeffs);
+		pca.backProject(coeffs, reconstructed);
+		// Measuring the error:
+		Mat diff = reconstructed - vect;
+		double d = 0.0;
+		for (int j = 0; j < diff.rows; j++){
+			d += (diff.at<double>(j,0) * diff.at<double>(j,0));
+		}
+		cout << "Error for training eigenface #" << i << ": " << sqrt(d) << "\n";
 	}
 
 
