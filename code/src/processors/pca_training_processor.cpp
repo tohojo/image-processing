@@ -26,7 +26,7 @@ void PcaTrainingProcessor::run()
 
 		if( PCATrain() ) { // Returns true if successful
 			mutex.lock();
-			qDebug() << "PCA training complete.\n";
+			qDebug() << "Finished PCA processing.\n";
 		} else {
 			mutex.lock();
 			//output_image = ?;
@@ -63,33 +63,42 @@ bool PcaTrainingProcessor::loadImages(){
 	numImages = numImgs;
 	pixelsPerImage = pixPerImg;
 
+	classes = std::vector<std::string>();
+
 	cout << "numImages: " << numImages << "\n";
 	cout << "pixelsPerImage: " << pixelsPerImage << "\n";
 	trainingSetImages = Mat(pixelsPerImage, numImages, CV_64FC1); // Use double so we can subtract averages etc
-	// Remainder of file is image names
+	// Remainder of file is: image name on one line, class to which the image belongs on next line
 	// **MUST** HAVE A TRAILING NEWLINE!
 	int counter = 0;
-	while (file.canReadLine()){
+	std::vector<std::string>::iterator counter2 = classes.begin();
+	while (file.canReadLine() && counter < numImages){
 		QString qstr = file.readLine();
 		string str = qstr.toStdString();
 		str = str.erase(str.length()-1);
 		cout << "Reading: " << str << "\n";
-		Mat img = imread(str, 1); // not in colour yet
+		Mat img = imread(str, 1); // now in colour
 		pcaImageWidth = img.cols;
 		pcaImageHeight = img.rows;
 		img = img.reshape(img.channels(), img.rows*img.cols);
 		for (int i = 0; i < pixelsPerImage; i++){
 			trainingSetImages.at<double>(i,counter) = (0.0 + img.at<unsigned char>(i,0));
 		}
+		QString qstr_num = file.readLine();
+		string imageClass = qstr.toStdString();
+		//classes.insert(counter2, imageClass);
 		counter++;
+		//counter2++;
 	}
 	cout << "Training set rows: " << trainingSetImages.rows << "\n";
 	cout << "Training set cols: " << trainingSetImages.cols << "\n";
-	for (int i = 0; i < trainingSetImages.rows; i++){
-		for (int j = 0; j < trainingSetImages.cols; j++){
-			cout << " " << trainingSetImages.at<double>(i,j);
+	if (trainingSetImages.rows < 20 && trainingSetImages.cols < 20){
+		for (int i = 0; i < trainingSetImages.rows; i++){
+			for (int j = 0; j < trainingSetImages.cols; j++){
+				cout << " " << trainingSetImages.at<double>(i,j);
+			}
+			cout << "\n";
 		}
-		cout << "\n";
 	}
 	return true;
 }
@@ -109,12 +118,17 @@ bool PcaTrainingProcessor::PCATrain(){
 		}
 		cout << "\n";
 	}
-	cout << "\nOUTPUT EIGENVECTORS:\n";
-	for(int i = 0; i < pca.eigenvectors.rows; i++) {
-		for(int j = 0; j < pca.eigenvectors.cols; j++) {
-			std::cout << pca.eigenvectors.at<double>(i,j) << " \t";
+
+	cout << "\nEIGENVECTOR ROWS: " << pca.eigenvectors.rows << "\n";
+	cout << "\nEIGENVECTOR COLS: " << pca.eigenvectors.cols << "\n";
+	if (pca.eigenvectors.cols < 100){ // Number of data points per image, e.g. #pixels
+		cout << "\nOUTPUT EIGENVECTORS:\n";
+		for(int i = 0; i < pca.eigenvectors.rows; i++) {
+			for(int j = 0; j < pca.eigenvectors.cols; j++) {
+				std::cout << pca.eigenvectors.at<double>(i,j) << " \t";
+			}
+			cout << "\n";
 		}
-		cout << "\n";
 	}
 
 	qDebug() << "PCA training complete.";
@@ -124,17 +138,7 @@ bool PcaTrainingProcessor::PCATrain(){
 	compressed.create(numCompsToKeep, trainingSetImages.cols, trainingSetImages.type());
 	Mat reconstructed;
 	for(int i = 0; i < trainingSetImages.cols; i++){
-		std::string str = "PCA_projected";
-		str.append(i, '1');
-		str.append(".png");
-		Mat temp = trainingSetImages.col(i).clone();
-		Mat projected = pca.project(temp);
-		//	cout << "MAT ELEMENTS: " << projected.total() << "\n";
-		//	cout << "NEW ROWS: " << pcaImageHeight << "\n";
-		//	projected = projected.reshape(temp.channels(), pcaImageHeight);
-		//	imwrite(str, projected);
-
-		// See how much  we lose
+		// See how much we lose
 		Mat vect = trainingSetImages.col(i), coeffs = compressed.col(i);
 		// Compress the vector. The result will be stored in column i of the output matrix.
 		pca.project(vect, coeffs);
@@ -146,11 +150,20 @@ bool PcaTrainingProcessor::PCATrain(){
 			d += (diff.at<double>(j,0) * diff.at<double>(j,0));
 		}
 		cout << "Error for training eigenface #" << i << ": " << sqrt(d) << "\n";
+		// Output reconstructed image:
+		std::string str = "PCA_projected";
+		str.append(i, '1');
+		str.append(".png");
+		//cout << "MAT ELEMENTS: " << reconstructed.total() << "\n" << "NEW ROWS: " << pcaImageHeight << "\n";
+		reconstructed = reconstructed.reshape(trainingSetImages.channels(), pcaImageHeight);
+		imwrite(str, reconstructed);
 	}
 
 
 
 
+
+	// Ignore all this
 	bool useOurWork = false;
 	if(useOurWork){
 		// Centre dataset with averages

@@ -14,6 +14,7 @@ class PcaTrainingProcessor : public Processor
 
 		Q_PROPERTY(QFileInfo FileList READ fileList WRITE setFileList USER true)
 		Q_CLASSINFO("FileList", "filetype=text;")
+		Q_PROPERTY(int NumComponentsToKeep READ numComponentsToKeep WRITE setNumComponentsToKeep USER true)
 
 public:
 	PcaTrainingProcessor(QObject *parent = 0);
@@ -37,6 +38,16 @@ private:
 	Mat trainingSetImages;
 	int numImages;
 	int pixelsPerImage;
+
+	std::vector<std::string> classes; // Ordered vector;
+	// [0] = class for training image #1, [1] = class for training image #2, etc
+
+	int pcaImageWidth;
+	int pcaImageHeight;
+
+	int numCompsToKeep;
+	float numComponentsToKeep() {QMutexLocker l(&mutex); return numCompsToKeep;}
+	void setNumComponentsToKeep(int num);
 
 	QFileInfo file_list;
 
