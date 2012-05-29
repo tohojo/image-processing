@@ -8,6 +8,13 @@
 using namespace cv;
 using namespace std;
 
+
+struct class_of_training_images {
+	std::string identifier; // Any string used in the input txt file to identify them
+	std::vector<Mat> images; // In original 2D form, not vector form
+};
+
+
 class PcaTrainingProcessor : public Processor
 {
 	Q_OBJECT
@@ -35,12 +42,15 @@ private:
 
 	bool loadImages();
 
+	Mat convertImageToVector(Mat img);
+	Mat convertVectorToImage(Mat vec);
+
 	Mat trainingSetImages;
 	int numImages;
 	int pixelsPerImage;
 
-	std::vector<std::string> classes; // Ordered vector;
-	// [0] = class for training image #1, [1] = class for training image #2, etc
+	std::vector<class_of_training_images> classesOfTrainingImages; // Number of elements = number of classes
+	// Each element stores the name for that class and all training images in that class
 
 	int pcaImageWidth;
 	int pcaImageHeight;
