@@ -61,7 +61,8 @@ bool PcaTrainingProcessor::loadImages(){
 	int pixPerImg = pixPerImg_str.toInt(&ok2); // Second line of file is pixels per image
 	if(!ok1 || !ok2) return false;
 	numImages = numImgs;
-	pixelsPerImage = pixPerImg;
+//	pixelsPerImage = pixPerImg;
+	pixelsPerImage = pixPerImg*3; // USING THREE COLOUR CHANNELS
 
 	classesOfTrainingImages = std::vector<class_of_training_images>();
 
@@ -76,12 +77,12 @@ bool PcaTrainingProcessor::loadImages(){
 		string str = qstr.toStdString();
 		str = str.erase(str.length()-1);
 		cout << "Reading: " << str << "\n";
-		Mat img = imread(str, 1); // now in colour
+		Mat img = imread(str, 1); // Read in colour
 		pcaImageWidth = img.cols;
 		pcaImageHeight = img.rows;
-		Mat img2 = convertImageToVector(img);
+		Mat img2 = convertImageToVector(img); // Changes the 2D RGB (unsigned char) values to 1D R,G,B, (double) values
 		for (int i = 0; i < pixelsPerImage; i++){
-			trainingSetImages.at<double>(i,counter) = (0.0 + img2.at<unsigned char>(i,0));
+			trainingSetImages.at<double>(i,counter) = img2.at<double>(i,0);
 		}
 		QString qstr_num = file.readLine();
 		string imageClass = qstr_num.toStdString();
@@ -156,27 +157,17 @@ bool PcaTrainingProcessor::PCATrain(){
 
 	qDebug() << "PCA training complete.";
 
+	qDebug() << "Projecting training images into & from PCA space to compute error.";
 	// Project all training images into the principal components space
 	Mat compressed;
 	compressed.create(numCompsToKeep, numImages, trainingSetImages.type());
 	Mat reconstructed;
-
-	/*
-	qDebug() << "Calculating error for training images.";
-	std::vector<class_of_training_images>::iterator it = classesOfTrainingImages.begin();
-	for(; it != classesOfTrainingImages.end(); it++){
-	std::vector<class_of_training_images>::iterator itMat = it->images.begin();
-	for(; itMat != it->images.end(); itMat++){
-	// See how much we lose
-	Mat vect = trainingSetImages.col(i), coeffs = compressed.col(i);
-
-	}
-	}
-	*/
-
 	for(int i = 0; i < trainingSetImages.cols; i++){
 		// See how much we lose
-		Mat vect = trainingSetImages.col(i), coeffs = compressed.col(i);
+		Mat vect = trainingSetImages.col(i);
+		Mat coeffs = compressed.col(i);
+			//	cout << "vect: ROWS " << vect.rows << " COLS " << vect.cols << " CHANNELS " << vect.channels() << "\n";
+			//	cout << "coeffs: ROWS " << coeffs.rows << " COLS " << coeffs.cols << " CHANNELS " << coeffs.channels() << "\n";
 		// Compress the vector. The result will be stored in column i of the output matrix.
 		pca.project(vect, coeffs);
 		pca.backProject(coeffs, reconstructed);
@@ -192,10 +183,48 @@ bool PcaTrainingProcessor::PCATrain(){
 		str.append(i, '1');
 		str.append(".png");
 		//cout << "MAT ELEMENTS: " << reconstructed.total() << "\n" << "NEW ROWS: " << pcaImageHeight << "\n";
+		//qDebug() << "Reconstructed1: ROWS " << reconstructed.rows << " COLS " << reconstructed.cols << " CHANS " << reconstructed.channels() << " TYPE " << reconstructed.type() << "\n";
 		reconstructed = convertVectorToImage(reconstructed);
+		cout << "Reconstructed image: TYPE " << reconstructed.type() << " CHANNELS " << reconstructed.channels() << "\n";
+		//qDebug() << "Reconstructed2: ROWS " << reconstructed.rows << " COLS " << reconstructed.cols << " CHANS " << reconstructed.channels() << " TYPE " << reconstructed.type() << "\n";
 		imwrite(str, reconstructed);
 	}
 
+	qDebug() << "Calculating mean eigenimage for each class.";
+	Mat compressed_classes(numCompsToKeep, classesOfTrainingImages.size(), trainingSetImages.type(), Scalar(0));
+	Mat reconstructed_classes(pixelsPerImage, classesOfTrainingImages.size(), trainingSetImages.type(), Scalar(0));
+	int count = 0;
+	std::vector<class_of_training_images>::iterator it = classesOfTrainingImages.begin();
+	for(; it != classesOfTrainingImages.end(); it++){
+		std::vector<Mat>::iterator itMat = it->images.begin();
+		for(; itMat != it->images.end(); itMat++){
+			//cout << "EMPTY ROWS " << empty.rows << " COLS " << empty.cols << "\n";
+			//cout << "itMat: ROWS " << itMat->rows << " COLS " << itMat->cols << " CHANNELS " << itMat->channels() << "\n";
+			Mat eigenvec = convertImageToVector(*itMat);
+			//cout << "eigenvec: ROWS " << eigenvec.rows << " COLS " << eigenvec.cols << " CHANNELS " << eigenvec.channels() << "\n";
+			//Mat coeffs = compressed_classes.col(count);
+			Mat proj;
+			proj.create(numCompsToKeep, 1, trainingSetImages.type());
+			//cout << "proj: ROWS " << proj.rows << " COLS " << proj.cols << " CHANNELS " << proj.channels() << "\n";
+			pca.project(eigenvec, proj);
+			compressed_classes.col(count) = compressed_classes.col(count) + proj;
+		}
+		compressed_classes.col(count) = compressed_classes.col(count) / it->images.size(); // GET MEAN EIGENVECTOR FOR CLASS
+		pca.backProject(compressed_classes.col(count), reconstructed_classes.col(count));
+		std::string mean_str = "PCA_class_mean_";
+		mean_str.append(it->identifier);
+		mean_str = mean_str.erase(mean_str.length()-1);
+		mean_str.append(count, '1');
+		mean_str.append(".png");
+		Mat columnMean = reconstructed_classes.col(count);
+		Mat newColumnMean = columnMean.clone();
+		//qDebug() << "COLUMN MEAN: ROWS " << newColumnMean.rows << " COLS " << newColumnMean.cols << " CHANS " << newColumnMean.channels() << " TYPE " << newColumnMean.type() << "\n";
+		Mat imageMean = convertVectorToImage(newColumnMean);
+		cout << "About to write:     " << mean_str << "\n";
+		imwrite(mean_str, imageMean);
+		count++;
+	}
+	qDebug() << "Finished calculating means.";
 
 
 
@@ -324,14 +353,33 @@ bool PcaTrainingProcessor::PCATrain(){
 
 Mat PcaTrainingProcessor::convertImageToVector(Mat img){
 	//cout << "MAT ELEMENTS: " << img.total() << "\n" << "NEW ROWS: " << pixelsPerImage << "\n";
-	Mat vec = img.reshape(img.channels(), img.total());
+	Mat reshaped = img.reshape(img.channels(), img.total());
+	Mat vec = Mat(pixelsPerImage, 1, CV_64FC1); // Single channel, 1 column containing all image data
+	for (int i = 0; i < reshaped.rows; i++){
+		Vec3b colourPixel = reshaped.at<Vec3b>(i,0);
+		vec.at<double>(i*3, 0) = (double)(colourPixel[0]);
+		vec.at<double>(i*3+1, 0) = (double)(colourPixel[1]);
+		vec.at<double>(i*3+2, 0) = (double)(colourPixel[2]);
+	}
 	return vec;
 }
 
 Mat PcaTrainingProcessor::convertVectorToImage(Mat vec){
 	//cout << "VEC ELEMENTS: " << vec.total() << "\n" << "NEW ROWS: " << pcaImageHeight << "\n";
-	Mat img = vec.reshape(vec.channels(), pcaImageHeight);
-	return img;
+	//Mat img = vec.reshape(vec.channels(), pcaImageHeight);
+	//return img;
+	//Mat base(pcaImageHeight*pcaImageWidth,1,CV_64FC3);
+	Mat base(pcaImageHeight*pcaImageWidth,1,CV_8UC3);
+	int i = 0;
+	while(i < vec.rows){
+		Vec3b colourPixel( (unsigned char) (vec.at<double>(i,0)),
+			(unsigned char) (vec.at<double>(i+1,0)),
+			(unsigned char) (vec.at<double>(i+2,0)) );
+		base.at<Vec3b>(i/3, 0) = colourPixel;
+		i += 3;
+	}
+	base = base.reshape(3, pcaImageHeight);
+	return base;
 }
 
 void PcaTrainingProcessor::setFileList(QFileInfo path)
