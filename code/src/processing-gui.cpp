@@ -215,8 +215,8 @@ void ProcessingGUI::load_image(QString filename)
   }
 
   input_image = Util::load_image(filename);
+  current_processor->set_input_name(filename); // The PCA processor requires the filename to be set first
   current_processor->set_input(input_image);
-  current_processor->set_input_name(filename);
   QImage qImg = Util::mat_to_qimage(input_image);
   input_view->setImage(qImg);
   input_label->setText(QString("%1 - %2x%3px").arg(fileinfo.fileName()).arg(qImg.width()).arg(qImg.height()));

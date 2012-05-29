@@ -33,27 +33,34 @@ public:
 	void setFileList(QFileInfo path);
 
 	bool PCATrain();
+
 	void run();
+	void set_input(const Mat img);
 
 	//	void testProgram(double smoothWeight, int mult, const char * lOut, const char * rOut, const char * lIn, const char * rIn);
 	//	double testStereoResults(const char * testImageName, const char * idealImageName);
 
 private:
 
-	bool loadImages();
+	bool pcaTrainingDone;
 
-	Mat convertImageToVector(Mat img);
-	Mat convertVectorToImage(Mat vec);
+	Mat compressed_classes;
+	Mat reconstructed_classes;
+	PCA pca;
 
 	Mat trainingSetImages;
 	int numImages;
-	int pixelsPerImage;
+	int dataPointsPerImage;
+	int pcaImageWidth;
+	int pcaImageHeight;
 
 	std::vector<class_of_training_images> classesOfTrainingImages; // Number of elements = number of classes
 	// Each element stores the name for that class and all training images in that class
 
-	int pcaImageWidth;
-	int pcaImageHeight;
+	bool loadImages();
+	Mat convertImageToVector(Mat img);
+	Mat convertVectorToImage(Mat vec);
+	Mat pcaClassifyInputImage();
 
 	int numCompsToKeep;
 	float numComponentsToKeep() {QMutexLocker l(&mutex); return numCompsToKeep;}

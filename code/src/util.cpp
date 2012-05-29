@@ -63,6 +63,13 @@ namespace Util {
     return imread(bytes.constData(), 0);
   }
 
+  Mat load_image_colour(QString filename)
+  {
+    QByteArray bytes = filename.toLocal8Bit();
+    qDebug("Loading file (colour): %s", bytes.constData());
+    return imread(bytes.constData(), 1);
+  }
+
   void save_image(Mat img, QString filename)
   {
     QByteArray bytes = filename.toLocal8Bit();
