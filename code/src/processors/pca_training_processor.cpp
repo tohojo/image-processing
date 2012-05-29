@@ -182,11 +182,8 @@ bool PcaTrainingProcessor::PCATrain(){
 		std::string str = "PCA_projected";
 		str.append(i, '1');
 		str.append(".png");
-		//cout << "MAT ELEMENTS: " << reconstructed.total() << "\n" << "NEW ROWS: " << pcaImageHeight << "\n";
-		//qDebug() << "Reconstructed1: ROWS " << reconstructed.rows << " COLS " << reconstructed.cols << " CHANS " << reconstructed.channels() << " TYPE " << reconstructed.type() << "\n";
 		reconstructed = convertVectorToImage(reconstructed);
 		cout << "Reconstructed image: TYPE " << reconstructed.type() << " CHANNELS " << reconstructed.channels() << "\n";
-		//qDebug() << "Reconstructed2: ROWS " << reconstructed.rows << " COLS " << reconstructed.cols << " CHANS " << reconstructed.channels() << " TYPE " << reconstructed.type() << "\n";
 		imwrite(str, reconstructed);
 	}
 
