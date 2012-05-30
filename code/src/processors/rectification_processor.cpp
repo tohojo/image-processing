@@ -28,6 +28,7 @@ void RectificationProcessor::run()
     emit updated();
     if(once) return;
 
+    mutex.lock();
     if(!restart)
       condition.wait(&mutex);
     restart = false;
