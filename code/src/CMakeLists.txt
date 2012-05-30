@@ -111,6 +111,15 @@ if(RECTIFICATION)
     processors/rectification_processor.h)
 endif()
 
+if(RESIZING)
+  message(STATUS "Building resizer")
+  add_definitions(-DRESIZING)
+  set(image-processing_SOURCES ${image-processing_SOURCES}
+    processors/resizing_processor.cpp)
+  set(image-processing_HEADERS ${image-processing_HEADERS}
+    processors/resizing_processor.h)
+endif()
+
 if(STEREO)
   message(STATUS "Building stereo-matching")
   add_definitions(-DSTEREO)

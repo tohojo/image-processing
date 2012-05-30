@@ -4,7 +4,7 @@
 #include <QDebug>
 
 PcaTrainingProcessor::PcaTrainingProcessor(QObject *parent)
-: Processor(parent)
+: TwoImageProcessor(parent)
 {
 	numImages = 0;
 	totalDataPointsPerImage = 0;
@@ -48,9 +48,9 @@ void PcaTrainingProcessor::run()
 			if (! result.empty()){
 				mutex.lock();
 				output_image = result;
-				qDebug() << "Successfully finished PCA processing.\n";
+				qDebug() << "Finished PCA processing.\n";
 			} else {
-				qDebug() << "Failed to classify input image!\n";
+				qDebug() << "No input image to classify...\n";
 			}
 		} else { // PCATrain() returned false
 			qDebug() << "PCA processing not performed.\n";
@@ -109,8 +109,8 @@ bool PcaTrainingProcessor::loadImages(){
 	trainingSetImages = Mat(totalDataPointsPerImage, numImages, CV_64FC1); // Use double so we can subtract averages etc
 	// Remainder of file is:
 	// (a) image name on one line
-	// (b) corresponding depth map image name on next line IF depth is being used
-	// (c) class to which the image belongs on next line
+	// (b) class to which the image belongs on next line
+	// (c) corresponding depth map image name on next line IF depth is being used; ELSE no line
 	// TXT FILE **MUST** HAVE A TRAILING NEWLINE!
 	int counter = 0;
 	while (file.canReadLine() && counter < numImages){
@@ -121,14 +121,20 @@ bool PcaTrainingProcessor::loadImages(){
 		Mat img = imread(str, 1); // Read in colour
 		pcaImageWidth = img.cols;
 		pcaImageHeight = img.rows;
-		Mat img2 = convertImageToVector(img); // Changes the 2D RGB (unsigned char) values to 1D R,G,B, (double) values
-		for (int i = 0; i < totalDataPointsPerImage; i++){
-			trainingSetImages.at<double>(i,counter) = img2.at<double>(i,0);
-		}
+		//
+		Mat depth;
 		if (usingDepth){
-			// Add more readline stuff here and store the depth maps somewhere
-
+			QString depthQ = file.readLine();
+			string dep = depthQ.toStdString();
+			dep = dep.erase(dep.length()-1);
+			cout << "Reading depth map: " << dep << "\n";
+			depth = imread(dep, 0); // Read in depthmap
+			if ((pcaImageWidth != depth.cols) || (pcaImageHeight != depth.rows)){
+				cout << "ERROR: DEPTH MAP DOES NOT MATCH IMAGE DIMENSIONS!\n\n";
+				assert(false);
+			}
 		}
+		//
 		QString qstr_num = file.readLine();
 		string imageClass = qstr_num.toStdString();
 		bool foundMatchingClass = false;
@@ -137,6 +143,7 @@ bool PcaTrainingProcessor::loadImages(){
 			if (c2->identifier == imageClass){
 				foundMatchingClass = true;
 				c2->images.push_back(img);
+				c2->depthMap.push_back(depth); // If not using it, this is simply empty
 			}
 			c2++;
 		}
@@ -145,8 +152,22 @@ bool PcaTrainingProcessor::loadImages(){
 			coti.identifier = imageClass;
 			coti.images = std::vector<Mat>();
 			coti.images.push_back(img);
+			coti.depthMap.push_back(depth); // If not using it, this is simply empty
 			classesOfTrainingImages.push_back(coti);
 		}
+		//
+		Mat img2;
+		if (usingDepth){
+			img2 = convertImageToVector(img, depth); // Changes the 2D RGB (unsigned char) values to
+			// 1D R,G,B,Depth (double) values, possibly +HSV if that is set
+		} else {
+			img2 = convertImageToVector(img); // Changes the 2D RGB (unsigned char) values to
+			// 1D R,G,B, (double) values, possibly +HSV if that is set
+		}
+		for (int i = 0; i < totalDataPointsPerImage; i++){
+			trainingSetImages.at<double>(i,counter) = img2.at<double>(i,0);
+		}
+		//
 		counter++;
 	}
 
@@ -179,6 +200,9 @@ Mat PcaTrainingProcessor::pcaClassifyInputImage(){
 	if (input_image.empty() || input_image.rows != pcaImageHeight || input_image.cols != pcaImageWidth){
 		return Mat();
 	}
+	if (usingDepth && (right_image.empty() || right_image.rows != pcaImageHeight || right_image.cols != pcaImageWidth)){
+		return Mat();
+	}
 
 	// Methodology:
 	// 1. Convert the input image to an eigenface
@@ -187,7 +211,12 @@ Mat PcaTrainingProcessor::pcaClassifyInputImage(){
 	// 4. Modification: have the debug pane print the most appropriate.
 	// 5. Modification: calculate the variance IN each class, and only classify if within X (error_threshold) of that.
 
-	Mat imgVec = convertImageToVector(input_image);
+	Mat imgVec;
+	if (usingDepth){
+		imgVec = convertImageToVector(input_image, right_image);
+	} else {
+		imgVec = convertImageToVector(input_image);
+	}
 
 	Mat eigenVec = pca.project(imgVec);
 
@@ -327,7 +356,7 @@ bool PcaTrainingProcessor::PCATrain(){
 		str.append(i, '1');
 		str.append(".png");
 		reconstructed = convertVectorToImage(reconstructed);
-		cout << "Reconstructed image: TYPE " << reconstructed.type() << " CHANNELS " << reconstructed.channels() << "\n";
+		//cout << "Reconstructed image: TYPE " << reconstructed.type() << " CHANNELS " << reconstructed.channels() << "\n";
 		imwrite(str, reconstructed);
 	}
 
@@ -341,9 +370,13 @@ bool PcaTrainingProcessor::PCATrain(){
 	std::vector<class_of_training_images>::iterator it = classesOfTrainingImages.begin();
 	for(; it != classesOfTrainingImages.end(); it++){
 		double worstErrorForThisClass = 0.0;
-		std::vector<Mat>::iterator itMat = it->images.begin();
-		for(; itMat != it->images.end(); itMat++){
-			Mat eigenvec = convertImageToVector(*itMat);
+		for(unsigned int itMat = 0; itMat < it->images.size(); itMat++){
+			Mat eigenvec;
+			if (usingDepth){
+				eigenvec = convertImageToVector(it->images.at(itMat), it->depthMap.at(itMat));
+			} else {
+				eigenvec = convertImageToVector(it->images.at(itMat));
+			}
 			Mat proj;
 			proj.create(numCompsToKeep, 1, trainingSetImages.type());
 			pca.project(eigenvec, proj);

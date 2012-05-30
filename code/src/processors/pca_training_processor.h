@@ -2,6 +2,7 @@
 #define OUR_PCA_TRAINING_PROCESSOR_H
 
 #include "processor.h"
+#include "two_image_processor.h"
 #include <highgui.h>
 #include <QtCore/QFileInfo>
 
@@ -12,11 +13,12 @@ using namespace std;
 struct class_of_training_images {
 	std::string identifier; // Any string used in the input txt file to identify them
 	std::vector<Mat> images; // In original 2D form, not vector form
+	std::vector<Mat> depthMap; // 2d depth map associated with images if that option is set
 	double worstError; // Used to determine whether or not something may belong to the class
 };
 
 
-class PcaTrainingProcessor : public Processor
+class PcaTrainingProcessor : public TwoImageProcessor
 {
 	Q_OBJECT
 
