@@ -19,6 +19,7 @@ namespace Util
   void write_matrix(Mat m, QIODevice *dev);
   bool read_matrix(Mat m, QIODevice *dev);
   Mat combine(Mat l, Mat r);
+  QList<Point> read_POIs(QIODevice *dev);
 }
 
 #endif

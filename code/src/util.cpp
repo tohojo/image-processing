@@ -196,4 +196,26 @@ namespace Util {
 
     return combined;
   }
+
+  QList<Point> read_POIs(QIODevice *dev)
+  {
+    QList<Point> points;
+    QTextStream stream(dev);
+    int x,y;
+    bool x_ok, y_ok;
+    QRegExp r("[,\\s]+");
+    int c = 0;
+    while(!stream.atEnd()) {
+      QString line = stream.readLine();
+      x = line.section(r, 0, 0).toInt(&x_ok);
+      y = line.section(r, 1, 1).toInt(&y_ok);
+      if(x_ok && y_ok) {
+        points << Point(x,y);
+        c++;
+      }
+    }
+    qDebug() << "Loaded" << c << "POIs from file";
+    return points;
+
+  }
 }
