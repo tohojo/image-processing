@@ -28,6 +28,9 @@
   #include "pca_training_processor.h"
 #endif
 
+#ifdef FACE_NORMAL
+  #include "face_normalisation_processor.h"
+#endif
 
 ProcessorModel::ProcessorModel() : QAbstractListModel()
 {
@@ -89,6 +92,9 @@ void ProcessorModel::create_processors()
 #endif
 #ifdef PCA_773
   m_processors.append(new PcaTrainingProcessor());
+#endif
+#ifdef FACE_NORMAL
+  m_processors.append(new FaceNormalisationProcessor());
 #endif
 }
 

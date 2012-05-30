@@ -131,6 +131,15 @@ if(PCA_773)
   processors/pca_training_processor.h)
 endif()
 
+if(FACE_NORMAL)
+  message(STATUS "Building face normalisation")
+  add_definitions(-DFACE_NORMAL)
+  set(image-processing_SOURCES ${image-processing_SOURCES}
+  processors/face_normalisation_processor.cpp)
+  set(image-processing_HEADERS ${image-processing_HEADERS}
+  processors/face_normalisation_processor.h)
+endif()
+
 set(image-processing_FORMS ui/processing-gui.ui ui/file-edit-widget.ui)
 
 # QT4-specific preprocessor headers
