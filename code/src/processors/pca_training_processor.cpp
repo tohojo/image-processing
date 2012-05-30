@@ -16,6 +16,7 @@ PcaTrainingProcessor::PcaTrainingProcessor(QObject *parent)
 	use_HSV = false;
 	usingDepth = false;
 	error_threshold = 1.1;
+	saveReconstructedImgs = true;
 }
 
 
@@ -356,8 +357,9 @@ bool PcaTrainingProcessor::PCATrain(){
 		str.append(i, '1');
 		str.append(".png");
 		reconstructed = convertVectorToImage(reconstructed);
-		//cout << "Reconstructed image: TYPE " << reconstructed.type() << " CHANNELS " << reconstructed.channels() << "\n";
-		imwrite(str, reconstructed);
+		if (saveReconstructedImgs){
+			imwrite(str, reconstructed);
+		}
 	}
 
 	emit progress(80);
@@ -399,9 +401,11 @@ bool PcaTrainingProcessor::PCATrain(){
 		mean_str.append(".png");
 		Mat columnMean = reconstructed_classes.col(count);
 		Mat newColumnMean = columnMean.clone();
-		Mat imageMean = convertVectorToImage(newColumnMean);
-		cout << "About to write:     " << mean_str << "\n";
-		imwrite(mean_str, imageMean);
+		if (saveReconstructedImgs){
+			Mat imageMean = convertVectorToImage(newColumnMean);
+			cout << "About to write:     " << mean_str << "\n";
+			imwrite(mean_str, imageMean);
+		}
 		// Store worst error in the class_of_training_images vector
 		it->worstError = worstErrorForThisClass;
 		cout << "Worst error for this class: " << worstErrorForThisClass << "\n";
@@ -659,4 +663,12 @@ void PcaTrainingProcessor::setErrorThreshold(double thresh)
 	Processor::process();
 }
 
+void PcaTrainingProcessor::setSaveEigenMeans(bool yesno){
+	QMutexLocker locker(&mutex);
+	saveReconstructedImgs = yesno;
+	mutex.unlock();
+	loadImages();
+	pcaTrainingDone = false;
+	Processor::process();
+}
 

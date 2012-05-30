@@ -27,6 +27,7 @@ class PcaTrainingProcessor : public TwoImageProcessor
 		Q_PROPERTY(int NumComponentsToKeep READ numComponentsToKeep WRITE setNumComponentsToKeep USER true)
 		Q_PROPERTY(bool UseHSV READ useHSV WRITE setUseHSV USER true)
 		Q_PROPERTY(double ThresholdError READ errorThreshold WRITE setErrorThreshold USER true)
+		Q_PROPERTY(bool SaveEigenMeans READ getSaveEigenMeans WRITE setSaveEigenMeans USER true)
 
 public:
 	PcaTrainingProcessor(QObject *parent = 0);
@@ -75,6 +76,10 @@ private:
 	bool use_HSV;
 	bool useHSV() {QMutexLocker l(&mutex); return use_HSV;}
 	void setUseHSV(bool yesno);
+
+	bool saveReconstructedImgs;
+	bool getSaveEigenMeans() {QMutexLocker l(&mutex); return saveReconstructedImgs;}
+	void setSaveEigenMeans(bool yesno);
 
 	double error_threshold;
 	double errorThreshold() {QMutexLocker l(&mutex); return error_threshold;}
