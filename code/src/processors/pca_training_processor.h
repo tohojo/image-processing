@@ -12,6 +12,7 @@ using namespace std;
 struct class_of_training_images {
 	std::string identifier; // Any string used in the input txt file to identify them
 	std::vector<Mat> images; // In original 2D form, not vector form
+	double worstError; // Used to determine whether or not something may belong to the class
 };
 
 
@@ -23,6 +24,7 @@ class PcaTrainingProcessor : public Processor
 		Q_CLASSINFO("FileList", "filetype=text;")
 		Q_PROPERTY(int NumComponentsToKeep READ numComponentsToKeep WRITE setNumComponentsToKeep USER true)
 		Q_PROPERTY(bool UseHSV READ useHSV WRITE setUseHSV USER true)
+		Q_PROPERTY(double ThresholdError READ errorThreshold WRITE setErrorThreshold USER true)
 
 public:
 	PcaTrainingProcessor(QObject *parent = 0);
@@ -37,10 +39,6 @@ public:
 
 	void run();
 	void set_input(const Mat img);
-
-	//	void testProgram(double smoothWeight, int mult, const char * lOut, const char * rOut, const char * lIn, const char * rIn);
-	//	double testStereoResults(const char * testImageName, const char * idealImageName);
-
 
 private:
 
@@ -69,12 +67,16 @@ private:
 	Mat pcaClassifyInputImage();
 
 	int numCompsToKeep;
-	float numComponentsToKeep() {QMutexLocker l(&mutex); return numCompsToKeep;}
+	int numComponentsToKeep() {QMutexLocker l(&mutex); return numCompsToKeep;}
 	void setNumComponentsToKeep(int num);
 
 	bool use_HSV;
-	float useHSV() {QMutexLocker l(&mutex); return use_HSV;}
+	bool useHSV() {QMutexLocker l(&mutex); return use_HSV;}
 	void setUseHSV(bool yesno);
+
+	double error_threshold;
+	double errorThreshold() {QMutexLocker l(&mutex); return error_threshold;}
+	void setErrorThreshold(double thresh);
 
 	QFileInfo file_list;
 
