@@ -28,7 +28,7 @@ public:
 	PcaTrainingProcessor(QObject *parent = 0);
 	~PcaTrainingProcessor();
 
-	QString name() {return "PCA training";}
+	QString name() {return "PCA training/classifying";}
 
 	QFileInfo fileList() {QMutexLocker l(&mutex); return file_list;}
 	void setFileList(QFileInfo path);
@@ -48,6 +48,8 @@ private:
 	Mat compressed_classes;
 	Mat reconstructed_classes;
 	PCA pca;
+
+	bool usingDepth;
 
 	Mat trainingSetImages;
 	int numImages;

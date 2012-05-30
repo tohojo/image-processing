@@ -14,6 +14,7 @@ PcaTrainingProcessor::PcaTrainingProcessor(QObject *parent)
 	pcaImageWidth = -1;
 	dataPointsPerPixel = 3;
 	use_HSV = false;
+	usingDepth = false;
 }
 
 
@@ -91,8 +92,10 @@ bool PcaTrainingProcessor::loadImages(){
 	string sub = useDepth.substr(0,3);
 	if (sub == "TRU" || sub == "Tru" || sub == "tru"){
 		qDebug() << "Using depth map data for PCA.";
+		usingDepth = true;
 		dataPointsPerPixel  += 1; // USING THREE COLOUR CHANNELS + DEPTH MAP DATA
 	} else {
+		usingDepth = false;
 		qDebug() << "Not using depth maps for PCA."; // USING THREE COLOUR CHANNELS
 	}
 	totalDataPointsPerImage = pixPerImg*dataPointsPerPixel;
@@ -103,8 +106,11 @@ bool PcaTrainingProcessor::loadImages(){
 	cout << "Types of data considered per image pixel: " << dataPointsPerPixel << "\n";
 	cout << "totalDataPointsPerImage: " << totalDataPointsPerImage << "\n";
 	trainingSetImages = Mat(totalDataPointsPerImage, numImages, CV_64FC1); // Use double so we can subtract averages etc
-	// Remainder of file is: image name on one line, class to which the image belongs on next line
-	// **MUST** HAVE A TRAILING NEWLINE!
+	// Remainder of file is:
+	// (a) image name on one line
+	// (b) corresponding depth map image name on next line IF depth is being used
+	// (c) class to which the image belongs on next line
+	// TXT FILE **MUST** HAVE A TRAILING NEWLINE!
 	int counter = 0;
 	while (file.canReadLine() && counter < numImages){
 		QString qstr = file.readLine();
@@ -117,6 +123,10 @@ bool PcaTrainingProcessor::loadImages(){
 		Mat img2 = convertImageToVector(img); // Changes the 2D RGB (unsigned char) values to 1D R,G,B, (double) values
 		for (int i = 0; i < totalDataPointsPerImage; i++){
 			trainingSetImages.at<double>(i,counter) = img2.at<double>(i,0);
+		}
+		if (usingDepth){
+			// Add more readline stuff here and store the depth maps somewhere
+
 		}
 		QString qstr_num = file.readLine();
 		string imageClass = qstr_num.toStdString();
@@ -241,15 +251,11 @@ Mat PcaTrainingProcessor::pcaClassifyInputImage(){
 	cout << "input_image.type " << input_image.type() << "\n";
 	cout << "outputimg.type " << outputimg.type() << "\n";
 	Mat colourHack;
-	//input_image.convertTo(colourHack, CV_8UC3); 
-
-	cv::cvtColor(input_image, colourHack, CV_GRAY2BGR); // STOP-GAP MEASURE SINCE COLOUR ISN'T WORKING
-	// Also... read that standard is BGR for opencv but that may not be right...
 
 	cout << "colourHack.type " << colourHack.type() << "\n";
 	cout << "outputimg.type " << outputimg.type() << "\n";
 
-	Mat rec_plus = Util::combine(colourHack, outputimg);
+	Mat rec_plus = Util::combine(input_image, outputimg);
 
 	return rec_plus;
 }
@@ -479,36 +485,72 @@ bool PcaTrainingProcessor::PCATrain(){
 }
 
 
+// USE THIS FOR PCA USING RGB (3) OR RGB+HSV (5)
 Mat PcaTrainingProcessor::convertImageToVector(Mat img){
-	if (dataPointsPerPixel != 3){
-		// Should be using something else!
-		qDebug() << "Problem: sending only an image for conversion when 3 colours + depth map are being used for PCA!";
+	if (dataPointsPerPixel != 3 && dataPointsPerPixel != 5){
+		// Should be using '3' for one matrix of RGB or '5' for one matrix of RGB to be converted to HSV!
+		qDebug() << "Problem: " << dataPointsPerPixel << " channels required for PCA does not match the single image submitted!";
 		assert(false);
 	}
 	Mat reshaped = img.reshape(img.channels(), img.total());
 	Mat vec = Mat(totalDataPointsPerImage, 1, CV_64FC1); // Single channel, 1 column containing all image data
-	for (int i = 0; i < reshaped.rows; i++){
-		Vec3b colourPixel = reshaped.at<Vec3b>(i,0);
-		vec.at<double>(i*3, 0) = (double)(colourPixel[0]);
-		vec.at<double>(i*3+1, 0) = (double)(colourPixel[1]);
-		vec.at<double>(i*3+2, 0) = (double)(colourPixel[2]);
+	if (dataPointsPerPixel == 3){
+		for (int i = 0; i < reshaped.rows; i++){
+			Vec3b colourPixel = reshaped.at<Vec3b>(i,0);
+			vec.at<double>(i*3, 0) = (double)(colourPixel[0]);
+			vec.at<double>(i*3+1, 0) = (double)(colourPixel[1]);
+			vec.at<double>(i*3+2, 0) = (double)(colourPixel[2]);
+		}
+		return vec;
+	} else if (dataPointsPerPixel == 5){
+		Mat convertedToHSV;
+		cv::cvtColor(reshaped, convertedToHSV, CV_BGR2HSV); // OPENCV USES BGR BY DEFAULT
+		for (int i = 0; i < reshaped.rows; i++){
+			Vec3b colourPixel = reshaped.at<Vec3b>(i,0);
+			vec.at<double>(i*5, 0) = (double)(colourPixel[0]);
+			vec.at<double>(i*5+1, 0) = (double)(colourPixel[1]);
+			vec.at<double>(i*5+2, 0) = (double)(colourPixel[2]);
+			Vec3b hsvPixel = convertedToHSV.at<Vec3b>(i,0);
+			vec.at<double>(i*5+3, 0) = (double)(hsvPixel[0]);
+			vec.at<double>(i*5+4, 0) = (double)(hsvPixel[1]);
+		}
+		return vec;
 	}
-	return vec;
+	return Mat();
 }
 
+// USE THIS FOR PCA USING RGB+DEPTH (4) OR RGB+DEPTH+HSV (6)
 Mat PcaTrainingProcessor::convertImageToVector(Mat img, Mat depthImg){
+	if (dataPointsPerPixel != 4 && dataPointsPerPixel != 6){
+		// Should be using '4' for one matrix of RGB + one of depth
+		// or '5' for one matrix of RGB to be converted to HSV + one of depth!
+		qDebug() << "Problem: " << dataPointsPerPixel << " channels required for PCA does not match the two images submitted!";
+		assert(false);
+	}
 	Mat reshaped = img.reshape(img.channels(), img.total());
 	Mat reshapedDepth = depthImg.reshape(depthImg.channels(), depthImg.total());
 	Mat vec = Mat(totalDataPointsPerImage, 1, CV_64FC1); // Single channel, 1 column containing all image data
-	if (dataPointsPerPixel == 3){		// Three colours only used in PCA
-		qDebug() << "Problem: sending an image and a depth map for conversion when only 3 colours are being used for PCA!";
-		assert(false);
-	} else if (dataPointsPerPixel == 4){ // Three colours + depth used in PCA
+	if (dataPointsPerPixel == 4){ // Three colours + depth used in PCA
 		for (int i = 0; i < reshaped.rows; i++){
 			Vec3b colourPixel = reshaped.at<Vec3b>(i,0);
 			vec.at<double>(i*4, 0) = (double)(colourPixel[0]);
 			vec.at<double>(i*4+1, 0) = (double)(colourPixel[1]);
 			vec.at<double>(i*4+2, 0) = (double)(colourPixel[2]);
+			vec.at<double>(i*4+3, 0) = (double)(reshapedDepth.at<unsigned char>(i,0)); // DEPTH MAP DATA
+		}
+		return vec;
+	} else if (dataPointsPerPixel == 6){
+		Mat convertedToHSV;
+		cv::cvtColor(reshaped, convertedToHSV, CV_BGR2HSV);
+		for (int i = 0; i < reshaped.rows; i++){
+			Vec3b colourPixel = reshaped.at<Vec3b>(i,0);
+			vec.at<double>(i*6, 0) = (double)(colourPixel[0]);
+			vec.at<double>(i*6+1, 0) = (double)(colourPixel[1]);
+			vec.at<double>(i*6+2, 0) = (double)(colourPixel[2]);
+			Vec3b hsvPixel = convertedToHSV.at<Vec3b>(i,0);
+			vec.at<double>(i*6+3, 0) = (double)(hsvPixel[0]);
+			vec.at<double>(i*6+4, 0) = (double)(hsvPixel[1]);
+			vec.at<double>(i*4+3, 0) = (double)(reshapedDepth.at<unsigned char>(i,0)); // DEPTH MAP DATA
 		}
 		return vec;
 	}
