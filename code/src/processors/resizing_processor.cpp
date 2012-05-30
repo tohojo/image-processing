@@ -6,6 +6,7 @@
 ResizingProcessor::ResizingProcessor(QObject *parent)
 : Processor(parent)
 {
+	factor = 1.0;
 }
 
 
@@ -53,7 +54,11 @@ void ResizingProcessor::run()
 Mat ResizingProcessor::resizeImage(){
 	if (input_image.empty()) return Mat();
 	Mat resized;
-	Size sizeFactor = Size((int)(input_image.cols * factor), (int)(input_image.rows * factor)); // Width, height
+	double colsX = (input_image.cols * factor);
+	if ((colsX - (int)(colsX)) > 0.5) colsX += 0.5;
+	double rowsX = (input_image.rows * factor);
+	if ((rowsX - (int)(rowsX)) > 0.5) rowsX += 0.5;
+	Size sizeFactor = Size((int)colsX, (int)rowsX); // Width, height
 	cv::resize(input_image, resized, sizeFactor);
 	return resized;
 }
