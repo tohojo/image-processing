@@ -22,6 +22,7 @@ class PcaTrainingProcessor : public Processor
 		Q_PROPERTY(QFileInfo FileList READ fileList WRITE setFileList USER true)
 		Q_CLASSINFO("FileList", "filetype=text;")
 		Q_PROPERTY(int NumComponentsToKeep READ numComponentsToKeep WRITE setNumComponentsToKeep USER true)
+		Q_PROPERTY(bool UseHSV READ useHSV WRITE setUseHSV USER true)
 
 public:
 	PcaTrainingProcessor(QObject *parent = 0);
@@ -50,21 +51,27 @@ private:
 
 	Mat trainingSetImages;
 	int numImages;
-	int dataPointsPerImage;
 	int pcaImageWidth;
 	int pcaImageHeight;
-
+	int dataPointsPerPixel;
+	int totalDataPointsPerImage; // pcaImageWidth * pcaImageHeight * dataPointsPerPixel
+	
 	std::vector<class_of_training_images> classesOfTrainingImages; // Number of elements = number of classes
 	// Each element stores the name for that class and all training images in that class
 
 	bool loadImages();
 	Mat convertImageToVector(Mat img);
+	Mat convertImageToVector(Mat img, Mat depthImg);
 	Mat convertVectorToImage(Mat vec);
 	Mat pcaClassifyInputImage();
 
 	int numCompsToKeep;
 	float numComponentsToKeep() {QMutexLocker l(&mutex); return numCompsToKeep;}
 	void setNumComponentsToKeep(int num);
+
+	bool use_HSV;
+	float useHSV() {QMutexLocker l(&mutex); return use_HSV;}
+	void setUseHSV(bool yesno);
 
 	QFileInfo file_list;
 
