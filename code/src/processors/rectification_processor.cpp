@@ -144,6 +144,17 @@ void RectificationProcessor::calculateRectMatrix()
   mutex.unlock();
 }
 
+bool RectificationProcessor::canProcess()
+{
+  QMutexLocker l(&mutex);
+  if(input_image.empty() || right_image.empty()) return false;
+  if(input_image.rows != right_image.rows || input_image.cols != right_image.cols) {
+    return false;
+  }
+  if(calibration_results.canonicalFilePath().empty()) return false;
+  return true;
+}
+
 void RectificationProcessor::rectify()
 {
   if(input_image.empty() || right_image.empty()) return;

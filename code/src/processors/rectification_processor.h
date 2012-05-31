@@ -30,6 +30,7 @@ private:
   void loadCalibrationResults();
   void calculateRectMatrix();
   void rectify();
+  void canProcess();
   QFileInfo calibration_results;
   float focal_length;
   Mat R;
