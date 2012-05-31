@@ -58,6 +58,7 @@ void FaceNormalisationProcessor::normalise_faces()
   if(filename.isEmpty()) return;
 
   QStringList files;
+  QStringList img_files;
   if(read_dir) {
     QDir dir(dirname);
     QStringList namefilters;
@@ -73,9 +74,15 @@ void FaceNormalisationProcessor::normalise_faces()
   QList<Mat> img_list;
 
   foreach(QString fname, files) {
-    QFile file(QString("%1/%2").arg(dirname).arg(fname));
+    if(abort || restart) return;
+    QString txt_filename = QString("%1/%2").arg(dirname).arg(fname);
+    QString img_filename(txt_filename);
+    img_filename.replace(".txt", ".jpg");
+    if(!QFileInfo(img_filename).exists()) continue;
+    QFile file(txt_filename);
     if(file.open(QIODevice::ReadOnly)) {
       QList<Point> POIs = Util::read_POIs(&file);
+      if(POIs.empty()) continue;
       Mat img = Mat::ones(POIs.size(), 3, CV_32F);
       int i = 0;
       qStableSort(POIs.begin(), POIs.end(), Util::comparePointsX);
@@ -86,6 +93,7 @@ void FaceNormalisationProcessor::normalise_faces()
       }
       avg += img;
       img_list << img;
+      img_files << img_filename;
     }
   }
   if(img_list.empty()) return;
@@ -111,13 +119,13 @@ void FaceNormalisationProcessor::normalise_faces()
 
   int i = 0;
   foreach(Mat img_points, img_list) {
-    if(abort) return;
+    if(abort || restart) return;
     emit progress(100*((float)i)/img_list.size());
     Mat transform;
     if(!solve(img_points, avg, transform, DECOMP_SVD)) {
       qDebug() << "Solve error";
     } else {
-      QString img_filename = QString("%1/%2.jpg").arg(dirname).arg(QFileInfo(files[i]).baseName());
+      QString img_filename = img_files[i];
       Mat img;
       if(uses_colour)
         img = Util::load_image_colour(img_filename);
