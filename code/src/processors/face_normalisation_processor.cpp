@@ -120,7 +120,7 @@ void FaceNormalisationProcessor::normalise_faces()
       qDebug() << "Solve error";
     } else {
       QString img_filename = QString("%1/%2.jpg").arg(dirname).arg(QFileInfo(files[i]).baseName());
-      Mat img = Util::load_image(img_filename);
+      Mat img = Util::load_image_colour(img_filename);
       Mat affine = transform.t();
       Mat dst(img.rows, img.cols, img.type());
       Size s = img.size();
