@@ -205,6 +205,7 @@ void FaceNormalisationProcessor::setShowIndex(int value)
   if(show_idx == value) return;
   show_idx = value;
   mutex.unlock();
+  emit showIdxUpdated();
   updateOutput();
 }
 
@@ -234,4 +235,24 @@ void FaceNormalisationProcessor::setScaledWidth(int value)
   scaled_width = value;
   mutex.unlock();
   process();
+}
+
+void FaceNormalisationProcessor::left()
+{
+  QMutexLocker locker(&mutex);
+  int idx = show_idx;
+  if(idx > 0) {
+    mutex.unlock();
+    setShowIndex(idx-1);
+  }
+}
+
+void FaceNormalisationProcessor::right()
+{
+  QMutexLocker locker(&mutex);
+  int idx = show_idx;
+  if(idx < normalised_imgs.size()-1) {
+    mutex.unlock();
+    setShowIndex(idx+1);
+  }
 }

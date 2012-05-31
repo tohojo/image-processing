@@ -52,6 +52,10 @@ ProcessingGUI::ProcessingGUI(QWidget *parent)
             processor_model->get_processor(i), SLOT(addPOI(QPoint)));
     connect(current_image, SIGNAL(POIRemoved(QPoint)),
             processor_model->get_processor(i), SLOT(deletePOI(QPoint)));
+    connect(output_view, SIGNAL(left()),
+            processor_model->get_processor(i), SLOT(left()));
+    connect(output_view, SIGNAL(right()),
+            processor_model->get_processor(i), SLOT(right()));
   }
 
   // Start out by selection first index.

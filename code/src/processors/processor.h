@@ -43,6 +43,8 @@ public slots:
   virtual void saveOutput();
   virtual void addPOI(QPoint);
   virtual void deletePOI(QPoint);
+  virtual void left() {}
+  virtual void right() {}
 
 signals:
   void updated();

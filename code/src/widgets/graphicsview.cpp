@@ -37,6 +37,16 @@ void GraphicsView::wheelEvent(QWheelEvent *event)
   event->accept();
 }
 
+void GraphicsView::keyPressEvent(QKeyEvent *event)
+{
+  if(event->key() == Qt::Key_Left)
+    emit left();
+  else if(event->key() == Qt::Key_Right)
+    emit right();
+  else
+    QGraphicsView::keyPressEvent(event);
+}
+
 void GraphicsView::updateZoom()
 {
   int zoom = transform().m11()*100;

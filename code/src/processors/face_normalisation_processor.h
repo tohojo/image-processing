@@ -19,7 +19,7 @@ class FaceNormalisationProcessor : public Processor
              WRITE setFacePoints USER true)
   Q_PROPERTY(bool ReadDir READ readDir WRITE setReadDir USER true)
   Q_PROPERTY(bool UseColour READ useColour WRITE setUseColour USER true)
-  Q_PROPERTY(int ShowIndex READ showIndex WRITE setShowIndex USER true)
+  Q_PROPERTY(int ShowIndex READ showIndex WRITE setShowIndex USER true NOTIFY showIdxUpdated)
   Q_PROPERTY(float CropX READ cropX WRITE setCropX USER true)
   Q_PROPERTY(float CropY READ cropY WRITE setCropY USER true)
   Q_PROPERTY(int ScaledWidth READ scaledWidth WRITE setScaledWidth USER true)
@@ -56,6 +56,13 @@ public:
 
   int scaledWidth() {QMutexLocker l(&mutex); return scaled_width;}
   void setScaledWidth(int value);
+
+public slots:
+  void left();
+  void right();
+
+signals:
+  void showIdxUpdated();
 
 private:
   void run();
