@@ -43,6 +43,8 @@ public slots:
   virtual void saveOutput();
   virtual void addPOI(QPoint);
   virtual void deletePOI(QPoint);
+  virtual void left() {}
+  virtual void right() {}
 
 signals:
   void updated();
@@ -53,6 +55,8 @@ signals:
   void poiCountUpdated();
 
 protected:
+  void addPropertiesFrom(Processor *other);
+  void setPropertiesFrom(Processor *other);
   virtual void run();
   QMutex mutex;
   QWaitCondition condition;

@@ -12,6 +12,7 @@
 #include <QtGui/QWheelEvent>
 #include <QtGui/QTransform>
 #include <QtGui/QPainter>
+#include <QtGui/QKeyEvent>
 
 class GraphicsView : public QGraphicsView
 {
@@ -26,10 +27,13 @@ public:
 
 signals:
   void zoomUpdated(int);
+  void left();
+  void right();
 
 private:
   void wheelEvent(QWheelEvent *event);
   void drawForeground(QPainter *painter, const QRectF &rect);
+  void keyPressEvent(QKeyEvent *event);
 };
 
 #endif
