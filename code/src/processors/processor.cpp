@@ -31,6 +31,7 @@ Processor::~Processor()
 
 void Processor::process()
 {
+  if(!canProcess()) return;
   QMutexLocker locker(&mutex);
   abort = false;
 
