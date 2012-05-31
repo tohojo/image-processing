@@ -55,6 +55,8 @@ signals:
   void poiCountUpdated();
 
 protected:
+  void addPropertiesFrom(Processor *other);
+  void setPropertiesFrom(Processor *other);
   virtual void run();
   QMutex mutex;
   QWaitCondition condition;

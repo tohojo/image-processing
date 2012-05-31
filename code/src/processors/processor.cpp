@@ -7,6 +7,7 @@
 
 #include "processor.h"
 #include "util.h"
+#include <QMetaProperty>
 
 Processor::Processor(QObject *parent)
   :QThread(parent)
@@ -128,5 +129,37 @@ void Processor::saveOutput()
   QString filename = image_output_file.filePath();
   if(!filename.isEmpty()) {
     Util::save_image(output_image, filename);
+  }
+}
+
+// Add extra dynamic properties from a meta object (used when replicating
+// another processors functionality within a processor)
+void Processor::addPropertiesFrom(Processor *other)
+{
+  const QMetaObject *thisMeta = metaObject();
+  const QMetaObject *otherMeta = other->metaObject();
+  for(int i = otherMeta->propertyOffset(); i < otherMeta->propertyCount(); i++) {
+    QMetaProperty prop = otherMeta->property(i);
+    if(prop.isUser()) { // The property editor only uses user properties, so restrict to this
+      if(thisMeta->indexOfProperty(prop.name()) == -1) {
+        setProperty(prop.name(), other->property(prop.name()));
+      }
+    }
+  }
+}
+
+// Sets compatible properties from another processor object
+void Processor::setPropertiesFrom(Processor *other)
+{
+  const QMetaObject *thisMeta = metaObject();
+  const QMetaObject *otherMeta = other->metaObject();
+  QList<QByteArray> dynProps = dynamicPropertyNames();
+  for(int i = otherMeta->propertyOffset(); i < otherMeta->propertyCount(); i++) {
+    QMetaProperty prop = otherMeta->property(i);
+    if(prop.isUser()) { // The property editor only uses user properties, so restrict to this
+      if(thisMeta->indexOfProperty(prop.name()) > -1 || dynProps.contains(prop.name())) {
+        setProperty(prop.name(), other->property(prop.name()));
+      }
+    }
   }
 }
