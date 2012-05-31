@@ -77,6 +77,8 @@ void QFileInfoProperty::setEditorHints(const QString& hints)
     if(name == "opentype") {
       if(value == "WRITE") {
         open_type = FileEditWidget::WRITE;
+      } else if (value == "DIR") {
+        open_type = FileEditWidget::DIR;
       }
     }
     pos += rx.matchedLength();

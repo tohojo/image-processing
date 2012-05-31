@@ -8,24 +8,22 @@
 #include <QStringList>
 #include <QDir>
 #include <QDebug>
-#include "rectification_processor.h"
 #include "face_normalisation_processor.h"
 #include "util.h"
 
 using namespace cv;
 
 FaceNormalisationProcessor::FaceNormalisationProcessor(QObject *parent)
-  : StereoProcessor(parent),
+  : Processor(parent),
     face_points(),
     read_dir(true),
     show_idx(0),
     crop_x(0.3),
     crop_y(1.8),
-    scaled_width(256)
+    scaled_width(256),
+    output_dir()
 {
   uses_colour = true;
-  RectificationProcessor rect;
-  addPropertiesFrom(&rect);
 }
 
 FaceNormalisationProcessor::~FaceNormalisationProcessor()
@@ -53,14 +51,17 @@ void FaceNormalisationProcessor::normalise_faces()
 {
   mutex.lock();
   bool dir = read_dir;
-  QString filename = face_points.absoluteFilePath();
+  QString filename = face_points.fileName();
   QString dirname = face_points.absolutePath();
   float scale_width = (float) scaled_width;
+  QString outdir = output_dir.absoluteFilePath();
+  QString avgfilename = average_file.absoluteFilePath();
   mutex.unlock();
 
   if(filename.isEmpty()) return;
 
   QStringList files;
+  QStringList img_files;
   if(read_dir) {
     QDir dir(dirname);
     QStringList namefilters;
@@ -72,56 +73,52 @@ void FaceNormalisationProcessor::normalise_faces()
 
   if(files.empty()) return;
 
-  QStringList pairs;
-  foreach(QString fname, files) {
-    // Pairs are images (and hence text files) that end with _l.ext and _r.ext
-    // for left and right images
-    if(fname.endsWith("_l.txt") || fname.endsWith("_r.txt")) {
-      QString pairname = fname.left(fname.size()-6);
-      if(!pairs.contains(pairname))
-        pairs << pairname;
-    }
-  }
-
-  RectificationProcessor rectification;
-  rectification.setPropertiesFrom(this);
-
-
   Mat avg(3,3,CV_32F,Scalar::all(0));
-  QList<Mat> img_poilist;
+  QList<Mat> img_list;
 
   foreach(QString fname, files) {
-    QFile file(QString("%1/%2").arg(dirname).arg(fname));
+    if(abort || restart) return;
+    QString txt_filename = QString("%1/%2").arg(dirname).arg(fname);
+    QString img_filename(txt_filename);
+    img_filename.replace(".txt", ".jpg");
+    if(!QFileInfo(img_filename).exists()) continue;
+    QFile file(txt_filename);
     if(file.open(QIODevice::ReadOnly)) {
       QList<Point> POIs = Util::read_POIs(&file);
-      Mat img_pois = Mat::ones(POIs.size(), 3, CV_32F);
+      if(POIs.empty()) continue;
+      Mat img = Mat::ones(POIs.size(), 3, CV_32F);
       int i = 0;
       qStableSort(POIs.begin(), POIs.end(), Util::comparePointsX);
       foreach(Point pt, POIs) {
-        Point pt_map;
-        if(rectification.canProcess() || 1) {
-          RectificationProcessor::Side side;
-          if(fname.endsWith("_l.txt"))
-            side = RectificationProcessor::LEFT;
-          else if(fname.endsWith("_r.txt"))
-            side = RectificationProcessor::RIGHT;
-          pt_map = rectification.mapPoint(pt, side);
-        } else {
-          pt_map = pt;
-        }
-        img_pois.at<float>(i,0) = (float) pt_map.x;
-        img_pois.at<float>(i,1) = (float) pt_map.y;
+        img.at<float>(i,0) = (float) pt.x;
+        img.at<float>(i,1) = (float) pt.y;
         i++;
       }
-      avg += img_pois;
-      img_poilist << img_pois;
+      avg += img;
+      img_list << img;
+      img_files << img_filename;
     }
   }
-  if(img_poilist.empty()) return;
-  avg /= img_poilist.size();
+  if(img_list.empty()) return;
+  avg /= img_list.size();
+
+  if(!avgfilename.isEmpty()) {
+    qDebug() << "Overriding average from file" << avgfilename;
+    QFile file(avgfilename);
+    if(file.open(QIODevice::ReadOnly)) {
+      QList<Point> POIs = Util::read_POIs(&file);
+      int i = 0;
+      foreach(Point pt, POIs) {
+        avg.at<float>(i,0) = (float) pt.x;
+        avg.at<float>(i,1) = (float) pt.y;
+        i++;
+      }
+    }
+  }
 
   qDebug() << "Avg" << endl << Util::format_matrix_float(avg);
 
+  QList<Mat> normalised;
 
   double min_x,min_y,max_x,max_y;
   minMaxLoc(Mat(avg, Rect(0,0,1,3)), &min_x, &max_x, 0, 0);
@@ -137,18 +134,15 @@ void FaceNormalisationProcessor::normalise_faces()
 
   qDebug() << min_x << max_x << min_y << max_y << range_x << range_y;
 
-  QList<Mat> normalised;
   int i = 0;
-  foreach(Mat img_points, img_poilist) {
-    if(abort) return;
-    emit progress(100*((float)i)/img_poilist.size());
-    qDebug() << "From:" << Util::format_matrix_float(img_points);
-    qDebug() << "To:" << Util::format_matrix_float(avg);
+  foreach(Mat img_points, img_list) {
+    if(abort || restart) return;
+    emit progress(100*((float)i)/img_list.size());
     Mat transform;
     if(!solve(img_points, avg, transform, DECOMP_SVD)) {
       qDebug() << "Solve error";
     } else {
-      QString img_filename = QString("%1/%2.jpg").arg(dirname).arg(QFileInfo(files[i]).baseName());
+      QString img_filename = img_files[i];
       Mat img;
       if(uses_colour)
         img = Util::load_image_colour(img_filename);
@@ -183,14 +177,12 @@ void FaceNormalisationProcessor::normalise_faces()
     }
   }
 
-  for(unsigned int i = 0; i < normalised.size(); i++) {
-	  Mat a = normalised.at(i);
-	  std::string str = "databaseimage";
-	  std::stringstream ss;
-	  ss << i;
-	  str.append(ss.str());
-	  str.append(".png");
-	  imwrite(str, a);
+  if(!outdir.isEmpty() && output_dir.isDir()) {
+    qDebug () << "Outputting to" << outdir;
+    for(int i = 0; i < img_files.size(); i++) {
+      QString output_path = QString("%1/%2.normal.png").arg(outdir).arg(QFileInfo(img_files[i]).baseName());
+      Util::save_image(normalised[i], output_path);
+    }
   }
 
   mutex.lock();
@@ -297,3 +289,22 @@ void FaceNormalisationProcessor::right()
     setShowIndex(idx+1);
   }
 }
+
+void FaceNormalisationProcessor::setOutputDir(QFileInfo path)
+{
+  QMutexLocker locker(&mutex);
+  if(path.absoluteFilePath() == output_dir.absoluteFilePath()) return;
+  output_dir = path;
+  mutex.unlock();
+  process();
+}
+
+void FaceNormalisationProcessor::setAverageFile(QFileInfo path)
+{
+  QMutexLocker locker(&mutex);
+  if(path.canonicalFilePath() == average_file.canonicalFilePath()) return;
+  average_file = path;
+  mutex.unlock();
+  process();
+}
+

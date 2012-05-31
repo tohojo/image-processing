@@ -29,7 +29,10 @@ void TwoImageProcessor::setRightImage(QFileInfo path)
   QMutexLocker l(&mutex);
   if(path.canonicalFilePath() == right_image_file.canonicalFilePath()) return;
   right_image_file = path;
-  right_image = Util::load_image(right_image_file.canonicalFilePath());
+  if(uses_colour)
+    right_image = Util::load_image_colour(right_image_file.canonicalFilePath());
+  else
+    right_image = Util::load_image(right_image_file.canonicalFilePath());
   mutex.unlock();
   process();
 }
