@@ -13,7 +13,7 @@ PcaTrainingProcessor::PcaTrainingProcessor(QObject *parent)
 	pcaImageHeight = -1;
 	pcaImageWidth = -1;
 	dataPointsPerPixel = 3;
-	use_HSV = false;
+	use_HSV = true;
 	usingDepth = false;
 	error_threshold = 1.1;
 	saveReconstructedImgs = true;
@@ -308,6 +308,8 @@ bool PcaTrainingProcessor::PCATrain(){
 	// 1. Get training images as vectors
 	// Fills "trainingSetImages"; each COLUMN is an image vector.
 
+	emit progress(40);
+
 	pca = PCA(trainingSetImages, Mat(), CV_PCA_DATA_AS_COL, numCompsToKeep);
 	cout << "\nOUTPUT EIGENVALUES:\n";
 	for(int i = 0; i < pca.eigenvalues.rows; i++) {
@@ -329,7 +331,8 @@ bool PcaTrainingProcessor::PCATrain(){
 		}
 	}
 
-	emit progress(70);
+	emit progress(50);
+
 	qDebug() << "PCA training complete.";
 
 	qDebug() << "Projecting training images into & from PCA space to compute error.";
@@ -354,7 +357,9 @@ bool PcaTrainingProcessor::PCATrain(){
 		cout << "Error for training eigenface #" << i << ": " << d << "\n";
 		// Output reconstructed image:
 		std::string str = "PCA_projected";
-		str.append(i, '1');
+		stringstream ss;
+		ss << i;
+		str.append(ss.str());
 		str.append(".png");
 		reconstructed = convertVectorToImage(reconstructed);
 		if (saveReconstructedImgs){
@@ -362,17 +367,20 @@ bool PcaTrainingProcessor::PCATrain(){
 		}
 	}
 
-	emit progress(80);
+	emit progress(70);
 
 	qDebug() << "Calculating mean eigenimage for each class.";
 	compressed_classes = Mat(numCompsToKeep, classesOfTrainingImages.size(), trainingSetImages.type(), Scalar(0));
 	reconstructed_classes = Mat(totalDataPointsPerImage, classesOfTrainingImages.size(), trainingSetImages.type(), Scalar(0));
 	Mat temp_reconstructed;
+	Mat overall_mean(totalDataPointsPerImage, 1, trainingSetImages.type(), Scalar(0));
+	int overall_mean_num_images = 0;
 	int count = 0;
 	std::vector<class_of_training_images>::iterator it = classesOfTrainingImages.begin();
 	for(; it != classesOfTrainingImages.end(); it++){
 		double worstErrorForThisClass = 0.0;
 		for(unsigned int itMat = 0; itMat < it->images.size(); itMat++){
+			overall_mean_num_images++;
 			Mat eigenvec;
 			if (usingDepth){
 				eigenvec = convertImageToVector(it->images.at(itMat), it->depthMap.at(itMat));
@@ -386,6 +394,9 @@ bool PcaTrainingProcessor::PCATrain(){
 			// Now calculate error
 			pca.backProject(proj, temp_reconstructed);
 			Mat diff = temp_reconstructed - eigenvec;
+			if(saveReconstructedImgs){
+				overall_mean = overall_mean + eigenvec;
+			}
 			double d = 0.0;
 			for (int j = 0; j < diff.rows; j++){
 				d += (diff.at<double>(j,0) * diff.at<double>(j,0));
@@ -411,7 +422,13 @@ bool PcaTrainingProcessor::PCATrain(){
 		cout << "Worst error for this class: " << worstErrorForThisClass << "\n";
 		count++;
 	}
+	emit progress(80);
 	qDebug() << "Finished calculating means.";
+	if(saveReconstructedImgs){
+		overall_mean = overall_mean / ((double)(overall_mean_num_images));
+		Mat meanImg = convertVectorToImage(overall_mean);
+		imwrite("OVERALL_PCA_MEAN.png", meanImg);
+	}
 
 	emit progress(90);
 
@@ -575,7 +592,7 @@ Mat PcaTrainingProcessor::convertImageToVector(Mat img){
 
 // USE THIS FOR PCA USING RGB+DEPTH (4) OR RGB+DEPTH+HSV (6)
 Mat PcaTrainingProcessor::convertImageToVector(Mat img, Mat depthImg){
-	if (dataPointsPerPixel != 4 && dataPointsPerPixel != 6){
+	if ((dataPointsPerPixel != 4) && (dataPointsPerPixel != 6)){
 		// Should be using '4' for one matrix of RGB + one of depth
 		// or '5' for one matrix of RGB to be converted to HSV + one of depth!
 		qDebug() << "Problem: " << dataPointsPerPixel << " channels required for PCA does not match the two images submitted!";
@@ -593,7 +610,7 @@ Mat PcaTrainingProcessor::convertImageToVector(Mat img, Mat depthImg){
 			vec.at<double>(i*4+3, 0) = (double)(reshapedDepth.at<unsigned char>(i,0)); // DEPTH MAP DATA
 		}
 		return vec;
-	} else if (dataPointsPerPixel == 6){
+	} else if (dataPointsPerPixel == 6){ // Three colours + depth + HSV
 		Mat convertedToHSV;
 		cv::cvtColor(reshaped, convertedToHSV, CV_BGR2HSV);
 		for (int i = 0; i < reshaped.rows; i++){
@@ -604,7 +621,7 @@ Mat PcaTrainingProcessor::convertImageToVector(Mat img, Mat depthImg){
 			Vec3b hsvPixel = convertedToHSV.at<Vec3b>(i,0);
 			vec.at<double>(i*6+3, 0) = (double)(hsvPixel[0]);
 			vec.at<double>(i*6+4, 0) = (double)(hsvPixel[1]);
-			vec.at<double>(i*4+3, 0) = (double)(reshapedDepth.at<unsigned char>(i,0)); // DEPTH MAP DATA
+			vec.at<double>(i*6+5, 0) = (double)(reshapedDepth.at<unsigned char>(i,0)); // DEPTH MAP DATA
 		}
 		return vec;
 	}
