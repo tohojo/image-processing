@@ -23,7 +23,7 @@ StereoProcessor::~StereoProcessor()
 
 void StereoProcessor::run()
 {
-	
+
 	forever {
 		if(abort) return;
 		emit progress(0);
@@ -46,7 +46,7 @@ void StereoProcessor::run()
 		restart = false;
 		mutex.unlock();
 	}
-	
+
 
 	// INITIAL TEST: HARDMULT / CALCULATED MULT
 	// Proceed thereafter under assumption of HARDMULT
@@ -375,7 +375,7 @@ void StereoProcessor::run()
 //	testProgram(0.0, -1, "tests/ted_imL_mat0_dyn.png", "tests/ted_imR_mat0_dyn.png", "tests/ted_imL.png", "tests/ted_imR.png");
 //	testProgram(0.0, -1, "tests/tsu_imL_mat0_dyn.png", "tests/tsu_imR_mat0_dyn.png", "tests/tsu_imL.png", "tests/tsu_imR.png");
 //	testProgram(0.0, -1, "tests/ven_imL_mat0_dyn.png", "tests/ven_imR_mat0_dyn.png", "tests/ven_imL.png", "tests/ven_imR.png");
-	
+
 
 	//
 	o_File.close();
