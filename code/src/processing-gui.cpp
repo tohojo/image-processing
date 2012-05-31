@@ -365,22 +365,18 @@ void ProcessingGUI::read_POIs(QString filename)
     int height = current_processor->get_output().rows;
     int width = current_processor->get_output().cols;
     QList<Point> POIs = current_processor->getPOIs();
-    while(!stream.atEnd()) {
-      QString line = stream.readLine();
-      x = line.section(r, 0, 0).toInt(&x_ok);
-      y = line.section(r, 1, 1).toInt(&y_ok);
-      if(x_ok && y_ok) {
-        if(POIs.contains(Point(x,y))) {
-          qDebug("POI already exists: (%d,%d)", x, y);
-        } else if(x > width-1 || y > height-1) {
-          qDebug("POI out of bounds: (%d,%d)", x, y);
-        } else {
-          current_image->addPOI(QPoint(x,y));
-          c++;
-        }
+    QList<Point> newPOIs = Util::read_POIs(&file);
+    foreach(Point p, newPOIs) {
+      if(POIs.contains(p)) {
+        qDebug("POI already exists: (%d,%d)", p.x, p.y);
+      } else if(p.x > width-1 || p.y > height-1) {
+        qDebug("POI out of bounds: (%d,%d)", p.x, p.y);
+      } else {
+        current_image->addPOI(QPoint(p.x,p.y));
+        c++;
       }
     }
-    qDebug() << "Loaded" << c << "POIs from file:" << filename;
+    qDebug() << "Added" << c << "POIs from file:" << filename;
   }
 }
 
