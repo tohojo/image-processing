@@ -20,7 +20,8 @@ FaceNormalisationProcessor::FaceNormalisationProcessor(QObject *parent)
     show_idx(0),
     crop_x(0.3),
     crop_y(1.8),
-    scaled_width(256)
+    scaled_width(256),
+    output_dir()
 {
   uses_colour = true;
 }
@@ -53,6 +54,7 @@ void FaceNormalisationProcessor::normalise_faces()
   QString filename = face_points.absoluteFilePath();
   QString dirname = face_points.absolutePath();
   float scale_width = (float) scaled_width;
+  QString outdir = output_dir.absoluteFilePath();
   mutex.unlock();
 
   if(filename.isEmpty()) return;
@@ -160,15 +162,13 @@ void FaceNormalisationProcessor::normalise_faces()
     }
   }
 
-/*  for(unsigned int i = 0; i < normalised.size(); i++) {
-	  Mat a = normalised.at(i);
-	  std::string str = "databaseimage";
-	  std::stringstream ss;
-	  ss << i;
-	  str.append(ss.str());
-	  str.append(".png");
-	  imwrite(str, a);
-  }*/
+  if(!outdir.isEmpty() && output_dir.isDir()) {
+    qDebug () << "Outputting to" << outdir;
+    for(int i = 0; i < img_files.size(); i++) {
+      QString output_path = QString("%1/%2").arg(outdir).arg(QFileInfo(img_files[i]).fileName());
+      Util::save_image(normalised[i], output_path);
+    }
+  }
 
   mutex.lock();
   normalised_imgs = normalised;
@@ -274,3 +274,13 @@ void FaceNormalisationProcessor::right()
     setShowIndex(idx+1);
   }
 }
+
+void FaceNormalisationProcessor::setOutputDir(QFileInfo path)
+{
+  QMutexLocker locker(&mutex);
+  if(path.canonicalPath() == output_dir.canonicalPath()) return;
+  output_dir = path;
+  mutex.unlock();
+  process();
+}
+

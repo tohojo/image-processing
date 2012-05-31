@@ -23,12 +23,15 @@ class FaceNormalisationProcessor : public Processor
   Q_PROPERTY(float CropX READ cropX WRITE setCropX USER true)
   Q_PROPERTY(float CropY READ cropY WRITE setCropY USER true)
   Q_PROPERTY(int ScaledWidth READ scaledWidth WRITE setScaledWidth USER true)
+  Q_PROPERTY(QFileInfo OutputDir READ outputDir
+             WRITE setOutputDir USER true)
 
   Q_CLASSINFO("FacePoints", "filetype=text;")
   Q_CLASSINFO("ShowIndex", "minimum=0;")
   Q_CLASSINFO("CropX", "minimum=0;")
   Q_CLASSINFO("CropY", "minimum=0;")
   Q_CLASSINFO("ScaledWidth", "minimum=1;")
+  Q_CLASSINFO("OutputDir", "opentype=DIR;")
 
 public:
   FaceNormalisationProcessor(QObject *parent = 0);
@@ -57,6 +60,9 @@ public:
   int scaledWidth() {QMutexLocker l(&mutex); return scaled_width;}
   void setScaledWidth(int value);
 
+  QFileInfo outputDir() {QMutexLocker l(&mutex); return output_dir;}
+  void setOutputDir(QFileInfo path);
+
 public slots:
   void left();
   void right();
@@ -74,6 +80,7 @@ private:
   float crop_x;
   float crop_y;
   int scaled_width;
+  QFileInfo output_dir;
   QList<Mat> normalised_imgs;
 };
 

@@ -19,7 +19,7 @@ class FileEditWidget : public QWidget, private Ui::FileEditWidget
   Q_PROPERTY(OpenType opentype READ opentype WRITE setOpentype)
   Q_ENUMS(OpenType)
 public:
-  enum OpenType { READ, WRITE };
+    enum OpenType { READ, WRITE, DIR };
   FileEditWidget(QWidget *parent =0);
   FileEditWidget(const QString &contents, QWidget *parent =0);
   ~FileEditWidget();

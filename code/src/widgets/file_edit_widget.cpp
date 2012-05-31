@@ -86,6 +86,10 @@ void FileEditWidget::selectFile()
     filename = QFileDialog::getSaveFileName(this, tr("Select file"),
                                                     open_directory,
                                                     file_filter);
+  } else if (open_type == DIR) {
+    filename = QFileDialog::getExistingDirectory(this, tr("Select directory"),
+                                                 open_directory,
+                                                 QFileDialog::ShowDirsOnly);
   }
   if(!filename.isNull()) {
     lineEdit->setText(filename);
