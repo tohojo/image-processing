@@ -9,11 +9,10 @@
 #define FACE_NORMALISATION_PROCESSOR_H
 
 #include "processor.h"
-#include "stereo_processor.h"
 
 using namespace cv;
 
-class FaceNormalisationProcessor : public StereoProcessor
+class FaceNormalisationProcessor : public Processor
 {
   Q_OBJECT
   Q_PROPERTY(QFileInfo FacePoints READ facePoints

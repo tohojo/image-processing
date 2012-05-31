@@ -8,14 +8,13 @@
 #include <QStringList>
 #include <QDir>
 #include <QDebug>
-#include "rectification_processor.h"
 #include "face_normalisation_processor.h"
 #include "util.h"
 
 using namespace cv;
 
 FaceNormalisationProcessor::FaceNormalisationProcessor(QObject *parent)
-  : StereoProcessor(parent),
+  : Processor(parent),
     face_points(),
     read_dir(true),
     show_idx(0),
@@ -24,8 +23,6 @@ FaceNormalisationProcessor::FaceNormalisationProcessor(QObject *parent)
     scaled_width(256)
 {
   uses_colour = true;
-  RectificationProcessor rect;
-  addPropertiesFrom(&rect);
 }
 
 FaceNormalisationProcessor::~FaceNormalisationProcessor()
