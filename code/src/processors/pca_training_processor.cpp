@@ -4,7 +4,7 @@
 #include <QDebug>
 
 PcaTrainingProcessor::PcaTrainingProcessor(QObject *parent)
-: Processor(parent)
+: TwoImageProcessor(parent)
 {
 	numImages = 0;
 	totalDataPointsPerImage = 0;
@@ -14,6 +14,9 @@ PcaTrainingProcessor::PcaTrainingProcessor(QObject *parent)
 	pcaImageWidth = -1;
 	dataPointsPerPixel = 3;
 	use_HSV = false;
+	usingDepth = false;
+	error_threshold = 1.1;
+	saveReconstructedImgs = true;
 }
 
 
@@ -46,9 +49,9 @@ void PcaTrainingProcessor::run()
 			if (! result.empty()){
 				mutex.lock();
 				output_image = result;
-				qDebug() << "Successfully finished PCA processing.\n";
+				qDebug() << "Finished PCA processing.\n";
 			} else {
-				qDebug() << "Failed to classify input image!\n";
+				qDebug() << "No input image to classify...\n";
 			}
 		} else { // PCATrain() returned false
 			qDebug() << "PCA processing not performed.\n";
@@ -91,20 +94,25 @@ bool PcaTrainingProcessor::loadImages(){
 	string sub = useDepth.substr(0,3);
 	if (sub == "TRU" || sub == "Tru" || sub == "tru"){
 		qDebug() << "Using depth map data for PCA.";
+		usingDepth = true;
 		dataPointsPerPixel  += 1; // USING THREE COLOUR CHANNELS + DEPTH MAP DATA
 	} else {
+		usingDepth = false;
 		qDebug() << "Not using depth maps for PCA."; // USING THREE COLOUR CHANNELS
 	}
 	totalDataPointsPerImage = pixPerImg*dataPointsPerPixel;
-	
+
 	classesOfTrainingImages = std::vector<class_of_training_images>();
 
 	cout << "numImages: " << numImages << "\n";
 	cout << "Types of data considered per image pixel: " << dataPointsPerPixel << "\n";
 	cout << "totalDataPointsPerImage: " << totalDataPointsPerImage << "\n";
 	trainingSetImages = Mat(totalDataPointsPerImage, numImages, CV_64FC1); // Use double so we can subtract averages etc
-	// Remainder of file is: image name on one line, class to which the image belongs on next line
-	// **MUST** HAVE A TRAILING NEWLINE!
+	// Remainder of file is:
+	// (a) image name on one line
+	// (b) class to which the image belongs on next line
+	// (c) corresponding depth map image name on next line IF depth is being used; ELSE no line
+	// TXT FILE **MUST** HAVE A TRAILING NEWLINE!
 	int counter = 0;
 	while (file.canReadLine() && counter < numImages){
 		QString qstr = file.readLine();
@@ -114,10 +122,20 @@ bool PcaTrainingProcessor::loadImages(){
 		Mat img = imread(str, 1); // Read in colour
 		pcaImageWidth = img.cols;
 		pcaImageHeight = img.rows;
-		Mat img2 = convertImageToVector(img); // Changes the 2D RGB (unsigned char) values to 1D R,G,B, (double) values
-		for (int i = 0; i < totalDataPointsPerImage; i++){
-			trainingSetImages.at<double>(i,counter) = img2.at<double>(i,0);
+		//
+		Mat depth;
+		if (usingDepth){
+			QString depthQ = file.readLine();
+			string dep = depthQ.toStdString();
+			dep = dep.erase(dep.length()-1);
+			cout << "Reading depth map: " << dep << "\n";
+			depth = imread(dep, 0); // Read in depthmap
+			if ((pcaImageWidth != depth.cols) || (pcaImageHeight != depth.rows)){
+				cout << "ERROR: DEPTH MAP DOES NOT MATCH IMAGE DIMENSIONS!\n\n";
+				assert(false);
+			}
 		}
+		//
 		QString qstr_num = file.readLine();
 		string imageClass = qstr_num.toStdString();
 		bool foundMatchingClass = false;
@@ -126,6 +144,7 @@ bool PcaTrainingProcessor::loadImages(){
 			if (c2->identifier == imageClass){
 				foundMatchingClass = true;
 				c2->images.push_back(img);
+				c2->depthMap.push_back(depth); // If not using it, this is simply empty
 			}
 			c2++;
 		}
@@ -134,8 +153,22 @@ bool PcaTrainingProcessor::loadImages(){
 			coti.identifier = imageClass;
 			coti.images = std::vector<Mat>();
 			coti.images.push_back(img);
+			coti.depthMap.push_back(depth); // If not using it, this is simply empty
 			classesOfTrainingImages.push_back(coti);
 		}
+		//
+		Mat img2;
+		if (usingDepth){
+			img2 = convertImageToVector(img, depth); // Changes the 2D RGB (unsigned char) values to
+			// 1D R,G,B,Depth (double) values, possibly +HSV if that is set
+		} else {
+			img2 = convertImageToVector(img); // Changes the 2D RGB (unsigned char) values to
+			// 1D R,G,B, (double) values, possibly +HSV if that is set
+		}
+		for (int i = 0; i < totalDataPointsPerImage; i++){
+			trainingSetImages.at<double>(i,counter) = img2.at<double>(i,0);
+		}
+		//
 		counter++;
 	}
 
@@ -168,14 +201,23 @@ Mat PcaTrainingProcessor::pcaClassifyInputImage(){
 	if (input_image.empty() || input_image.rows != pcaImageHeight || input_image.cols != pcaImageWidth){
 		return Mat();
 	}
+	if (usingDepth && (right_image.empty() || right_image.rows != pcaImageHeight || right_image.cols != pcaImageWidth)){
+		return Mat();
+	}
 
 	// Methodology:
 	// 1. Convert the input image to an eigenface
 	// 2. Compare the input image to all stored class eigenvectors and output the correlation for each
 	// 3. Choose the best and output the input image joined to that choice
 	// 4. Modification: have the debug pane print the most appropriate.
+	// 5. Modification: calculate the variance IN each class, and only classify if within X (error_threshold) of that.
 
-	Mat imgVec = convertImageToVector(input_image);
+	Mat imgVec;
+	if (usingDepth){
+		imgVec = convertImageToVector(input_image, right_image);
+	} else {
+		imgVec = convertImageToVector(input_image);
+	}
 
 	Mat eigenVec = pca.project(imgVec);
 
@@ -194,62 +236,67 @@ Mat PcaTrainingProcessor::pcaClassifyInputImage(){
 		string cut = classesOfTrainingImages.at(i).identifier;
 		cut = cut.erase(classesOfTrainingImages.at(i).identifier.length()-1);
 		cout << "Difference between input image and \"" << cut << "\" : " << d << "\n";
+		cout << "Error threshold for this class: " << classesOfTrainingImages.at(i).worstError
+			<< " ; when modified " << (classesOfTrainingImages.at(i).worstError * error_threshold) << "\n";
 	}
 
 	emit progress(50);
 
-	double minError, nextMinError;
-	int index1, index2;
-	if (errors.at(0) < errors.at(1)){
-		minError = errors.at(0);
-		nextMinError = errors.at(1);
-		index1 = 0;
-		index2 = 1;
-	} else {
-		minError = errors.at(1);
-		nextMinError = errors.at(0);
-		index1 = 1;
-		index2 = 0;
-	}
-	for (unsigned int i = 1; i < errors.size(); i++){
-		if (errors.at(i) < minError){
+	int index1 = -1; // If these don't change, the input is unclassifiable
+	int index2 = -1;
+	double minError = 1000000000;
+	double nextMinError = 1000000000;
+	for (unsigned int i = 0; i < errors.size(); i++){
+		cout << "" << i << ".  i1 " << index1 << " i2 " << index2 << "\n";
+		double err = errors.at(i);
+		bool admissible = (err <= (classesOfTrainingImages.at(i).worstError * error_threshold));
+		// MUST calculate 'admissible' dynamically, not store it as a variable for each class,
+		// because we do not recalculate the PCA when we change 'error_threshold'.
+		if (admissible && (err <= minError)){
 			nextMinError = minError;
 			index2 = index1;
-			minError = errors.at(i);
+			minError = err;
 			index1 = i;
-		} else if ((errors.at(i) < nextMinError) && i != index1){
-			nextMinError = errors.at(i);
+		} else if (admissible && (err <= nextMinError)){
+			nextMinError = err;
 			index2 = i;
 		}
+		cout << "...i1 " << index1 << " i2 " << index2 << "\n";
 	}
 	emit progress(80);
 
-	string cut = classesOfTrainingImages.at(index1).identifier;
-	cut = cut.erase(classesOfTrainingImages.at(index1).identifier.length()-1);
-	string cut2 = classesOfTrainingImages.at(index2).identifier;
-	cut2 = cut2.erase(classesOfTrainingImages.at(index2).identifier.length()-1);
+	Mat outputimg;
+	if(index1 != -1){
+		string cut = classesOfTrainingImages.at(index1).identifier;
+		cut = cut.erase(classesOfTrainingImages.at(index1).identifier.length()-1);
+		qDebug() << "Best guess (closest matching class) is: " << cut.data();
+		qDebug() << "Error of best guess is: " << minError << " distance from class mean eigenvector.";
+		if (index2 != -1){
+			string cut2 = classesOfTrainingImages.at(index2).identifier;
+			cut2 = cut2.erase(classesOfTrainingImages.at(index2).identifier.length()-1);
+			qDebug() << "Second-best guess (next closest match) is: " << cut2.data();
+			qDebug() << "Error of second-best guess is: " << nextMinError << " distance from class mean eigenvector.";
+		} else {
+			qDebug() << "Error of second-best guess is too high to make it a possibility.";
+		}
 
-	qDebug() << "Best guess (closest matching class) is: " << cut.data();
-	qDebug() << "Error of best guess is: " << minError << " distance from class mean eigenvector.";
-
-	qDebug() << "Second-best guess (next closes match) is: " << cut2.data();
-	qDebug() << "Error of second-best guess is: " << nextMinError << " distance from class mean eigenvector.";
-
+		outputimg = convertVectorToImage(reconstructed_classes.col(index1));
+	} else { // Not classifiable
+		qDebug() << "Image not classifiable as any of our principle classes!";
+		Mat inputimg = imread("UNCLASSIFIED.png", 1);
+		Size bluh = Size(input_image.cols, input_image.rows); // Width, height
+		cv::resize(inputimg, outputimg, bluh);
+	}
 	emit progress(90);
 
-	Mat outputimg = convertVectorToImage(reconstructed_classes.col(index1));
 	cout << "input_image.type " << input_image.type() << "\n";
 	cout << "outputimg.type " << outputimg.type() << "\n";
-	Mat colourHack;
-	//input_image.convertTo(colourHack, CV_8UC3); 
 
-	cv::cvtColor(input_image, colourHack, CV_GRAY2BGR); // STOP-GAP MEASURE SINCE COLOUR ISN'T WORKING
-	// Also... read that standard is BGR for opencv but that may not be right...
-
-	cout << "colourHack.type " << colourHack.type() << "\n";
-	cout << "outputimg.type " << outputimg.type() << "\n";
-
-	Mat rec_plus = Util::combine(colourHack, outputimg);
+	if (outputimg.empty()){ // Presumably because the 'not classifiable' image is absent
+		outputimg = input_image.clone();
+		outputimg.setTo(Scalar(0));
+	}
+	Mat rec_plus = Util::combine(input_image, outputimg);
 
 	return rec_plus;
 }
@@ -291,11 +338,9 @@ bool PcaTrainingProcessor::PCATrain(){
 	compressed.create(numCompsToKeep, numImages, trainingSetImages.type());
 	Mat reconstructed;
 	for(int i = 0; i < trainingSetImages.cols; i++){
-		// See how much we lose
+		// See how much we lose overall (per class is calculated later)
 		Mat vect = trainingSetImages.col(i);
 		Mat coeffs = compressed.col(i);
-			//	cout << "vect: ROWS " << vect.rows << " COLS " << vect.cols << " CHANNELS " << vect.channels() << "\n";
-			//	cout << "coeffs: ROWS " << coeffs.rows << " COLS " << coeffs.cols << " CHANNELS " << coeffs.channels() << "\n";
 		// Compress the vector. The result will be stored in column i of the output matrix.
 		pca.project(vect, coeffs);
 		pca.backProject(coeffs, reconstructed);
@@ -305,14 +350,16 @@ bool PcaTrainingProcessor::PCATrain(){
 		for (int j = 0; j < diff.rows; j++){
 			d += (diff.at<double>(j,0) * diff.at<double>(j,0));
 		}
-		cout << "Error for training eigenface #" << i << ": " << sqrt(d) << "\n";
+		d = sqrt(d);
+		cout << "Error for training eigenface #" << i << ": " << d << "\n";
 		// Output reconstructed image:
 		std::string str = "PCA_projected";
 		str.append(i, '1');
 		str.append(".png");
 		reconstructed = convertVectorToImage(reconstructed);
-		cout << "Reconstructed image: TYPE " << reconstructed.type() << " CHANNELS " << reconstructed.channels() << "\n";
-		imwrite(str, reconstructed);
+		if (saveReconstructedImgs){
+			imwrite(str, reconstructed);
+		}
 	}
 
 	emit progress(80);
@@ -320,21 +367,31 @@ bool PcaTrainingProcessor::PCATrain(){
 	qDebug() << "Calculating mean eigenimage for each class.";
 	compressed_classes = Mat(numCompsToKeep, classesOfTrainingImages.size(), trainingSetImages.type(), Scalar(0));
 	reconstructed_classes = Mat(totalDataPointsPerImage, classesOfTrainingImages.size(), trainingSetImages.type(), Scalar(0));
+	Mat temp_reconstructed;
 	int count = 0;
 	std::vector<class_of_training_images>::iterator it = classesOfTrainingImages.begin();
 	for(; it != classesOfTrainingImages.end(); it++){
-		std::vector<Mat>::iterator itMat = it->images.begin();
-		for(; itMat != it->images.end(); itMat++){
-			//cout << "EMPTY ROWS " << empty.rows << " COLS " << empty.cols << "\n";
-			//cout << "itMat: ROWS " << itMat->rows << " COLS " << itMat->cols << " CHANNELS " << itMat->channels() << "\n";
-			Mat eigenvec = convertImageToVector(*itMat);
-			//cout << "eigenvec: ROWS " << eigenvec.rows << " COLS " << eigenvec.cols << " CHANNELS " << eigenvec.channels() << "\n";
-			//Mat coeffs = compressed_classes.col(count);
+		double worstErrorForThisClass = 0.0;
+		for(unsigned int itMat = 0; itMat < it->images.size(); itMat++){
+			Mat eigenvec;
+			if (usingDepth){
+				eigenvec = convertImageToVector(it->images.at(itMat), it->depthMap.at(itMat));
+			} else {
+				eigenvec = convertImageToVector(it->images.at(itMat));
+			}
 			Mat proj;
 			proj.create(numCompsToKeep, 1, trainingSetImages.type());
-			//cout << "proj: ROWS " << proj.rows << " COLS " << proj.cols << " CHANNELS " << proj.channels() << "\n";
 			pca.project(eigenvec, proj);
 			compressed_classes.col(count) = compressed_classes.col(count) + proj;
+			// Now calculate error
+			pca.backProject(proj, temp_reconstructed);
+			Mat diff = temp_reconstructed - eigenvec;
+			double d = 0.0;
+			for (int j = 0; j < diff.rows; j++){
+				d += (diff.at<double>(j,0) * diff.at<double>(j,0));
+			}
+			d = sqrt(d);
+			if (d > worstErrorForThisClass) worstErrorForThisClass = d;
 		}
 		compressed_classes.col(count) = compressed_classes.col(count) / it->images.size(); // GET MEAN EIGENVECTOR FOR CLASS
 		pca.backProject(compressed_classes.col(count), reconstructed_classes.col(count));
@@ -344,16 +401,19 @@ bool PcaTrainingProcessor::PCATrain(){
 		mean_str.append(".png");
 		Mat columnMean = reconstructed_classes.col(count);
 		Mat newColumnMean = columnMean.clone();
-		//qDebug() << "COLUMN MEAN: ROWS " << newColumnMean.rows << " COLS " << newColumnMean.cols << " CHANS " << newColumnMean.channels() << " TYPE " << newColumnMean.type() << "\n";
-		Mat imageMean = convertVectorToImage(newColumnMean);
-		cout << "About to write:     " << mean_str << "\n";
-		imwrite(mean_str, imageMean);
+		if (saveReconstructedImgs){
+			Mat imageMean = convertVectorToImage(newColumnMean);
+			cout << "About to write:     " << mean_str << "\n";
+			imwrite(mean_str, imageMean);
+		}
+		// Store worst error in the class_of_training_images vector
+		it->worstError = worstErrorForThisClass;
+		cout << "Worst error for this class: " << worstErrorForThisClass << "\n";
 		count++;
 	}
 	qDebug() << "Finished calculating means.";
 
 	emit progress(90);
-
 
 
 
@@ -479,36 +539,72 @@ bool PcaTrainingProcessor::PCATrain(){
 }
 
 
+// USE THIS FOR PCA USING RGB (3) OR RGB+HSV (5)
 Mat PcaTrainingProcessor::convertImageToVector(Mat img){
-	if (dataPointsPerPixel != 3){
-		// Should be using something else!
-		qDebug() << "Problem: sending only an image for conversion when 3 colours + depth map are being used for PCA!";
+	if (dataPointsPerPixel != 3 && dataPointsPerPixel != 5){
+		// Should be using '3' for one matrix of RGB or '5' for one matrix of RGB to be converted to HSV!
+		qDebug() << "Problem: " << dataPointsPerPixel << " channels required for PCA does not match the single image submitted!";
 		assert(false);
 	}
 	Mat reshaped = img.reshape(img.channels(), img.total());
 	Mat vec = Mat(totalDataPointsPerImage, 1, CV_64FC1); // Single channel, 1 column containing all image data
-	for (int i = 0; i < reshaped.rows; i++){
-		Vec3b colourPixel = reshaped.at<Vec3b>(i,0);
-		vec.at<double>(i*3, 0) = (double)(colourPixel[0]);
-		vec.at<double>(i*3+1, 0) = (double)(colourPixel[1]);
-		vec.at<double>(i*3+2, 0) = (double)(colourPixel[2]);
+	if (dataPointsPerPixel == 3){
+		for (int i = 0; i < reshaped.rows; i++){
+			Vec3b colourPixel = reshaped.at<Vec3b>(i,0);
+			vec.at<double>(i*3, 0) = (double)(colourPixel[0]);
+			vec.at<double>(i*3+1, 0) = (double)(colourPixel[1]);
+			vec.at<double>(i*3+2, 0) = (double)(colourPixel[2]);
+		}
+		return vec;
+	} else if (dataPointsPerPixel == 5){
+		Mat convertedToHSV;
+		cv::cvtColor(reshaped, convertedToHSV, CV_BGR2HSV); // OPENCV USES BGR BY DEFAULT
+		for (int i = 0; i < reshaped.rows; i++){
+			Vec3b colourPixel = reshaped.at<Vec3b>(i,0);
+			vec.at<double>(i*5, 0) = (double)(colourPixel[0]);
+			vec.at<double>(i*5+1, 0) = (double)(colourPixel[1]);
+			vec.at<double>(i*5+2, 0) = (double)(colourPixel[2]);
+			Vec3b hsvPixel = convertedToHSV.at<Vec3b>(i,0);
+			vec.at<double>(i*5+3, 0) = (double)(hsvPixel[0]);
+			vec.at<double>(i*5+4, 0) = (double)(hsvPixel[1]);
+		}
+		return vec;
 	}
-	return vec;
+	return Mat();
 }
 
+// USE THIS FOR PCA USING RGB+DEPTH (4) OR RGB+DEPTH+HSV (6)
 Mat PcaTrainingProcessor::convertImageToVector(Mat img, Mat depthImg){
+	if (dataPointsPerPixel != 4 && dataPointsPerPixel != 6){
+		// Should be using '4' for one matrix of RGB + one of depth
+		// or '5' for one matrix of RGB to be converted to HSV + one of depth!
+		qDebug() << "Problem: " << dataPointsPerPixel << " channels required for PCA does not match the two images submitted!";
+		assert(false);
+	}
 	Mat reshaped = img.reshape(img.channels(), img.total());
 	Mat reshapedDepth = depthImg.reshape(depthImg.channels(), depthImg.total());
 	Mat vec = Mat(totalDataPointsPerImage, 1, CV_64FC1); // Single channel, 1 column containing all image data
-	if (dataPointsPerPixel == 3){		// Three colours only used in PCA
-		qDebug() << "Problem: sending an image and a depth map for conversion when only 3 colours are being used for PCA!";
-		assert(false);
-	} else if (dataPointsPerPixel == 4){ // Three colours + depth used in PCA
+	if (dataPointsPerPixel == 4){ // Three colours + depth used in PCA
 		for (int i = 0; i < reshaped.rows; i++){
 			Vec3b colourPixel = reshaped.at<Vec3b>(i,0);
 			vec.at<double>(i*4, 0) = (double)(colourPixel[0]);
 			vec.at<double>(i*4+1, 0) = (double)(colourPixel[1]);
 			vec.at<double>(i*4+2, 0) = (double)(colourPixel[2]);
+			vec.at<double>(i*4+3, 0) = (double)(reshapedDepth.at<unsigned char>(i,0)); // DEPTH MAP DATA
+		}
+		return vec;
+	} else if (dataPointsPerPixel == 6){
+		Mat convertedToHSV;
+		cv::cvtColor(reshaped, convertedToHSV, CV_BGR2HSV);
+		for (int i = 0; i < reshaped.rows; i++){
+			Vec3b colourPixel = reshaped.at<Vec3b>(i,0);
+			vec.at<double>(i*6, 0) = (double)(colourPixel[0]);
+			vec.at<double>(i*6+1, 0) = (double)(colourPixel[1]);
+			vec.at<double>(i*6+2, 0) = (double)(colourPixel[2]);
+			Vec3b hsvPixel = convertedToHSV.at<Vec3b>(i,0);
+			vec.at<double>(i*6+3, 0) = (double)(hsvPixel[0]);
+			vec.at<double>(i*6+4, 0) = (double)(hsvPixel[1]);
+			vec.at<double>(i*4+3, 0) = (double)(reshapedDepth.at<unsigned char>(i,0)); // DEPTH MAP DATA
 		}
 		return vec;
 	}
@@ -558,3 +654,21 @@ void PcaTrainingProcessor::setNumComponentsToKeep(int num)
 	pcaTrainingDone = false;
 	Processor::process();
 }
+
+void PcaTrainingProcessor::setErrorThreshold(double thresh)
+{
+	QMutexLocker locker(&mutex);
+	error_threshold = thresh;
+	mutex.unlock();
+	Processor::process();
+}
+
+void PcaTrainingProcessor::setSaveEigenMeans(bool yesno){
+	QMutexLocker locker(&mutex);
+	saveReconstructedImgs = yesno;
+	mutex.unlock();
+	loadImages();
+	pcaTrainingDone = false;
+	Processor::process();
+}
+

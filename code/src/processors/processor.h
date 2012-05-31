@@ -25,13 +25,12 @@ public:
   Processor(QObject *parent = 0);
   virtual ~Processor();
 
-  void set_input(const Mat img);
+  virtual void set_input(const Mat img);
   void set_input_name(QString filename);
   Mat get_output();
 
   QFileInfo imageOutput();
   void setImageOutput(QFileInfo path);
-
 
   virtual QString name() {return "Processor";}
   int poiCount() {QMutexLocker l(&mutex); return POIs.size();}

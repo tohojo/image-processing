@@ -20,6 +20,10 @@
   #include "rectification_processor.h"
 #endif
 
+#ifdef RESIZING
+#include "resizing_processor.h"
+#endif
+
 #ifdef STEREO
   #include "stereo_processor.h"
 #endif
@@ -86,6 +90,9 @@ void ProcessorModel::create_processors()
 #endif
 #ifdef RECTIFICATION
   m_processors.append(new RectificationProcessor());
+#endif
+#ifdef RESIZING
+  m_processors.append(new ResizingProcessor());
 #endif
 #ifdef STEREO
   m_processors.append(new StereoProcessor());
