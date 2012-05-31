@@ -17,7 +17,9 @@ FaceNormalisationProcessor::FaceNormalisationProcessor(QObject *parent)
   : Processor(parent),
     face_points(),
     read_dir(true),
-    show_idx(0)
+    show_idx(0),
+    crop_x(0.3),
+    crop_y(1.8)
 {}
 
 FaceNormalisationProcessor::~FaceNormalisationProcessor()
@@ -87,13 +89,27 @@ void FaceNormalisationProcessor::normalise_faces()
 
   qDebug() << "Avg" << endl << Util::format_matrix_float(avg);
 
-  if(POIs.empty()) {
-    for(int i = 0; i < avg.rows; i++) {
-      emit newPOI(QPoint((int) avg.at<float>(i,0), (int) avg.at<float>(i,1)));
-    }
-  }
   QList<Mat> normalised;
 
+  double min_x,min_y,max_x,max_y;
+  minMaxLoc(Mat(avg, Rect(0,0,1,3)), &min_x, &max_x, 0, 0);
+  minMaxLoc(Mat(avg, Rect(1,0,1,3)), &min_y, &max_y, 0, 0);
+
+  double range_x = max_x-min_x;
+  double range_y = max_y-min_y;
+
+  Rect roi(qMax(min_x-range_x*crop_x,0.0),
+           qMax(min_y-range_y*crop_y,0.0),
+           range_x*(1.0+2*crop_x),
+           range_y*(1.0+2*crop_y));
+
+  if(POIs.empty()) {
+    for(int i = 0; i < avg.rows; i++) {
+      emit newPOI(QPoint((int) avg.at<float>(i,0)-roi.x, (int) avg.at<float>(i,1)-roi.y));
+    }
+  }
+
+  qDebug() << min_x << max_x << min_y << max_y << range_x << range_y;
 
   int i = 0;
   foreach(Mat img_points, img_list) {
@@ -109,7 +125,9 @@ void FaceNormalisationProcessor::normalise_faces()
       Mat dst(img.rows, img.cols, img.type());
       Size s = img.size();
       warpAffine(img, dst, Mat(affine, Rect(0,0,3,2)), s, INTER_CUBIC);
-      normalised << dst;
+      Rect roi_clipped(roi.x,roi.y,qMin(roi.width, img.cols-roi.x), qMin(roi.height, img.rows-roi.y));
+      Mat cropped(dst, roi_clipped);
+      normalised << cropped;
       i++;
     }
   }
@@ -159,4 +177,22 @@ void FaceNormalisationProcessor::setShowIndex(int value)
   show_idx = value;
   mutex.unlock();
   updateOutput();
+}
+
+void FaceNormalisationProcessor::setCropX(float value)
+{
+  QMutexLocker locker(&mutex);
+  if(crop_x == value) return;
+  crop_x = value;
+  mutex.unlock();
+  process();
+}
+
+void FaceNormalisationProcessor::setCropY(float value)
+{
+  QMutexLocker locker(&mutex);
+  if(crop_y == value) return;
+  crop_y = value;
+  mutex.unlock();
+  process();
 }

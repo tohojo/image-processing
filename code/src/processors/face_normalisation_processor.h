@@ -17,10 +17,15 @@ class FaceNormalisationProcessor : public Processor
   Q_OBJECT
   Q_PROPERTY(QFileInfo FacePoints READ facePoints
              WRITE setFacePoints USER true)
-  Q_CLASSINFO("FacePoints", "filetype=text;")
-  Q_CLASSINFO("ShowIndex", "minimum=0;")
   Q_PROPERTY(bool ReadDir READ readDir WRITE setReadDir USER true)
   Q_PROPERTY(int ShowIndex READ showIndex WRITE setShowIndex USER true)
+  Q_PROPERTY(float CropX READ cropX WRITE setCropX USER true)
+  Q_PROPERTY(float CropY READ cropY WRITE setCropY USER true)
+
+  Q_CLASSINFO("FacePoints", "filetype=text;")
+  Q_CLASSINFO("ShowIndex", "minimum=0;")
+  Q_CLASSINFO("CropX", "minimum=0;")
+  Q_CLASSINFO("CropY", "minimum=0;")
 
 public:
   FaceNormalisationProcessor(QObject *parent = 0);
@@ -37,6 +42,11 @@ public:
   int showIndex() {QMutexLocker l(&mutex); return show_idx;}
   void setShowIndex(int value);
 
+  float cropX() {QMutexLocker l(&mutex); return crop_x;}
+  void setCropX(float value);
+
+  float cropY() {QMutexLocker l(&mutex); return crop_y;}
+  void setCropY(float value);
 private:
   void run();
   void normalise_faces();
@@ -44,6 +54,8 @@ private:
   QFileInfo face_points;
   bool read_dir;
   int show_idx;
+  float crop_x;
+  float crop_y;
   QList<Mat> normalised_imgs;
 };
 
