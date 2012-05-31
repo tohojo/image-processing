@@ -165,7 +165,7 @@ void FaceNormalisationProcessor::normalise_faces()
   if(!outdir.isEmpty() && output_dir.isDir()) {
     qDebug () << "Outputting to" << outdir;
     for(int i = 0; i < img_files.size(); i++) {
-      QString output_path = QString("%1/%2").arg(outdir).arg(QFileInfo(img_files[i]).fileName());
+      QString output_path = QString("%1/%2.normal.png").arg(outdir).arg(QFileInfo(img_files[i]).baseName());
       Util::save_image(normalised[i], output_path);
     }
   }
