@@ -24,7 +24,7 @@ void RectificationProcessor::run()
 {
 
 	// Please ignore this stupid hack :3
-	QString qfile("Database/cal.txt");
+/*	QString qfile("Database/cal.txt");
 	QFileInfo qinf(qfile);
 	setCalibrationResults(qinf);
 	for (int i = 4072; i <= 4114; i++){
@@ -49,7 +49,7 @@ void RectificationProcessor::run()
 		rectify();
 		imwrite(leftout.str(), left_rectified);
 		imwrite(rightout.str(), right_rectified);
-	}
+	}*/
 
   forever {
     if(abort) return;
