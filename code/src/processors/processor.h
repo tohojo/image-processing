@@ -57,6 +57,7 @@ signals:
 protected:
   void addPropertiesFrom(Processor *other);
   void setPropertiesFrom(Processor *other);
+  bool canProcess() {return true;}
   virtual void run();
   QMutex mutex;
   QWaitCondition condition;

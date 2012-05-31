@@ -154,12 +154,22 @@ void Processor::setPropertiesFrom(Processor *other)
   const QMetaObject *thisMeta = metaObject();
   const QMetaObject *otherMeta = other->metaObject();
   QList<QByteArray> dynProps = dynamicPropertyNames();
+  QList<QByteArray> otherDynProps = other->dynamicPropertyNames();
+
+  // Regular properties are stored in QMetaObject
   for(int i = otherMeta->propertyOffset(); i < otherMeta->propertyCount(); i++) {
     QMetaProperty prop = otherMeta->property(i);
     if(prop.isUser()) { // The property editor only uses user properties, so restrict to this
       if(thisMeta->indexOfProperty(prop.name()) > -1 || dynProps.contains(prop.name())) {
         setProperty(prop.name(), other->property(prop.name()));
       }
+    }
+  }
+
+  // Dynamic properties are not, so copy them separately
+  foreach(QByteArray dynProp, otherDynProps) {
+    if(thisMeta->indexOfProperty(dynProp) > -1 || dynProps.contains(dynProp)) {
+      setProperty(dynProp, other->property(dynProp));
     }
   }
 }
