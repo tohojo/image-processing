@@ -16,6 +16,7 @@ class StereoProcessor : public TwoImageProcessor
 	Q_PROPERTY(int HardMultiplier READ hardMultiplier WRITE setHardMultiplier USER true)
 	Q_PROPERTY(double VerticalSmoothness READ smoothnessWeight WRITE setSmoothnessWeight USER true)
 	Q_PROPERTY(double WeightPorcupine READ weightPorcupine WRITE setWeightPorcupine USER true)
+	Q_PROPERTY(bool AutoWriteOutput READ getAutoOutput WRITE setAutoOutput USER true)
 
 public:
 	StereoProcessor(QObject *parent = 0);
@@ -40,10 +41,14 @@ public:
 	double weightPorcupine() {QMutexLocker locker(&mutex); return weight_porcupine;}
 	void setWeightPorcupine(const double a);
 
+	bool autoOutput;
+	bool getAutoOutput() {QMutexLocker locker(&mutex); return autoOutput;}
+	void setAutoOutput(const bool yesno);
+
 	bool dynamicProgramming(const char * lName, const char * rName, Mat left_input, Mat right_input);
 	void run();
 
-	void testProgram(double smoothWeight, int mult, const char * lOut, const char * rOut, const char * lIn, const char * rIn);
+	void testProgram(bool autoOut, double smoothWeight, int mult, const char * lOut, const char * rOut, const char * lIn, const char * rIn);
 	double testStereoResults(const char * testImageName, const char * idealImageName);
 
 private:

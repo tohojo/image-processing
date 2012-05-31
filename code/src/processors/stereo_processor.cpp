@@ -13,6 +13,7 @@ StereoProcessor::StereoProcessor(QObject *parent)
 	smoothness_weight = 0.4; // Sometimes works.
 	denoise_matrix_length = 3; // Must be odd number. 0 = no de-noise-ing
 	weight_porcupine = 1.0;
+	autoOutput = false;
 }
 
 
@@ -23,7 +24,7 @@ StereoProcessor::~StereoProcessor()
 
 void StereoProcessor::run()
 {
-
+	
 	forever {
 		if(abort) return;
 		emit progress(0);
@@ -31,6 +32,14 @@ void StereoProcessor::run()
 		if( dynamicProgramming("Left-Disparity-Map.png", "Right-Disparity-Map.png", input_image, right_image) ) { // Returns true if successful
 			mutex.lock();
 			qDebug() << "OUTPUT = LEFT DEPTH MAP\n";
+			if(autoOutput){
+				std::string inp = input_image_filename.toStdString();
+				inp = inp.append("_DEPTH.png");
+				std::string outp = right_image_file.fileName().toStdString();
+				outp = outp.append("_DEPTH.png");
+				cv::imwrite(inp, correctedLeftDepthMap);
+				cv::imwrite(outp, correctedRightDepthMap);
+			}
 			output_image = Util::combine(correctedLeftDepthMap,correctedRightDepthMap);
 		} else {
 			mutex.lock();
@@ -47,6 +56,7 @@ void StereoProcessor::run()
 		mutex.unlock();
 	}
 
+//	testProgram(bool autoOut, double smoothWeight, int hardMult, const char * lOut, const char * rOut, const char * lIn, const char * rIn){
 
 	// INITIAL TEST: HARDMULT / CALCULATED MULT
 	// Proceed thereafter under assumption of HARDMULT
@@ -428,8 +438,6 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 		emit progress(5);
 		right_input = medianFilter(&right_input, denoise_matrix_length);
 		emit progress(10);
-		//mutex.lock();
-		//output_image = Util::combine(left_input, right_input);
 		emit progress(15);
 		emit updated();
 	}
@@ -878,7 +886,20 @@ void StereoProcessor::setWeightPorcupine(const double a){
 	process();
 }
 
-void StereoProcessor::testProgram(double smoothWeight, int hardMult, const char * lOut, const char * rOut, const char * lIn, const char * rIn){
+void StereoProcessor::setAutoOutput(const bool yesno){
+	QMutexLocker locker(&mutex);
+	if(autoOutput == true){
+		autoOutput = yesno;
+		return;
+	} else {
+		autoOutput = yesno;
+	}
+	mutex.unlock();
+	process();
+}
+
+void StereoProcessor::testProgram(bool autoOut, double smoothWeight, int hardMult, const char * lOut, const char * rOut, const char * lIn, const char * rIn){
+	autoOutput = autoOut;
 	setSmoothnessWeight(smoothWeight);
 	setHardMultiplier(hardMult);
 	dynamicProgramming(lOut, rOut, imread(lIn, 0), imread(rIn, 0));
