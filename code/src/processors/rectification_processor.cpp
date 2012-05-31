@@ -151,7 +151,7 @@ bool RectificationProcessor::canProcess()
   if(input_image.rows != right_image.rows || input_image.cols != right_image.cols) {
     return false;
   }
-  if(calibration_results.canonicalFilePath().empty()) return false;
+  if(calibration_results.canonicalFilePath().isEmpty()) return false;
   return true;
 }
 
