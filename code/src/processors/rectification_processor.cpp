@@ -155,6 +155,33 @@ bool RectificationProcessor::canProcess()
   return true;
 }
 
+Point RectificationProcessor::mapPoint(Point p, Side side, Size size)
+{
+  mutex.lock();
+  Mat map;
+  if(side == LEFT) {
+    map = rect;
+  } else {
+    map = R * rect;
+  }
+  float flength = qAbs(focal_length);
+  mutex.unlock();
+
+  float x_offset = size.width/2;
+  float y_offset = size.height/2;
+  Mat point(3,1,CV_32F);
+  float rx = p.x-x_offset;
+  float ry = p.y-y_offset;
+  point.at<float>(0) = rx;
+  point.at<float>(1) = ry;
+  point.at<float>(2) = flength;
+
+  Mat mapped(map*point);
+  float mapped_l = mapped.at<float>(2);
+  mapped *= flength/mapped_l;
+  return Point(mapped.at<float>(0), mapped.at<float>(1));
+}
+
 void RectificationProcessor::rectify()
 {
   if(input_image.empty() || right_image.empty()) return;

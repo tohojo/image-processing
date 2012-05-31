@@ -14,6 +14,7 @@ class RectificationProcessor : public TwoImageProcessor
   Q_PROPERTY(float FocalLength READ focalLength WRITE setFocalLength USER true)
 
 public:
+    enum Side {LEFT, RIGHT};
   RectificationProcessor(QObject *parent = 0);
   ~RectificationProcessor();
 
@@ -24,6 +25,8 @@ public:
 
   float focalLength() {QMutexLocker l(&mutex); return focal_length;}
   void setFocalLength(float length);
+
+  Point mapPoint(Point p, Side side, Size size);
 
 private:
   void run();
