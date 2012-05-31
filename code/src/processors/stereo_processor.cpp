@@ -8,7 +8,7 @@ StereoProcessor::StereoProcessor(QObject *parent)
 : TwoImageProcessor(parent)
 {
 	denoise_matrix_length = 3;
-	max_expected_disparity_bounds = 40;
+	max_expected_disparity_bounds = 20;
 	hard_multiplier = -1;
 	smoothness_weight = 0.4; // Sometimes works.
 	denoise_matrix_length = 3; // Must be odd number. 0 = no de-noise-ing
@@ -44,27 +44,27 @@ void StereoProcessor::run()
 		left.append(".png");
 		right.append(".png");
 		testProgram(false, 0.5, 6, leftout.str().c_str(), rightout.str().c_str(), left.c_str(), right.c_str());
-	}*/
+	}
 	setMatrixLength(0);
 	for (int i = 4071; i <= 4114; i++){
-		std::string left = "Database/DSCF";
-		std::string right = "Database/DSCF";
+		std::string left = "Database/norm_0.25_1.2/DSCF";
+		std::string right = "Database/norm_0.25_1.2/DSCF";
 		std::stringstream ss;
 		ss << i;
 		left.append(ss.str());
 		right.append(ss.str());
 		std::stringstream leftout;
 		leftout << left;
-		leftout << "D_l.jpg";
+		leftout << "rec_l.normalD.png";
 		std::stringstream rightout;
 		rightout << right;
-		rightout << "D_r.jpg";
-		left.append("rec_l.jpg");
-		right.append("rec_r.jpg");
+		rightout << "rec_r.normalD.png";
+		left.append("rec_l.normal.png");
+		right.append("rec_r.normal.png");
 		//left.append("rec_l.normal.png");
 		//right.append("rec_r.normal.png");
 		testProgram(false, 0.6, 6, leftout.str().c_str(), rightout.str().c_str(), left.c_str(), right.c_str());
-	}
+	}*/
 
 	forever {
 		if(abort) return;
