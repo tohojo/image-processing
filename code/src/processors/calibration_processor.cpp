@@ -158,10 +158,10 @@ void CalibrationProcessor::calibrate()
     T = calib.getTranslationMatrix();
     f = calib.getFocalLength();
   }
-  saveOutput(R,T,f);
+  saveOutput(R,T,f,width,height);
 }
 
-void CalibrationProcessor::saveOutput(Mat R, Mat T, double f)
+void CalibrationProcessor::saveOutput(Mat R, Mat T, double f, int width, int height)
 {
   mutex.lock();
   QString filename = m_output_file.filePath();
@@ -173,7 +173,7 @@ void CalibrationProcessor::saveOutput(Mat R, Mat T, double f)
     return;
   {
     QTextStream out(&file);
-    out << f << "\n";
+    out << f << " " << width << " " << height << "\n";
   }
   Util::write_matrix(R, &file);
   Util::write_matrix(T, &file);

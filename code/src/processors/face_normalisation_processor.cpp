@@ -72,31 +72,56 @@ void FaceNormalisationProcessor::normalise_faces()
 
   if(files.empty()) return;
 
+  QStringList pairs;
+  foreach(QString fname, files) {
+    // Pairs are images (and hence text files) that end with _l.ext and _r.ext
+    // for left and right images
+    if(fname.endsWith("_l.txt") || fname.endsWith("_r.txt")) {
+      QString pairname = fname.left(fname.size()-6);
+      if(!pairs.contains(pairname))
+        pairs << pairname;
+    }
+  }
+
+  RectificationProcessor rectification;
+  rectification.setPropertiesFrom(this);
+
+
   Mat avg(3,3,CV_32F,Scalar::all(0));
-  QList<Mat> img_list;
+  QList<Mat> img_poilist;
 
   foreach(QString fname, files) {
     QFile file(QString("%1/%2").arg(dirname).arg(fname));
     if(file.open(QIODevice::ReadOnly)) {
       QList<Point> POIs = Util::read_POIs(&file);
-      Mat img = Mat::ones(POIs.size(), 3, CV_32F);
+      Mat img_pois = Mat::ones(POIs.size(), 3, CV_32F);
       int i = 0;
       qStableSort(POIs.begin(), POIs.end(), Util::comparePointsX);
       foreach(Point pt, POIs) {
-        img.at<float>(i,0) = (float) pt.x;
-        img.at<float>(i,1) = (float) pt.y;
+        Point pt_map;
+        if(rectification.canProcess() || 1) {
+          RectificationProcessor::Side side;
+          if(fname.endsWith("_l.txt"))
+            side = RectificationProcessor::LEFT;
+          else if(fname.endsWith("_r.txt"))
+            side = RectificationProcessor::RIGHT;
+          pt_map = rectification.mapPoint(pt, side);
+        } else {
+          pt_map = pt;
+        }
+        img_pois.at<float>(i,0) = (float) pt_map.x;
+        img_pois.at<float>(i,1) = (float) pt_map.y;
         i++;
       }
-      avg += img;
-      img_list << img;
+      avg += img_pois;
+      img_poilist << img_pois;
     }
   }
-  if(img_list.empty()) return;
-  avg /= img_list.size();
+  if(img_poilist.empty()) return;
+  avg /= img_poilist.size();
 
   qDebug() << "Avg" << endl << Util::format_matrix_float(avg);
 
-  QList<Mat> normalised;
 
   double min_x,min_y,max_x,max_y;
   minMaxLoc(Mat(avg, Rect(0,0,1,3)), &min_x, &max_x, 0, 0);
@@ -112,10 +137,13 @@ void FaceNormalisationProcessor::normalise_faces()
 
   qDebug() << min_x << max_x << min_y << max_y << range_x << range_y;
 
+  QList<Mat> normalised;
   int i = 0;
-  foreach(Mat img_points, img_list) {
+  foreach(Mat img_points, img_poilist) {
     if(abort) return;
-    emit progress(100*((float)i)/img_list.size());
+    emit progress(100*((float)i)/img_poilist.size());
+    qDebug() << "From:" << Util::format_matrix_float(img_points);
+    qDebug() << "To:" << Util::format_matrix_float(avg);
     Mat transform;
     if(!solve(img_points, avg, transform, DECOMP_SVD)) {
       qDebug() << "Solve error";

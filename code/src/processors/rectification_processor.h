@@ -26,19 +26,21 @@ public:
   float focalLength() {QMutexLocker l(&mutex); return focal_length;}
   void setFocalLength(float length);
 
-  Point mapPoint(Point p, Side side, Size size);
+  Point mapPoint(Point p, Side side);
+
+  bool canProcess();
 
 private:
   void run();
   void loadCalibrationResults();
   void calculateRectMatrix();
   void rectify();
-  bool canProcess();
   QFileInfo calibration_results;
   float focal_length;
   Mat R;
   Mat T;
   Mat rect;
+  int width, height;
 };
 
 #endif

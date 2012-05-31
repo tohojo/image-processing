@@ -36,6 +36,8 @@ public:
   int poiCount() {QMutexLocker l(&mutex); return POIs.size();}
   QList<Point> getPOIs() { QMutexLocker l(&mutex); return POIs; }
 
+  void setPropertiesFrom(Processor *other);
+
 public slots:
   void process();
   void run_once();
@@ -56,7 +58,6 @@ signals:
 
 protected:
   void addPropertiesFrom(Processor *other);
-  void setPropertiesFrom(Processor *other);
   bool canProcess() {return true;}
   virtual void run();
   QMutex mutex;
