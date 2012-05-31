@@ -8,7 +8,9 @@ RectificationProcessor::RectificationProcessor(QObject *parent)
     focal_length(1.0),
     R(3,3,CV_32F),
     T(3,1,CV_32F),
-    rect(3,3,CV_32F)
+    rect(3,3,CV_32F),
+    width(0),
+    height(0)
 {
   rect = Mat::eye(3,3,CV_32F);
   R = Mat::eye(3,3,CV_32F);
@@ -55,15 +57,23 @@ void RectificationProcessor::loadCalibrationResults()
   QString flString = file.readLine();
   bool ok;
   float f1,f2;
-  f1 = flString.toFloat(&ok);
+  int w, h;
+  f1 = flString.section(" ", 0, 0).toFloat(&ok);
+  if(!ok) return;
+  w = flString.section(" ", 1, 1).toInt(&ok);
+  if(!ok) return;
+  h = flString.section(" ", 2, 2).toInt(&ok);
   if(!ok) return;
   if(!Util::read_matrix(Rl,&file)) return;
   if(!Util::read_matrix(Tl,&file)) return;
   flString = file.readLine();
-  f2 = flString.toFloat(&ok);
+  f2 = flString.section(" ", 0, 0).toFloat(&ok);
   if(!ok) return;
   if(!Util::read_matrix(Rr,&file)) return;
   if(!Util::read_matrix(Tr,&file)) return;
+
+  qDebug() << "Dimensions:" << w << h;
+  width = w; height = h;
 
   qDebug() << "Focal lengths:" << f1 << f2;
 
@@ -155,7 +165,7 @@ bool RectificationProcessor::canProcess()
   return true;
 }
 
-Point RectificationProcessor::mapPoint(Point p, Side side, Size size)
+Point RectificationProcessor::mapPoint(Point p, Side side)
 {
   mutex.lock();
   Mat map;
@@ -165,10 +175,11 @@ Point RectificationProcessor::mapPoint(Point p, Side side, Size size)
     map = R * rect;
   }
   float flength = qAbs(focal_length);
+  int w = width; int h = height;
   mutex.unlock();
 
-  float x_offset = size.width/2;
-  float y_offset = size.height/2;
+  float x_offset = w/2.0;
+  float y_offset = h/2.0;
   Mat point(3,1,CV_32F);
   float rx = p.x-x_offset;
   float ry = p.y-y_offset;

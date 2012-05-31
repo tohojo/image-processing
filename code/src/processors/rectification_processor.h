@@ -26,7 +26,7 @@ public:
   float focalLength() {QMutexLocker l(&mutex); return focal_length;}
   void setFocalLength(float length);
 
-  Point mapPoint(Point p, Side side, Size size);
+  Point mapPoint(Point p, Side side);
 
 private:
   void run();
@@ -39,6 +39,7 @@ private:
   Mat R;
   Mat T;
   Mat rect;
+  int width, height;
 };
 
 #endif
