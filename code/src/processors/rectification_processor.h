@@ -28,12 +28,13 @@ public:
 
   Point mapPoint(Point p, Side side);
 
+  bool canProcess();
+
 private:
   void run();
   void loadCalibrationResults();
   void calculateRectMatrix();
   void rectify();
-  bool canProcess();
   QFileInfo calibration_results;
   float focal_length;
   Mat R;

@@ -180,17 +180,25 @@ Point RectificationProcessor::mapPoint(Point p, Side side)
 
   float x_offset = w/2.0;
   float y_offset = h/2.0;
-  Mat point(3,1,CV_32F);
   float rx = p.x-x_offset;
   float ry = p.y-y_offset;
-  point.at<float>(0) = rx;
-  point.at<float>(1) = ry;
-  point.at<float>(2) = flength;
+
+  Mat point = (Mat_<float>(3,1) << rx ,ry, flength);
+  Mat origin = (Mat_<float>(3,1) << 0.0, 0.0, flength);
 
   Mat mapped(map*point);
   float mapped_l = mapped.at<float>(2);
   mapped *= flength/mapped_l;
-  return Point(mapped.at<float>(0), mapped.at<float>(1));
+
+  Mat mapped_origin(map*origin);
+  mapped_l = mapped_origin.at<float>(2);
+  mapped_origin *= flength/mapped_l;
+
+  qDebug() << "Point:" << point.at<float>(0) << point.at<float>(1) << " >> " << mapped.at<float>(0) << mapped.at<float>(1);
+  qDebug() << "Origin:" << 0 << 0 << " >> " << mapped_origin.at<float>(0) << mapped_origin.at<float>(1);
+  Point pt(mapped.at<float>(0)+x_offset, mapped.at<float>(1)+y_offset);
+  qDebug() << pt.x  << pt.y;
+  return pt;
 }
 
 void RectificationProcessor::rectify()
