@@ -12,6 +12,7 @@ class RectificationProcessor : public TwoImageProcessor
              WRITE setCalibrationResults USER true)
   Q_CLASSINFO("CalibrationResults", "filetype=text;")
   Q_PROPERTY(float FocalLength READ focalLength WRITE setFocalLength USER true)
+  Q_PROPERTY(bool UseColour READ getuses_colour WRITE setuses_colour USER true)
 
 public:
     enum Side {LEFT, RIGHT};
@@ -25,6 +26,9 @@ public:
 
   float focalLength() {QMutexLocker l(&mutex); return focal_length;}
   void setFocalLength(float length);
+  
+  float getuses_colour() {QMutexLocker l(&mutex); return uses_colour;}
+  void setuses_colour(bool yn);
 
   Point mapPoint(Point p, Side side);
 

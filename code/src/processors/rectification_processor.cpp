@@ -22,6 +22,31 @@ RectificationProcessor::~RectificationProcessor()
 
 void RectificationProcessor::run()
 {
+
+	for (int i = 4071; i <= 4114; i++){
+		std::string left = "DATABASE/DSCF";
+		std::string right = "DATABASE/DSCF";
+		std::stringstream ss;
+		ss << i;
+		left.append(ss.str());
+		right.append(ss.str());
+		std::stringstream leftout;
+		leftout << left;
+		leftout << "D.png";
+		std::stringstream rightout;
+		rightout << right;
+		rightout << "D.png";
+		left.append(".png");
+		right.append(".png");
+		QString qleft(left.c_str());
+		QString qright(right.c_str());
+		input_image = Util::load_image_colour(qleft);
+		right_image = Util::load_image_colour(qright);
+		rectify();
+		imwrite(leftout.str(), output_image);
+		imwrite(rightout.str(), right_output);
+	}
+
   forever {
     if(abort) return;
     emit progress(10);
@@ -211,7 +236,16 @@ void RectificationProcessor::rectify()
   mutex.lock();
   Mat Rl = rect.inv();
   Mat Rr = (R * rect).inv();
-
+  /*Mat left_img;
+  Mat right_img;
+  if(uses_colour){
+	  left_img = Util::load_image_colour(input_image);
+	  right_img = Util::load_image_colour(right_);
+  }
+  else{
+	  left_img = Util::load_image(img_filename);
+	  right_img = Util::load_image(img_filename);
+  }*/
   Mat left_img = input_image;
   Mat right_img = right_image;
   mutex.unlock();
@@ -317,6 +351,14 @@ void RectificationProcessor::setFocalLength(float length)
   QMutexLocker locker(&mutex);
   if(length == focal_length) return;
   focal_length = length;
+  mutex.unlock();
+  process();
+}
+
+void RectificationProcessor::setuses_colour(bool yn){
+  QMutexLocker locker(&mutex);
+  if(uses_colour == yn) return;
+  uses_colour = yn;
   mutex.unlock();
   process();
 }

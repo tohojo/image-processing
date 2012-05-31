@@ -17,7 +17,7 @@ PcaTrainingProcessor::PcaTrainingProcessor(QObject *parent)
 	usingDepth = false;
 	error_threshold = 1.1;
 	saveReconstructedImgs = true;
-        uses_colour = true;
+     uses_colour = true;
 }
 
 
