@@ -45,6 +45,7 @@ private:
   Mat T;
   Mat rect;
   int width, height;
+  Mat left_rectified, right_rectified;
 };
 
 #endif

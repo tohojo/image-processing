@@ -25,7 +25,8 @@ StereoProcessor::~StereoProcessor()
 void StereoProcessor::run()
 {
 
-	for (int i = 0; i < 44; i+=2){
+	// Please ignore these stupid hacks :3
+	/*for (int i = 0; i < 44; i+=2){
 		std::string left = "PCA_NEW_128_DEPTH/databaseimage";
 		std::string right = "PCA_NEW_128_DEPTH/databaseimage";
 		std::stringstream ss;
@@ -43,6 +44,26 @@ void StereoProcessor::run()
 		left.append(".png");
 		right.append(".png");
 		testProgram(false, 0.5, 6, leftout.str().c_str(), rightout.str().c_str(), left.c_str(), right.c_str());
+	}*/
+	setMatrixLength(0);
+	for (int i = 4071; i <= 4114; i++){
+		std::string left = "Database/DSCF";
+		std::string right = "Database/DSCF";
+		std::stringstream ss;
+		ss << i;
+		left.append(ss.str());
+		right.append(ss.str());
+		std::stringstream leftout;
+		leftout << left;
+		leftout << "D_l.jpg";
+		std::stringstream rightout;
+		rightout << right;
+		rightout << "D_r.jpg";
+		left.append("rec_l.jpg");
+		right.append("rec_r.jpg");
+		//left.append("rec_l.normal.png");
+		//right.append("rec_r.normal.png");
+		testProgram(false, 0.6, 6, leftout.str().c_str(), rightout.str().c_str(), left.c_str(), right.c_str());
 	}
 
 	forever {

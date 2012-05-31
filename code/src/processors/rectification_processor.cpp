@@ -23,28 +23,32 @@ RectificationProcessor::~RectificationProcessor()
 void RectificationProcessor::run()
 {
 
-	for (int i = 4071; i <= 4114; i++){
-		std::string left = "DATABASE/DSCF";
-		std::string right = "DATABASE/DSCF";
+	// Please ignore this stupid hack :3
+	QString qfile("Database/cal.txt");
+	QFileInfo qinf(qfile);
+	setCalibrationResults(qinf);
+	for (int i = 4072; i <= 4114; i++){
+		std::string left = "Database/DSCF";
+		std::string right = "Database/DSCF";
 		std::stringstream ss;
 		ss << i;
 		left.append(ss.str());
 		right.append(ss.str());
 		std::stringstream leftout;
 		leftout << left;
-		leftout << "D.png";
+		leftout << "rec_l.jpg";
 		std::stringstream rightout;
 		rightout << right;
-		rightout << "D.png";
-		left.append(".png");
-		right.append(".png");
+		rightout << "rec_r.jpg";
+		left.append("_l.jpg");
+		right.append("_r.jpg");
 		QString qleft(left.c_str());
 		QString qright(right.c_str());
 		input_image = Util::load_image_colour(qleft);
 		right_image = Util::load_image_colour(qright);
 		rectify();
-		imwrite(leftout.str(), output_image);
-		imwrite(rightout.str(), right_output);
+		imwrite(leftout.str(), left_rectified);
+		imwrite(rightout.str(), right_rectified);
 	}
 
   forever {
@@ -268,8 +272,8 @@ void RectificationProcessor::rectify()
   Mat map_right_x(left_img.rows, left_img.cols, CV_32F);
   Mat map_right_y(left_img.rows, left_img.cols, CV_32F);
 
-  Mat left_rectified = Mat::zeros(left_img.rows, left_img.cols, left_img.type());
-  Mat right_rectified = Mat::zeros(right_img.rows, right_img.cols, right_img.type());
+  left_rectified = Mat::zeros(left_img.rows, left_img.cols, left_img.type());
+  right_rectified = Mat::zeros(right_img.rows, right_img.cols, right_img.type());
 
   float x_offset = left_img.cols/2;
   float y_offset = left_img.rows/2;
