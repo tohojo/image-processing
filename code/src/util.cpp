@@ -128,6 +128,23 @@ namespace Util {
     }
   }
 
+  QString format_matrix_float(Mat mat)
+  {
+    QString formatted;
+    QTextStream stream(&formatted, QIODevice::WriteOnly);
+    stream.setRealNumberNotation(QTextStream::FixedNotation);
+    stream.setRealNumberPrecision(2);
+    stream.setFieldAlignment(QTextStream::AlignRight);
+    for(int i = 0; i < mat.rows; i++) {
+      for(int j = 0; j < mat.cols; j++) {
+        stream << qSetFieldWidth(4) << mat.at<float>(i,j) << " ";
+      }
+      stream << qSetFieldWidth(0) << endl;
+    }
+
+    return formatted;
+  }
+
   /**
    * Read a float-valued matrix written by write_matrix.
    *
@@ -217,5 +234,10 @@ namespace Util {
     qDebug() << "Loaded" << c << "POIs from file";
     return points;
 
+  }
+
+  bool comparePointsX(const Point p1, const Point p2)
+  {
+    return p1.x < p2.x;
   }
 }
