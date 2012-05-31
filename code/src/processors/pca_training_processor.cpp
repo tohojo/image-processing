@@ -247,7 +247,6 @@ Mat PcaTrainingProcessor::pcaClassifyInputImage(){
 	double minError = 1000000000;
 	double nextMinError = 1000000000;
 	for (unsigned int i = 0; i < errors.size(); i++){
-		cout << "" << i << ".  i1 " << index1 << " i2 " << index2 << "\n";
 		double err = errors.at(i);
 		bool admissible = (err <= (classesOfTrainingImages.at(i).worstError * error_threshold));
 		// MUST calculate 'admissible' dynamically, not store it as a variable for each class,
@@ -261,7 +260,6 @@ Mat PcaTrainingProcessor::pcaClassifyInputImage(){
 			nextMinError = err;
 			index2 = i;
 		}
-		cout << "...i1 " << index1 << " i2 " << index2 << "\n";
 	}
 	emit progress(80);
 
