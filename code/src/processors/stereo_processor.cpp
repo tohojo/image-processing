@@ -24,8 +24,8 @@ StereoProcessor::~StereoProcessor()
 
 void StereoProcessor::run()
 {
-/*
-	for (int i = 0; i < 44; i++){
+
+	for (int i = 0; i < 44; i+=2){
 		std::string left = "PCA_NEW_128_DEPTH/databaseimage";
 		std::string right = "PCA_NEW_128_DEPTH/databaseimage";
 		std::stringstream ss;
@@ -34,9 +34,16 @@ void StereoProcessor::run()
 		std::stringstream ss2;
 		ss2 << (i+1);
 		right.append(ss2.str());
-		left.append(".png");		right.append(".png");
-		testProgram(false, 0.5, 6, left.c_str(), right.c_str(), left.c_str(), right.c_str());
-	}*/
+		std::stringstream leftout;
+		leftout << left;
+		leftout << "D.png";
+		std::stringstream rightout;
+		rightout << right;
+		rightout << "D.png";
+		left.append(".png");
+		right.append(".png");
+		testProgram(false, 0.5, 6, leftout.str().c_str(), rightout.str().c_str(), left.c_str(), right.c_str());
+	}
 
 	forever {
 		if(abort) return;
@@ -429,6 +436,7 @@ Mat StereoProcessor::medianFilter(Mat * mat, int filterSize){
 
 
 bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rightName, Mat left_input, Mat right_input){
+	
 	if( (left_input.empty()) || (right_input.empty()) ){
 		return false;
 	}
