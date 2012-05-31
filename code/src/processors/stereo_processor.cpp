@@ -13,6 +13,7 @@ StereoProcessor::StereoProcessor(QObject *parent)
 	smoothness_weight = 0.4; // Sometimes works.
 	denoise_matrix_length = 3; // Must be odd number. 0 = no de-noise-ing
 	weight_porcupine = 1.0;
+	autoOutput = false;
 }
 
 
@@ -23,6 +24,19 @@ StereoProcessor::~StereoProcessor()
 
 void StereoProcessor::run()
 {
+/*
+	for (int i = 0; i < 44; i++){
+		std::string left = "PCA_NEW_128_DEPTH/databaseimage";
+		std::string right = "PCA_NEW_128_DEPTH/databaseimage";
+		std::stringstream ss;
+		ss << i;
+		left.append(ss.str());
+		std::stringstream ss2;
+		ss2 << (i+1);
+		right.append(ss2.str());
+		left.append(".png");		right.append(".png");
+		testProgram(false, 0.5, 6, left.c_str(), right.c_str(), left.c_str(), right.c_str());
+	}*/
 
 	forever {
 		if(abort) return;
@@ -428,8 +442,6 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 		emit progress(5);
 		right_input = medianFilter(&right_input, denoise_matrix_length);
 		emit progress(10);
-		//mutex.lock();
-		//output_image = Util::combine(left_input, right_input);
 		emit progress(15);
 		emit updated();
 	}
@@ -458,9 +470,6 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 
 	// We progress one row of the rectified images at a time, starting with the topmost.
 	for (int y_scanline = 0; y_scanline < numRowsLeft; y_scanline++){
-
-		std::cout << "L" << y_scanline << "\n";
-
 
 		// A[0,0] is initialised to 0. All other elements are evaluated from upper left to lower right corner.
 		for (int i = 0; i < numColsLeft; i++){ // i counts cols
@@ -791,18 +800,19 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 
 	}
 
-
-
-
-
-	// Outputs disparity maps to files
-	cv::imwrite(leftName, correctedLeftDepthMap);
-	cv::imwrite(rightName, correctedRightDepthMap);
-	//cv::imwrite("Left-Disparity-Map-B.png", correctedLeftDepthMap_B);
-	//cv::imwrite("Right-Disparity-Map-B.png", correctedRightDepthMap_B);
+	if(autoOutput){
+		std::string inp = input_image_filename.toStdString();
+		inp = inp.append("_DEPTH.png");
+		std::string outp = right_image_file.fileName().toStdString();
+		outp = outp.append("_DEPTH.png");
+		cv::imwrite(inp, correctedLeftDepthMap);
+		cv::imwrite(outp, correctedRightDepthMap);
+	} else {
+		// Outputs disparity maps to files anyway
+		cv::imwrite(leftName, correctedLeftDepthMap);
+		cv::imwrite(rightName, correctedRightDepthMap);
+	}
 	return true;
-
-
 
 	// PSEUDOCODE:
 	/*
@@ -878,7 +888,20 @@ void StereoProcessor::setWeightPorcupine(const double a){
 	process();
 }
 
-void StereoProcessor::testProgram(double smoothWeight, int hardMult, const char * lOut, const char * rOut, const char * lIn, const char * rIn){
+void StereoProcessor::setAutoOutput(const bool yesno){
+	QMutexLocker locker(&mutex);
+	if(autoOutput == true){
+		autoOutput = yesno;
+		return;
+	} else {
+		autoOutput = yesno;
+	}
+	mutex.unlock();
+	process();
+}
+
+void StereoProcessor::testProgram(bool autoOut, double smoothWeight, int hardMult, const char * lOut, const char * rOut, const char * lIn, const char * rIn){
+	autoOutput = autoOut;
 	setSmoothnessWeight(smoothWeight);
 	setHardMultiplier(hardMult);
 	dynamicProgramming(lOut, rOut, imread(lIn, 0), imread(rIn, 0));
