@@ -14,6 +14,7 @@ Processor::Processor(QObject *parent)
   abort = false;
   restart = false;
   once = false;
+  uses_colour = false;
   connect(this, SIGNAL(updated()), this, SLOT(saveOutput()));
 }
 
@@ -73,7 +74,11 @@ void Processor::run_once()
 void Processor::set_input(const Mat img)
 {
   QMutexLocker locker(&mutex);
-  input_image = img;
+  if(!uses_colour && !img.empty()) {
+    cvtColor(img,input_image,CV_RGB2GRAY);
+  } else {
+    input_image = img;
+  }
 }
 
 void Processor::set_input_name(QString filename)

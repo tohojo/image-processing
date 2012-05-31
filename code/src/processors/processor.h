@@ -64,6 +64,7 @@ protected:
   QList<Point> POIs;
   QString input_image_filename;
   QFileInfo image_output_file;
+  bool uses_colour;
 };
 
 #endif

@@ -7,21 +7,12 @@ ResizingProcessor::ResizingProcessor(QObject *parent)
 : Processor(parent)
 {
 	factor = 1.0;
+        uses_colour = true;
 }
 
 
 ResizingProcessor::~ResizingProcessor()
 {
-}
-
-
-void ResizingProcessor::set_input(const Mat img){
-	// Overwrites the greyscale image loader.
-	// Unfortunately, this means the image will be loaded twice:
-	// once in "ProcessingGUI::load_image(QString filename)" and then immediately again, in colour,
-	// when it calls "current_processor->set_input(input_image)" - i.e. this function
-	QMutexLocker locker(&mutex);
-	input_image = Util::load_image_colour(input_image_filename);
 }
 
 

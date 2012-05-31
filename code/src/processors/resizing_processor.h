@@ -21,7 +21,6 @@ public:
 	QString name() {return "Image resizing";}
 
 	void run();
-	void set_input(const Mat img);
 
 private:
 

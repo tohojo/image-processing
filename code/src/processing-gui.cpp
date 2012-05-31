@@ -214,7 +214,7 @@ void ProcessingGUI::load_image(QString filename)
     return;
   }
 
-  input_image = Util::load_image(filename);
+  input_image = Util::load_image_colour(filename);
   current_processor->set_input_name(filename); // The PCA processor requires the filename to be set first
   current_processor->set_input(input_image);
   QImage qImg = Util::mat_to_qimage(input_image);

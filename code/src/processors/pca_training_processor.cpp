@@ -17,6 +17,7 @@ PcaTrainingProcessor::PcaTrainingProcessor(QObject *parent)
 	usingDepth = false;
 	error_threshold = 1.1;
 	saveReconstructedImgs = true;
+        uses_colour = true;
 }
 
 
@@ -25,14 +26,6 @@ PcaTrainingProcessor::~PcaTrainingProcessor()
 }
 
 
-void PcaTrainingProcessor::set_input(const Mat img){
-	// Overwrites the greyscale image loader.
-	// Unfortunately, this means the image will be loaded twice:
-	// once in "ProcessingGUI::load_image(QString filename)" and then immediately again, in colour,
-	// when it calls "current_processor->set_input(input_image)" - i.e. this function
-	QMutexLocker locker(&mutex);
-	input_image = Util::load_image_colour(input_image_filename);
-}
 
 
 void PcaTrainingProcessor::run()

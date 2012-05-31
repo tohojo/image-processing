@@ -41,7 +41,6 @@ public:
 	bool PCATrain();
 
 	void run();
-	void set_input(const Mat img);
 
 private:
 
@@ -59,7 +58,7 @@ private:
 	int pcaImageHeight;
 	int dataPointsPerPixel;
 	int totalDataPointsPerImage; // pcaImageWidth * pcaImageHeight * dataPointsPerPixel
-	
+
 	std::vector<class_of_training_images> classesOfTrainingImages; // Number of elements = number of classes
 	// Each element stores the name for that class and all training images in that class
 
