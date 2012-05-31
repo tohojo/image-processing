@@ -20,7 +20,9 @@ FaceNormalisationProcessor::FaceNormalisationProcessor(QObject *parent)
     show_idx(0),
     crop_x(0.3),
     crop_y(1.8)
-{}
+{
+  uses_colour = true;
+}
 
 FaceNormalisationProcessor::~FaceNormalisationProcessor()
 {}
@@ -103,12 +105,6 @@ void FaceNormalisationProcessor::normalise_faces()
            range_x*(1.0+2*crop_x),
            range_y*(1.0+2*crop_y));
 
-  if(POIs.empty()) {
-    for(int i = 0; i < avg.rows; i++) {
-      emit newPOI(QPoint((int) avg.at<float>(i,0)-roi.x, (int) avg.at<float>(i,1)-roi.y));
-    }
-  }
-
   qDebug() << min_x << max_x << min_y << max_y << range_x << range_y;
 
   int i = 0;
@@ -125,9 +121,27 @@ void FaceNormalisationProcessor::normalise_faces()
       Mat dst(img.rows, img.cols, img.type());
       Size s = img.size();
       warpAffine(img, dst, Mat(affine, Rect(0,0,3,2)), s, INTER_CUBIC);
-      Rect roi_clipped(roi.x,roi.y,qMin(roi.width, img.cols-roi.x), qMin(roi.height, img.rows-roi.y));
+
+      // Crop image by selecting sub-region, make sure we do not crash by using
+      // out-of-bounds values.
+      Rect roi_clipped(roi.x,roi.y,qMin(roi.width, img.cols-roi.x),
+                       qMin(roi.height, img.rows-roi.y));
       Mat cropped(dst, roi_clipped);
-      normalised << cropped;
+
+      // Draw an ellipse, by drawing the maximum ellipse in black onto a
+      // non-black image of the same size, then use that image as a fill mask
+      // for the real image
+      Mat mask = Mat::ones(cropped.rows, cropped.cols, CV_8U);
+      ellipse(mask, RotatedRect(Point2f(mask.cols/2, mask.rows/2), mask.size(), 0), Scalar(0), -1);
+      cropped.setTo(Scalar(0), mask);
+
+      // Rescale the image to a width of 256 pixels. This also dramatically
+      // helps on memory use, since the original images are no longer kept in
+      // memory.
+      Mat rescaled;
+      float scale_factor = 256.0/cropped.cols;
+      resize(cropped, rescaled, Size(), scale_factor, scale_factor, INTER_AREA);
+      normalised << rescaled;
       i++;
     }
   }
