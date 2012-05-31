@@ -260,13 +260,17 @@ Mat PcaTrainingProcessor::pcaClassifyInputImage(){
 	if(index1 != -1){
 		string cut = classesOfTrainingImages.at(index1).identifier;
 		cut = cut.erase(classesOfTrainingImages.at(index1).identifier.length()-1);
+		double conf = 100*(1 - (minError/(error_threshold * classesOfTrainingImages.at(index1).worstError)));
 		qDebug() << "Best guess (closest matching class) is: " << cut.data();
 		qDebug() << "Error of best guess is: " << minError << " distance from class mean eigenvector.";
+		qDebug() << "Confidence in best guess is: " << conf << "%";
 		if (index2 != -1){
 			string cut2 = classesOfTrainingImages.at(index2).identifier;
 			cut2 = cut2.erase(classesOfTrainingImages.at(index2).identifier.length()-1);
 			qDebug() << "Second-best guess (next closest match) is: " << cut2.data();
 			qDebug() << "Error of second-best guess is: " << nextMinError << " distance from class mean eigenvector.";
+			double conf_2 = 100*(1 - (nextMinError/(error_threshold * classesOfTrainingImages.at(index2).worstError)));
+			qDebug() << "Confidence in second-best guess is: " << conf_2 << "%";
 		} else {
 			qDebug() << "Error of second-best guess is too high to make it a possibility.";
 		}
