@@ -55,6 +55,7 @@ void FaceNormalisationProcessor::normalise_faces()
   QString dirname = face_points.absolutePath();
   float scale_width = (float) scaled_width;
   QString outdir = output_dir.absoluteFilePath();
+  QString avgfilename = average_file.absoluteFilePath();
   mutex.unlock();
 
   if(filename.isEmpty()) return;
@@ -100,6 +101,20 @@ void FaceNormalisationProcessor::normalise_faces()
   }
   if(img_list.empty()) return;
   avg /= img_list.size();
+
+  if(!avgfilename.isEmpty()) {
+    qDebug() << "Overriding average from file" << avgfilename;
+    QFile file(avgfilename);
+    if(file.open(QIODevice::ReadOnly)) {
+      QList<Point> POIs = Util::read_POIs(&file);
+      int i = 0;
+      foreach(Point pt, POIs) {
+        avg.at<float>(i,0) = (float) pt.x;
+        avg.at<float>(i,1) = (float) pt.y;
+        i++;
+      }
+    }
+  }
 
   qDebug() << "Avg" << endl << Util::format_matrix_float(avg);
 
@@ -278,8 +293,17 @@ void FaceNormalisationProcessor::right()
 void FaceNormalisationProcessor::setOutputDir(QFileInfo path)
 {
   QMutexLocker locker(&mutex);
-  if(path.canonicalPath() == output_dir.canonicalPath()) return;
+  if(path.absoluteFilePath() == output_dir.absoluteFilePath()) return;
   output_dir = path;
+  mutex.unlock();
+  process();
+}
+
+void FaceNormalisationProcessor::setAverageFile(QFileInfo path)
+{
+  QMutexLocker locker(&mutex);
+  if(path.canonicalFilePath() == average_file.canonicalFilePath()) return;
+  average_file = path;
   mutex.unlock();
   process();
 }
