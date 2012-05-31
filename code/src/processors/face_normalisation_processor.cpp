@@ -16,7 +16,8 @@ using namespace cv;
 FaceNormalisationProcessor::FaceNormalisationProcessor(QObject *parent)
   : Processor(parent),
     face_points(),
-    read_dir(true)
+    read_dir(true),
+    show_idx(0)
 {}
 
 FaceNormalisationProcessor::~FaceNormalisationProcessor()
