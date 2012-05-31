@@ -18,14 +18,17 @@ class FaceNormalisationProcessor : public Processor
   Q_PROPERTY(QFileInfo FacePoints READ facePoints
              WRITE setFacePoints USER true)
   Q_PROPERTY(bool ReadDir READ readDir WRITE setReadDir USER true)
+  Q_PROPERTY(bool UseColour READ useColour WRITE setUseColour USER true)
   Q_PROPERTY(int ShowIndex READ showIndex WRITE setShowIndex USER true)
   Q_PROPERTY(float CropX READ cropX WRITE setCropX USER true)
   Q_PROPERTY(float CropY READ cropY WRITE setCropY USER true)
+  Q_PROPERTY(int ScaledWidth READ scaledWidth WRITE setScaledWidth USER true)
 
   Q_CLASSINFO("FacePoints", "filetype=text;")
   Q_CLASSINFO("ShowIndex", "minimum=0;")
   Q_CLASSINFO("CropX", "minimum=0;")
   Q_CLASSINFO("CropY", "minimum=0;")
+  Q_CLASSINFO("ScaledWidth", "minimum=1;")
 
 public:
   FaceNormalisationProcessor(QObject *parent = 0);
@@ -39,6 +42,9 @@ public:
   bool readDir() {QMutexLocker l(&mutex); return read_dir;}
   void setReadDir(bool value);
 
+  bool useColour() {QMutexLocker l(&mutex); return uses_colour;}
+  void setUseColour(bool value);
+
   int showIndex() {QMutexLocker l(&mutex); return show_idx;}
   void setShowIndex(int value);
 
@@ -47,6 +53,10 @@ public:
 
   float cropY() {QMutexLocker l(&mutex); return crop_y;}
   void setCropY(float value);
+
+  int scaledWidth() {QMutexLocker l(&mutex); return scaled_width;}
+  void setScaledWidth(int value);
+
 private:
   void run();
   void normalise_faces();
@@ -56,6 +66,7 @@ private:
   int show_idx;
   float crop_x;
   float crop_y;
+  int scaled_width;
   QList<Mat> normalised_imgs;
 };
 

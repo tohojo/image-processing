@@ -19,7 +19,8 @@ FaceNormalisationProcessor::FaceNormalisationProcessor(QObject *parent)
     read_dir(true),
     show_idx(0),
     crop_x(0.3),
-    crop_y(1.8)
+    crop_y(1.8),
+    scaled_width(256)
 {
   uses_colour = true;
 }
@@ -51,6 +52,7 @@ void FaceNormalisationProcessor::normalise_faces()
   bool dir = read_dir;
   QString filename = face_points.absoluteFilePath();
   QString dirname = face_points.absolutePath();
+  float scale_width = (float) scaled_width;
   mutex.unlock();
 
   if(filename.isEmpty()) return;
@@ -116,10 +118,14 @@ void FaceNormalisationProcessor::normalise_faces()
       qDebug() << "Solve error";
     } else {
       QString img_filename = QString("%1/%2.jpg").arg(dirname).arg(QFileInfo(files[i]).baseName());
-      Mat img = Util::load_image_colour(img_filename);
+      Mat img;
+      if(uses_colour)
+        img = Util::load_image_colour(img_filename);
+      else
+        img = Util::load_image(img_filename);
       Mat affine = transform.t();
-      Mat dst(img.rows, img.cols, img.type());
       Size s = img.size();
+      Mat dst;
       warpAffine(img, dst, Mat(affine, Rect(0,0,3,2)), s, INTER_CUBIC);
 
       // Crop image by selecting sub-region, make sure we do not crash by using
@@ -139,7 +145,7 @@ void FaceNormalisationProcessor::normalise_faces()
       // helps on memory use, since the original images are no longer kept in
       // memory.
       Mat rescaled;
-      float scale_factor = 256.0/cropped.cols;
+      float scale_factor = scale_width/cropped.cols;
       resize(cropped, rescaled, Size(), scale_factor, scale_factor, INTER_AREA);
       normalised << rescaled;
       i++;
@@ -184,6 +190,15 @@ void FaceNormalisationProcessor::setReadDir(bool value)
   process();
 }
 
+void FaceNormalisationProcessor::setUseColour(bool value)
+{
+  QMutexLocker locker(&mutex);
+  if(uses_colour == value) return;
+  uses_colour = value;
+  mutex.unlock();
+  process();
+}
+
 void FaceNormalisationProcessor::setShowIndex(int value)
 {
   QMutexLocker locker(&mutex);
@@ -207,6 +222,16 @@ void FaceNormalisationProcessor::setCropY(float value)
   QMutexLocker locker(&mutex);
   if(crop_y == value) return;
   crop_y = value;
+  mutex.unlock();
+  process();
+}
+
+
+void FaceNormalisationProcessor::setScaledWidth(int value)
+{
+  QMutexLocker locker(&mutex);
+  if(scaled_width == value) return;
+  scaled_width = value;
   mutex.unlock();
   process();
 }
