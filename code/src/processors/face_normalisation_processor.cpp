@@ -51,7 +51,7 @@ void FaceNormalisationProcessor::normalise_faces()
 {
   mutex.lock();
   bool dir = read_dir;
-  QString filename = face_points.absoluteFilePath();
+  QString filename = face_points.fileName();
   QString dirname = face_points.absolutePath();
   float scale_width = (float) scaled_width;
   QString outdir = output_dir.absoluteFilePath();
