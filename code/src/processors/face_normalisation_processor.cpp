@@ -146,6 +146,16 @@ void FaceNormalisationProcessor::normalise_faces()
     }
   }
 
+ /* for(unsigned int i = 0; i < normalised.size(); i++) {
+	  Mat a = normalised.at(i);
+	  std::string str = "databaseimage";
+	  std::stringstream ss;
+	  ss << i;
+	  str.append(ss.str());
+	  str.append(".png");
+	  imwrite(str, a);
+  }*/
+
   mutex.lock();
   normalised_imgs = normalised;
   mutex.unlock();
