@@ -66,7 +66,7 @@ void DistortionRemoval::calculateLines(){
 		std::ostringstream strs;
 		strs << "Corners expected = " << numberOfCorners << ", but corners found = " << corners.size() << ".";
 		std::string output_str = strs.str();
-		qDebug(output_str.c_str());
+		qDebug("%s", output_str.c_str());
 		qDebug("=======================");
 	} else {
 		qDebug("Lines calculated. Sub-pixel corner points:");
@@ -74,7 +74,7 @@ void DistortionRemoval::calculateLines(){
 			std::ostringstream strs;
 			strs << "   Corner found: <" << (i->x) << "," << (i->y) << "> ";
 			std::string output_str = strs.str();
-			qDebug(output_str.c_str());
+			qDebug("%s", output_str.c_str());
 		}
 		// The following assumes that points from the chessboard are stored left-to-right, top-to-bottom.
 		// This should be guaranteed by opencv.
