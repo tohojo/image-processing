@@ -18,8 +18,8 @@ FaceNormalisationProcessor::FaceNormalisationProcessor(QObject *parent)
     face_points(),
     read_dir(true),
     show_idx(0),
-    crop_x(0.3),
-    crop_y(1.8),
+	crop_x(0.25),
+    crop_y(1.2),
     scaled_width(256),
     output_dir()
 {

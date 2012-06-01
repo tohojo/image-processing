@@ -240,16 +240,6 @@ void RectificationProcessor::rectify()
   mutex.lock();
   Mat Rl = rect.inv();
   Mat Rr = (R * rect).inv();
-  /*Mat left_img;
-  Mat right_img;
-  if(uses_colour){
-	  left_img = Util::load_image_colour(input_image);
-	  right_img = Util::load_image_colour(right_);
-  }
-  else{
-	  left_img = Util::load_image(img_filename);
-	  right_img = Util::load_image(img_filename);
-  }*/
   Mat left_img = input_image;
   Mat right_img = right_image;
   mutex.unlock();
@@ -338,6 +328,8 @@ void RectificationProcessor::rectify()
   remap(right_img, right_rectified, map_right_x, map_right_y, INTER_CUBIC);
 
   set_output_images(left_rectified, right_rectified);
+//  imwrite("rectLeftInColr.jpg", left_rectified);
+//  imwrite("rectRightInColr.jpg", right_rectified);
 }
 
 void RectificationProcessor::setCalibrationResults(QFileInfo path)

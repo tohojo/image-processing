@@ -128,7 +128,11 @@ void Processor::saveOutput()
   QMutexLocker l(&mutex);
   QString filename = image_output_file.filePath();
   if(!filename.isEmpty()) {
-    Util::save_image(output_image, filename);
+	 // if (uses_colour){
+	//	  Util::save_image_colour(output_image, filename);
+	//  } else {
+		  Util::save_image(output_image, filename);
+	 // }
   }
 }
 
