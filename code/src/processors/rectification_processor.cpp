@@ -1,6 +1,7 @@
 #include "rectification_processor.h"
 #include "util.h"
 #include <QDebug>
+#include <QtCore/qmath.h>
 
 RectificationProcessor::RectificationProcessor(QObject *parent)
   : TwoImageProcessor(parent),
@@ -337,17 +338,26 @@ void RectificationProcessor::test()
 
   float total_diff;
   emit clearPOIs();
+  QList<float> diffs;
 
   for(int i = 0; i < corners_l.size(); i++) {
     Point2f l = corners_l[i];
     Point2f r = corners_r[i];
     float diff = qAbs(l.y-r.y);
+    diffs << diff;
     total_diff += diff;
     emit newPOI(QPoint(l.x, l.y));
     emit newPOI(QPoint(r.x+left.cols+5, r.y));
   }
+  qDebug () << "Total diff:" << total_diff;
+  float avg_diff = total_diff / diffs.size();
+  float standard_dev;
+  foreach(float d, diffs) {
+    standard_dev += qPow(d-avg_diff, 2);
+  }
+  standard_dev = qSqrt(standard_dev/(diffs.size()-1));
 
-  qDebug() << "Average y-value difference between corners:" << total_diff/corners_l.size();
+  qDebug() << "Mean y-value difference between corners:" << avg_diff << "std dev:" <<standard_dev;
 }
 
 void RectificationProcessor::setCalibrationResults(QFileInfo path)
