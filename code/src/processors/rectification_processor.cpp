@@ -318,13 +318,15 @@ void RectificationProcessor::test()
 
   Size corner_size(chessboardHoriz(), chessboardVert());
   std::vector<Point2f> corners_l, corners_r;
-  if(!findChessboardCorners(left, corner_size, corners_l)) {
+  if(!findChessboardCorners(left, corner_size, corners_l,
+                            CV_CALIB_CB_ADAPTIVE_THRESH + CV_CALIB_CB_NORMALIZE_IMAGE)) {
     qDebug() << "Error getting corners for left image.";
     return;
   }
   qDebug() << "Found" << corners_l.size() << "chessboard corners for left image.";
   emit progress(97);
-  if(!findChessboardCorners(right, corner_size, corners_r)) {
+  if(!findChessboardCorners(right, corner_size, corners_r,
+                            CV_CALIB_CB_ADAPTIVE_THRESH + CV_CALIB_CB_NORMALIZE_IMAGE)) {
     qDebug() << "Error getting corners for right image.";
     return;
   }
