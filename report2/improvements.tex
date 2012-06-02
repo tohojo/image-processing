@@ -8,15 +8,18 @@
 
 %
 
-Improved lens distortion model: now calculating $\kappa_{2}$ ... simply solve the equations given in TSAI for the second-order coefficient.
+We returned to Tsai calibration to improve our modelling of lens distortion. We integrated the calculation of the second-order distortion coefficient, $\kappa_{2}$, by solving the equations Tsai gives: \cite{TSAI}
 
-Tsai cautions about calculating too many leading to instability in the calculations. \cite{TSAI}.
+ADD IN SOME CALCS HERE
 
-Testing on one of the images showed the effects of using the second-order coefficient were negligible, subsumed by error in the images, rounding errors, etc.
+We did not calculate still higher-order coefficients because Tsai cautions that this can lead to instability in the calibration calculations. \cite{TSAI}
+
+We tested the addition of the coefficient on one of the images by testing error (as described in Section~\ref{sec:statcalibration}), but found the effects of using the second-order coefficient were negligible. The changes they made to the calibration process were largely subsumed by the error in the images, rounding errors in our work, and so on.
 
 %
 
 \subsubsection{Statistical analysis of calibration}
+\label{sec:statcalibration}
 
 We did not perform statistical analysis in the previous report. We remedy that here.
 
@@ -24,7 +27,7 @@ Methodology. We assume a Gaussian distribution. We introduced extra artifical le
 
 Our statistical analysis is done via Student's (unpaired) t-tests. If p < 0.05 we call the difference significant. The tool used is the GraphPad online $t$-test calculator. \cite{testcalc}
 
-\begin{table}[h!]
+\begin{table}[h]
   \centering
   \begin{tabular}{c c c c}
     \toprule
@@ -39,7 +42,7 @@ Our statistical analysis is done via Student's (unpaired) t-tests. If p < 0.05 w
   \label{tbl:stats090}
 \end{table}
 
-\begin{table}[h!]
+\begin{table}[h]
   \centering
   \begin{tabular}{c c c c}
     \toprule
@@ -54,7 +57,7 @@ Our statistical analysis is done via Student's (unpaired) t-tests. If p < 0.05 w
   \label{tbl:statsDSC}
 \end{table}
 
-\begin{table}[h!]
+\begin{table}[h]
   \centering
   \begin{tabular}{c c c}
     \toprule
@@ -70,7 +73,7 @@ Our statistical analysis is done via Student's (unpaired) t-tests. If p < 0.05 w
   \label{tbl:calibration-stats-090-1}
 \end{table}
 
-\begin{table}[h!]
+\begin{table}[h]
   \centering
   \begin{tabular}{c c c}
     \toprule
@@ -86,7 +89,7 @@ Our statistical analysis is done via Student's (unpaired) t-tests. If p < 0.05 w
   \label{tbl:calibration-stats-090-2}
 \end{table}
 
-\begin{table}[h!]
+\begin{table}[h]
   \centering
   \begin{tabular}{c c c}
     \toprule
@@ -102,7 +105,7 @@ Our statistical analysis is done via Student's (unpaired) t-tests. If p < 0.05 w
   \label{tbl:calibration-stats-090-3}
 \end{table}
 
-\begin{table}[h!]
+\begin{table}[h]
   \centering
   \begin{tabular}{c c c}
     \toprule
@@ -118,7 +121,7 @@ Our statistical analysis is done via Student's (unpaired) t-tests. If p < 0.05 w
   \label{tbl:calibration-stats-dsc-1}
 \end{table}
 
-\begin{table}[h!]
+\begin{table}[h]
   \centering
   \begin{tabular}{c c c}
     \toprule
@@ -134,7 +137,7 @@ Our statistical analysis is done via Student's (unpaired) t-tests. If p < 0.05 w
   \label{tbl:calibration-stats-dsc-2}
 \end{table}
 
-\begin{table}[h!]
+\begin{table}[h]
   \centering
   \begin{tabular}{c c c}
     \toprule
@@ -157,10 +160,3 @@ Consider Table~\ref{tbl:stats090}. (WHAT DOES IT SHOW, WHAT ABOUT IT IN GENERAL?
 Consider Table~\ref{tbl:statsDSC}. (WHAT DOES IT SHOW, WHAT ABOUT IT IN GENERAL?) We see a highly statistically significant improvement (p < 0.01) when removing the edge columns from the pincushion-distorted image. Unusually, the opposite - highly statistically significantly worsening, p < 0.01 - for removing the outermost columns from the barrel-distorted image.
 
 The errors in the pincushion image were statistically significantly worse than those in the normal image, both in the case with all points and with the outer columns removed. With the edges removed, this difference had p < 0.01. Similarly, the case with barrel distortion and edges removed was statistically significantly worse than the normal image.
-
-\begin{comment}
-
-\end{comment}
-
-
-
