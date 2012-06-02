@@ -12,7 +12,7 @@ class RectificationProcessor : public TwoImageProcessor
              WRITE setCalibrationResults USER true)
   Q_CLASSINFO("CalibrationResults", "filetype=text;")
   Q_PROPERTY(float FocalLength READ focalLength WRITE setFocalLength USER true)
-  Q_PROPERTY(bool UseColour READ getuses_colour WRITE setuses_colour USER true)
+  Q_PROPERTY(bool TestCheckboard READ testCheckboard WRITE setTestCheckboard USER true)
 
 public:
     enum Side {LEFT, RIGHT};
@@ -26,9 +26,9 @@ public:
 
   float focalLength() {QMutexLocker l(&mutex); return focal_length;}
   void setFocalLength(float length);
-  
-  float getuses_colour() {QMutexLocker l(&mutex); return uses_colour;}
-  void setuses_colour(bool yn);
+
+  bool testCheckboard() {QMutexLocker l(&mutex); return test_checkboard;}
+  void setTestCheckboard(bool test);
 
   Point mapPoint(Point p, Side side);
 
@@ -45,7 +45,7 @@ private:
   Mat T;
   Mat rect;
   int width, height;
-  Mat left_rectified, right_rectified;
+  bool test_checkboard;
 };
 
 #endif

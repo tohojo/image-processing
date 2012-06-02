@@ -10,10 +10,12 @@ RectificationProcessor::RectificationProcessor(QObject *parent)
     T(3,1,CV_32F),
     rect(3,3,CV_32F),
     width(0),
-    height(0)
+    height(0),
+    test_checkboard(false)
 {
   rect = Mat::eye(3,3,CV_32F);
   R = Mat::eye(3,3,CV_32F);
+  uses_colour = true;
 }
 
 RectificationProcessor::~RectificationProcessor()
@@ -22,35 +24,6 @@ RectificationProcessor::~RectificationProcessor()
 
 void RectificationProcessor::run()
 {
-
-	// Please ignore this stupid hack :3
-/*	QString qfile("Database/cal.txt");
-	QFileInfo qinf(qfile);
-	setCalibrationResults(qinf);
-	for (int i = 4072; i <= 4114; i++){
-		std::string left = "Database/DSCF";
-		std::string right = "Database/DSCF";
-		std::stringstream ss;
-		ss << i;
-		left.append(ss.str());
-		right.append(ss.str());
-		std::stringstream leftout;
-		leftout << left;
-		leftout << "rec_l.jpg";
-		std::stringstream rightout;
-		rightout << right;
-		rightout << "rec_r.jpg";
-		left.append("_l.jpg");
-		right.append("_r.jpg");
-		QString qleft(left.c_str());
-		QString qright(right.c_str());
-		input_image = Util::load_image_colour(qleft);
-		right_image = Util::load_image_colour(qright);
-		rectify();
-		imwrite(leftout.str(), left_rectified);
-		imwrite(rightout.str(), right_rectified);
-	}*/
-
   forever {
     if(abort) return;
     emit progress(10);
@@ -262,8 +235,8 @@ void RectificationProcessor::rectify()
   Mat map_right_x(left_img.rows, left_img.cols, CV_32F);
   Mat map_right_y(left_img.rows, left_img.cols, CV_32F);
 
-  left_rectified = Mat::zeros(left_img.rows, left_img.cols, left_img.type());
-  right_rectified = Mat::zeros(right_img.rows, right_img.cols, right_img.type());
+  Mat left_rectified = Mat::zeros(left_img.rows, left_img.cols, left_img.type());
+  Mat right_rectified = Mat::zeros(right_img.rows, right_img.cols, right_img.type());
 
   float x_offset = left_img.cols/2;
   float y_offset = left_img.rows/2;
@@ -328,8 +301,6 @@ void RectificationProcessor::rectify()
   remap(right_img, right_rectified, map_right_x, map_right_y, INTER_CUBIC);
 
   set_output_images(left_rectified, right_rectified);
-//  imwrite("rectLeftInColr.jpg", left_rectified);
-//  imwrite("rectRightInColr.jpg", right_rectified);
 }
 
 void RectificationProcessor::setCalibrationResults(QFileInfo path)
@@ -351,10 +322,10 @@ void RectificationProcessor::setFocalLength(float length)
   process();
 }
 
-void RectificationProcessor::setuses_colour(bool yn){
+void RectificationProcessor::setTestCheckboard(bool test){
   QMutexLocker locker(&mutex);
-  if(uses_colour == yn) return;
-  uses_colour = yn;
+  if(test_checkboard == test) return;
+  test_checkboard = test;
   mutex.unlock();
   process();
 }
