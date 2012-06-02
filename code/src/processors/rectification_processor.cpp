@@ -30,7 +30,6 @@ void RectificationProcessor::run()
     if(abort) return;
     emit progress(10);
     rectify();
-    if(test_chessboard) test();
     emit progress(100);
     emit updated();
     if(once) return;
@@ -305,6 +304,7 @@ void RectificationProcessor::rectify()
 
   set_output_images(left_rectified, right_rectified);
 
+  if(test_chessboard) test();
 }
 
 void RectificationProcessor::test()
