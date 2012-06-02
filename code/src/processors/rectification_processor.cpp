@@ -357,7 +357,7 @@ void RectificationProcessor::test()
   }
   standard_dev = qSqrt(standard_dev/(diffs.size()-1));
 
-  qDebug() << "Mean y-value difference between corners:" << avg_diff << "std dev:" <<standard_dev;
+  qDebug() << "Mean y-value difference between corners:" << avg_diff << "std dev" <<standard_dev;
 }
 
 void RectificationProcessor::setCalibrationResults(QFileInfo path)
