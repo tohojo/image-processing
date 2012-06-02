@@ -252,7 +252,7 @@ void RectificationProcessor::rectify()
     int prog = 20 + (int)(70*((double)x / (double)left_img.cols)); // 20% to 90%
     if (prog % 5 == 0) emit progress(prog);
     for(int y = 0; y < left_img.rows; y++) {
-      if(abort) return;
+      if(abort || restart) return;
       Mat dest(3,1,CV_32F);
       float rx,ry;
       rx = x-x_offset;
