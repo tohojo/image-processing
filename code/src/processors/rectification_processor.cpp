@@ -1,6 +1,7 @@
 #include "rectification_processor.h"
 #include "util.h"
 #include <QDebug>
+#include <QtCore/qmath.h>
 
 RectificationProcessor::RectificationProcessor(QObject *parent)
   : TwoImageProcessor(parent),
@@ -10,10 +11,14 @@ RectificationProcessor::RectificationProcessor(QObject *parent)
     T(3,1,CV_32F),
     rect(3,3,CV_32F),
     width(0),
-    height(0)
+    height(0),
+    test_chessboard(false),
+    chessboard_horiz(10),
+    chessboard_vert(8)
 {
   rect = Mat::eye(3,3,CV_32F);
   R = Mat::eye(3,3,CV_32F);
+  uses_colour = true;
 }
 
 RectificationProcessor::~RectificationProcessor()
@@ -22,35 +27,6 @@ RectificationProcessor::~RectificationProcessor()
 
 void RectificationProcessor::run()
 {
-
-	// Please ignore this stupid hack :3
-/*	QString qfile("Database/cal.txt");
-	QFileInfo qinf(qfile);
-	setCalibrationResults(qinf);
-	for (int i = 4072; i <= 4114; i++){
-		std::string left = "Database/DSCF";
-		std::string right = "Database/DSCF";
-		std::stringstream ss;
-		ss << i;
-		left.append(ss.str());
-		right.append(ss.str());
-		std::stringstream leftout;
-		leftout << left;
-		leftout << "rec_l.jpg";
-		std::stringstream rightout;
-		rightout << right;
-		rightout << "rec_r.jpg";
-		left.append("_l.jpg");
-		right.append("_r.jpg");
-		QString qleft(left.c_str());
-		QString qright(right.c_str());
-		input_image = Util::load_image_colour(qleft);
-		right_image = Util::load_image_colour(qright);
-		rectify();
-		imwrite(leftout.str(), left_rectified);
-		imwrite(rightout.str(), right_rectified);
-	}*/
-
   forever {
     if(abort) return;
     emit progress(10);
@@ -262,8 +238,8 @@ void RectificationProcessor::rectify()
   Mat map_right_x(left_img.rows, left_img.cols, CV_32F);
   Mat map_right_y(left_img.rows, left_img.cols, CV_32F);
 
-  left_rectified = Mat::zeros(left_img.rows, left_img.cols, left_img.type());
-  right_rectified = Mat::zeros(right_img.rows, right_img.cols, right_img.type());
+  Mat left_rectified = Mat::zeros(left_img.rows, left_img.cols, left_img.type());
+  Mat right_rectified = Mat::zeros(right_img.rows, right_img.cols, right_img.type());
 
   float x_offset = left_img.cols/2;
   float y_offset = left_img.rows/2;
@@ -279,7 +255,7 @@ void RectificationProcessor::rectify()
     int prog = 20 + (int)(70*((double)x / (double)left_img.cols)); // 20% to 90%
     if (prog % 5 == 0) emit progress(prog);
     for(int y = 0; y < left_img.rows; y++) {
-      if(abort) return;
+      if(abort || restart) return;
       Mat dest(3,1,CV_32F);
       float rx,ry;
       rx = x-x_offset;
@@ -328,8 +304,62 @@ void RectificationProcessor::rectify()
   remap(right_img, right_rectified, map_right_x, map_right_y, INTER_CUBIC);
 
   set_output_images(left_rectified, right_rectified);
-//  imwrite("rectLeftInColr.jpg", left_rectified);
-//  imwrite("rectRightInColr.jpg", right_rectified);
+
+  if(test_chessboard) test();
+}
+
+void RectificationProcessor::test()
+{
+  Mat left = getLeftOutput();
+  Mat right = getRightOutput();
+  if(left.empty() || right.empty()) return;
+
+  qDebug() << "Finding chessboard corners for accuracy testing...";
+
+  Size corner_size(chessboardHoriz(), chessboardVert());
+  std::vector<Point2f> corners_l, corners_r;
+  if(!findChessboardCorners(left, corner_size, corners_l,
+                            CV_CALIB_CB_ADAPTIVE_THRESH + CV_CALIB_CB_NORMALIZE_IMAGE)) {
+    qDebug() << "Error getting corners for left image.";
+    return;
+  }
+  qDebug() << "Found" << corners_l.size() << "chessboard corners for left image.";
+  emit progress(97);
+  if(!findChessboardCorners(right, corner_size, corners_r,
+                            CV_CALIB_CB_ADAPTIVE_THRESH + CV_CALIB_CB_NORMALIZE_IMAGE)) {
+    qDebug() << "Error getting corners for right image.";
+    return;
+  }
+  qDebug() << "Found" << corners_r.size() << "chessboard corners for right image.";
+
+  if (corners_l.size() != corners_r.size()) {
+    qDebug() << "Different numbers of corners found. Left:" << corners_l.size() << "Right:" << corners_r.size();
+    return;
+  }
+
+
+  float total_diff;
+  emit clearPOIs();
+  QList<float> diffs;
+
+  for(int i = 0; i < corners_l.size(); i++) {
+    Point2f l = corners_l[i];
+    Point2f r = corners_r[i];
+    float diff = qAbs(l.y-r.y);
+    diffs << diff;
+    total_diff += diff;
+    emit newPOI(QPoint(l.x, l.y));
+    emit newPOI(QPoint(r.x+left.cols+5, r.y));
+  }
+  qDebug () << "Total diff:" << total_diff;
+  float avg_diff = total_diff / diffs.size();
+  float standard_dev;
+  foreach(float d, diffs) {
+    standard_dev += qPow(d-avg_diff, 2);
+  }
+  standard_dev = qSqrt(standard_dev/(diffs.size()-1));
+
+  qDebug() << "Mean y-value difference between corners:" << avg_diff << "std dev" <<standard_dev;
 }
 
 void RectificationProcessor::setCalibrationResults(QFileInfo path)
@@ -351,10 +381,26 @@ void RectificationProcessor::setFocalLength(float length)
   process();
 }
 
-void RectificationProcessor::setuses_colour(bool yn){
+void RectificationProcessor::setTestChessboard (bool test){
   QMutexLocker locker(&mutex);
-  if(uses_colour == yn) return;
-  uses_colour = yn;
+  if(test_chessboard == test) return;
+  test_chessboard = test;
+  mutex.unlock();
+  process();
+}
+
+void RectificationProcessor::setChessboardHoriz (int value){
+  QMutexLocker locker(&mutex);
+  if(chessboard_horiz == value) return;
+  chessboard_horiz = value;
+  mutex.unlock();
+  process();
+}
+
+void RectificationProcessor::setChessboardVert (int value){
+  QMutexLocker locker(&mutex);
+  if(chessboard_vert == value) return;
+  chessboard_vert = value;
   mutex.unlock();
   process();
 }

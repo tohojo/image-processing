@@ -12,7 +12,9 @@ class RectificationProcessor : public TwoImageProcessor
              WRITE setCalibrationResults USER true)
   Q_CLASSINFO("CalibrationResults", "filetype=text;")
   Q_PROPERTY(float FocalLength READ focalLength WRITE setFocalLength USER true)
-  Q_PROPERTY(bool UseColour READ getuses_colour WRITE setuses_colour USER true)
+  Q_PROPERTY(bool TestChessboard READ testChessboard WRITE setTestChessboard USER true)
+  Q_PROPERTY(int ChessboardHoriz READ chessboardHoriz WRITE setChessboardHoriz USER true)
+  Q_PROPERTY(int ChessboardVert READ chessboardVert WRITE setChessboardVert USER true)
 
 public:
     enum Side {LEFT, RIGHT};
@@ -26,9 +28,15 @@ public:
 
   float focalLength() {QMutexLocker l(&mutex); return focal_length;}
   void setFocalLength(float length);
-  
-  float getuses_colour() {QMutexLocker l(&mutex); return uses_colour;}
-  void setuses_colour(bool yn);
+
+  bool testChessboard() {QMutexLocker l(&mutex); return test_chessboard;}
+  void setTestChessboard(bool test);
+
+  int chessboardHoriz() {QMutexLocker l(&mutex); return chessboard_horiz;}
+  void setChessboardHoriz(int value);
+
+  int chessboardVert() {QMutexLocker l(&mutex); return chessboard_vert;}
+  void setChessboardVert(int value);
 
   Point mapPoint(Point p, Side side);
 
@@ -39,13 +47,15 @@ private:
   void loadCalibrationResults();
   void calculateRectMatrix();
   void rectify();
+  void test();
   QFileInfo calibration_results;
   float focal_length;
   Mat R;
   Mat T;
   Mat rect;
   int width, height;
-  Mat left_rectified, right_rectified;
+  bool test_chessboard;
+  int chessboard_horiz, chessboard_vert;
 };
 
 #endif
