@@ -1,0 +1,10 @@
+Mean vertical pixel errors for chessboard corners between left and right image:
+DSCF4060: 3.5716 std dev 1.70407
+DSCF4061: 3.67714 std dev 1.60349
+DSCF4062: 7.0094 std dev 1.66802
+DSCF4063: 4.39534 std dev 1.80694
+DSCF4064: error getting chessboard corners.
+DSCF4065: 7.75156 std dev 1.4126
+DSCF4066: 7.15713 std dev 1.84446
+DSCF4067: error getting chessboard corners.
+
