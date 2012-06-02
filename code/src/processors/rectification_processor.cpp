@@ -11,7 +11,9 @@ RectificationProcessor::RectificationProcessor(QObject *parent)
     rect(3,3,CV_32F),
     width(0),
     height(0),
-    test_checkboard(false)
+    test_chessboard(false),
+    chessboard_horiz(10),
+    chessboard_vert(8)
 {
   rect = Mat::eye(3,3,CV_32F);
   R = Mat::eye(3,3,CV_32F);
@@ -28,6 +30,7 @@ void RectificationProcessor::run()
     if(abort) return;
     emit progress(10);
     rectify();
+    if(test_chessboard) test();
     emit progress(100);
     emit updated();
     if(once) return;
@@ -301,6 +304,50 @@ void RectificationProcessor::rectify()
   remap(right_img, right_rectified, map_right_x, map_right_y, INTER_CUBIC);
 
   set_output_images(left_rectified, right_rectified);
+
+}
+
+void RectificationProcessor::test()
+{
+  Mat left = getLeftOutput();
+  Mat right = getRightOutput();
+  if(left.empty() || right.empty()) return;
+
+  qDebug() << "Finding chessboard corners for accuracy testing...";
+
+  Size corner_size(chessboardHoriz(), chessboardVert());
+  std::vector<Point2f> corners_l, corners_r;
+  if(!findChessboardCorners(left, corner_size, corners_l)) {
+    qDebug() << "Error getting corners for left image.";
+    return;
+  }
+  qDebug() << "Found" << corners_l.size() << "chessboard corners for left image.";
+  emit progress(97);
+  if(!findChessboardCorners(right, corner_size, corners_r)) {
+    qDebug() << "Error getting corners for right image.";
+    return;
+  }
+  qDebug() << "Found" << corners_r.size() << "chessboard corners for right image.";
+
+  if (corners_l.size() != corners_r.size()) {
+    qDebug() << "Different numbers of corners found. Left:" << corners_l.size() << "Right:" << corners_r.size();
+    return;
+  }
+
+
+  float total_diff;
+  emit clearPOIs();
+
+  for(int i = 0; i < corners_l.size(); i++) {
+    Point2f l = corners_l[i];
+    Point2f r = corners_r[i];
+    float diff = qAbs(l.y-r.y);
+    total_diff += diff;
+    emit newPOI(QPoint(l.x, l.y));
+    emit newPOI(QPoint(r.x+left.cols+5, r.y));
+  }
+
+  qDebug() << "Average y-value difference between corners:" << total_diff/corners_l.size();
 }
 
 void RectificationProcessor::setCalibrationResults(QFileInfo path)
@@ -322,10 +369,26 @@ void RectificationProcessor::setFocalLength(float length)
   process();
 }
 
-void RectificationProcessor::setTestCheckboard(bool test){
+void RectificationProcessor::setTestChessboard (bool test){
   QMutexLocker locker(&mutex);
-  if(test_checkboard == test) return;
-  test_checkboard = test;
+  if(test_chessboard == test) return;
+  test_chessboard = test;
+  mutex.unlock();
+  process();
+}
+
+void RectificationProcessor::setChessboardHoriz (int value){
+  QMutexLocker locker(&mutex);
+  if(chessboard_horiz == value) return;
+  chessboard_horiz = value;
+  mutex.unlock();
+  process();
+}
+
+void RectificationProcessor::setChessboardVert (int value){
+  QMutexLocker locker(&mutex);
+  if(chessboard_vert == value) return;
+  chessboard_vert = value;
   mutex.unlock();
   process();
 }
