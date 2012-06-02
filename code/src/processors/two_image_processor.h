@@ -34,6 +34,9 @@ public:
   QFileInfo rightOutput();
   void setRightOutput(QFileInfo path);
 
+  Mat getRightOutput();
+  Mat getLeftOutput();
+
 public slots:
   void saveOutput();
 

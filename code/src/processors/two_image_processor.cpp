@@ -75,3 +75,15 @@ void TwoImageProcessor::set_output_images(Mat l, Mat r)
   right_output = r;
   twoimage_output = true;
 }
+
+Mat TwoImageProcessor::getRightOutput()
+{
+  QMutexLocker lock(&mutex);
+  return right_output;
+}
+
+Mat TwoImageProcessor::getLeftOutput()
+{
+  QMutexLocker lock(&mutex);
+  return left_output;
+}
