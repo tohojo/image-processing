@@ -4,9 +4,163 @@
 \subsection{Improvements on the first assignment}
 \label{sec:improvements}
 
-\subsubsection{Revisiting calibration}
+\subsubsection{Revisiting Tsai calibration}
 
-Improved lens distortion model: calculating $\kappa_{1}$.
+%
 
-Statistical analysis of calibration.
+Improved lens distortion model: now calculating $\kappa_{2}$ ... simply solve the equations given in TSAI for the second-order coefficient.
+
+Tsai cautions about calculating too many leading to instability in the calculations. \cite{TSAI}.
+
+Testing on one of the images showed the effects of using the second-order coefficient were negligible, subsumed by error in the images, rounding errors, etc.
+
+%
+
+\subsubsection{Statistical analysis of calibration}
+
+We did not perform statistical analysis in the previous report. We remedy that here.
+
+Methodology. We assume a Gaussian distribution. We introduced extra artifical lens distortion into each image with an image processing tool to see its effects on error.
+
+Our statistical analysis is done via Student's (unpaired) t-tests. If p < 0.05 we call the difference significant. The tool used is the GraphPad online $t$-test calculator. \cite{testcalc}
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{c c c c}
+    \toprule
+    \textbf{ } & \textbf{Normal} & \textbf{Barrel-distorted} & \textbf{Pincushion-distorted}\\
+    \textbf{ } & \textbf{image} & \textbf{image} & \textbf{image}\\
+    \midrule
+    \textbf{All points} & 0.085 [0.037] & 0.090 [0.038] & 4.658 [14.153] \\
+    \textbf{Edges removed} & 0.076 [0.032] & 0.073 [0.031] & 3.210 [5.051] \\
+    \bottomrule
+  \end{tabular}
+  \caption[Calibration error for Image 019 (tablet camera)]{Calibration error for Image 019 (tablet camera). Error is calculated by radius of ambiguity (projection back into real-world coordinates). Measurements are in inches. Standard deviations are given in square brackets. The first row of data describes the error for calibration performed over all 63 points. The second row of data describes the error for calibration performed without reference to the two outermost columns of calibration points.}
+  \label{tbl:stats090}
+\end{table}
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{c c c c}
+    \toprule
+    \textbf{ } & \textbf{Normal} & \textbf{Barrel-distorted} & \textbf{Pincushion-distorted}\\
+    \textbf{ } & \textbf{image} & \textbf{image} & \textbf{image}\\
+    \midrule
+    \textbf{All points} & 0.092 [0.039] & 0.087 [0.041] & 3.271 [4.715] \\
+    \textbf{Edges removed} & 0.089 [0.035] & 0.260 [0.180] & 0.137 [0.089] \\
+    \bottomrule
+  \end{tabular}
+  \caption[Calibration error for Image DSC-025 (high-quality camera)]{Calibration error for Image DSC-025 (high-quality camera). Error is calculated by radius of ambiguity (projection back into real-world coordinates). Measurements are in inches. Standard deviations are given in square brackets. The first row of data describes the error for calibration performed over all 63 points. The second row of data describes the error for calibration performed without reference to the two outermost columns of calibration points.}
+  \label{tbl:statsDSC}
+\end{table}
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    \textbf{ } & \textbf{Calibrating} & \textbf{Not calibrating}\\
+    \textbf{ } & \textbf{on all points} & \textbf{on edge columns}\\
+    \midrule
+    $\kappa_{1}$ & $-2.843 \times 10^{-08}$ & $-2.727 \times 10^{-08}$\\
+    $\kappa_{2}$ & $1.134 \times 10^{-14}$ & $9.631 \times 10^{-15}$\\
+    Highest error & $0.223$ & $0.155$\\
+    \bottomrule
+  \end{tabular}
+  \caption[Results of calibration for Image 019 (tablet camera)]{Results of calibration for Image 019 (tablet camera). $\kappa_{1}$ is the first distortion coefficient. $\kappa_{2}$ is the second distortion coefficient. `Highest error' refers to the single highest point error for this image (in inches), as projected backwards into real-world coordinates.}
+  \label{tbl:calibration-stats-090-1}
+\end{table}
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    \textbf{ } & \textbf{Calibrating} & \textbf{Not calibrating}\\
+    \textbf{ } & \textbf{on all points} & \textbf{on edge columns}\\
+    \midrule
+    $\kappa_{1}$ & $1.010 \times 10^{-07}$ & $1.080 \times 10^{-07}$\\
+    $\kappa_{2}$ & $2.010 \times 10^{-14}$ & $1.341 \times 10^{-14}$\\
+    Highest error & $0.232$ & $0.159$\\
+    \bottomrule
+  \end{tabular}
+  \caption[Results of calibration for Image 019 (tablet camera) with barrel distortion]{Results of calibration for Image 019 (tablet camera), with artificial barrel distortion introduced. $\kappa_{1}$ is the first distortion coefficient. $\kappa_{2}$ is the second distortion coefficient. `Highest error' refers to the single highest point error for this image (in inches), as projected backwards into real-world coordinates.}
+  \label{tbl:calibration-stats-090-2}
+\end{table}
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    \textbf{ } & \textbf{Calibrating} & \textbf{Not calibrating}\\
+    \textbf{ } & \textbf{on all points} & \textbf{on edge columns}\\
+    \midrule
+    $\kappa_{1}$ & $-2.856 \times 10^{-06}$ & $-3.766 \times 10^{-06}$\\
+    $\kappa_{2}$ & $1.769 \times 10^{-12}$ & $3.380 \times 10^{-12}$\\
+    Highest error & $113.295$ & $32.941$\\
+    \bottomrule
+  \end{tabular}
+  \caption[Results of calibration for Image 019 (tablet camera) with pincushion distortion]{Results of calibration for Image 019 (tablet camera), with artificial pincushion distortion introduced. $\kappa_{1}$ is the first distortion coefficient. $\kappa_{2}$ is the second distortion coefficient. `Highest error' refers to the single highest point error for this image (in inches), as projected backwards into real-world coordinates.}
+  \label{tbl:calibration-stats-090-3}
+\end{table}
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    \textbf{ } & \textbf{Calibrating} & \textbf{Not calibrating}\\
+    \textbf{ } & \textbf{on all points} & \textbf{on edge columns}\\
+    \midrule
+    $\kappa_{1}$ & $6.916 \times 10^{-09}$ & $1.526 \times 10^{-08}$\\
+    $\kappa_{2}$ & $-8.613 \times 10^{-15}$ & $-1.455 \times 10^{-14}$\\
+    Highest error & $0.177$ & $0.169$\\
+    \bottomrule
+  \end{tabular}
+  \caption[Results of calibration for Image DSC-025 (high-quality camera)]{Results of calibration for Image DSC-025 (high-quality camera). $\kappa_{1}$ is the first distortion coefficient. $\kappa_{2}$ is the second distortion coefficient. `Highest error' refers to the single highest point error for this image (in inches), as projected backwards into real-world coordinates.}
+  \label{tbl:calibration-stats-dsc-1}
+\end{table}
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    \textbf{ } & \textbf{Calibrating} & \textbf{Not calibrating}\\
+    \textbf{ } & \textbf{on all points} & \textbf{on edge columns}\\
+    \midrule
+    $\kappa_{1}$ & $6.012 \times 10^{-08}$ & $1.221 \times 10^{-07}$\\
+    $\kappa_{2}$ & $2.259 \times 10^{-15}$ & $-1.164 \times 10^{-13}$\\
+    Highest error & $0.227$ & $0.734$\\
+    \bottomrule
+  \end{tabular}
+  \caption[Results of calibration for Image DSC-025 (high-quality camera) with barrel distortion]{Results of calibration for Image DSC-025 (high-quality camera), with artificial barrel distortion introduced. $\kappa_{1}$ is the first distortion coefficient. $\kappa_{2}$ is the second distortion coefficient. `Highest error' refers to the single highest point error for this image (in inches), as projected backwards into real-world coordinates.}
+  \label{tbl:calibration-stats-dsc-2}
+\end{table}
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    \textbf{ } & \textbf{Calibrating} & \textbf{Not calibrating}\\
+    \textbf{ } & \textbf{on all points} & \textbf{on edge columns}\\
+    \midrule
+    $\kappa_{1}$ & [could not be calculated] & $-1.435 \times 10^{-08}$\\
+    $\kappa_{2}$ & [could not be calculated] & $-4.678 \times 10^{-14}$\\
+    Highest error & $35.809$ & $0.412$\\
+    \bottomrule
+  \end{tabular}
+  \caption[Results of calibration for Image DSC-025 (high-quality camera) with pincushion distortion]{Results of calibration for Image DSC-025 (high-quality camera), with artificial pincushion distortion introduced. $\kappa_{1}$ is the first distortion coefficient. $\kappa_{2}$ is the second distortion coefficient. `Highest error' refers to the single highest point error for this image (in inches), as projected backwards into real-world coordinates.}
+  \label{tbl:calibration-stats-dsc-3}
+\end{table}
+
+We consider the performance of calibration in terms of error radius. \cite{TSAI} (DESCRIBE IT)
+
+Consider Table~\ref{tbl:stats090}. (WHAT DOES IT SHOW, WHAT ABOUT IT IN GENERAL?) We see a statistically significant improvement when removing the edge columns from the barrel-distorted image. The errors in the pincushion image were highly statistically significantly worse than those in the normal image (p < 0.01), both in the case with all points and with the outer columns removed. There were no other statistically significant differences.
+
+Consider Table~\ref{tbl:statsDSC}. (WHAT DOES IT SHOW, WHAT ABOUT IT IN GENERAL?) We see a highly statistically significant improvement (p < 0.01) when removing the edge columns from the pincushion-distorted image. Unusually, the opposite - highly statistically significantly worsening, p < 0.01 - for removing the outermost columns from the barrel-distorted image.
+
+The errors in the pincushion image were statistically significantly worse than those in the normal image, both in the case with all points and with the outer columns removed. With the edges removed, this difference had p < 0.01. Similarly, the case with barrel distortion and edges removed was statistically significantly worse than the normal image.
+
+\begin{comment}
+
+\end{comment}
+
+
 
