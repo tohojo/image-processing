@@ -3,22 +3,79 @@
 
 \subsection{Face recognition}
 \label{sec:face-rec}
+We have implemented face recognition based on PCA analysis of the image pixel
+values (the holistic approach). We preprocess the image database so that face
+features (corners of eyes, bottom of nose) are in the same positions for all
+images (see description of the image preparation process below), and do the PCA
+analysis on these processed images.
 
-We implemented PCA for 2D face recognition.
+Up to six channels of data from each image can be used: red values, green
+values, blue values, hue values, saturation values, and depth values. The data
+points from each channel are concatenated for each pixel in the image onto a
+single column image vector.
 
-Face images are rectified, then normalised so that main face features (corners of the eyes and top of the mouth) are aligned to three points averaged over all the training images.
+% TODO: Review this for accuracy!
+For the training phase of the PCA processing, the average image vector for the
+training set is computed, and subtracted from each image vector. These vectors
+are put into a matrix (one column pr image), and the covariance matrix and
+eigenvectors are calculated, by means of the OpenCV PCA library functions (which
+helps a lot with matching speed).
 
-The normalised faces are cropped to a ratio of the main face feature positions. An ellipse is fitted to the bounding box of the new image frame. Anything outside the ellipse (background to the face) is replaced with zero values.
+The eigenvectors with the highest associated eigenvalues are kept; how many to
+keep is a user-configurable parameter. The (normalised) vectors form an
+orthonormal basis for the eigenspace. Each training image is projected into this
+eigenspace, and for each class of images (i.e. each person), the average image
+vector (in the eigenspace) is computed, as well as the maximum distance between
+the average image and the original training images. The maximum distance
+(multiplied by a user-configurable factor) is used as a cutoff distance when
+matching; images that do not match any classes within the cutoff distance are
+considered a no-match.
 
-The normalised, cropped faces have stereo matching (dynamic programming) run on them.
+To test the accuracy of the classification, each training image is projected
+into the eigenspace and back; the error between the original image and the
+reconstructed image (as the square of the distance) is calculated. The result of
+this is shown in the results subsection below.
 
-We now have a database of training images and their associated depth maps.
+When matching an image against the training database, the image vector is built
+up as for the training step, and the average vector (also from the training
+step) is subtracted. The vector is then projected into the eigenspace, and the
+distance to each class average vector is computed. The class vector that is
+closest to the image being matched is considered a match if it is closer than
+its cutoff depth.
 
-Up to six channels of data from each image can be used: red values, green values, blue values, Hue values, Saturation values, and depth values. All the values from one pixel are put into a string of information, and all the pixels appended into a single image vector.
+%%% This I do not understand: %%%
+% We can keep some quantity of image data by calculating the sum of eigenvalues
+% for the components we are keeping, divided by the sum of all eigenvalues.
 
-The covariance matrices for these image vectors are calculated. At this point, we began to use the opencv PCA functions to reduce the dimensionality of the space, so that we could work with larger images.
 
-The orthonormal basis is determined. All training images are projected into the eigen space and then back again. Error between the original image and the reconstructed image (in terms of square of absolute distance) is calculated.
+\subsubsection{Preprocessing of images}
+Before doing PCA analysis on the face images, they are preprocessed to make sure
+face features are in (approximately) the same positions on all the images. First
+of all, we operate exclusively on rectified images, i.e. stereo images that have
+been projected to have corresponding horizontal epipolar lines. The
+rectification step helps diminish deformation of the from the later steps of the
+preprocessing.
 
-We can keep some quantity of image data by calculating the sum of eigenvalues for the components we are keeping, divided by the sum of all eigenvalues.
+After rectification, face features are manually identified. The features
+identified are the outer corners of the eyes, and the point just below the nose
+(since these features seem to be in approximately the same position regardless
+of facial expression). The average of each feature point over the whole image
+training database is then found, and each image is transformed so that it has
+the feature points in this average location. This is done by, for each image,
+solving for the affine transformation needed to transform the feature point
+locations for that image into the average location, and applying that affine
+transformation to the whole image. The solution is found using singular value
+decomposition of the resulting set of matrices. This, and the following affine
+transformation of the image, is done using OpenCV functions.
 
+Following the transformation, the images are cropped to a user-configurable
+ratio determined by adding a factor of the vertical and horizontal distances
+between the feature points. An ellipse is then fitted to the image (the maximal
+ellipse that will fit inside the image), and everything outside this ellipse is
+blacked out. Finally, the image is scaled down to a fixed with (also
+user-configurable), to speed up the processing.
+
+Finally, we apply our stereo matching implementation to the processed images to
+yield the depth map that is (optionally) used in the PCA matching.
+
+\subsubsection{Testing results}
