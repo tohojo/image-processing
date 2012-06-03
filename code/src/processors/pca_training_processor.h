@@ -67,6 +67,8 @@ private:
 	Mat convertImageToVector(Mat img, Mat depthImg);
 	Mat convertVectorToImage(Mat vec);
 	Mat pcaClassifyInputImage();
+	
+	double PcaTrainingProcessor::getBaseline(Mat imgs, int def);
 
 	int numCompsToKeep;
 	int numComponentsToKeep() {QMutexLocker l(&mutex); return numCompsToKeep;}
@@ -80,9 +82,9 @@ private:
 	bool getSaveEigenMeans() {QMutexLocker l(&mutex); return saveReconstructedImgs;}
 	void setSaveEigenMeans(bool yesno);
 
-	double error_threshold;
-	double errorThreshold() {QMutexLocker l(&mutex); return error_threshold;}
-	void setErrorThreshold(double thresh);
+	float error_threshold;
+	float errorThreshold() {QMutexLocker l(&mutex); return error_threshold;}
+	void setErrorThreshold(float thresh);
 
 	QFileInfo file_list;
 

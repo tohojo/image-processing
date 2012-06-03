@@ -4,4 +4,21 @@
 \subsection{Face recognition}
 \label{sec:face-rec}
 
+We implemented PCA for 2D face recognition.
+
+Face images are rectified, then normalised so that main face features (corners of the eyes and top of the mouth) are aligned to three points averaged over all the training images.
+
+The normalised faces are cropped to a ratio of the main face feature positions. An ellipse is fitted to the bounding box of the new image frame. Anything outside the ellipse (background to the face) is replaced with zero values.
+
+The normalised, cropped faces have stereo matching (dynamic programming) run on them.
+
+We now have a database of training images and their associated depth maps.
+
+Up to six channels of data from each image can be used: red values, green values, blue values, Hue values, Saturation values, and depth values. All the values from one pixel are put into a string of information, and all the pixels appended into a single image vector.
+
+The covariance matrices for these image vectors are calculated. At this point, we began to use the opencv PCA functions to reduce the dimensionality of the space, so that we could work with larger images.
+
+The orthonormal basis is determined. All training images are projected into the eigen space and then back again. Error between the original image and the reconstructed image (in terms of square of absolute distance) is calculated.
+
+We can keep some quantity of image data by calculating the sum of eigenvalues for the components we are keeping, divided by the sum of all eigenvalues.
 
