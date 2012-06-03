@@ -15,17 +15,15 @@ PcaTrainingProcessor::PcaTrainingProcessor(QObject *parent)
 	dataPointsPerPixel = 3;
 	use_HSV = true;
 	usingDepth = false;
-	error_threshold = 1.1;
+	error_threshold = 1.0;
 	saveReconstructedImgs = true;
-     uses_colour = true;
+    uses_colour = true;
 }
 
 
 PcaTrainingProcessor::~PcaTrainingProcessor()
 {
 }
-
-
 
 
 void PcaTrainingProcessor::run()
@@ -100,7 +98,7 @@ bool PcaTrainingProcessor::loadImages(){
 	cout << "numImages: " << numImages << "\n";
 	cout << "Types of data considered per image pixel: " << dataPointsPerPixel << "\n";
 	cout << "totalDataPointsPerImage: " << totalDataPointsPerImage << "\n";
-	trainingSetImages = Mat(totalDataPointsPerImage, numImages, CV_64FC1); // Use double so we can subtract averages etc
+	trainingSetImages = Mat(totalDataPointsPerImage, numImages, CV_32FC1); // Use float so we can subtract averages etc
 	// Remainder of file is:
 	// (a) image name on one line
 	// (b) class to which the image belongs on next line
@@ -153,13 +151,13 @@ bool PcaTrainingProcessor::loadImages(){
 		Mat img2;
 		if (usingDepth){
 			img2 = convertImageToVector(img, depth); // Changes the 2D RGB (unsigned char) values to
-			// 1D R,G,B,Depth (double) values, possibly +HSV if that is set
+			// 1D R,G,B,Depth (float) values, possibly +HSV if that is set
 		} else {
 			img2 = convertImageToVector(img); // Changes the 2D RGB (unsigned char) values to
-			// 1D R,G,B, (double) values, possibly +HSV if that is set
+			// 1D R,G,B, (float) values, possibly +HSV if that is set
 		}
 		for (int i = 0; i < totalDataPointsPerImage; i++){
-			trainingSetImages.at<double>(i,counter) = img2.at<double>(i,0);
+			trainingSetImages.at<float>(i,counter) = img2.at<float>(i,0);
 		}
 		//
 		counter++;
@@ -178,7 +176,7 @@ bool PcaTrainingProcessor::loadImages(){
 	if (trainingSetImages.rows < 20 && trainingSetImages.cols < 20){
 		for (int i = 0; i < trainingSetImages.rows; i++){
 			for (int j = 0; j < trainingSetImages.cols; j++){
-				cout << " " << trainingSetImages.at<double>(i,j);
+				cout << " " << trainingSetImages.at<float>(i,j);
 			}
 			cout << "\n";
 		}
@@ -216,13 +214,13 @@ Mat PcaTrainingProcessor::pcaClassifyInputImage(){
 
 	emit progress(10);
 
-	std::vector<double> errors = std::vector<double>();
+	std::vector<float> errors = std::vector<float>();
 
 	for (int i = 0; i < compressed_classes.cols; i++){
 		Mat diff = eigenVec - compressed_classes.col(i);
-		double d = 0.0;
+		float d = 0.0;
 		for (int j = 0; j < diff.rows; j++){
-			d += (diff.at<double>(j,0) * diff.at<double>(j,0));
+			d += (diff.at<float>(j,0) * diff.at<float>(j,0));
 		}
 		d = sqrt(d);
 		errors.push_back(d);
@@ -237,10 +235,10 @@ Mat PcaTrainingProcessor::pcaClassifyInputImage(){
 
 	int index1 = -1; // If these don't change, the input is unclassifiable
 	int index2 = -1;
-	double minError = 1000000000;
-	double nextMinError = 1000000000;
+	float minError = 1000000000;
+	float nextMinError = 1000000000;
 	for (unsigned int i = 0; i < errors.size(); i++){
-		double err = errors.at(i);
+		float err = errors.at(i);
 		bool admissible = (err <= (classesOfTrainingImages.at(i).worstError * error_threshold));
 		// MUST calculate 'admissible' dynamically, not store it as a variable for each class,
 		// because we do not recalculate the PCA when we change 'error_threshold'.
@@ -260,14 +258,14 @@ Mat PcaTrainingProcessor::pcaClassifyInputImage(){
 	if(index1 != -1){
 		string cut = classesOfTrainingImages.at(index1).identifier;
 		cut = cut.erase(classesOfTrainingImages.at(index1).identifier.length()-1);
-		double conf = 100*(1 - (minError/(error_threshold * classesOfTrainingImages.at(index1).worstError)));
+		float conf = 100*(1 - (minError/(error_threshold * classesOfTrainingImages.at(index1).worstError)));
 		qDebug() << "Best guess (closest matching class) is: " << cut.data() << " (error is " << minError << " distance from class eigenvector)";
 		qDebug() << "Confidence in best guess is: " << (int) conf << "%";
 		if (index2 != -1){
 			string cut2 = classesOfTrainingImages.at(index2).identifier;
 			cut2 = cut2.erase(classesOfTrainingImages.at(index2).identifier.length()-1);
 			qDebug() << "Second-best guess (next closest match) is: " << cut2.data() << " (error is " << nextMinError << " distance from class eigenvector)";
-			double conf_2 = 100*(1 - (nextMinError/(error_threshold * classesOfTrainingImages.at(index2).worstError)));
+			float conf_2 = 100*(1 - (nextMinError/(error_threshold * classesOfTrainingImages.at(index2).worstError)));
 			qDebug() << "Confidence in second-best guess is: " << (int) conf_2 << "%";
 		} else {
 			qDebug() << "Error of second-best guess is too high to make it a possibility.";
@@ -295,6 +293,18 @@ Mat PcaTrainingProcessor::pcaClassifyInputImage(){
 }
 
 
+double PcaTrainingProcessor::getBaseline(Mat imgs, int def){
+	PCA pca_baseline = PCA(imgs, Mat(), def);
+	double sum = 0;
+	for(int i = 0; i < pca_baseline.eigenvalues.rows; i++) {
+		for(int j = 0; j < pca_baseline.eigenvalues.cols; j++) {
+			sum += pca_baseline.eigenvalues.at<float>(i,j);
+		}
+	}
+	return sum;
+}
+
+
 bool PcaTrainingProcessor::PCATrain(){
 
 	if (trainingSetImages.empty()) return false;
@@ -303,27 +313,26 @@ bool PcaTrainingProcessor::PCATrain(){
 
 	emit progress(40);
 
+	double sumOfEigenvalues = getBaseline(trainingSetImages, CV_PCA_DATA_AS_COL);
+	
 	pca = PCA(trainingSetImages, Mat(), CV_PCA_DATA_AS_COL, numCompsToKeep);
+
+	double keptSum = 0;
 	cout << "\nOUTPUT EIGENVALUES:\n";
 	for(int i = 0; i < pca.eigenvalues.rows; i++) {
 		for(int j = 0; j < pca.eigenvalues.cols; j++) {
-			std::cout << pca.eigenvalues.at<double>(i,j) << " \t";
+			std::cout << pca.eigenvalues.at<float>(i,j) << " \t";
+			keptSum += pca.eigenvalues.at<float>(i,j);
 		}
 		cout << "\n";
 	}
 
+	double informationRetained = keptSum/sumOfEigenvalues;
+	qDebug() << "Quantity of image information retained: " << informationRetained;
+
 	cout << "\nEIGENVECTOR ROWS: " << pca.eigenvectors.rows << "\n";
 	cout << "\nEIGENVECTOR COLS: " << pca.eigenvectors.cols << "\n";
-	if (pca.eigenvectors.cols < 100){ // Number of data points per image, e.g. #pixels
-		cout << "\nOUTPUT EIGENVECTORS:\n";
-		for(int i = 0; i < pca.eigenvectors.rows; i++) {
-			for(int j = 0; j < pca.eigenvectors.cols; j++) {
-				std::cout << pca.eigenvectors.at<double>(i,j) << " \t";
-			}
-			cout << "\n";
-		}
-	}
-
+	
 	emit progress(50);
 
 	qDebug() << "PCA training complete.";
@@ -342,12 +351,12 @@ bool PcaTrainingProcessor::PCATrain(){
 		pca.backProject(coeffs, reconstructed);
 		// Measuring the error:
 		Mat diff = reconstructed - vect;
-		double d = 0.0;
-		for (int j = 0; j < diff.rows; j++){
-			d += (diff.at<double>(j,0) * diff.at<double>(j,0));
+		float d = 0.0;
+		/*for (int j = 0; j < diff.rows; j++){
+			d += (diff.at<float>(j,0) * diff.at<float>(j,0));
 		}
 		d = sqrt(d);
-		cout << "Error for training eigenface #" << i << ": " << d << "\n";
+		cout << "Error for training eigenface #" << i << ": " << d << "\n";*/
 		// Output reconstructed image:
 		std::string str = "PCA_projected";
 		stringstream ss;
@@ -371,7 +380,7 @@ bool PcaTrainingProcessor::PCATrain(){
 	int count = 0;
 	std::vector<class_of_training_images>::iterator it = classesOfTrainingImages.begin();
 	for(; it != classesOfTrainingImages.end(); it++){
-		double worstErrorForThisClass = 0.0;
+		float worstErrorForThisClass = 0.0;
 		for(unsigned int itMat = 0; itMat < it->images.size(); itMat++){
 			overall_mean_num_images++;
 			Mat eigenvec;
@@ -390,9 +399,9 @@ bool PcaTrainingProcessor::PCATrain(){
 			if(saveReconstructedImgs){
 				overall_mean = overall_mean + eigenvec;
 			}
-			double d = 0.0;
+			float d = 0.0;
 			for (int j = 0; j < diff.rows; j++){
-				d += (diff.at<double>(j,0) * diff.at<double>(j,0));
+				d += (diff.at<float>(j,0) * diff.at<float>(j,0));
 			}
 			d = sqrt(d);
 			if (d > worstErrorForThisClass) worstErrorForThisClass = d;
@@ -418,7 +427,7 @@ bool PcaTrainingProcessor::PCATrain(){
 	emit progress(80);
 	qDebug() << "Finished calculating means.";
 	if(saveReconstructedImgs){
-		overall_mean = overall_mean / ((double)(overall_mean_num_images));
+		overall_mean = overall_mean / ((float)(overall_mean_num_images));
 		Mat meanImg = convertVectorToImage(overall_mean);
 		imwrite("OVERALL_PCA_MEAN.png", meanImg);
 	}
@@ -432,27 +441,27 @@ bool PcaTrainingProcessor::PCATrain(){
 	if(useOurWork){
 		// Centre dataset with averages
 		for (int i = 0; i < trainingSetImages.rows; i++){
-			double average = 0;
+			float average = 0;
 			for (int j = 0; j < trainingSetImages.cols; j++){
-				average += trainingSetImages.at<double>(i,j);
+				average += trainingSetImages.at<float>(i,j);
 			}
 			average /= trainingSetImages.cols;
 			for (int j = 0; j < trainingSetImages.cols; j++){
-				trainingSetImages.at<double>(i,j) -= average;
+				trainingSetImages.at<float>(i,j) -= average;
 			}
 		}
 
 		cout << "\nCentred data:\n";
 		for (int i = 0; i < trainingSetImages.rows; i++){
 			for (int j = 0; j < trainingSetImages.cols; j++){
-				cout << " " << trainingSetImages.at<double>(i,j);
+				cout << " " << trainingSetImages.at<float>(i,j);
 			}
 			cout << "\n";
 		}
 
 		// 2. Compute covariance matrix of centred dataset.
 		// C = sum[1...N] of yi * yi(transpose)
-		Mat covarianceMat = Mat(totalDataPointsPerImage, totalDataPointsPerImage, CV_64FC1, Scalar(0));
+		Mat covarianceMat = Mat(totalDataPointsPerImage, totalDataPointsPerImage, CV_32FC1, Scalar(0));
 		for (int i = 0; i < numImages; i++){
 			Mat matToAdd = trainingSetImages.col(i) * trainingSetImages.col(i).t();
 			covarianceMat = covarianceMat + matToAdd;
@@ -461,7 +470,7 @@ bool PcaTrainingProcessor::PCATrain(){
 		cout << "\nCovariance matrix:\n";
 		for (int i = 0; i < covarianceMat.rows; i++){
 			for (int j = 0; j < covarianceMat.cols; j++){
-				cout << " " << covarianceMat.at<double>(i,j);
+				cout << " " << covarianceMat.at<float>(i,j);
 			}
 			cout << "\n";
 		}
@@ -528,14 +537,14 @@ bool PcaTrainingProcessor::PCATrain(){
 		cout << "\nOUTPUT EIGENVALUES:\n";
 		for(int i = 0; i < eigenvalues.rows; i++) {
 			for(int j = 0; j < eigenvalues.cols; j++) {
-				std::cout << eigenvalues.at<double>(i,j) << " \t";
+				std::cout << eigenvalues.at<float>(i,j) << " \t";
 			}
 			cout << "\n";
 		}
 		cout << "\nOUTPUT EIGENVECTORS:\n";
 		for(int i = 0; i < eigenvectors.rows; i++) {
 			for(int j = 0; j < eigenvectors.cols; j++) {
-				std::cout << eigenvectors.at<double>(i,j) << " \t";
+				std::cout << eigenvectors.at<float>(i,j) << " \t";
 			}
 			cout << "\n";
 		}
@@ -557,13 +566,13 @@ Mat PcaTrainingProcessor::convertImageToVector(Mat img){
 		assert(false);
 	}
 	Mat reshaped = img.reshape(img.channels(), img.total());
-	Mat vec = Mat(totalDataPointsPerImage, 1, CV_64FC1); // Single channel, 1 column containing all image data
+	Mat vec = Mat(totalDataPointsPerImage, 1, CV_32FC1); // Single channel, 1 column containing all image data
 	if (dataPointsPerPixel == 3){
 		for (int i = 0; i < reshaped.rows; i++){
 			Vec3b colourPixel = reshaped.at<Vec3b>(i,0);
-			vec.at<double>(i*3, 0) = (double)(colourPixel[0]);
-			vec.at<double>(i*3+1, 0) = (double)(colourPixel[1]);
-			vec.at<double>(i*3+2, 0) = (double)(colourPixel[2]);
+			vec.at<float>(i*3, 0) = (float)(colourPixel[0]);
+			vec.at<float>(i*3+1, 0) = (float)(colourPixel[1]);
+			vec.at<float>(i*3+2, 0) = (float)(colourPixel[2]);
 		}
 		return vec;
 	} else if (dataPointsPerPixel == 5){
@@ -571,12 +580,12 @@ Mat PcaTrainingProcessor::convertImageToVector(Mat img){
 		cv::cvtColor(reshaped, convertedToHSV, CV_BGR2HSV); // OPENCV USES BGR BY DEFAULT
 		for (int i = 0; i < reshaped.rows; i++){
 			Vec3b colourPixel = reshaped.at<Vec3b>(i,0);
-			vec.at<double>(i*5, 0) = (double)(colourPixel[0]);
-			vec.at<double>(i*5+1, 0) = (double)(colourPixel[1]);
-			vec.at<double>(i*5+2, 0) = (double)(colourPixel[2]);
+			vec.at<float>(i*5, 0) = (float)(colourPixel[0]);
+			vec.at<float>(i*5+1, 0) = (float)(colourPixel[1]);
+			vec.at<float>(i*5+2, 0) = (float)(colourPixel[2]);
 			Vec3b hsvPixel = convertedToHSV.at<Vec3b>(i,0);
-			vec.at<double>(i*5+3, 0) = (double)(hsvPixel[0]);
-			vec.at<double>(i*5+4, 0) = (double)(hsvPixel[1]);
+			vec.at<float>(i*5+3, 0) = (float)(hsvPixel[0]);
+			vec.at<float>(i*5+4, 0) = (float)(hsvPixel[1]);
 		}
 		return vec;
 	}
@@ -593,14 +602,14 @@ Mat PcaTrainingProcessor::convertImageToVector(Mat img, Mat depthImg){
 	}
 	Mat reshaped = img.reshape(img.channels(), img.total());
 	Mat reshapedDepth = depthImg.reshape(depthImg.channels(), depthImg.total());
-	Mat vec = Mat(totalDataPointsPerImage, 1, CV_64FC1); // Single channel, 1 column containing all image data
+	Mat vec = Mat(totalDataPointsPerImage, 1, CV_32FC1); // Single channel, 1 column containing all image data
 	if (dataPointsPerPixel == 4){ // Three colours + depth used in PCA
 		for (int i = 0; i < reshaped.rows; i++){
 			Vec3b colourPixel = reshaped.at<Vec3b>(i,0);
-			vec.at<double>(i*4, 0) = (double)(colourPixel[0]);
-			vec.at<double>(i*4+1, 0) = (double)(colourPixel[1]);
-			vec.at<double>(i*4+2, 0) = (double)(colourPixel[2]);
-			vec.at<double>(i*4+3, 0) = (double)(reshapedDepth.at<unsigned char>(i,0)); // DEPTH MAP DATA
+			vec.at<float>(i*4, 0) = (float)(colourPixel[0]);
+			vec.at<float>(i*4+1, 0) = (float)(colourPixel[1]);
+			vec.at<float>(i*4+2, 0) = (float)(colourPixel[2]);
+			vec.at<float>(i*4+3, 0) = (float)(reshapedDepth.at<unsigned char>(i,0)); // DEPTH MAP DATA
 		}
 		return vec;
 	} else if (dataPointsPerPixel == 6){ // Three colours + depth + HSV
@@ -608,13 +617,13 @@ Mat PcaTrainingProcessor::convertImageToVector(Mat img, Mat depthImg){
 		cv::cvtColor(reshaped, convertedToHSV, CV_BGR2HSV);
 		for (int i = 0; i < reshaped.rows; i++){
 			Vec3b colourPixel = reshaped.at<Vec3b>(i,0);
-			vec.at<double>(i*6, 0) = (double)(colourPixel[0]);
-			vec.at<double>(i*6+1, 0) = (double)(colourPixel[1]);
-			vec.at<double>(i*6+2, 0) = (double)(colourPixel[2]);
+			vec.at<float>(i*6, 0) = (float)(colourPixel[0]);
+			vec.at<float>(i*6+1, 0) = (float)(colourPixel[1]);
+			vec.at<float>(i*6+2, 0) = (float)(colourPixel[2]);
 			Vec3b hsvPixel = convertedToHSV.at<Vec3b>(i,0);
-			vec.at<double>(i*6+3, 0) = (double)(hsvPixel[0]);
-			vec.at<double>(i*6+4, 0) = (double)(hsvPixel[1]);
-			vec.at<double>(i*6+5, 0) = (double)(reshapedDepth.at<unsigned char>(i,0)); // DEPTH MAP DATA
+			vec.at<float>(i*6+3, 0) = (float)(hsvPixel[0]);
+			vec.at<float>(i*6+4, 0) = (float)(hsvPixel[1]);
+			vec.at<float>(i*6+5, 0) = (float)(reshapedDepth.at<unsigned char>(i,0)); // DEPTH MAP DATA
 		}
 		return vec;
 	}
@@ -625,9 +634,9 @@ Mat PcaTrainingProcessor::convertVectorToImage(Mat vec){
 	Mat base(pcaImageWidth*pcaImageHeight,1,CV_8UC3);
 	int i = 0;
 	while(i < vec.rows){
-		Vec3b colourPixel( (unsigned char) (vec.at<double>(i,0)),
-			(unsigned char) (vec.at<double>(i+1,0)),
-			(unsigned char) (vec.at<double>(i+2,0)) );
+		Vec3b colourPixel( (unsigned char) (vec.at<float>(i,0)),
+			(unsigned char) (vec.at<float>(i+1,0)),
+			(unsigned char) (vec.at<float>(i+2,0)) );
 		base.at<Vec3b>(i/dataPointsPerPixel, 0) = colourPixel;
 		i += dataPointsPerPixel;
 	}
@@ -665,7 +674,7 @@ void PcaTrainingProcessor::setNumComponentsToKeep(int num)
 	Processor::process();
 }
 
-void PcaTrainingProcessor::setErrorThreshold(double thresh)
+void PcaTrainingProcessor::setErrorThreshold(float thresh)
 {
 	QMutexLocker locker(&mutex);
 	error_threshold = thresh;
