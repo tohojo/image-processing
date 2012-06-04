@@ -2,12 +2,26 @@
 % rubber: module xelatex
 
 \section{Introduction}
+This report documents the second part of our efforts to create a computer vision
+system capable of doing face recognition from images taken by a 3D camera. The
+first part of the report documented the work we have done on image segmentation,
+feature extraction, camera calibration and distortion removal. This part
+documents the work we have done on image rectification, stereo matching and face
+recognition, some of which builds on the work from the first part.
 
-This work is motivated by the aim of eventually creating a 3D vision system. To this end...
+This report is laid out as follows. In section~\ref{sec:improvements}, we make
+several improvements and additions to our last project for this course. In
+section~\ref{sec:prior}, we discuss prior work in the field. In
+section~\ref{sec:prog}, we discuss our program, implementation and experimental
+results. This is divided into discussions of rectification in
+subsection~\ref{sec:rectificatoin}, stereo matching in
+subsection~\ref{sec:stereo}, and face recognition in
+subsection~\ref{sec:face-rec}. We give our findings in those subsections, and
+then briefly summarise our conclusions in section~\ref{sec:conclusions}.
 
-This report is laid out as follows. In section~\ref{sec:improvements}, we make several improvements and additions to our last project for this course. In section~\ref{sec:prior}, we discuss prior work in the field. In section~\ref{sec:prog}, we discuss our program, implementation and experimental results. This is divided into discussions of rectification in subsection~\ref{sec:segmentation}, stereo matching in subsection~\ref{sec:stereo}, and face recognition in subsection~\ref{sec:face-rec}. We give our findings in those subsections, and then briefly summarise our conclusions in section~\ref{sec:conclusions}.
-
-Contributors to this work are Toke Høiland-Jørgensen, whose focus was ... and Ben Meadows, whose focus was ...
+Contributors to this work are Toke Høiland-Jørgensen, whose focus has been
+rectification and preprocessing of images for the face recognition and
+Ben Meadows, whose focus has been stereo matching and PCA.
 
 \begin{center}
 \line(1,0){300}

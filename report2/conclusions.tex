@@ -3,8 +3,22 @@
 
 \section{Conclusions}
 \label{sec:conclusions}
+We have implemented image rectification based on the data from our earlier work
+on camera calibration, using the intrinsic and extrinsic parameters from the
+calibration to compute the rectification. Furthermore, we have implemented a
+dynamic programming based stereo matching algorithm for creating depth maps from
+the rectified images. Finally, we have implemented PCA-based holistic face
+recognition using up to six channels of data from the images (RGB, hue,
+saturation and depth data).
 
-In summary...
+We have tested our implementation of the different parts and provide accuracy
+test results for the different parts. As part of our testing efforts, we have
+also improved on the testing of our calibration implementation, and provided
+additional results in this report.
+
+% TODO: This should probably be rewritten...
+Overall, over test results show that we achieve reasonable results in all the
+implemented parts, but with some room for improvement.
 
 \begin{center}
 \line(1,0){300}
