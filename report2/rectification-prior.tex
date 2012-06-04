@@ -3,14 +3,24 @@
 \subsection{Rectification}
 \label{sec:rectification-prior}
 
-Rectification algorithm using the fundamental matrix, without requiring
-calibration, \cite{chen03}.
+Rectification is the modification of a pair of stereo images so that the
+epipolar lines of the stereo geometry are horizontal in both images, and so that
+scanlines correspond to each other (i.e. so that the same physical points are at
+the same y coordinates in the two images). Rectification can be defined in terms
+of the intrinsic and extrinsic camera parameters, but doing so means they have
+to be known (i.e. the cameras need to be calibrated). In cases where this is not
+possible, several approaches to rectification without calibration have been
+proposed.
 
-Several calibration methods for trinocular images, \cite{sun03:_uncal}.
-
-Uncalibrated matching based on feature point extraction of grey-scale images
-\cite{papadimitriou96:_epipol}; works up to 10\% angle difference.
+\citet{chen03} propose a rectification algorithm using the fundamental matrix,
+without requiring calibration of the cameras. Another uncalibrated matching
+based on feature point extraction of grey-scale images is proposed by
+\citet{papadimitriou96:_epipol}; this approach works up to a 10\% angle
+difference between the two images.
 
 Another uncalibrated approach that uses a three-stage approach (projective
 transform, similarity transform, shearing transform) to minimise the distortion
-of the rectified images to ``a well-defined minimum'' \cite{loop99:_comput}.
+of the rectified images to ``a well-defined minimum'' is given by
+\citet{loop99:_comput}. Finally, several calibration methods for trinocular
+images (i.e. with three cameras) are given by \citet{sun03:_uncal}.
+
