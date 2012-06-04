@@ -3,9 +3,7 @@
 \subsection{Stereo matching}
 \label{sec:stereo-prior}
 
-% TODO: Review of this section is probably needed.
-
-Stereo matching, the process of reconstructing a 3D scene from a pair of stereo
+Stereo matching, the process of reconstructing a 3D scene from two (or possibly more) stereo
 images, is an important part of computer vision. Various approaches to the
 problem have been proposed.
 
@@ -18,20 +16,17 @@ requires selecting an appropriate matching window, which may vary between
 images. An evaluation of a large number of different algorithms is given by
 \citet{scharstein02:_taxon_evaluat_dense_two_frame}.
 
-Examples of local matching approaches include a correlation-based matching
+One example of local matching approaches is the correlation-based matching
 algorithm with a fast GPU implementation given by \citet{weber09}. Global
 matching approaches include the use of graph cuts
 \cite{kolmogorov01:_comput}, and belief propagation using Markov fields
 \cite{felzenszwalb06:_effic_belief_propag_early_vision}.
 
-Speeding up the speed of stereo matching is the focus of
-\citet{geiger11:_effic_large_scale_stereo_match}, who achieve near-realtime
+Improving the \emph{speed} of stereo matching is the focus of
+\citet{geiger11:_effic_large_scale_stereo_match}, who achieve close to real-time
 matching speeds with high accuracy using a set of support points that can be
-accurately identified between the two images. Another realtime approach is taken
-by \citet{realtimestereo}, by the application of dynamic programming techniques.
+accurately identified between the two images. Another real-time approach is taken
+by \citet{realtimestereo}, who apply dynamic programming techniques for rapid stereo matching.
 
-%%%% Couldn't find this article, so omitting for now %%%%
-% Stereo matching using block matching. e.g. by Kurt Konolige. A very fast
-% one-pass stereo matching algorithm. Matches blocks or windows of the image, not
-% individual pixels.
+Real-time stereo vision is important in domains such as robotics, where information needs to be integrated over time as well as space. For instance, moving objects need to be tracked. The spatial windows of block-correlation stereo matching can be extended to include a time dimension: a `spatio-temporal' window aggregating information at each pixel. \citet{tombari_konolige} demonstrate an efficient innovation for spatial regularisation, \emph{local smoothing}.
 

@@ -3,24 +3,16 @@
 \subsection{Rectification}
 \label{sec:rectification-prior}
 
-Rectification is the modification of a pair of stereo images so that the
-epipolar lines of the stereo geometry are horizontal in both images, and so that
-scanlines correspond to each other (i.e. so that the same physical points are at
-the same y coordinates in the two images). Rectification can be defined in terms
-of the intrinsic and extrinsic camera parameters, but doing so means they have
-to be known (i.e. the cameras need to be calibrated). In cases where this is not
-possible, several approaches to rectification without calibration have been
-proposed.
+The process of \emph{rectification} is the modification of a pair of stereo images so that they align. That is, \begin{inparaenum}[(a)] \item the epipolar lines of the stereo geometry are horizontal in both images, and
+\item for each physical point in one image, it is on the same scanline ($y$ coordinate) as the corresponding point in the other image. \end{inparaenum}
 
-\citet{chen03} propose a rectification algorithm using the fundamental matrix,
-without requiring calibration of the cameras. Another uncalibrated matching
-based on feature point extraction of grey-scale images is proposed by
-\citet{papadimitriou96:_epipol}; this approach works up to a 10\% angle
+Rectification can be defined in terms of the intrinsic and extrinsic camera parameters. This requires that those parameters are known (i.e. the cameras must be calibrated), in which case it is straightforward to calculate the relative geometries of the cameras and adjust the images accordingly. In cases where this is not
+possible, one of several approaches to rectification without calibration can be taken.
+
+\citet{chen03} give an algorithm that does not require calibration of the cameras. It uses the \emph{fundamental matrix} to calculate and adjust the epipolar geometry. Another form of uncalibrated rectification based on feature point extraction of grey-scale images is proposed by
+\citet{papadimitriou96:_epipol}; this approach works when there is up to a 10\% angle
 difference between the two images.
 
-Another uncalibrated approach that uses a three-stage approach (projective
-transform, similarity transform, shearing transform) to minimise the distortion
-of the rectified images to ``a well-defined minimum'' is given by
-\citet{loop99:_comput}. Finally, several calibration methods for trinocular
-images (i.e. with three cameras) are given by \citet{sun03:_uncal}.
+Another alternative, again for uncalibrated cameras, is to use a three-stage approach consisting of \emph{projective transform}, \emph{similarity transform}, and \emph{shearing transform}. In this method, given by \citet{loop99:_comput}, the distortion of the rectified images is reduced to ``a well-defined minimum''.
 
+Finally, several calibration methods for trinocular images (that is, images acquired from three cameras) are given by \citet{sun03:_uncal}. Generally, a solution to the rectification transformation for a pair of images will also provide a solution to rectification of an array of images, as we can perform pairwise rectification as long as the images overlap. However, approaches specifically for more than two images may be more efficient, or improve the overall rectification accuracy by performing error checking from multiple views.

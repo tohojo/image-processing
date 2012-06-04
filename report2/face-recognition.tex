@@ -4,20 +4,17 @@
 \subsection{Face recognition}
 \label{sec:face-rec}
 We have implemented face recognition based on PCA analysis of the image pixel
-values (the holistic approach). We preprocess the image database so that face
-features (corners of eyes, bottom of nose) are in the same positions for all
-images (see description of the image preparation process below), and do the PCA
-analysis on these processed images.
+values (the holistic approach). Face recognition is effectively the culmination of all our work so far.
 
-Up to six channels of data from each image can be used: red values, green
-values, blue values, hue values, saturation values, and depth values. The data
-points from each channel are concatenated for each pixel in the image onto a
-single column image vector.
+Our first step is to preprocess the image database. Images must first be rectified (see section~\ref{sec:rectification}). Preprocessing ensures that a fixed triple of face features (the outer corners of the eyes, and the point between the base of the nose and the lip) are in the same positions for all images. For further details, see section~\ref{sec:preprocess} below. PCA is performed on these processed images.
 
-% TODO: Review this for accuracy!
+Up to six channels of data from each image can be used: values for red, green and blue, values for hue and saturation, and depth values. Depth values are created by running our stereo matching algorithm (see section~\ref{sec:stereo}) on the preprocessed images to create equivalent-sized depth maps.\footnote{ It is important at this step to use a fixed multiplier for disparities in all the images, rather than dynamically calculating how to best map the disparities in an image to [0...255]. This is so that representations of relative distances are fixed across all images in the dataset.}
+
+For each pixel in the image in turn, the $n$ data points are concatenated into a series of values, and appended to the single column image vector. The result is a single vector of length $n \times m$, where $m$ is the total number of pixels in the image.
+
 For the training phase of the PCA processing, the average image vector for the
-training set is computed, and subtracted from each image vector. These vectors
-are put into a matrix (one column pr image), and the covariance matrix and
+training set is computed, and subtracted from each image vector to create the normalised vectors. These vectors
+are put into a matrix (one column per image), and the covariance matrix and
 eigenvectors are calculated, by means of the OpenCV PCA library functions (which
 helps a lot with matching speed).
 
@@ -49,6 +46,10 @@ its cutoff depth.
 
 
 \subsubsection{Preprocessing of images}
+\label{sec:preprocess}
+
+`registered'
+
 Before doing PCA analysis on the face images, they are preprocessed to make sure
 face features are in (approximately) the same positions on all the images. First
 of all, we operate exclusively on rectified images, i.e. stereo images that have
