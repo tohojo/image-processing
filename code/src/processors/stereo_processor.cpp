@@ -45,25 +45,45 @@ void StereoProcessor::run()
 		right.append(".png");
 		testProgram(false, 0.5, 6, leftout.str().c_str(), rightout.str().c_str(), left.c_str(), right.c_str());
 	}
-	setMatrixLength(0);
+	setMatrixLength(3);
+	max_expected_disparity_bounds = 30;
+	weight_porcupine = 1.25;
 	for (int i = 4071; i <= 4114; i++){
-		std::string left = "Database/norm_0.25_1.2/DSCF";
-		std::string right = "Database/norm_0.25_1.2/DSCF";
+		std::string left = "norm_0.25_1.2/DSCF";
+		std::string right = "norm_0.25_1.2/DSCF";
 		std::stringstream ss;
 		ss << i;
 		left.append(ss.str());
 		right.append(ss.str());
 		std::stringstream leftout;
 		leftout << left;
-		leftout << "rec_l.normalD.png";
+		leftout << "rec_l.normalD_smth.png";
 		std::stringstream rightout;
 		rightout << right;
-		rightout << "rec_r.normalD.png";
+		rightout << "rec_r.normalD_smth.png";
 		left.append("rec_l.normal.png");
 		right.append("rec_r.normal.png");
-		//left.append("rec_l.normal.png");
-		//right.append("rec_r.normal.png");
-		testProgram(false, 0.6, 6, leftout.str().c_str(), rightout.str().c_str(), left.c_str(), right.c_str());
+		testProgram(false, 0.7, 5, leftout.str().c_str(), rightout.str().c_str(), left.c_str(), right.c_str());
+	}
+	setMatrixLength(5);
+	max_expected_disparity_bounds = 30;
+	weight_porcupine = 1.5;
+	for (int i = 4071; i <= 4114; i++){
+		std::string left = "norm_0.25_1.2/DSCF";
+		std::string right = "norm_0.25_1.2/DSCF";
+		std::stringstream ss;
+		ss << i;
+		left.append(ss.str());
+		right.append(ss.str());
+		std::stringstream leftout;
+		leftout << left;
+		leftout << "rec_l.normalD_xtr_smth.png";
+		std::stringstream rightout;
+		rightout << right;
+		rightout << "rec_r.normalD_xtr_smth.png";
+		left.append("rec_l.normal.png");
+		right.append("rec_r.normal.png");
+		testProgram(false, 0.8, 5, leftout.str().c_str(), rightout.str().c_str(), left.c_str(), right.c_str());
 	}*/
 
 	forever {

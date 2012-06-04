@@ -6,62 +6,42 @@
 
 We followed the methods described in \cite{realtimestereo} to implement dynamic programming for stereo matching.
 
+In the simplest case, we do all of the following for each scanline of the image pair in turn.
 
-\begin{comment}
-PSEUDOCODE:
+Step 1: initialise disparity maps DisparityMapL and DisparityMapR.
 
-A[i,j] = Minimum + Dif(ColorR,ColorL)
-At the total beginning, A[0,0] has to be initialized with 0. Afterwards, all others elements are evaluated in the order from the upper left to the lower right corner.
-It is absolutely necessary just to include already initialized matrix elements for performing the Min function inside the pseudocode above.
-Once the matrix has been filled, a path of minimal cost can be calculated by tracing back through the DP matrix beginning from A[n-1,n-1], and ending in A[0,0] :
+Step 2: create a dynamic programming matrix A, whose dimensionality is equal to the scanline.
+
+Initialise the top-left corner A[0,0] to zero. For all other elements of the matrix, evaluate them in order from upper left to lower right corner.
+
+Step through the matrix and calculate
+\[
+A[i,j] = Minimum(A[i-1,j], A[i,j-1], A[i-1,j-1])  +  Difference(imageL, imageR)
+\]
+...where $Difference(imageL, imageR)$ is the difference between the i'th pixel of one image and the j'th pixel of the other.
+
+Step 3: Once A has been filled, calculate a path of minimal cost through the matrix. In the simplest case, this is done by tracing back through the DP matrix starting at the bottom right corner A[n-1,n-1], and ending at A[0,0].
+
+Choose the `path of least resistance', i.e. move up, left or up-left depending on $Minimum(A[i-1,j], A[i,j-1], A[i-1,j-1])$. Each time, fill in the disparity maps with your choice.
+
+i.e.
 DisparityMapL [i,y] = j-i
 DisparityMapR [j,y] = i-j
-Up = A[i-1,j]
-Left = A[i,j-1]
-UpLeft = A[i-1,j-1]
-Minimum = Min( Up,Left,UpLeft )
-case Minimum of
-UpLeft : i=i-1;j=j-1
-Left : j=j-1
-Up : i=i-1
-end
 
-For i = 0 to end,
-For j = 0 to end,
+Step 4: Once all this has been done for each scanline in the stereo pair, go through and map the lowest (possibly negative) disparity value to 0, and the highest disparity value to 255. This gives us our disparity map. Alternatively, the user can multiply by a fixed value.
+
 ...
 
-Step 1: CALCULATE MATRIX
-a1 = Right[i,y]
-a2 = Left[j,y]
-a3 = diff(a1,a2)
-a4 = a3*scale + weight // denoise
-a5 = f(a4, smooth[i,j])
-b1 = A[i-1,j]
-b2 = A[i,j-1]
-b3 = A[i-1,j-1]
-b4 = minimum(b1, b2, b3)
-b5 = b4 - path[i,j] // Reusing paths
-path[i,j] = path[i,j] * 0.875 // Reusing paths
-A[i,j] = a5 + b5 // Write DP matrix
+That was the simplest case. In practise, we also have the options to:
 
-Step 2: FIND PATH
-c1 = A[i-1,j]
-c2 = A[i,j-1]
-c3 = A[i-1,j-1]
-c4 = minimum(c1, c2, c3)
-c1 = c1 + weight1
-c2 = c2 + weight2
-c3 = c3 + weight3
-// Choose new position
-if (c4 <= c1) { j = j-1; i = i-1; } else
-if (c4 <= c2) { j = j-1 } else
-if (c4 <= c3) { i = i-1 }
-// Remember paths
-path[i,j] = constant
-// Write disparity map
-disparity[i,y] = j
+(a) assign an additional bonus or penalty to moving diagonally in the dynamic programming matrix, depending on whether we want smooth or spiky (very disparate) images respectively,
 
-One improvement we didn't implement: line skipping. (At first, every n’th horizontal line is calculated to find bounding space for possible disparities in between.)
+(b) weight our choices for each scanline by those for the previous scanline, reducing error by `suggesting' ways to conform,
 
-\end{comment}
+(c) run a median filter over the stereo images first to get rid of noise,
 
+(d) improve running time by selecting a maximum disparity bound, b. The `path of least resistance' is never allowed to go outside this disparity bound because we set A[i,j] to a vast positive value if i > b or j > b.
+
+%
+
+One improvement we didn't implement: line skipping. (In that version, at thebeginning, every n’th horizontal line is calculated to find bounding space for possible disparities in between.)
