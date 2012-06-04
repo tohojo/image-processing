@@ -10,73 +10,74 @@ Our first step is to preprocess the image database. Images must first be rectifi
 
 Up to six channels of data from each image can be used: values for red, green and blue, values for hue and saturation, and depth values. Depth values are created by running our stereo matching algorithm (see section~\ref{sec:stereo}) on the preprocessed images to create equivalent-sized depth maps.\footnote{ It is important at this step to use a fixed multiplier for disparities in all the images, rather than dynamically calculating how to best map the disparities in an image to [0...255]. This is so that representations of relative distances are fixed across all images in the dataset.}
 
-For each pixel in the image in turn, the $n$ data points are concatenated into a series of values, and appended to the single column image vector. The result is a single vector of length $n \times m$, where $m$ is the total number of pixels in the image.
+For each pixel in the image in turn, the $n$ data points are concatenated into a series of values, and appended to the single column image vector. The result is a single vector of length $L = n \times m$, where $m$ is the total number of pixels in the image.
 
 For the training phase of the PCA processing, the average image vector for the
-training set is computed, and subtracted from each image vector to create the normalised vectors. These vectors
-are put into a matrix (one column per image), and the covariance matrix and
-eigenvectors are calculated, by means of the OpenCV PCA library functions (which
-helps a lot with matching speed).
+training set is computed, and subtracted from each image vector to create the normalised vectors. Each vector is multiplied by its inverse, and the resulting matrices are summed to acquire the overall covariance matrix. This matrix essentially holds all the information of the database of images.
 
-The eigenvectors with the highest associated eigenvalues are kept; how many to
-keep is a user-configurable parameter. The (normalised) vectors form an
-orthonormal basis for the eigenspace. Each training image is projected into this
-eigenspace, and for each class of images (i.e. each person), the average image
-vector (in the eigenspace) is computed, as well as the maximum distance between
-the average image and the original training images. The maximum distance
-(multiplied by a user-configurable factor) is used as a cutoff distance when
+The next step requires that the eigenvectors and eigenvalues of the matrix be calculated. Because the size of the matrix is $L^{2}$, this is computationally expensive. We were able to achieve reduction of dimensionality by using the OpenCV PCA library functions in our code. OpenCV implements the variation introduced by \citet{turk_pentland}, whereby the eigenvectors and eigenvalues are calculated by a square matrix whose dimensionality is equal to the the number of images in the database - a considerable reduction. This allows us to achieve training and matching in a reasonable time and with reasonable memory consumption.
+
+The highest eigenvalues represent those components (`directions') for which we have the greatest variance, i.e. discriminating power. The eigenvectors associated with those highest eigenvalues are kept. The number to keep is a user-configurable parameter. The program calculates the fractional quantity $Q$ of face information being stored by dividing the sum of the \emph{kept} eigenvalues by the sum of \emph{all} the eigenvalues. The user can therefore trade off efficiency (in terms of memory and time) against quality by choosing to keep a number of components such that $Q \geq t$ for some threshold $t$.
+
+The result is a set of eigenvectors which give us an orthonormal basis, or higher-dimensional `principal component space'. Each training image is projected into this space, and for each class of images (i.e. each person whose image was taken), the \emph{average image vector} (in the principal component space) is computed. The maximum distance between
+the average image and the set of original training images for that class is also calculated. This maximum distance
+(multiplied by some user-configurable factor) is used as a cutoff distance when
 matching; images that do not match any classes within the cutoff distance are
 considered a no-match.
 
+The program uses this same metric to gauge the confidence in a prediction. Images which, when projected into the orthonormal basis, are close to the edge of the `point cloud' of training examples for the closest-fitting class, are less likely to have been \emph{correctly} matched to that class than those very near to the average image vector.
+
 To test the accuracy of the classification, each training image is projected
 into the eigenspace and back; the error between the original image and the
-reconstructed image (as the square of the distance) is calculated. The result of
-this is shown in the results subsection below.
+reconstructed image (as the square of the distance) is calculated. Sample results for
+this are shown in section~\ref{sec:pcaresults} below.
 
-When matching an image against the training database, the image vector is built
-up as for the training step, and the average vector (also from the training
-step) is subtracted. The vector is then projected into the eigenspace, and the
-distance to each class average vector is computed. The class vector that is
-closest to the image being matched is considered a match if it is closer than
-its cutoff depth.
-
-%%% This I do not understand: %%%
-% We can keep some quantity of image data by calculating the sum of eigenvalues
-% for the components we are keeping, divided by the sum of all eigenvalues.
-
+When given an image to classify, matching is performed as follows. The image vector is constructed as for the training set, using $n$ channels and resulting in a vector length $n \times image_height \times image_width$. The overall average vector is subtracted, and the vector is projected into the PCA space. The distance of this projection to each class average vector is computed. The class vector that is nearest to the test image is considered a match if it is closer than the cutoff depth for that class. Our program by default returns the closest match and the next-closest match, stating the confidence in each guess.
 
 \subsubsection{Preprocessing of images}
 \label{sec:preprocess}
 
-`registered'
-
-Before doing PCA analysis on the face images, they are preprocessed to make sure
-face features are in (approximately) the same positions on all the images. First
-of all, we operate exclusively on rectified images, i.e. stereo images that have
-been projected to have corresponding horizontal epipolar lines. The
-rectification step helps diminish deformation of the from the later steps of the
-preprocessing.
+Before doing PCA analysis on the face images, they are preprocessed or `registered' to make sure
+face features are in (almost) the same positions on all the images. Initially, we operate on rectified images, i.e. stereo images that have
+been projected into a geometry in which they have corresponding horizontal epipolar lines. The
+rectification step helps diminish unwanted deformation caused by the later steps of the
+preprocessing, and also prepares the images for stereo mapping if we wish to use depth data for PCA.
 
 After rectification, face features are manually identified. The features
-identified are the outer corners of the eyes, and the point just below the nose
-(since these features seem to be in approximately the same position regardless
-of facial expression). The average of each feature point over the whole image
-training database is then found, and each image is transformed so that it has
-the feature points in this average location. This is done by, for each image,
-solving for the affine transformation needed to transform the feature point
-locations for that image into the average location, and applying that affine
-transformation to the whole image. The solution is found using singular value
-decomposition of the resulting set of matrices. This, and the following affine
-transformation of the image, is done using OpenCV functions.
+identified are the outer corners of the eyes, and the point above the lip on the vertical centre of the nose 
+(since these features are fairly definable, and seem to be in approximately the same position regardless
+of facial expression). For each of these feature points $p$, the average $p'$of each feature point over the whole image
+training database is found. Each image is geometrically transformed so that its three feature points align to the location of $p'$.
+
+This is done by solving (for each image) the affine transformation needed to transform the feature point
+locations for that image into the average location $p'$, using singular value
+decomposition of the resulting set of matrices. This is applied as an affine
+transformation to the whole image. Pixel interpolation is performed to create the new image. All three steps are done using OpenCV functions.
 
 Following the transformation, the images are cropped to a user-configurable
-ratio determined by adding a factor of the vertical and horizontal distances
-between the feature points. An ellipse is then fitted to the image (the maximal
-ellipse that will fit inside the image), and everything outside this ellipse is
-blacked out. Finally, the image is scaled down to a fixed with (also
+ratio. The ratio is determined by adding some factor of the vertical and horizontal distances
+between the feature points to the edges of the image. An ellipse is then fitted to the boundaries of the cropped image. Everything outside this ellipse is
+`blacked out' to zero values. Finally, the image is scaled down to a fixed width (also
 user-configurable), to speed up the processing.
 
 Finally, we apply our stereo matching implementation to the processed images to
-yield the depth map that is (optionally) used in the PCA matching.
+yield the depth map that can optionally be used in the PCA matching. The last channels - Hue and Saturation values - are extracted from each pixel by a function during the processing.
 
 \subsubsection{Testing results}
+\label{sec:pcaresults}
+
+1. sample results of error between the original image and the reconstructed image from TRAINING EXAMPLES
+
+2. number of correct classifications between images size 128 vs 256
+
+3. number of correct classifications, RGB
+
+4. number of correct classifications, RGB + HS
+
+5. number of correct classifications, RGB  + depth map
+
+6. number of correct classifications, RGB + HS + depth map
+
+7. trying to predict classes other than (person's face): spectacles, facial hair, showing teeth, neutral vs other expression, ethnicity
+
+
