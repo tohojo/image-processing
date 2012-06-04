@@ -3,12 +3,35 @@
 \subsection{Stereo matching}
 \label{sec:stereo-prior}
 
-Stereo matching is...
+% TODO: Review of this section is probably needed.
 
-Mention stereo correspondence algorithm using graph cuts.
+Stereo matching, the process of reconstructing a 3D scene from a pair of stereo
+images, is an important part of computer vision. Various approaches to the
+problem have been proposed.
 
-Stereo matching using block matching. e.g. by Kurt Konolige. A very fast one-pass stereo matching algorithm.
-Matches blocks or windows of the image, not individual pixels.
+Stereo matching algorithms typically fall into two categories: those doing local
+matching (i.e. per-pixel or in pixel neighbourhoods) and those using a global
+matching model (i.e. analysing the whole image). The global method requires
+keeping track of a lot of information about the whole image, which can be quite
+demanding on computational resources (mainly memory), while the local method
+requires selecting an appropriate matching window, which may vary between
+images. An evaluation of a large number of different algorithms is given by
+\citet{scharstein02:_taxon_evaluat_dense_two_frame}.
 
-Look at e.g. % http://www.rainsoft.de/publications/accv10.pdf
+Examples of local matching approaches include a correlation-based matching
+algorithm with a fast GPU implementation given by \citet{weber09}. Global
+matching approaches include the use of graph cuts
+\cite{kolmogorov01:_comput}, and belief propagation using Markov fields
+\cite{felzenszwalb06:_effic_belief_propag_early_vision}.
+
+Speeding up the speed of stereo matching is the focus of
+\citet{geiger11:_effic_large_scale_stereo_match}, who achieve near-realtime
+matching speeds with high accuracy using a set of support points that can be
+accurately identified between the two images. Another realtime approach is taken
+by \citet{realtimestereo}, by the application of dynamic programming techniques.
+
+%%%% Couldn't find this article, so omitting for now %%%%
+% Stereo matching using block matching. e.g. by Kurt Konolige. A very fast
+% one-pass stereo matching algorithm. Matches blocks or windows of the image, not
+% individual pixels.
 
