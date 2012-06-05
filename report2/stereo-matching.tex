@@ -155,3 +155,20 @@ We had 44.9\% to 45.8\% bad pixels total. The worst Middlebury have on record is
    feature inter-scanline smoothing with a weight of 0.9.}
  \label{fig:stereo-image-depth-maps}
 \end{figure}
+
+\begin{figure}[h]
+ \centering
+ \subfloat[Depth map (no smoothing)] { \label{fig:sm-1} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.8\textwidth]{stereo/lowsmooth} }\\
+ \subfloat[Depth map (low smoothing)] { \label{fig:sm-2} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.8\textwidth]{stereo/midsmooth} }\\
+ \subfloat[Depth map (mid smoothing)] { \label{fig:sm-3} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.8\textwidth]{stereo/highsmooth} }\\
+ \subfloat[Depth map (high smoothing)] { \label{fig:sm-4} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.8\textwidth]{stereo/extremesmooth} }
+ \caption[Depth maps for stereo pairs created with various parameters]{Depth
+   maps for one of the stereo pairs in our database, calculated using increasing
+   levels of smoothness.}
+ \label{fig:stereo-pair-depth-maps}
+\end{figure}
+
+Consider Figure~\ref{fig:stereo-pair-depth-maps}. Increasing the three
+smoothness parameters - median matrix size, inter-scanline smoothing, and
+diagonal preference / disparity penalty - often results in less noise, but loss
+of definition.
