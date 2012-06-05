@@ -44,7 +44,7 @@ rectification step helps diminish unwanted deformation caused by the later steps
 preprocessing, and also prepares the images for stereo mapping if we wish to use depth data for PCA.
 
 After rectification, face features are manually identified. The features
-identified are the outer corners of the eyes, and the point above the lip on the vertical centre of the nose 
+identified are the outer corners of the eyes, and the point above the lip on the vertical centre of the nose
 (since these features are fairly definable, and seem to be in approximately the same position regardless
 of facial expression). For each of these feature points $p$, the average $p'$of each feature point over the whole image
 training database is found. Each image is geometrically transformed so that its three feature points align to the location of $p'$.
@@ -70,12 +70,12 @@ Methodology: for each test, use whatever number of components means keeping at l
 
 Consider Table~\ref{tbl:face-rec-1}. The amount of image information being retained when a certain number of components are kept is not heavily dependent on the image size. There is little difference between sizes. In all cases, 12 or 13 components are required for the 80\% information threshold we use in our other experiments.
 
-\begin{table}[h!]
+\begin{table}[htbp]
   \centering
   \begin{tabular}{c c c c c}
     \toprule
-    \textbf{ } & \textbf{} & \textbf{Image size} & \textbf{} & \textbf{}\\
-    \textbf{ } & \textbf{ 32x49 } & \textbf{ 64x99 } & \textbf{128x198} & \textbf{256x396}\\
+    & \multicolumn{4}{c}{\textbf{Image size}} \\
+      &  32x49  &  64x99  & 128x198 & 256x396 \\
     \midrule
     \textbf{2 components} & 39.6\% & 39.9\% & 38.8\% & 37.8\% \\
     \textbf{4 components} & 55.6\% & 56.0\% & 55.5\% & 53.2\% \\
@@ -93,23 +93,23 @@ Consider Table~\ref{tbl:face-rec-1}. The amount of image information being retai
 
 Consider Table~\ref{tbl:face-rec-2}. As expected, we have better reconstruction when we keep more principal components. The total improvement when we go from 4 components to 10 is 41695. The total improvement when we go from 10 components to 16 is 12489. This apparent diminishing returns is because we start including more `important' (in terms of their associated eigenvalue) eigenvectors, and then start adding ones which lend less to the PCA.
 
-\begin{table}[h!]
+\begin{table}[htpb]
   \centering
   \begin{tabular}{c c c c}
     \toprule
-    \textbf{ } & \textbf{4 components} & \textbf{10 components} & \textbf{16 components} \\
-    \textbf{ } & \textbf{(53.2\% image data retained)} & \textbf{(74.6\% image data retained)} & \textbf{(84.2\% image data retained)} \\
+     & \textbf{4 components} & \textbf{10 components} & \textbf{16 components} \\
+     & (53.2\% data retained) & (74.6\% data retained) & (84.2\% data retained) \\
     \midrule
     \textbf{Class A} & 9848 & 9018 & 6670\\
-    \textbf{Class B} & 11238 & 7853 & 6170\\ 
-    \textbf{Class C} & 11719 & 7811 & 7376\\ 
+    \textbf{Class B} & 11238 & 7853 & 6170\\
+    \textbf{Class C} & 11719 & 7811 & 7376\\
     \textbf{Class D} & 12061 & 7736 & 6560\\
     \textbf{Class E} & 10268 & 7873 & 6383\\
-    \textbf{Class F} & 13339 & 8683 & 7001\\ 
-    \textbf{Class G} & 10252 & 9022 & 6516\\ 
+    \textbf{Class F} & 13339 & 8683 & 7001\\
+    \textbf{Class G} & 10252 & 9022 & 6516\\
     \textbf{Class H} & 14167 & 7331 & 5709\\
     \textbf{Class I} & 11945 & 10223 & 7379\\
-    \textbf{Class J} & 11196 & 9187 & 6075\\ 
+    \textbf{Class J} & 11196 & 9187 & 6075\\
     \textbf{Class K} & 11586 & 8267 & 7596\\
     \bottomrule
   \end{tabular}
@@ -121,28 +121,21 @@ Consider Table~\ref{tbl:face-rec-3}. Note that most often, PCA failed on the cla
 
 In general, though, we observe that those classes of images with the greatest variance in pose, lighting or expression are \emph{not necessarily} the hardest to classify. It simply means that we have less confidence when we classify into that class. These highly varying images did, however, result in a broad `point cloud' in higher-dimensional PCA space, so when any test image was misclassified, it had a greater-than-average chance to be misclassified into a highly varying class.
 
-\begin{table}[h!]
+\begin{table}[bp]
   \centering
-  \begin{tabular}{c c c c c}
+  \begin{tabular}{>{\centering}m{2cm} >{\centering}m{1.5cm} >{\centering}m{1.5cm}
+      >{\centering}m{1.5cm} >{\centering}m{1.5cm} }
     \toprule
-    \textbf{ } & \textbf{} & \textbf{Image size} & \textbf{} & \textbf{}\\
-    \textbf{ } & \textbf{ 32x49 } & \textbf{ 64x99 } & \textbf{128x198} & \textbf{256x396}\\
+     & \multicolumn{4}{c}{\textbf{Image size}} \tabularnewline
+    &  32x49  &  64x99  & 128x198 & 256x396 \tabularnewline
     \midrule
-    \textbf{Number} & {} & {} & {} & {} \\
-    \textbf{successfully} & 30 & 32 & 33 & 34\\
-    \textbf{classified} & {} & {} & {} & {} \\
-    \midrule
-    \textbf{Number} & {} & {} & {} & {} \\
-    \textbf{failed to} & 14 & 9 & 7 & 4\\
-    \textbf{classify} & {} & {} & {} & {} \\
-    \midrule
-    \textbf{Number} & {} & {} & {} & {} \\
-    \textbf{partially} & 0 & 2 & 3 & 4\\
-    \textbf{misclassified} & {} & {} & {} & {} \\
-    \midrule
-    \textbf{Number} & {} & {} & {} & {} \\
-    \textbf{completely} & 0 & 1 & 1 & 2\\
-    \textbf{misclassified} & {} & {} & {} & {} \\
+    \textbf{Successfully classified} & 30 & 32 & 33 & 34 \tabularnewline
+    \cmidrule(c){1-1}
+    \textbf{Failed to classify} & 14 & 9 & 7 & 4 \tabularnewline
+    \cmidrule(c){1-1}
+    \textbf{Partially misclassified} & 0 & 2 & 3 & 4 \tabularnewline
+    \cmidrule(c){1-1}
+    \textbf{Completely misclassified} & 0 & 1 & 1 & 2 \tabularnewline
     \bottomrule
   \end{tabular}
   \caption[Results of classification testing for different-sized images]{Results of using PCA for face recognition of new images (classification testing). Four different image sizes are tested. A training set of 44 images with 11 classes was used, and in all cases, PCA was performed on all six possible channels. A number of principal components sufficient to retain 80\% image data were used. Each column is a different image dimensionality. `Number successfully classified' is the number of test images correctly classified. `Number failed to classify' is the number of test images the processor was not confident enough to enter a guess for. `Number partially misclassified' is the number of test images for which the processor's second guess was correct. `Number completely misclassified' is the number of test images for which the processor's initial and secondary guesses were both incorrect.}
@@ -151,27 +144,21 @@ In general, though, we observe that those classes of images with the greatest va
 
 Note in Table~\ref{tbl:face-rec-3} that as we increase image size, we see better classification, and also transference of complete failures to classify into misclassifications. By the biggest size, more images are misclassified than unable to classify.
 
-\begin{table}[h!]
+\begin{table}[bp]
   \centering
-  \begin{tabular}{c c c c c}
+  \begin{tabular}{>{\centering}m{2cm} >{\centering}m{1.5cm} >{\centering}m{1.5cm}
+      >{\centering}m{1.5cm} >{\centering}m{1.5cm} }
     \toprule
-    \textbf{ } & \textbf{ RGB } & \textbf{ RGB + HS } & \textbf{RGB + Depth} & \textbf{RGB + HS + Depth}\\
+    \textbf{ } & \textbf{ RGB } & \textbf{ RGB + HS } & \textbf{RGB + Depth} &
+    \textbf{RGB + HS + Depth} \tabularnewline
     \midrule
-    \textbf{Number} & {} & {} & {} & {} \\
-    \textbf{successfully} & 29 & 34 & 31 & 34\\
-    \textbf{classified} & {} & {} & {} & {} \\
-    \midrule
-    \textbf{Number} & {} & {} & {} & {} \\
-    \textbf{failed to} & 7 & 5 & 6 & 4\\
-    \textbf{classify} & {} & {} & {} & {} \\
-    \midrule
-    \textbf{Number} & {} & {} & {} & {} \\
-    \textbf{partially} & 5 & 4 & 5 & 4\\
-    \textbf{misclassified} & {} & {} & {} & {} \\
-    \midrule
-    \textbf{Number} & {} & {} & {} & {} \\
-    \textbf{completely} & 3 & 1 & 2 & 2\\
-    \textbf{misclassified} & {} & {} & {} & {} \\
+    \textbf{Successfully classified} & 29 & 34 & 31 & 34 \tabularnewline
+    \cmidrule(c){1-1}
+    \textbf{Failed to classify} & 7 & 5 & 6 & 4 \tabularnewline
+    \cmidrule(c){1-1}
+    \textbf{Partially misclassified} & 5 & 4 & 5 & 4 \tabularnewline
+    \cmidrule(c){1-1}
+    \textbf{Completely misclassified} & 3 & 1 & 2 & 2 \tabularnewline
     \bottomrule
   \end{tabular}
   \caption[Results of classification testing for different numbers of channels]{Results of using PCA for face recognition of new images (classification testing), using different channels. RGB, HSV and depth map data are tested. Each column specifies a different combination. A training set of 44 images, of dimension 256x396, with 11 classes was used. `Number successfully classified' is the number of test images correctly classified. `Number failed to classify' is the number of test images the processor was not confident enough to enter a guess for. `Number partially misclassified' is the number of test images for which the processor's second guess was correct. `Number completely misclassified' is the number of test images for which the processor's initial and secondary guesses were both incorrect.}
@@ -184,7 +171,7 @@ The beauty of the PCA process is that even if we were using random noise for dep
 
 These observations are only valid given our particular (relatively strict) cutoff point or `confidence tolerance' for classification. Some data channels might have proven themselves better or worse if we had required the system to return a guess for the class of every single test image, including those that are hard to classify.
 
-\begin{figure}[h]
+\begin{figure}[p]
  \centering
 
  \subfloat { \label{fig:row1-1} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classDB/A-norm} }
@@ -192,36 +179,20 @@ These observations are only valid given our particular (relatively strict) cutof
  \subfloat { \label{fig:row1-3} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classDB/B-norm} }
  \subfloat { \label{fig:row1-4} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classDB/B-norm-D} }\\
 
-\begin{center}
-\line(1,0){300}
-\end{center}
-
  \subfloat { \label{fig:row2-1} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classDB/C-norm} }
  \subfloat { \label{fig:row2-2} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classDB/C-norm-D} }
  \subfloat { \label{fig:row2-3} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classDB/D-norm} }
  \subfloat { \label{fig:row2-4} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classDB/D-norm-D} }\\
-
-\begin{center}
-\line(1,0){300}
-\end{center}
 
  \subfloat { \label{fig:row3-1} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classDB/E-norm} }
  \subfloat { \label{fig:row3-2} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classDB/E-norm-D} }
  \subfloat { \label{fig:row3-3} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classDB/F-norm} }
  \subfloat { \label{fig:row3-4} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classDB/F-norm-D} }\\
 
-\begin{center}
-\line(1,0){300}
-\end{center}
-
  \subfloat { \label{fig:row4-1} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classDB/G-norm} }
  \subfloat { \label{fig:row4-2} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classDB/G-norm-D} }
  \subfloat { \label{fig:row4-3} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classDB/H-norm} }
  \subfloat { \label{fig:row4-4} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classDB/H-norm-D} }\\
-
-\begin{center}
-\line(1,0){300}
-\end{center}
 
  \caption[A sample of our PCA database]{A sample of images from our PCA database. Each row of images
 describes two images from a class, alongside their associated depth map. These are the rectified,
