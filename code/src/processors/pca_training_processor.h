@@ -67,8 +67,8 @@ private:
 	Mat convertImageToVector(Mat img, Mat depthImg);
 	Mat convertVectorToImage(Mat vec);
 	Mat pcaClassifyInputImage();
-	
-	double PcaTrainingProcessor::getBaseline(Mat imgs, int def);
+
+	double getBaseline(Mat imgs, int def);
 
 	int numCompsToKeep;
 	int numComponentsToKeep() {QMutexLocker l(&mutex); return numCompsToKeep;}
