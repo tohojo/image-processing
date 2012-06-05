@@ -32,7 +32,7 @@ into the eigenspace and back; the error between the original image and the
 reconstructed image (as the square of the distance) is calculated. Sample results for
 this are shown in section~\ref{sec:pcaresults} below.
 
-When given an image to classify, matching is performed as follows. The image vector is constructed as for the training set, using $n$ channels and resulting in a vector length $n \times image_height \times image_width$. The overall average vector is subtracted, and the vector is projected into the PCA space. The distance of this projection to each class average vector is computed. The class vector that is nearest to the test image is considered a match if it is closer than the cutoff depth for that class. Our program by default returns the closest match and the next-closest match, stating the confidence in each guess.
+When given an image to classify, matching is performed as follows. The image vector is constructed as for the training set, using $n$ channels and resulting in a vector length $n \times image-height \times image-width$. The overall average vector is subtracted from the image vector, which is then projected into the PCA space. The distance of this projection to each class average vector is computed. The class vector that is nearest to the test image is considered a match if it is closer than the cutoff depth for that class. Our program by default returns the closest match and the next-closest match, stating the confidence in each guess.
 
 \subsubsection{Preprocessing of images}
 \label{sec:preprocess}
