@@ -8,28 +8,30 @@
 
 %
 
-We returned to Tsai calibration to improve our modelling of lens distortion. We integrated the calculation of the second-order distortion coefficient, $\kappa_{2}$, by modifying Tsai's equation (7a) to get: \cite{TSAI}
+We returned to Tsai calibration to improve our modelling of lens distortion. We integrated the calculation of the second-order distortion coefficient, $\kappa_{2}$, by modifying equation (7a) provided by \citet{TSAI} to get:
 \[
 	s_{x}^{-1}d'_{x}X + s_{x}^{-1}d'_{x}X\kappa_{1}r^{2} + s_{x}^{-1}d'_{x}X\kappa_{2}r^{4} = f\frac{x}{z}
 \]
 and solving the system.
 
-We did not calculate still higher-order coefficients because Tsai cautions that this can lead to instability in the calibration calculations. \cite{TSAI}
+We did not calculate still higher-order coefficients. Tsai cautions that using these is unnecessary for reasonable accuracy, and can in fact lead to instability in the calibration calculations. \cite{TSAI}
 
-We tested the addition of the coefficient on one of the images by testing error (as described in Section~\ref{sec:statcalibration}), but found the effects of using the second-order coefficient were negligible. The changes they made to the calibration process were largely subsumed by the error in the images, rounding errors in our work, and so on.
+We explored the addition of the coefficient on one of the images by testing error (as described in Section~\ref{sec:statcalibration}). We found that the effect of using the second-order coefficient was negligible. The changes it made to the calibration process were largely subsumed by the error in the images, rounding errors in our work, and so on.
 
 %
 
 \subsection{Statistical analysis of calibration}
 \label{sec:statcalibration}
 
-We did not perform statistical analysis in the previous report. We remedy that here. Our methodology was to assume a Gaussian distribution, and then compare the quality of calibration based on that. We took two test images of different resolution, and introduced two forms of extra artifical lens distortion into each image with an image processing tool. This gave us six images.
+We did not perform statistical analysis in the previous report, and we remedy that omission here. Our methodology was to assume a Gaussian distribution, and then compare the quality of calibration based on that. We took two test images of different resolution, and introduced two forms of extra artifical lens distortion into each image with an image processing tool. This gave us six images.
 
-For each image, we tested Tsai calibration over all calibration points on the calibration object, and also calibration performed on those points that did \emph{not} belong to an outermost column. Our hypothesis was that these points, being most distant from the camera and at the greatest angle, would be the greatest source of error in calibration.
+For each image, we tested Tsai calibration over all calibration points on the calibration object, and also calibration performed on exactly those points that did \emph{not} belong to an outermost column. Our hypothesis was that these points, being most distant from the camera and at the greatest angle, would be the greatest source of error in calibration.
 
-Our statistical analysis is done via Student's (unpaired) t-tests. If $p < 0.05$, we call the difference significant. The tool used is the GraphPad online $t$-test calculator. \cite{testcalc}
+Our statistical analysis is done via Student's (unpaired) t-tests. If $p < 0.05$, we call the difference significant. The tool used is the GraphPad online $t$-test calculator provided by \citet{testcalc}.
 
-Error was measured by \emph{radius of ambiguity in ray tracing} as described in Tsai. \cite{TSAI} We back-traced each ray from the optical centre to the real-world calibration point according to our calibration data. The error is the absolute distance from the point $P_{1}$ at which the ray intersects the plane of the calibration object, and the point $P_{2}$ representing the real location of the calibration point on the calibration object.
+Error was measured by \emph{radius of ambiguity in ray tracing} as described by \citet{TSAI}. We back-traced each ray from the optical centre to the real-world calibration point according to our calibration data. The error is the absolute distance from the point $P_{1}$ at which the ray intersects the plane of the calibration object, and the point $P_{2}$ representing the real location of the calibration point on the calibration object.
+
+Consider Table~\ref{tbl:stats090}, which shows the six variations on calibration error for our low-quality image.
 
 \begin{table}[bp]
   \centering
@@ -46,6 +48,10 @@ Error was measured by \emph{radius of ambiguity in ray tracing} as described in 
   \label{tbl:stats090}
 \end{table}
 
+As expected, there appears to be an improvement (decrease) in the error when we do not use the outermost columns of the calibration points. The difference in calibration results when we remove the edge columns from our calibration function is statistically significant for the barrel-distorted image.
+
+The barrel-distorted image has somewhat higher error than the normal image, and the pincushion-distorted image \emph{much} higher. The errors in the pincushion image were extremely statistically significantly worse than those in the normal image ($p < 0.01$), both in the case with all points and with the outer columns removed. This suggests that calibration is better able to model `barrel' type lens distortion than `pincushion' type.
+
 \begin{table}[bp]
   \centering
   \begin{tabular}{c c c c}
@@ -60,6 +66,10 @@ Error was measured by \emph{radius of ambiguity in ray tracing} as described in 
   \caption[Calibration error for Image DSC-025 (high-quality camera)]{Calibration error for Image DSC-025 (high-quality camera). Error is calculated by radius of ambiguity (projection back into real-world coordinates). Measurements are in inches. Standard deviations are given in square brackets. The first row of data describes the error for calibration performed over all 63 points. The second row of data describes the error for calibration performed without reference to the two outermost columns of calibration points.}
   \label{tbl:statsDSC}
 \end{table}
+
+The same results for the higher-quality image are given in Table~\ref{tbl:statsDSC}. We observe essentially the same trends, except that removing the outermost columns from the barrel-distorted image appears to increase error (to a highly statistically signifcant degree; $p < 0.01$). We consider this anomaly to very likely be an artifact of the process of artificial image distortion.
+
+The opposite effect is seen for pincushion distortion, as expected: there is a highly statistically significant improvement ($p < 0.01$) when removing the outermost columns of calibration points before calibrating. The errors in the pincushion image were statistically significantly worse than those in the normal image, both in the case with all points included and that with the outer columns removed. With the edges removed, this difference had $p < 0.01$. Similarly, the case with barrel distortion and edges removed was statistically significantly worse than the normal image. None of the other apparent differences were statistically significant.
 
 \begin{table}[tbp]
   \centering
@@ -157,14 +167,6 @@ Error was measured by \emph{radius of ambiguity in ray tracing} as described in 
   \label{tbl:calibration-stats-dsc-3}
 \end{table}
 
-Consider Table~\ref{tbl:stats090}, which shows the six variations on calibration error for our low-quality image. As expected, there appears to be an improvement (decrease) in the error when we do not use the outermost columns of the calibration points. The difference in calibration results when we remove the edge columns from our calibration function is statistically significant for the barrel-distorted image.
-
-The barrel-distorted image has somewhat higher error than the normal image, and the pincushion-distorted image \emph{much} higher. The errors in the pincushion image were extremely statistically significantly worse than those in the normal image ($p < 0.01$), both in the case with all points and with the outer columns removed. This suggests that calibration is better able to model `barrel' type lens distortion than `pincushion' type.
-
-The same results for the higher-quality image are given in Table~\ref{tbl:statsDSC}. We observe essentially the same trends, except that removing the outermost columns from the barrel-distorted image appears to increase error (to a highly statistically signifcant degree; $p < 0.01$). We consider this anomaly to very likely be an artifact of the process of artificial image distortion.
-
-The opposite effect is seen for pincushion distortion, as expected: there is a highly statistically significant improvement ($p < 0.01$) when removing the outermost columns of calibration points before calibrating. The errors in the pincushion image were statistically significantly worse than those in the normal image, both in the case with all points included and that with the outer columns removed. With the edges removed, this difference had $p < 0.01$. Similarly, the case with barrel distortion and edges removed was statistically significantly worse than the normal image. None of the other apparent differences were statistically significant.
-
 Tsai's original experiments found an average radius of ambiguity (error) of 0.7 mm (0.028 inches). The maximum error was 1.3 mm (0.051 inches). Our mean error is four times that of Tsai. \cite{TSAI} Our maximum error is 4.5 times that of Tsai, but reduced somewhat when we don't use the outermost columns. These values are for normal images, not the artificially distorted ones.
 
-Although Tsai's paper is 25 years old, we find this `subpar' performance to actually be quite acceptable, given the non-rigorous experiments we conducted and somewhat approximate nature of our calculations. For instance, we did not use Tsai's ``super resolution interpolation scheme" [subpixel accuracy] when extracting image coordinates. Our automated calculation of calibration points on the image was done by the naive method of averaging the coordinates of all pixels in a `spot' representing the calibration point on a picture of a calibration object. The (homemade) calibration object itself may also not have been exactly aligned along orthonormal vectors. We only performed calibration on four different images.
+Although Tsai's paper is 25 years old, we find this `subpar' performance to actually be quite acceptable, given the non-rigorous experiments we conducted and somewhat approximate nature of our calculations. For instance, we did not use Tsai's ``super resolution interpolation scheme" [subpixel accuracy] when extracting image coordinates. Our automated calculation of calibration points on the image was done by the naive method of averaging the coordinates of all pixels in a `spot' representing the calibration point on a picture of a calibration object. The (homemade) calibration object itself may also not have been exactly aligned along orthonormal vectors. Finally, we only performed calibration on four different images.

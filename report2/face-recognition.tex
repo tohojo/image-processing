@@ -66,9 +66,9 @@ yield the depth map that can optionally be used in the PCA matching. The last ch
 \subsubsection{Testing face recognition}
 \label{sec:pcaresults}
 
-Methodology: for each test, use whatever number of components means keeping at least 80\% image information (in terms of fraction of the total eigenvalues). Set error threshold to a relatively strict $1.0$, i.e. only identify test images as belonging to a class if the variation between them and the class mean is less than or equal to the maximum variation within the training images for that class. Use half our face database of 88 images to train, and half to test. There are 11 classes in the database.
+We tested our face recognition processor in various ways. Our methodology involved, for each test, using whichever number of principal components meant keeping at least 80\% image information (in terms of fraction of the total eigenvalues). We set the error threshold to a relatively strict $1.0$, i.e. the system would only identify a test image as belonging to some class $C$ if the variation between the image and the mean of $C$ was less than or equal to the maximum variation within the training images for that class. For each experiment, we used half our face database of 88 images to train, and half to test. There are 11 classes in the database, and approximately the same number of images per class.
 
-Consider Table~\ref{tbl:face-rec-1}. The amount of image information being retained when a certain number of components are kept is not heavily dependent on the image size. There is little difference between sizes. In all cases, 12 or 13 components are required for the 80\% information threshold we use in our other experiments.
+We first look at the amount of image data being retained by PCA. Consider table~\ref{tbl:face-rec-1}. The amount of information being retained when a certain number of components are kept is not very dependent on the image size: there is little difference between the various tested sizes, even when we use images $\frac{1}{64}$ the size of our main dataset. In all cases, 12 or 13 components are required to achieve the 80\% information retention threshold which we use in our other experiments.
 
 \begin{table}[htbp]
   \centering
@@ -91,7 +91,7 @@ Consider Table~\ref{tbl:face-rec-1}. The amount of image information being retai
   \label{tbl:face-rec-1}
 \end{table}
 
-Consider Table~\ref{tbl:face-rec-2}. As expected, we have better reconstruction when we keep more principal components. The total improvement when we go from 4 components to 10 is 41695. The total improvement when we go from 10 components to 16 is 12489. This apparent diminishing returns is because we start including more `important' (in terms of their associated eigenvalue) eigenvectors, and then start adding ones which lend less to the PCA.
+We are able to reconstruct images by projecting them into and then out of the PCA basis. Table~\ref{tbl:face-rec-2} shows the effects of this reconstruction for our training images. As we would obviously expect, we have better reconstruction when we keep more principal components. The total improvement when we increase from 4 components to 10 is $41695$. The total improvement when we go from 10 components to 16 is $12489$. This apparent case of diminishing returns is due to the way PCA works: we begin by including more `important' (in terms of their associated eigenvalue) eigenvectors, and then start adding ones which lend less to the PCA process. Therefore the more principal components we add, the less additional improvement we see.
 
 \begin{table}[htpb]
   \centering
@@ -117,7 +117,19 @@ Consider Table~\ref{tbl:face-rec-2}. As expected, we have better reconstruction 
   \label{tbl:face-rec-2}
 \end{table}
 
-Consider Table~\ref{tbl:face-rec-3}. Note that most often, PCA failed on the classes or test images for the person whose hand was over his face, the person who had the most different positions and expressions, the person who had only two training images, or the person wearing a hat. These are classes F, C, H, K respectively in Table~\ref{tbl:face-rec-2}. Very few test images outside of these unexpected cases were misclassified or unclassified. Note that classes F and H have the highest reconstruction error when only a few components are kept: PCA is unable to reconstruct the considerable variance \emph{within} the class at a lower dimensionality.
+Examples of reconstructed images are given in figure~\ref{fig:reconstructed-means}. The first two cases are the authors' reconstructed class mean eigenfaces, and the second two are the overall reconstructed mean eigenface, and the overall reconstructed mean eigenface for a different database.
+
+\begin{figure}[h!]
+ \centering
+ \subfloat[Class mean \#1] { \label{fig:classm-1} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.2\textwidth]{example/PCA_class_mean_b} }
+ \subfloat[Class mean \#2] { \label{fig:classm-2} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.2\textwidth]{example/PCA_class_mean_c} }
+ \subfloat[Database mean] { \label{fig:classm-3} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.2\textwidth]{example/OVERALL_PCA_MEAN} }
+ \subfloat[Other database mean] { \label{fig:classm-4} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.2\textwidth]{example/OVERALL_PCA_MEAN_PREV} }\\
+ \caption[Examples of reconstructed images]{Examples of reconstructed images for class means and overall database means. The mean eigenface for a previous year's database is given at the far right for comparison.}
+ \label{fig:reconstructed-means}
+\end{figure}
+
+Table~\ref{tbl:face-rec-3} presents our accuracy results of the system for databases of different image sizes. We observed that most often, PCA failed on the classes or test images for the person whose hand was over his face, the person who had the most different positions and expressions, the person who had only two training images, and the person wearing a hat. These are classes F, C, H, K respectively in Table~\ref{tbl:face-rec-2}. Very few test images outside of these unexpected cases were misclassified or unclassified. Note that classes F and H have the highest reconstruction error when only a few components are kept: PCA is unable to reconstruct the considerable variance \emph{within} the class at a lower dimensionality.
 
 In general, though, we observe that those classes of images with the greatest variance in pose, lighting or expression are \emph{not necessarily} the hardest to classify. It simply means that we have less confidence when we classify into that class. These highly varying images did, however, result in a broad `point cloud' in higher-dimensional PCA space, so when any test image was misclassified, it had a greater-than-average chance to be misclassified into a highly varying class.
 
@@ -142,7 +154,7 @@ In general, though, we observe that those classes of images with the greatest va
   \label{tbl:face-rec-3}
 \end{table}
 
-Note in Table~\ref{tbl:face-rec-3} that as we increase image size, we see better classification, and also transference of complete failures to classify into misclassifications. By the biggest size, more images are misclassified than unable to classify.
+Note that, in Table~\ref{tbl:face-rec-3}, as we increase image size we see better classification. Furthermore, there is a slight trend away from complete \emph{failures to classify} and towards \emph{misclassifications}. At the biggest image size tested, more images are misclassified than are found unable to be classified.
 
 \begin{table}[bp]
   \centering
@@ -165,11 +177,11 @@ Note in Table~\ref{tbl:face-rec-3} that as we increase image size, we see better
   \label{tbl:face-rec-4}
 \end{table}
 
-Table~\ref{tbl:face-rec-4} shows the results of using different channels. In general, the more tracked data, the better. PCA generally worked well even with simple RGB data. While we cannot say so with statistical rigour, it does appear that the Hue and Saturation values may be more useful than the depth data. This may be because those disparity maps were created by stereo matching on \emph{preprocessed} images: the images began as rectified stereo pairs, but underwent an affine transformation before stereo matching. This means the depth map quality was noticeably lower than usual.
+Table~\ref{tbl:face-rec-4} shows the results of using different channels for PCA. In general, the more tracked data, the better. PCA generally worked well even with simple RGB data. While we cannot say so with statistical rigour, it does appear that the Hue and Saturation values may be more useful than the depth data. This may be because those disparity maps were created by stereo matching on \emph{preprocessed} images: the images began as rectified stereo pairs, but underwent an affine transformation before stereo matching. This means the depth map quality was noticeably lower than usual.
 
 The beauty of the PCA process is that even if we were using random noise for depth maps, it would not matter: PCA will simply learn that those data values are not good discriminators (and therefore predictors); any eigenvector along the `direction(s)' of depth would not have a high eigenvalue, and therefore would not be chosen as a principal component.
 
-These observations are only valid given our particular (relatively strict) cutoff point or `confidence tolerance' for classification. Some data channels might have proven themselves better or worse if we had required the system to return a guess for the class of every single test image, including those that are hard to classify.
+These observations are only valid given our particular (relatively strict) cut-off point or `confidence tolerance' for classification. Some data channels might have proven themselves better or worse if we had required the system to return a guess for the class of every single test image, including those that are hard to classify.
 
 \begin{figure}[p]
  \centering
