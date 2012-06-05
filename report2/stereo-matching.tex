@@ -3,47 +3,66 @@
 
 \subsection{Stereo matching}
 \label{sec:stereo}
+We have implemented dynamic programming based stereo matching using the methods
+described by \citet{realtimestereo}. The output of the stereo matching is a
+disparity map for each of the left and right images; the disparity map is a grey
+scale image with black (or 0) signifying the lowest disparity, and white (or
+255) signifying the maximum disparity. The disparity map is built using a
+dynamic programming matrix for each scan line in the image; in the simplest
+case, the process is as follows (for each scan line):
 
-We followed the methods described in \cite{realtimestereo} to implement dynamic programming for stereo matching.
+\begin{enumerate}
+\item Create the dynamic programming matrix, $A$, with width and height both
+  equal to the length of the scan line (i.e. the width of the images).
+  Initialise the top-left corner to 0.
 
-In the simplest case, we do all of the following for each scanline of the image pair in turn.
+\item Step through the matrix, calculating $A[i,j] = \operator{min}(A[i-1,j],
+  A[i,j-1], A[i-1,j-1])  +  \operator{diff}(imageL[i], imageR[j])$ where $diff$
+  gets the difference between the image pixel values in the current scan line.
 
-Step 1: initialise disparity maps DisparityMapL and DisparityMapR.
+\item Calculate the path of minimal cost through the matrix $A$, starting in the
+  bottom right corner, and moving from there to the adjacent position with the
+  minimum value, i.e. $\operator{min}(A[i-1,j], A[i,j-1], A[i-1,j-1])$. Fill the
+  disparity map with the appropriate value ($DisparityMapL[i,y]=j-i$,
+  $DisparityMap[j,y]=i-j$).
+\end{enumerate}
 
-Step 2: create a dynamic programming matrix A, whose dimensionality is equal to the scanline.
+After having built up the disparity maps for the entire image (i.e. after doing
+the above for all scan lines), go through them and normalise the values to the
+range $[0,255]$, or, alternatively multiply the matrices by a user configurable
+factor.
 
-Initialise the top-left corner A[0,0] to zero. For all other elements of the matrix, evaluate them in order from upper left to lower right corner.
+In addition to the simple version of the disparity mapping algorithm described
+above, we have implemented the following (optional) modifications, in order to
+improve the quality of the matching:
 
-Step through the matrix and calculate
-\[
-A[i,j] = Minimum(A[i-1,j], A[i,j-1], A[i-1,j-1])  +  Difference(imageL, imageR)
-\]
-...where $Difference(imageL, imageR)$ is the difference between the i'th pixel of one image and the j'th pixel of the other.
+\begin{enumerate}
+\item It is possible to assign an additional bonus or penalty to moving
+  diagonally in the dynamic programming matrix, depending on whether we want
+  smooth or spiky (very disparate) images respectively.
 
-Step 3: Once A has been filled, calculate a path of minimal cost through the matrix. In the simplest case, this is done by tracing back through the DP matrix starting at the bottom right corner A[n-1,n-1], and ending at A[0,0].
+\item The choices for each scan line can be modified by those for the previous
+  scan line, reducing error by ``suggesting'' ways to conform.
 
-Choose the `path of least resistance', i.e. move up, left or up-left depending on $Minimum(A[i-1,j], A[i,j-1], A[i-1,j-1])$. Each time, fill in the disparity maps with your choice.
+\item A median filter can be applied to the stereo images before building the
+  disparity map, to get rid of noise.
 
-i.e.
-DisparityMapL [i,y] = j-i
-DisparityMapR [j,y] = i-j
+\item It is possible to go through the dynamic programming matrix not only from
+  the bottom-right to top-left corner, but also from top-left to bottom-right,
+  and then choose the least-weight path overall. This helps reduce the cases
+  where one of them goes horribly off the 'best' path because it, intuitively,
+  followed the lowest-weight path into a dead end.
 
-Step 4: Once all this has been done for each scanline in the stereo pair, go through and map the lowest (possibly negative) disparity value to 0, and the highest disparity value to 255. This gives us our disparity map. Alternatively, the user can multiply by a fixed value.
+\item The running time can be improved by selecting a maximum disparity bound,
+  $b$. The ``path of least resistance'' is never allowed to go outside this
+  disparity bound because we set $A[i,j]$ to a vast positive value if $i > b$ or
+  $j > b$.
+\end{enumerate}
 
-...
 
-That was the simplest case. In practise, we also have the options to:
+% TODO: Test results?
 
-(a) assign an additional bonus or penalty to moving diagonally in the dynamic programming matrix, depending on whether we want smooth or spiky (very disparate) images respectively,
-
-(b) weight our choices for each scanline by those for the previous scanline, reducing error by `suggesting' ways to conform,
-
-(c) run a median filter over the stereo images first to get rid of noise,
-
-(d) not only run from bottom-right to top-left corner in the dynamic programming matrix, but also from top-left to bottom-right. We can choose the least-weight path overall. This helps reduce the cases where one of them goes horribly off the 'best' path because it followed the lowest-weight path into a dead end.
-
-(e) improve running time by selecting a maximum disparity bound, b. The `path of least resistance' is never allowed to go outside this disparity bound because we set A[i,j] to a vast positive value if i > b or j > b.
-
-%
-
-One improvement we didn't implement: line skipping. (In that version, at thebeginning, every n’th horizontal line is calculated to find bounding space for possible disparities in between.)
+%%% Leaving this out for now...
+% One improvement we didn't implement: line skipping. (In that version, at
+% thebeginning, every n’th horizontal line is calculated to find bounding space
+% for possible disparities in between.)
