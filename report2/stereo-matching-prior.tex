@@ -14,7 +14,7 @@ keeping track of a lot of information about the whole image, which can be quite
 demanding on computational resources (mainly memory), while the local method
 requires selecting an appropriate matching window, which may vary between
 images. An evaluation of a large number of different algorithms is given by
-\citet{scharstein02:_taxon_evaluat_dense_two_frame}.
+\citet{stereocorrespondence}.
 
 One example of local matching approaches is the correlation-based matching
 algorithm with a fast GPU implementation given by \citet{weber09}. Global
@@ -29,4 +29,3 @@ accurately identified between the two images. Another real-time approach is take
 by \citet{realtimestereo}, who apply dynamic programming techniques for rapid stereo matching.
 
 Real-time stereo vision is important in domains such as robotics, where information needs to be integrated over time as well as space. For instance, moving objects need to be tracked. The spatial windows of block-correlation stereo matching can be extended to include a time dimension: a `spatio-temporal' window aggregating information at each pixel. \citet{tombari_konolige} demonstrate an efficient innovation for spatial regularisation, \emph{local smoothing}.
-
