@@ -39,7 +39,7 @@ The values are multiplied by $\frac{f}{z}$, returning the $z$ values of the new 
 interpolate non-existent pixels. Bicubic interpolation in a $4\times4$ pixel neighbourhood
 is used for this last step. An example of the input and output for images acquired from a stereo camera can be seen in figure~\ref{fig:ex-rectification}.
 
-\begin{figure}[h]
+\begin{figure}[ht]
  \centering
  \subfloat[Left image (raw)] { \label{fig:sm-1} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.4\textwidth]{example/DSCF4089_l} }
  \subfloat[Left image (rectified)] { \label{fig:sm-2} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.4\textwidth]{example/DSCF4089rec_l} }\\
@@ -83,5 +83,3 @@ able to obtain from the test images. A more accurate calibration could improve o
     between the left and right images. These points are 80 grid corners extracted from chessboard images.}
   \label{tab:rectification-error}
 \end{table}
-
-
