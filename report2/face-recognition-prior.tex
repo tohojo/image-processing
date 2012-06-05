@@ -6,39 +6,42 @@
 \emph{Face recognition} is a difficult problem for the field of image
 processing. Faces are themselves extremely variable, and images of them can
 differ extremely in positioning, lighting, noise, colour, expression,
-adornment\footnote{Spectacles, facial hair, piercings, makeup...} and other
+adornment\footnote{Spectacles, facial hair, piercings, makeup, and so on.} and other
 variables.
 
 Face recognition has typically used either the extraction of face features and
 the geometric relationships between them, or `holistic' recognition, using the
-whole image for matching \cite{eigenfaces}, although hybrid approaches have also
-been proposed \cite{zhao03:_face}.
+whole image for matching, \cite{eigenfaces} although hybrid approaches have also
+been proposed - for example, by \citet{zhao03:_face}.
 
 It is possible to create models that represent faces as points in
 high-dimensional spaces; similarities between faces means that a reduction of
 dimensionality is possible. The most prominent method for determining a
 low-dimensional subspace modelling faces in a high-dimensional image space is
-Principal Component Analysis (PCA) \cite{eigenfaces}.
+Principal Component Analysis (PCA). \cite{eigenfaces}
 
 PCA uses inherent linear transformations to extract principal directions (basis
-vectors) of the image subspace \cite{pca}. The basis vectors are determined by
+vectors) of the image subspace. \cite{pca} The basis vectors are determined by
 finding the directions of maximum variance in the face images. PCA minimises the
 error between the original image and the one reconstructed from its
 low-dimensional representation.
 
 The optimal low-dimensional space is that defined by the ``best'' eigenvectors
 (those associated with the highest eigenvalues) of the covariance matrix of the
-data. These are the \emph{principal components} \cite{pca}.
+data. These are the \emph{principal components}. \cite{pca}
 
-Various refinements of PCA have been proposed, e.g. ICA, independent component
-analysis (a generalisation of PCA) \cite{bartlett02:_face}, kernel PCA (a
-non-linear extension of PCA) \cite{kim02:_face} and 2D PCA (PCA using a 2D
-matrix rather than a 1D vector of values) \cite{yang04:_two_pca}. All of these
-refinements show varying degrees of improvement over straight PCA, but with
+Various refinements of PCA have been proposed. For example:
+\begin{itemize}
+\item ICA, independent component
+analysis (a generalisation of PCA), \cite{bartlett02:_face}
+\item Kernel PCA (a non-linear extension of PCA), \cite{kim02:_face}
+\item 2D PCA (PCA using a 2D matrix rather than a 1D vector of values). \cite{yang04:_two_pca}
+\end{itemize}
+All of these refinements show varying degrees of improvement over straightforward PCA, but with
 varying tradeoffs in either computational costs or robustness towards changing
-conditions \cite{yang04:_two_pca}.
+conditions. \cite{yang04:_two_pca}
 
 In spite of the many refinements and different approaches, effective face
 recognition, especially for images taken in an outdoor environment and/or under
-differing conditions (esp. different lighting) remains an open problem
-\cite{zhao03:_face}.
+differing conditions (especially different lighting) remains an open problem.
+\cite{zhao03:_face}
