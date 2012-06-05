@@ -71,15 +71,16 @@ improve the quality of the matching:
 
 \subsubsection{Testing of stereo matching}
 
-\begin{figure}[h]
+\begin{figure}[p]
   \centering
-  \includegraphics[width=0.8\textwidth]{Stereo-left-report}
-  \caption[Results of stereo matching (left image)]{Results of stereo matching
-    for the \emph{left} image, using various parameters. Resulting depth maps
-    are compared to the canonical depth maps to obtain discrepancies (quantities
-    of error). Each coloured column in the chart is a different
-    parameterisation, as tested on one of the four images. `Static' is the
-    baseline difference between the canonical depth map and a image with
+  \includegraphics[height=0.4\textheight]{Stereo-left-report}\\[2mm]
+  \includegraphics[height=0.4\textheight]{Stereo-right-report}
+  \caption[Results of stereo matching]{Results of stereo matching for the left
+    (top graph) and right (bottom graph) images, using various parameters.
+    Resulting depth maps are compared to the canonical depth maps to obtain
+    discrepancies (quantities of error). Each coloured column in the chart is a
+    different parameterisation, as tested on one of the four images. `Static' is
+    the baseline difference between the canonical depth map and a image with
     randomised values. `M0' indicates a median filter was not used in
     preprocessing. `M3' and `M5' indicate median filters of size 3 and 5
     respectively. `rough' indicates scanlines did not influence each other.
@@ -88,34 +89,14 @@ improve the quality of the matching:
     by stretching the disparities to the full [0...255] range, instead of
     multiplying by the value recommended by \cite{middlebury} for each
     particular image.}
-  \label{fig:stereo-left}
+  \label{fig:stereo-report}
 \end{figure}
 
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.8\textwidth]{Stereo-right-report}
-  \caption[Results of stereo matching (left image)]{Results of stereo matching
-    for the \emph{right} image, using various parameters. Resulting depth maps
-    are compared to the canonical depth maps to obtain discrepancies (quantities
-    of error). Each coloured column in the chart is a different
-    parameterisation, as tested on one of the four images. `Static' is the
-    baseline difference between the canonical depth map and an image with
-    randomised values. `M0' indicates a median filter was not used in
-    preprocessing. `M3' and `M5' indicate median filters of size 3 and 5
-    respectively. `rough' indicates scanlines did not influence each other.
-    `smooth' indicates each scanline was influenced by the one previous, by 0.5
-    by default or by the amount given. `dyn' indicates the depth map was created
-    by stretching the disparities to the full [0...255] range, instead of
-    multiplying by the value recommended by \cite{middlebury} for each
-    particular image.}
-  \label{fig:stereo-right}
-\end{figure}
-
-See Figures~\ref{fig:stereo-left}~and~\ref{fig:stereo-right}. Our stereo matching
-algorithm, while rather hit-and-miss, constructs recognisable depth maps. The
-quality of the results is rather dependent on the specific parameters used. We
-should note that in some cases, the output `looks better' (e.g. is more coherent
-or shaded) even if it is strictly less accurate.
+See figure~\ref{fig:stereo-report}. Our stereo matching algorithm, while rather
+hit-and-miss, constructs recognisable depth maps. The quality of the results is
+rather dependent on the specific parameters used. We should note that in some
+cases, the output `looks better' (e.g. is more coherent or shaded) even if it is
+strictly less accurate.
 
 We took the best results and submitted them to the Middlebury online tests.
 \cite{stereocorrespondence, middlebury} Their calculator unfortunately
@@ -128,9 +109,10 @@ difficult.
 We had 44.9\% to 45.8\% bad pixels total. The worst Middlebury have on record is
 20.7\%. \cite{stereocorrespondence, middlebury} For our test disparity maps,
 `Tsukuba' was best with 17.9\% error. `Venus' and `Teddy' were mediocre with
-40.5\% and 54.4\% respectively. `Cones' was worst with 69.0\%.
+40.5\% and 54.4\% respectively. `Cones' was worst with 69.0\%. See
+figure~\ref{fig:stereo-report} for full details.
 
-\begin{figure}[h]
+\begin{figure}[p]
  \centering
 
  \subfloat[Tsukuba (rough)] { \label{fig:tsu-1} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/tsu_imL_mat0_hardmult} }
@@ -143,15 +125,15 @@ We had 44.9\% to 45.8\% bad pixels total. The worst Middlebury have on record is
  \subfloat[Cones (mid)] { \label{fig:con-2} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/con_imL_mat5_hardmult_smooth} }
  \subfloat[Teddy (mid)] { \label{fig:ted-2} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/ted_imL_mat5_hardmult_smooth} }\\
 
- \subfloat[Tsukuba (ideal)] { \label{fig:tsu-4} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/tsu_imL_mat0_hardmult_smooth0.9.png} }
- \subfloat[Venus (ideal)] { \label{fig:ven-4} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/ven_imL_mat0_hardmult_smooth0.9.png} }
- \subfloat[Cones (ideal)] { \label{fig:con-4} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/con_imL_mat0_hardmult_smooth0.9.png} }
- \subfloat[Teddy (ideal)] { \label{fig:ted-4} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/ted_imL_mat0_hardmult_smooth0.9.png} }
+ \subfloat[Tsukuba (smooth)] { \label{fig:tsu-4} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/tsu_imL_mat0_hardmult_smooth0.9.png} }
+ \subfloat[Venus (smooth)] { \label{fig:ven-4} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/ven_imL_mat0_hardmult_smooth0.9.png} }
+ \subfloat[Cones (smooth)] { \label{fig:con-4} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/con_imL_mat0_hardmult_smooth0.9.png} }
+ \subfloat[Teddy (smooth)] { \label{fig:ted-4} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/ted_imL_mat0_hardmult_smooth0.9.png} }
 
- \subfloat[Tsukuba (smooth)] { \label{fig:tsu-i} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/tsu_ideal_L} }
- \subfloat[Venus (smooth)] { \label{fig:ven-i} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/ven_ideal_L} }
- \subfloat[Cones (smooth)] { \label{fig:con-i} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/con_ideal_L} }
- \subfloat[Teddy (smooth)] { \label{fig:ted-i} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/ted_ideal_L} }\\
+ \subfloat[Tsukuba (ideal)] { \label{fig:tsu-i} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/tsu_ideal_L} }
+ \subfloat[Venus (ideal)] { \label{fig:ven-i} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/ven_ideal_L} }
+ \subfloat[Cones (ideal)] { \label{fig:con-i} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/con_ideal_L} }
+ \subfloat[Teddy (ideal)] { \label{fig:ted-i} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/ted_ideal_L} }\\
 
  \caption[Examples of dynamic programming with various parameters]{Examples of
    dynamic programming with various parameters. Canonical baseline images are
@@ -162,7 +144,7 @@ We had 44.9\% to 45.8\% bad pixels total. The worst Middlebury have on record is
  \label{fig:stereo-image-depth-maps}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[p]
  \centering
  \subfloat[Depth map (no smoothing)] { \label{fig:sm-1} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.8\textwidth]{stereo/lowsmooth} }\\
  \subfloat[Depth map (low smoothing)] { \label{fig:sm-2} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.8\textwidth]{stereo/midsmooth} }\\

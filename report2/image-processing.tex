@@ -1,15 +1,9 @@
 % vim:ft=tex
-\documentclass[a4paper,10pt,twoside]{scrartcl}
+\documentclass[a4paper,10pt]{scrartcl}
 \usepackage{tohojo-xe}
 \usepackage{paralist}
 \usepackage{subfig}
 \usepackage{comment}
-
-\addtolength{\hoffset}{-0.8cm}
-\addtolength{\voffset}{-0.8cm}
-\addtolength{\textwidth}{1.6cm}
-\addtolength{\textheight}{1.cm}
-%
 
 %\selectlanguage{english}
 \setcounter{secnumdepth}{3}
@@ -41,35 +35,30 @@
 \hyphenation{
 }
 
-\begin{titlepage}
-    \begin{center}
-        {\Huge \sffamily \textbf{Image processing \#2\\[2cm]
-        }}%\includegraphics[height=14cm]{Figures/Frontpage}
-        %\\[2cm]
-        {\large Toke Høiland-Jørgensen \\
-        Ben Meadows\\
-        [0.5cm] }
-        \vfill
-        \textsf{COMPSCI 773, semester 1 2012\\
-        University of Auckland}
-	\end{center}
-    \clearpage
-%    \input{abstract}
-\end{titlepage}
+\begin{center}
+  {\Huge \sffamily \textbf{Image processing \#2\\[0.8cm]
+    }}%\includegraphics[height=14cm]{Figures/Frontpage}
+  % \\[2cm]
+  {\large Toke Høiland-Jørgensen \\
+    Ben Meadows\\
+    [0.5cm] }
+  \textsf{COMPSCI 773, semester 1 2012\\
+    University of Auckland}
+\end{center}
 \tableofcontents
 \listoffigures
 \listoftables
 % \lstlistoflistings
 \clearpage
 \input{introduction}
-% \clearpage
+\clearpage
 \input{improvements.tex}
-% \clearpage
+\clearpage
 \input{other-work}
-% \clearpage
+\clearpage
 \input{program-structure}
+\clearpage
 \input{conclusions}
 \bibliographystyle{ruc}
 \bibliography{image-processing}
-\clearpage
 \end{document}

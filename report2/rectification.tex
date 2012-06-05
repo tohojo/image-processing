@@ -41,11 +41,11 @@ is used for this last step.
 
 An example of the input and output for images acquired from a stereo camera can be seen in figure~\ref{fig:ex-rectification}.
 
-\begin{figure}[h]
+\begin{figure}[ht]
  \centering
  \subfloat[Left image (raw)] { \label{fig:sm-1} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.4\textwidth]{example/DSCF4089_l} }
- \subfloat[Left image (rectified)] { \label{fig:sm-2} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.4\textwidth]{example/DSCF4089rec_l} }\\
- \subfloat[Right image (raw)] { \label{fig:sm-3} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.4\textwidth]{example/DSCF4089_r} }
+ \subfloat[Right image (raw)] { \label{fig:sm-3} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.4\textwidth]{example/DSCF4089_r} }\\
+ \subfloat[Left image (rectified)] { \label{fig:sm-2} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.4\textwidth]{example/DSCF4089rec_l} }
  \subfloat[Right image (rectified)] { \label{fig:sm-4} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.4\textwidth]{example/DSCF4089rec_r} }\\
  \caption[Example of image rectification]{Example of image rectification for one stereo pair in our database. The images come from a W3 camera.}
  \label{fig:ex-rectification}
@@ -85,5 +85,3 @@ able to obtain from the test images. A more accurate calibration could improve o
     between the left and right images. These points are 80 grid corners extracted from chessboard images.}
   \label{tab:rectification-error}
 \end{table}
-
-
