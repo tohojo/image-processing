@@ -184,4 +184,51 @@ The beauty of the PCA process is that even if we were using random noise for dep
 
 These observations are only valid given our particular (relatively strict) cutoff point or `confidence tolerance' for classification. Some data channels might have proven themselves better or worse if we had required the system to return a guess for the class of every single test image, including those that are hard to classify.
 
+\begin{figure}[h]
+ \centering
+
+ \subfloat { \label{fig:row1-1} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/A-norm} }
+ \subfloat { \label{fig:row1-2} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/A-norm-D} }
+ \subfloat { \label{fig:row1-3} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/B-norm} }
+ \subfloat { \label{fig:row1-4} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/B-norm-D} }\\
+
+\begin{center}
+\line(1,0){300}
+\end{center}
+
+ \subfloat { \label{fig:row2-1} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/C-norm} }
+ \subfloat { \label{fig:row2-2} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/C-norm-D} }
+ \subfloat { \label{fig:row2-3} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/D-norm} }
+ \subfloat { \label{fig:row2-4} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/D-norm-D} }\\
+
+\begin{center}
+\line(1,0){300}
+\end{center}
+
+ \subfloat { \label{fig:row3-1} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/E-norm} }
+ \subfloat { \label{fig:row3-2} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/E-norm-D} }
+ \subfloat { \label{fig:row3-3} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/F-norm} }
+ \subfloat { \label{fig:row3-4} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/F-norm-D} }\\
+
+\begin{center}
+\line(1,0){300}
+\end{center}
+
+ \subfloat { \label{fig:row4-1} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/G-norm} }
+ \subfloat { \label{fig:row4-2} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/G-norm-D} }
+ \subfloat { \label{fig:row4-3} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/H-norm} }
+ \subfloat { \label{fig:row4-4} \includegraphics[trim = -1mm -1mm -1mm -1mm, width=0.12\textwidth]{classdb/H-norm-D} }\\
+
+\begin{center}
+\line(1,0){300}
+\end{center}
+
+ \caption[A sample of our PCA database]{A sample of images from our PCA database. Each row of images
+describes two images from a class, alongside their associated depth map. These are the rectified,
+registered $256\times396$ resolution images taken with the W3 camera.}
+ \label{fig:classdb}
+\end{figure}
+
+
+
 
