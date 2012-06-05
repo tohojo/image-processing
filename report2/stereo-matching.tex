@@ -67,12 +67,17 @@ improve the quality of the matching:
 
 
 \subsubsection{Testing of stereo matching}
+% TODO: Accurate reference to middlebury
+To test the accuracy of our stereo matching, we have compared the results to the
+depth maps produced by the Middlebury stereo matching website. The results of
+these comparisons are given in figure~\ref{fig:stereo-left} and
+figure~\ref{fig:stereo-right}.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.8\textwidth]{Stereo-left-report}
-  \caption[Results of dynamic programming (left image)]{Results of dynamic
-    programming for the \emph{left} image, using various parameters. Resulting
+  \caption[Results of stereo matching (left image)]{Results of stereo
+    matching for the \emph{left} image, using various parameters. Resulting
     depth maps are compared to the canonical depth maps to obtain discrepancies
     (quantities of error). Each coloured column in the chart is a different
     parameterisation, as tested on one of the four images. `Static' is the
@@ -90,10 +95,10 @@ improve the quality of the matching:
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.8\textwidth]{Stereo-right-report}
-  \caption[Results of dynamic programming (left image)]{Results of dynamic
-    programming for the \emph{right} image, using various parameters. Resulting
-    depth maps are compared to the canonical depth maps to obtain discrepancies
-    (quantities of error). Each coloured column in the chart is a different
+  \caption[Results of stereo matching (left image)]{Results of stereo matching
+    for the \emph{right} image, using various parameters. Resulting depth maps
+    are compared to the canonical depth maps to obtain discrepancies (quantities
+    of error). Each coloured column in the chart is a different
     parameterisation, as tested on one of the four images. `Static' is the
     baseline difference between the canonical depth map and a image with
     randomised values. `M0' indicates a median filter was not used in
