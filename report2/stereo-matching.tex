@@ -16,15 +16,16 @@ case, the process is as follows (for each scan line):
   equal to the length of the scan line (i.e. the width of the images).
   Initialise the top-left corner to 0.
 
-\item Step through the matrix, calculating $A[i,j] = \operator{min}(A[i-1,j],
-  A[i,j-1], A[i-1,j-1])  +  \operator{diff}(imageL[i], imageR[j])$ where $diff$
-  gets the difference between the image pixel values in the current scan line.
+\item Step through the matrix, calculating $A[i,j] = \mathrm{min}(A[i-1,j],
+  A[i,j-1], A[i-1,j-1]) + \mathrm{diff}(\mathrm{imageL}[i], \mathrm{imageR}[j])$
+  where \texttt{diff} gets the difference between the image pixel values in the
+  current scan line.
 
 \item Calculate the path of minimal cost through the matrix $A$, starting in the
   bottom right corner, and moving from there to the adjacent position with the
-  minimum value, i.e. $\operator{min}(A[i-1,j], A[i,j-1], A[i-1,j-1])$. Fill the
-  disparity map with the appropriate value ($DisparityMapL[i,y]=j-i$,
-  $DisparityMap[j,y]=i-j$).
+  minimum value, i.e. $\mathrm{min}(A[i-1,j], A[i,j-1], A[i-1,j-1])$. Fill the
+  disparity map with the appropriate value ($\mathrm{DisparityMapL}[i,y]=j-i$,
+  $\mathrm{DisparityMapR}[j,y]=i-j$).
 \end{enumerate}
 
 After having built up the disparity maps for the entire image (i.e. after doing
@@ -110,4 +111,3 @@ figure~\ref{fig:stereo-right}.
     multiplying by the recommended value for each particular image.}
   \label{fig:stereo-right}
 \end{figure}
-
