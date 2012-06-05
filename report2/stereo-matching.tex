@@ -69,15 +69,16 @@ improve the quality of the matching:
 
 \subsubsection{Testing of stereo matching}
 
-\begin{figure}[h]
+\begin{figure}[hp]
   \centering
-  \includegraphics[width=0.8\textwidth]{Stereo-left-report}
-  \caption[Results of stereo matching (left image)]{Results of stereo matching
-    for the \emph{left} image, using various parameters. Resulting depth maps
-    are compared to the canonical depth maps to obtain discrepancies (quantities
-    of error). Each coloured column in the chart is a different
-    parameterisation, as tested on one of the four images. `Static' is the
-    baseline difference between the canonical depth map and a image with
+  \includegraphics[height=0.4\textheight]{Stereo-left-report}\\[2mm]
+  \includegraphics[height=0.4\textheight]{Stereo-right-report}
+  \caption[Results of stereo matching]{Results of stereo matching for the left
+    (top graph) and right (bottom graph) images, using various parameters.
+    Resulting depth maps are compared to the canonical depth maps to obtain
+    discrepancies (quantities of error). Each coloured column in the chart is a
+    different parameterisation, as tested on one of the four images. `Static' is
+    the baseline difference between the canonical depth map and a image with
     randomised values. `M0' indicates a median filter was not used in
     preprocessing. `M3' and `M5' indicate median filters of size 3 and 5
     respectively. `rough' indicates scanlines did not influence each other.
@@ -86,30 +87,8 @@ improve the quality of the matching:
     by stretching the disparities to the full [0...255] range, instead of
     multiplying by the value recommended by \cite{middlebury} for each
     particular image.}
-  \label{fig:stereo-left}
+  \label{fig:stereo-report}
 \end{figure}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.8\textwidth]{Stereo-right-report}
-  \caption[Results of stereo matching (left image)]{Results of stereo matching
-    for the \emph{right} image, using various parameters. Resulting depth maps
-    are compared to the canonical depth maps to obtain discrepancies (quantities
-    of error). Each coloured column in the chart is a different
-    parameterisation, as tested on one of the four images. `Static' is the
-    baseline difference between the canonical depth map and an image with
-    randomised values. `M0' indicates a median filter was not used in
-    preprocessing. `M3' and `M5' indicate median filters of size 3 and 5
-    respectively. `rough' indicates scanlines did not influence each other.
-    `smooth' indicates each scanline was influenced by the one previous, by 0.5
-    by default or by the amount given. `dyn' indicates the depth map was created
-    by stretching the disparities to the full [0...255] range, instead of
-    multiplying by the value recommended by \cite{middlebury} for each
-    particular image.}
-  \label{fig:stereo-right}
-\end{figure}
-
-See Figures~\ref{fig:stereo-left}~and~\ref{fig:stereo-right}.
 
 We took the best results and submitted them to the Middlebury online tests.
 \cite{stereocorrespondence, middlebury} Their calculator unfortunately
@@ -122,7 +101,8 @@ difficult.
 We had 44.9\% to 45.8\% bad pixels total. The worst Middlebury have on record is
 20.7\%. \cite{stereocorrespondence, middlebury} For our test disparity maps,
 `Tsukuba' was best with 17.9\% error. `Venus' and `Teddy' were mediocre with
-40.5\% and 54.4\% respectively. `Cones' was worst with 69.0\%.
+40.5\% and 54.4\% respectively. `Cones' was worst with 69.0\%. See
+figure~\ref{fig:stereo-report} for full details.
 
 \begin{figure}[h]
  \centering
