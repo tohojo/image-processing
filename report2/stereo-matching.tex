@@ -4,6 +4,8 @@
 \subsection{Stereo matching}
 \label{sec:stereo}
 
+\subsubsection{Implementation of dynamic programming}
+
 We followed the methods described in \cite{realtimestereo} to implement dynamic programming for stereo matching.
 
 In the simplest case, we do all of the following for each scanline of the image pair in turn.
@@ -47,3 +49,23 @@ That was the simplest case. In practise, we also have the options to:
 %
 
 One improvement we didn't implement: line skipping. (In that version, at thebeginning, every n’th horizontal line is calculated to find bounding space for possible disparities in between.)
+
+%
+
+\subsubsection{Testing of dynamic programming}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{Stereo-left-report}
+  \caption[Results of dynamic programming (left image)]{Results of dynamic programming for the \emph{left} image, using various parameters. Resulting depth maps are compared to the canonical depth maps to obtain discrepancies (quantities of error). Each coloured column in the chart is a different parameterisation, as tested on one of the four images. `Static' is the baseline difference between the canonical depth map and a image with randomised values. `M0' indicates a median filter was not used in preprocessing. `M3' and `M5' indicate median filters of size 3 and 5 respectively. `rough' indicates scanlines did not influence each other. `smooth' indicates each scanline was influenced by the one previous, by 0.5 by default or by the amount given. `dyn' indicates the depth map was created by stretching the disparities to the full [0...255] range, instead of multiplying by the recommended value for each particular image.}
+  \label{fig:stereo-left}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{Stereo-right-report}
+  \caption[Results of dynamic programming (left image)]{Results of dynamic programming for the \emph{right} image, using various parameters. Resulting depth maps are compared to the canonical depth maps to obtain discrepancies (quantities of error). Each coloured column in the chart is a different parameterisation, as tested on one of the four images. `Static' is the baseline difference between the canonical depth map and a image with randomised values. `M0' indicates a median filter was not used in preprocessing. `M3' and `M5' indicate median filters of size 3 and 5 respectively. `rough' indicates scanlines did not influence each other. `smooth' indicates each scanline was influenced by the one previous, by 0.5 by default or by the amount given. `dyn' indicates the depth map was created by stretching the disparities to the full [0...255] range, instead of multiplying by the recommended value for each particular image.}
+  \label{fig:stereo-right}
+\end{figure}
+
+
