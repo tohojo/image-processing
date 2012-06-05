@@ -40,7 +40,7 @@ output window for textual output from the algorithms.
 
 Each processor is implemented as a class that specifies which
 parameters are available for this processor (the parameters can be set
-by the user with the help of the QPropertySelect library), and does
+by the user with the help of the QPropertyEditor library), and does
 the actual processing. The processing is done in a separate thread, to
 keep the interface responsive, and make it possible for the user to
 cancel a long-running processor.
