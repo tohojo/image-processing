@@ -30,7 +30,7 @@ case, the process is as follows (for each scan line):
 
 After having built up the disparity maps for the entire image (i.e. after doing
 the above for all scan lines), go through them and normalise the values to the
-range $[0,255]$, or, alternatively multiply the matrices by a user configurable
+range $[0,255]$, or alternatively multiply the matrices by a user-configurable
 factor.
 
 In addition to the simple version of the disparity mapping algorithm described
@@ -43,16 +43,18 @@ improve the quality of the matching:
   smooth or spiky (very disparate) images respectively.
 
 \item The choices for each scan line can be modified by those for the previous
-  scan line, reducing error by ``suggesting'' ways to conform.
+  scan line, reducing error by ``suggesting'' ways to conform. We suggest a factor
+ of \~0.5 as standard.
 
 \item A median filter can be applied to the stereo images before building the
   disparity map, to get rid of noise.
 
-\item It is possible to go through the dynamic programming matrix not only from
+\item It is possible to step through the dynamic programming matrix not only from
   the bottom-right to top-left corner, but also from top-left to bottom-right,
   and then choose the least-weight path overall. This helps reduce the cases
   where one of them goes horribly off the 'best' path because it, intuitively,
-  followed the lowest-weight path into a dead end.
+  followed the lowest-weight path into a dead end. We use this double-processing
+ by default.
 
 \item The running time can be improved by selecting a maximum disparity bound,
   $b$. The ``path of least resistance'' is never allowed to go outside this
@@ -89,6 +91,12 @@ improve the quality of the matching:
     particular image.}
   \label{fig:stereo-report}
 \end{figure}
+
+See figure~\ref{fig:stereo-report}. Our stereo matching algorithm, while rather
+hit-and-miss, constructs recognisable depth maps. The quality of the results is
+rather dependent on the specific parameters used. We should note that in some
+cases, the output `looks better' (e.g. is more coherent or shaded) even if it is
+strictly less accurate.
 
 We took the best results and submitted them to the Middlebury online tests.
 \cite{stereocorrespondence, middlebury} Their calculator unfortunately
@@ -151,4 +159,5 @@ figure~\ref{fig:stereo-report} for full details.
 Consider Figure~\ref{fig:stereo-pair-depth-maps}. Increasing the three
 smoothness parameters - median matrix size, inter-scanline smoothing, and
 diagonal preference / disparity penalty - often results in less noise, but loss
-of definition.
+of definition. This can sometimes translate to poorer performance on the
+formal tests, even when it makes the images more human-readable.
