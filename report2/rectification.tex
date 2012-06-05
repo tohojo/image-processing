@@ -22,8 +22,8 @@ These parameters allow us to compute the following values:
   frame.
 \item $T=RT_r$-$T_l$, the translation vector from the left to the right camera
   origin, in the left camera reference frame.
-\item $R_{rect}$, the rectification rotation matrix. This is computed by
-  creating an orthonormal base where $X$ is the translation vector $T$, $Y$ is the cross
+\item $R_{rect}$, the rectification rotation matrix. This is computed from an
+ orthonormal base where $X$ is the translation vector $T$, $Y$ is the cross
   product of the unit vector with $X$ (in the $Z$-axis direction), and $Z$ is the
   cross product of $X$ and $Y$.\footnote{ All vectors are normalised to unit length.}
 \item $f$, the mean of the left and right focal lengths.
@@ -35,9 +35,11 @@ rectification coordinates are computed in 3D space, by casting the pixel
 coordinates into three-dimensional coordinates, offset so that (0,0) is the
 middle of the image. The $z$ component of these coordinates is the focal length. The rectification matrices are then applied to these new coordinates to get the rectified pixel coordinates.
 
-The values are multiplied by $\frac{f}{z}$, returning the $z$ values of the new coordinates to the focal length. We use OpenCV \texttt{remap()} function to perform the actual remapping of pixels and to
+The values are multiplied by $f/z$, returning the $z$ values of the new coordinates to the focal length. We use the OpenCV \texttt{remap()} function to perform the actual remapping of pixels and to
 interpolate non-existent pixels. Bicubic interpolation in a $4\times4$ pixel neighbourhood
-is used for this last step. An example of the input and output for images acquired from a stereo camera can be seen in figure~\ref{fig:ex-rectification}.
+is used for this last step.
+
+An example of the input and output for images acquired from a stereo camera can be seen in figure~\ref{fig:ex-rectification}.
 
 \begin{figure}[h]
  \centering
