@@ -66,7 +66,7 @@ yield the depth map that can optionally be used in the PCA matching. The last ch
 \subsubsection{Testing face recognition}
 \label{sec:pcaresults}
 
-Methodology: for each test, use whatever number of components means keeping at least 80\% image information (in terms of fraction of the total eigenvalues). Set error threshold to a relatively strict $1.0$, i.e. only identify test images as belonging to a class if the variation between them and the class mean is less than or equal to the maximum variation within the training images for that class.
+Methodology: for each test, use whatever number of components means keeping at least 80\% image information (in terms of fraction of the total eigenvalues). Set error threshold to a relatively strict $1.0$, i.e. only identify test images as belonging to a class if the variation between them and the class mean is less than or equal to the maximum variation within the training images for that class. Use half our face database of 88 images to train, and half to test. There are 11 classes in the database.
 
 Consider Table~\ref{tbl:face-rec-1}. The amount of image information being retained when a certain number of components are kept is not heavily dependent on the image size. There is little difference between sizes. In all cases, 12 or 13 components are required for the 80\% information threshold we use in our other experiments.
 
@@ -87,7 +87,7 @@ Consider Table~\ref{tbl:face-rec-1}. The amount of image information being retai
     \textbf{16 components} & 86.3\% & 86.8\% & 85.7\% & 84.2\% \\
     \bottomrule
   \end{tabular}
-  \caption[Information retained in face recognition tests for different-sized images]{Information retained in face recognition tests for different-sized images. Each row is a case where a different number of components were kept. Each column is a different image dimensionality. Results are presented as percentage of total summed eigenvalues. In each case, PCA was performed on all six possible channels, on a training set of 44 images.}
+  \caption[Information retained in face recognition tests for different-sized images]{Information retained in face recognition tests for different-sized images. Each row is a case where a different number of components were kept. Each column is a different image dimensionality. Results are presented as percentage of total summed eigenvalues. In each case, PCA was performed on all six possible channels, on a training set of 44 images with 11 classes.}
   \label{tbl:face-rec-1}
 \end{table}
 
@@ -113,11 +113,13 @@ Consider Table~\ref{tbl:face-rec-2}. As expected, we have better reconstruction 
     \textbf{Class K} & 11586 & 8267 & 7596\\
     \bottomrule
   \end{tabular}
-  \caption[Sample reconstruction error for the 256x396 size images]{Sample reconstruction error for the 256x396 size images, with PCA performed on all six possible channels. A training set of 44 images was used. Each column is the error for one class (person) in the training set. Error is measured in absolute difference between the original training example image vector and the reconstructed vector projected back out of the PCA space. Each row is a case where a different number of components were kept, with the quantity of information retained (as a percentage of total summed eigenvalues) in brackets.}
+  \caption[Sample reconstruction error for the 256x396 size images]{Sample reconstruction error for the 256x396 size images, with PCA performed on all six possible channels. A training set of 44 images with 11 classes was used. Each column is the error for one class (person) in the training set. Error is measured in absolute difference between the original training example image vector and the reconstructed vector projected back out of the PCA space. Each row is a case where a different number of components were kept, with the quantity of information retained (as a percentage of total summed eigenvalues) in brackets.}
   \label{tbl:face-rec-2}
 \end{table}
 
 Consider Table~\ref{tbl:face-rec-3}. Note that most often, PCA failed on the classes or test images for the person whose hand was over his face, the person who had the most different positions and expressions, the person who had only two training images, or the person wearing a hat. These are classes F, C, H, K respectively in Table~\ref{tbl:face-rec-2}. Very few test images outside of these unexpected cases were misclassified or unclassified. Note that classes F and H have the highest reconstruction error when only a few components are kept: PCA is unable to reconstruct the considerable variance \emph{within} the class at a lower dimensionality.
+
+In general, though, we observe that those classes of images with the greatest variance in pose, lighting or expression are \emph{not necessarily} the hardest to classify. It simply means that we have less confidence when we classify into that class. These highly varying images did, however, result in a broad `point cloud' in higher-dimensional PCA space, so when any test image was misclassified, it had a greater-than-average chance to be misclassified into a highly varying class.
 
 \begin{table}[h!]
   \centering
@@ -143,11 +145,43 @@ Consider Table~\ref{tbl:face-rec-3}. Note that most often, PCA failed on the cla
     \textbf{misclassified} & {} & {} & {} & {} \\
     \bottomrule
   \end{tabular}
-  \caption[Results of classification testing for different-sized images]{Results of using PCA for face recognition of new images (classification testing). Four different image sizes are tested. A training set of 44 images was used, and in all cases, PCA was performed on all six possible channels. Each column is ... Each row is...}
+  \caption[Results of classification testing for different-sized images]{Results of using PCA for face recognition of new images (classification testing). Four different image sizes are tested. A training set of 44 images with 11 classes was used, and in all cases, PCA was performed on all six possible channels. A number of principal components sufficient to retain 80\% image data were used. Each column is a different image dimensionality. `Number successfully classified' is the number of test images correctly classified. `Number failed to classify' is the number of test images the processor was not confident enough to enter a guess for. `Number partially misclassified' is the number of test images for which the processor's second guess was correct. `Number completely misclassified' is the number of test images for which the processor's initial and secondary guesses were both incorrect.}
   \label{tbl:face-rec-3}
 \end{table}
 
 Note in Table~\ref{tbl:face-rec-3} that as we increase image size, we see better classification, and also transference of complete failures to classify into misclassifications. By the biggest size, more images are misclassified than unable to classify.
 
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{c c c c c}
+    \toprule
+    \textbf{ } & \textbf{ RGB } & \textbf{ RGB + HS } & \textbf{RGB + Depth} & \textbf{RGB + HS + Depth}\\
+    \midrule
+    \textbf{Number} & {} & {} & {} & {} \\
+    \textbf{successfully} & 29 & 34 & 31 & 34\\
+    \textbf{classified} & {} & {} & {} & {} \\
+    \midrule
+    \textbf{Number} & {} & {} & {} & {} \\
+    \textbf{failed to} & 7 & 5 & 6 & 4\\
+    \textbf{classify} & {} & {} & {} & {} \\
+    \midrule
+    \textbf{Number} & {} & {} & {} & {} \\
+    \textbf{partially} & 5 & 4 & 5 & 4\\
+    \textbf{misclassified} & {} & {} & {} & {} \\
+    \midrule
+    \textbf{Number} & {} & {} & {} & {} \\
+    \textbf{completely} & 3 & 1 & 2 & 2\\
+    \textbf{misclassified} & {} & {} & {} & {} \\
+    \bottomrule
+  \end{tabular}
+  \caption[Results of classification testing for different numbers of channels]{Results of using PCA for face recognition of new images (classification testing), using different channels. RGB, HSV and depth map data are tested. Each column specifies a different combination. A training set of 44 images, of dimension 256x396, with 11 classes was used. `Number successfully classified' is the number of test images correctly classified. `Number failed to classify' is the number of test images the processor was not confident enough to enter a guess for. `Number partially misclassified' is the number of test images for which the processor's second guess was correct. `Number completely misclassified' is the number of test images for which the processor's initial and secondary guesses were both incorrect.}
+  \label{tbl:face-rec-4}
+\end{table}
+
+Table~\ref{tbl:face-rec-4} shows the results of using different channels. In general, the more tracked data, the better. PCA generally worked well even with simple RGB data. While we cannot say so with statistical rigour, it does appear that the Hue and Saturation values may be more useful than the depth data. This may be because those disparity maps were created by stereo matching on \emph{preprocessed} images: the images began as rectified stereo pairs, but underwent an affine transformation before stereo matching. This means the depth map quality was noticeably lower than usual.
+
+The beauty of the PCA process is that even if we were using random noise for depth maps, it would not matter: PCA will simply learn that those data values are not good discriminators (and therefore predictors); any eigenvector along the `direction(s)' of depth would not have a high eigenvalue, and therefore would not be chosen as a principal component.
+
+These observations are only valid given our particular (relatively strict) cutoff point or `confidence tolerance' for classification. Some data channels might have proven themselves better or worse if we had required the system to return a guess for the class of every single test image, including those that are hard to classify.
 
 

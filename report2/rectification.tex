@@ -3,66 +3,54 @@
 \subsection{Rectification}
 \label{sec:rectification}
 
-We have implemented image rectification based on the previous calibration work.
-That is, we use the intrinsic and extrinsic parameters from the calibration to
-calculate the perspective transformation required to rectify the images. More
-specifically, we get the following values from the calibration:
+We have implemented image rectification based on our previous work in camera calibration.
+We use the intrinsic and extrinsic parameters calculated by the calibration to
+construct the specific perspective transformation that is required to rectify a pair of stereo images.
 
+We obtain the following values from the calibration:
 \begin{itemize}
-\item $T_l,T_r$, the translation vectors from the calibration object to the left
-  resp right camera origin, in the camera reference frames.
-
-\item $R_l,R_r$, rotation matrices from the calibration object reference system to
-  the left resp right camera reference systems.
-
-\item $f_l, f_r$, the focal lengths.
+\item $T_l, T_r$, translation vectors from the calibration object to the left
+  and right camera origins respectively, in the camera reference frames.
+\item $R_l, R_r$, rotation matrices from the calibration object reference system to
+  the left and right camera reference systems respectively.
+\item $f_l, f_r$, the focal lengths of the left and right cameras.
 \end{itemize}
 
-From these the following values are computed:
-
+These parameters allow us to compute the following values:
 \begin{itemize}
 \item $R=R_lR_r^{-1}$, the rotation matrix from the right to the left reference
   frame.
-
-\item $T=RT_r-T_l$, the translation vector from the left to the right camera
-  origin, in the left camera reference.
-
+\item $T=RT_r$-$T_l$, the translation vector from the left to the right camera
+  origin, in the left camera reference frame.
 \item $R_{rect}$, the rectification rotation matrix. This is computed by
-  creating an orthonormal base where $X$ is the $T$ vector, $Y$ is the cross
-  product of the unit vector in the $Z$ axis direction with $X$, and $Z$ is the
-  cross product of $X$ and $Y$ (all normalised to unit length).
-
-\item $f$ the average of the left and right focal lengths.
+  creating an orthonormal base where $X$ is the translation vector $T$, $Y$ is the cross
+  product of the unit vector with $X$ (in the $Z$-axis direction), and $Z$ is the
+  cross product of $X$ and $Y$.\footnote{ All vectors are normalised to unit length.}
+\item $f$, the mean of the left and right focal lengths.
 \end{itemize}
 
-From these values, the rectification is computed so that the left image is
-rectified by $R_{rect}$ and the right image is rectified b $RR_{rect}$. The
-rectification coordinates are computed in 3D space, by turning the pixel
-coordinates into three-dimensional coordinates (offset so that (0,0) is the
-middle of the image), with the $z$ component being the focal length, and then
-applying the rectification matrices. The values are then multiplied by $f/z$, so
-that the new values are again at focal length $z$ values. The OpenCV
-\texttt{remap()} function is used to do the actual remapping of pixels and
-interpolating non-existent pixels (bicubic interpolation in a 4x4 neighbourhood
-is used).
+The rectification process then proceeds as follows. Using these values, the left image is
+rectified by $R_{rect}$, and the right image is rectified by $RR_{rect}$. The
+rectification coordinates are computed in 3D space, by casting the pixel
+coordinates into three-dimensional coordinates, offset so that (0,0) is the
+middle of the image. The $z$ component of these coordinates is the focal length. The rectification matrices are then applied to these new coordinates to get the rectified pixel coordinates.
+
+The values are multiplied by $\frac{f}{z}$, returning the $z$ values of the new coordinates to the focal length. We use OpenCV \texttt{remap()} function to perform the actual remapping of pixels and to
+interpolate non-existent pixels. Bicubic interpolation in a $4\times4$ pixel neighbourhood
+is used for this last step.
 
 \subsubsection{Testing rectification accuracy}
-We have tested the accuracy of the rectification by rectifying test images with
-a chessboard pattern on them and using OpenCV's algorithm for extracting the
-grid corners of the chessboard from the rectified images and comparing their y
-coordinate positions. If the rectification is accurate, all the corners should
-have the same y coordinates, so the actual disparities can be used as a measure
-of rectification error.
+To test the accuracy of the rectification, we took six images with a chessboard pattern on them and rectified them. We used the OpenCV algorithm for extracting grid corners of a chessboard on the rectified images, acquiring a list of pixel positions for the corners in the image.
+
+We then compared the $y$ coordinates of these pixels. In an accurate rectification, all the chessboard corners on a line would appear in the same scanline in the rectified image, and therefore should have the same $y$ coordinates. The disparities between $y$ coordinates can therefore be used as a measure of rectification error.
 
 The mean errors for the six images we tested are listed in
-table~\ref{tab:rectification-error}. Each image has 80 interior corners in the
-chessboards, and the image mean values are for all these corners. The overall
+table~\ref{tab:rectification-error}. Each image has 80 interior chessboard corners, and the image mean values are across all these corners. The overall
 mean and standard deviation are also given, as the mean for all six images (i.e.
-480 corners). Overall, the results show that the accuracy leaves something to be
-desired, but is not completely unreasonable. Our initial experiments showed that
-the quality of the calibration data has a large impact on the accuracy of the
-rectification; the errors given here is for the best calibration data we were
-able to obtain from the test images.
+480 corners). The accuracy of the results show that overall, there is room for improvement, but they are not completely unreasonable. Our initial experiments showed that
+the quality of the calibration data has a very large impact on the accuracy of the
+rectification; the errors given here are for the best calibration data we were
+able to obtain from the test images. A more accurate calibration could improve our rectification results considerably.
 
 \begin{table}[h]
   \centering
@@ -80,9 +68,9 @@ able to obtain from the test images.
     Average  & 5.60  & 1.67 \\
     \bottomrule
   \end{tabular}
-  \caption[Rectification errors]{Rectification errors. The mean error and
+  \caption[Rectification errors]{Rectification errors. This table gives the mean error and
     standard deviation for the vertical displacement between the same points
-    between the left and right images (for 80 chessboard grid corners).}
+    between the left and right images. These points are 80 grid corners extracted from chessboard images.}
   \label{tab:rectification-error}
 \end{table}
 
