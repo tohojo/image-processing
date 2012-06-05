@@ -9,23 +9,26 @@ calibration to compute the rectification. We have also implemented a
 dynamic programming based stereo matching algorithm for creating depth maps from
 the rectified images.
 
-Taken in tandem, these formed the foundation for our
-implementation of PCA-based holistic face
-recognition. PCA uses up to six channels of data from the images (RGB, hue,
-saturation and depth data), and works with considerable accuracy. We were pleasantly
-suprised by the success of PCA on even very small face images, such as $32\times49$ pixels. However, our testing
-was limited by the rather homogeneous face database we used (all young males in the
-same lighting and image positions).
+Together, these formed the foundation for our implementation of PCA-based
+holistic face recognition. PCA uses up to six channels of data from the images
+(RGB, hue, saturation and depth data), and works with considerable accuracy. We
+were pleasantly suprised by the success of PCA on even very small face images,
+such as $32\times49$ pixels. However, our testing was limited by the rather
+homogeneous face database we used (all young males in the same lighting and
+image positions).
 
 We have tested our implementation of the different parts and provide accuracy
 test results for the different parts. As part of our testing efforts, we have
 also improved on the testing of our calibration implementation, and provided
 additional results at the beginning of this report.
 
-Overall, our test results show that we achieve reasonable results in each part of our
-implementation, but there is room for improvement. We need to find a way to create depth maps
-\emph{in reasonable time} on images that have been rectified but \emph{not} scaled and cropped
-by preprocessing, as this appears to reduce their quality. Our stereo matching and rectification could in general be improved in quality, and the efficiency and speed of our face recognition algorithms could be increased.
+Overall, our test results show that we achieve reasonable results in each part
+of our implementation, but there is room for improvement. We need to find a way
+to create depth maps \emph{in reasonable time} on images that have been
+rectified but \emph{not} scaled and cropped by preprocessing, as this appears to
+reduce their quality. Our stereo matching and rectification could in general be
+improved in quality, and the efficiency and speed of our face recognition
+algorithms could be increased.
 
 \begin{center}
 \line(1,0){300}

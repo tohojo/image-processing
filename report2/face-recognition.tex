@@ -10,7 +10,7 @@ Our first step is to preprocess the image database. Images must first be rectifi
 
 Up to six channels of data from each image can be used: values for red, green and blue, values for hue and saturation, and depth values. Depth values are created by running our stereo matching algorithm (see section~\ref{sec:stereo}) on the preprocessed images to create equivalent-sized depth maps.\footnote{ It is important at this step to use a fixed multiplier for disparities in all the images, rather than dynamically calculating how to best map the disparities in an image to [0...255]. This is so that representations of relative distances are fixed across all images in the dataset.}
 
-For each pixel in the image in turn, the $n$ data points are concatenated into a series of values, and appended to the single column image vector. The result is a single vector of length $L = n \times m$, where $m$ is the total number of pixels in the image.
+For each pixel in the image in turn, the $n$ data points are concatenated into a series of values, and appended to the single column image vector. The result is a single vector of length $L = nm$, where $m$ is the total number of pixels in the image.
 
 For the training phase of the PCA processing, the average image vector for the
 training set is computed, and subtracted from each image vector to create the normalised vectors. Each vector is multiplied by its inverse, and the resulting matrices are summed to acquire the overall covariance matrix. This matrix essentially holds all the information of the database of images.
@@ -32,36 +32,54 @@ into the eigenspace and back; the error between the original image and the
 reconstructed image (as the square of the distance) is calculated. Sample results for
 this are shown in section~\ref{sec:pcaresults} below.
 
-When given an image to classify, matching is performed as follows. The image vector is constructed as for the training set, using $n$ channels and resulting in a vector length $n \times image-height \times image-width$. The overall average vector is subtracted from the image vector, which is then projected into the PCA space. The distance of this projection to each class average vector is computed. The class vector that is nearest to the test image is considered a match if it is closer than the cutoff depth for that class. Our program by default returns the closest match and the next-closest match, stating the confidence in each guess.
+When given an image to classify, matching is performed as follows. The image
+vector is constructed as for the training set, using $n$ channels and resulting
+in a vector length $nm$, where $m$ is the number of pixels in the image. The
+overall average vector is subtracted from the image vector, which is then
+projected into the PCA space. The distance of this projection to each class
+average vector is computed. The class vector that is nearest to the test image
+is considered a match if it is closer than the cutoff depth for that class. Our
+program by default returns the closest match and the next-closest match, stating
+the confidence in each guess.
 
 \subsubsection{Preprocessing of images}
 \label{sec:preprocess}
 
-Before doing PCA analysis on the face images, they are preprocessed or `registered' to make sure
-face features are in (almost) the same positions on all the images. Initially, we operate on rectified images, i.e. stereo images that have
-been projected into a geometry in which they have corresponding horizontal epipolar lines. The
-rectification step helps diminish unwanted deformation caused by the later steps of the
-preprocessing, and also prepares the images for stereo mapping if we wish to use depth data for PCA.
+Before doing PCA analysis on the face images, they are preprocessed or
+`registered' to make sure face features are in (almost) the same positions on
+all the images. Initially, we operate on rectified images, i.e. stereo images
+that have been projected into a geometry in which they have corresponding
+horizontal epipolar lines. The rectification step helps diminish unwanted
+deformation caused by the later steps of the preprocessing, and also prepares
+the images for stereo mapping if we wish to use depth data for PCA.
 
 After rectification, face features are manually identified. The features
-identified are the outer corners of the eyes, and the point above the lip on the vertical centre of the nose
-(since these features are fairly definable, and seem to be in approximately the same position regardless
-of facial expression). For each of these feature points $p$, the average $p'$of each feature point over the whole image
-training database is found. Each image is geometrically transformed so that its three feature points align to the location of $p'$.
+identified are the outer corners of the eyes, and the point above the lip on the
+vertical centre of the nose (since these features are fairly definable, and seem
+to be in approximately the same position regardless of facial expression). For
+each of these feature points $p$, the average $p'$of each feature point over the
+whole image training database is found. Each image is geometrically transformed
+so that its three feature points align to the location of $p'$.
 
-This is done by solving (for each image) the affine transformation needed to transform the feature point
-locations for that image into the average location $p'$, using singular value
-decomposition of the resulting set of matrices. This is applied as an affine
-transformation to the whole image. Pixel interpolation is performed to create the new image. All three steps are done using OpenCV functions.
+This is done by solving (for each image) the affine transformation needed to
+transform the feature point locations for that image into the average location
+$p'$, using singular value decomposition of the resulting set of matrices. This
+is applied as an affine transformation to the whole image. Pixel interpolation
+is performed to create the new image. All three steps are done using OpenCV
+functions.
 
 Following the transformation, the images are cropped to a user-configurable
-ratio. The ratio is determined by adding some factor of the vertical and horizontal distances
-between the feature points to the edges of the image. An ellipse is then fitted to the boundaries of the cropped image. Everything outside this ellipse is
-`blacked out' to zero values. Finally, the image is scaled down to a fixed width (also
-user-configurable), to speed up the processing.
+ratio. The ratio is determined by adding some factor of the vertical and
+horizontal distances between the feature points to the edges of the image. An
+ellipse is then fitted to the boundaries of the cropped image. Everything
+outside this ellipse is `blacked out' to zero values. Finally, the image is
+scaled down to a fixed width (also user-configurable), to speed up the
+processing.
 
 Finally, we apply our stereo matching implementation to the processed images to
-yield the depth map that can optionally be used in the PCA matching. The last channels - Hue and Saturation values - are extracted from each pixel by a function during the processing.
+yield the depth map that can optionally be used in the PCA matching. The last
+channels - hue and saturation values - are extracted from each pixel by a
+function during the processing.
 
 \subsubsection{Testing face recognition}
 \label{sec:pcaresults}
@@ -129,7 +147,7 @@ Examples of reconstructed images are given in figure~\ref{fig:reconstructed-mean
  \label{fig:reconstructed-means}
 \end{figure}
 
-Table~\ref{tbl:face-rec-3} presents our accuracy results of the system for databases of different image sizes. We observed that most often, PCA failed on the classes or test images for the person whose hand was over his face, the person who had the most different positions and expressions, the person who had only two training images, and the person wearing a hat. These are classes F, C, H, K respectively in Table~\ref{tbl:face-rec-2}. Very few test images outside of these unexpected cases were misclassified or unclassified. Note that classes F and H have the highest reconstruction error when only a few components are kept: PCA is unable to reconstruct the considerable variance \emph{within} the class at a lower dimensionality.
+Table~\ref{tbl:face-rec-3} presents our accuracy results of the system for databases of different image sizes. We observed that most often, PCA failed on the classes or test images for the person whose hand was over his face, the person who had the most different positions and expressions, the person who had only two training images, and the person wearing a hat. These are classes F, C, H, K respectively in table~\ref{tbl:face-rec-2}. Very few test images outside of these unexpected cases were misclassified or unclassified. Note that classes F and H have the highest reconstruction error when only a few components are kept: PCA is unable to reconstruct the considerable variance \emph{within} the class at a lower dimensionality.
 
 In general, though, we observe that those classes of images with the greatest variance in pose, lighting or expression are \emph{not necessarily} the hardest to classify. It simply means that we have less confidence when we classify into that class. These highly varying images did, however, result in a broad `point cloud' in higher-dimensional PCA space, so when any test image was misclassified, it had a greater-than-average chance to be misclassified into a highly varying class.
 
@@ -150,11 +168,11 @@ In general, though, we observe that those classes of images with the greatest va
     \textbf{Completely misclassified} & 0 & 1 & 1 & 2 \tabularnewline
     \bottomrule
   \end{tabular}
-  \caption[Results of classification testing for different-sized images]{Results of using PCA for face recognition of new images (classification testing). Four different image sizes are tested. A training set of 44 images with 11 classes was used, and in all cases, PCA was performed on all six possible channels. A number of principal components sufficient to retain 80\% image data were used. Each column is a different image dimensionality. `Number successfully classified' is the number of test images correctly classified. `Number failed to classify' is the number of test images the processor was not confident enough to enter a guess for. `Number partially misclassified' is the number of test images for which the processor's second guess was correct. `Number completely misclassified' is the number of test images for which the processor's initial and secondary guesses were both incorrect.}
+  \caption[Results of classification testing for different-sized images]{Results of using PCA for face recognition of new images (classification testing). Four different image sizes are tested. A training set of 44 images with 11 classes was used, and in all cases, PCA was performed on all six possible channels. A number of principal components sufficient to retain 80\% image data were used. Each column is a different image dimensionality. `Successfully classified' is the number of test images correctly classified. `Failed to classify' is the number of test images the processor was not confident enough to enter a guess for. `Partially misclassified' is the number of test images for which the processor's second guess was correct. `Completely misclassified' is the number of test images for which the processor's initial and secondary guesses were both incorrect.}
   \label{tbl:face-rec-3}
 \end{table}
 
-Note that, in Table~\ref{tbl:face-rec-3}, as we increase image size we see better classification. Furthermore, there is a slight trend away from complete \emph{failures to classify} and towards \emph{misclassifications}. At the biggest image size tested, more images are misclassified than are found unable to be classified.
+Note that, in table~\ref{tbl:face-rec-3}, as we increase image size we see better classification. Furthermore, there is a slight trend away from complete \emph{failures to classify} and towards \emph{misclassifications}. At the biggest image size tested, more images are misclassified than are found unable to be classified.
 
 \begin{table}[bp]
   \centering
@@ -173,11 +191,11 @@ Note that, in Table~\ref{tbl:face-rec-3}, as we increase image size we see bette
     \textbf{Completely misclassified} & 3 & 1 & 2 & 2 \tabularnewline
     \bottomrule
   \end{tabular}
-  \caption[Results of classification testing for different numbers of channels]{Results of using PCA for face recognition of new images (classification testing), using different channels. RGB, HSV and depth map data are tested. Each column specifies a different combination. A training set of 44 images, of dimension 256x396, with 11 classes was used. `Number successfully classified' is the number of test images correctly classified. `Number failed to classify' is the number of test images the processor was not confident enough to enter a guess for. `Number partially misclassified' is the number of test images for which the processor's second guess was correct. `Number completely misclassified' is the number of test images for which the processor's initial and secondary guesses were both incorrect.}
+  \caption[Results of classification testing for different numbers of channels]{Results of using PCA for face recognition of new images (classification testing), using different channels. RGB, HSV and depth map data are tested. Each column specifies a different combination. A training set of 44 images, of dimension 256x396, with 11 classes was used. `Successfully classified' is the number of test images correctly classified. `Failed to classify' is the number of test images the processor was not confident enough to enter a guess for. `Partially misclassified' is the number of test images for which the processor's second guess was correct. `Completely misclassified' is the number of test images for which the processor's initial and secondary guesses were both incorrect.}
   \label{tbl:face-rec-4}
 \end{table}
 
-Table~\ref{tbl:face-rec-4} shows the results of using different channels for PCA. In general, the more tracked data, the better. PCA generally worked well even with simple RGB data. While we cannot say so with statistical rigour, it does appear that the Hue and Saturation values may be more useful than the depth data. This may be because those disparity maps were created by stereo matching on \emph{preprocessed} images: the images began as rectified stereo pairs, but underwent an affine transformation before stereo matching. This means the depth map quality was noticeably lower than usual.
+Table~\ref{tbl:face-rec-4} shows the results of using different channels for PCA. In general, the more tracked data, the better. PCA generally worked well even with simple RGB data. While we cannot say so with statistical rigour, it does appear that the hue and saturation values may be more useful than the depth data. This may be because those disparity maps were created by stereo matching on \emph{preprocessed} images: the images began as rectified stereo pairs, but underwent an affine transformation before stereo matching. This means the depth map quality was noticeably lower than usual.
 
 The beauty of the PCA process is that even if we were using random noise for depth maps, it would not matter: PCA will simply learn that those data values are not good discriminators (and therefore predictors); any eigenvector along the `direction(s)' of depth would not have a high eigenvalue, and therefore would not be chosen as a principal component.
 

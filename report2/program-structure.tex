@@ -14,13 +14,12 @@ provides the rectification data to the final PCA analysis, within the system we
 have built.
 
 Each processor is implemented as a class that specifies which parameters are
-available to it. The parameters can be set by the user with the help of the
-QPropertySelect library. After parameterisation, the actual processing is
-performed in a separate thread, keeping the interface responsive and making it
-possible for the user to cancel a long-running processor.
+available to it. The parameters can be set by the user with the help of the Qt
+property system and the QPropertyEditor library. After parameterisation, the
+actual processing is performed in a separate thread, keeping the interface
+responsive and making it possible for the user to cancel a long-running
+processor.
 
 \input{rectification.tex}
 \input{stereo-matching.tex}
 \input{face-recognition.tex}
-
-

@@ -23,9 +23,10 @@ These parameters allow us to compute the following values:
 \item $T=RT_r$-$T_l$, the translation vector from the left to the right camera
   origin, in the left camera reference frame.
 \item $R_{rect}$, the rectification rotation matrix. This is computed from an
- orthonormal base where $X$ is the translation vector $T$, $Y$ is the cross
-  product of the unit vector with $X$ (in the $Z$-axis direction), and $Z$ is the
-  cross product of $X$ and $Y$.\footnote{ All vectors are normalised to unit length.}
+  orthonormal base where $X$ is the translation vector $T$, $Y$ is the cross
+  product of the unit vector in the direction of the optical axis with $X$, and
+  $Z$ is the cross product of $X$ and $Y$\footnote{ All vectors are normalised
+    to unit length.}.
 \item $f$, the mean of the left and right focal lengths.
 \end{itemize}
 

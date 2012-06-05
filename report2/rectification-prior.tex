@@ -4,7 +4,7 @@
 \label{sec:rectification-prior}
 
 The process of \emph{rectification} is the modification of a pair of stereo images so that they align. That is, \begin{inparaenum}[(a)] \item the epipolar lines of the stereo geometry are horizontal in both images, and
-\item for each physical point in one image, it is on the same scanline ($y$ coordinate) as the corresponding point in the other image. \end{inparaenum}
+\item for each physical point in one image, it is on the same scan line ($y$ coordinate) as the corresponding point in the other image. \end{inparaenum}
 
 Rectification can be defined in terms of the intrinsic and extrinsic camera parameters. This requires that those parameters are known (i.e. the cameras must be calibrated), in which case it is straightforward to calculate the relative geometries of the cameras and adjust the images accordingly. In cases where this is not
 possible, one of several approaches to rectification without calibration can be taken.

@@ -80,14 +80,14 @@ improve the quality of the matching:
     Resulting depth maps are compared to the canonical depth maps to obtain
     discrepancies (quantities of error). Each coloured column in the chart is a
     different parameterisation, as tested on one of the four images. `Static' is
-    the baseline difference between the canonical depth map and a image with
+    the baseline difference between the canonical depth map and an image with
     randomised values. `M0' indicates a median filter was not used in
     preprocessing. `M3' and `M5' indicate median filters of size 3 and 5
-    respectively. `rough' indicates scanlines did not influence each other.
-    `smooth' indicates each scanline was influenced by the one previous, by 0.5
-    by default or by the amount given. `dyn' indicates the depth map was created
+    respectively. `Rough' indicates scan lines did not influence each other.
+    `Smooth' indicates each scan line was influenced by the one previous, by 0.5
+    by default or by the amount given. `Dyn' indicates the depth map was created
     by stretching the disparities to the full [0...255] range, instead of
-    multiplying by the value recommended by \cite{middlebury} for each
+    multiplying by the value recommended by \citet{middlebury} for each
     particular image.}
   \label{fig:stereo-report}
 \end{figure}
@@ -98,8 +98,8 @@ rather dependent on the specific parameters used. We should note that in some
 cases, the output `looks better' (e.g. is more coherent or shaded) even if it is
 strictly less accurate.
 
-We took the best results and submitted them to the Middlebury online tests.
-\cite{stereocorrespondence, middlebury} Their calculator unfortunately
+We took the best results and submitted them to the Middlebury online tests
+\cite{middlebury, stereocorrespondence}. Their calculator unfortunately
 presupposes a cyclopean image, which we were not calculating. We submitted left
 and right instead, and chose the better of the two in each case. Still, we
 expect we would have scored considerably higher if we had calculated the
@@ -107,7 +107,7 @@ cyclopean images. However, the details of our implementation made this
 difficult.
 
 We had 44.9\% to 45.8\% bad pixels total. The worst Middlebury have on record is
-20.7\%. \cite{stereocorrespondence, middlebury} For our test disparity maps,
+20.7\% \cite{middlebury, stereocorrespondence}. For our test disparity maps,
 `Tsukuba' was best with 17.9\% error. `Venus' and `Teddy' were mediocre with
 40.5\% and 54.4\% respectively. `Cones' was worst with 69.0\%. See
 figure~\ref{fig:stereo-report} for full details.
@@ -135,12 +135,12 @@ figure~\ref{fig:stereo-report} for full details.
  \subfloat[Cones (ideal)] { \label{fig:con-i} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/con_ideal_L} }
  \subfloat[Teddy (ideal)] { \label{fig:ted-i} \includegraphics[trim = -2mm -2mm -2mm -2mm, width=0.23\textwidth]{stereo/ted_ideal_L} }\\
 
- \caption[Examples of dynamic programming with various parameters]{Examples of
-   dynamic programming with various parameters. Canonical baseline images are
-   courtesy of \citet{stereocorrespondence}. `rough' images are not
-   preprocessed. `mid' images have a 5x5 median filter applied in preprocessing
-   and feature inter-scanline smoothing with a weight of 0.5. `smooth' images
-   feature inter-scanline smoothing with a weight of 0.9.}
+ \caption[Examples of stereo matching with various parameters]{Examples of
+   stereo matching with various parameters. Canonical baseline images are
+   courtesy of \citet{stereocorrespondence}. `Rough' images are not
+   preprocessed. `Mid' images have a 5x5 median filter applied in preprocessing
+   and feature inter-scan line smoothing with a weight of 0.5. `Smooth' images
+   feature inter-scan line smoothing with a weight of 0.9.}
  \label{fig:stereo-image-depth-maps}
 \end{figure}
 
@@ -156,8 +156,9 @@ figure~\ref{fig:stereo-report} for full details.
  \label{fig:stereo-pair-depth-maps}
 \end{figure}
 
-Consider Figure~\ref{fig:stereo-pair-depth-maps}. Increasing the three
-smoothness parameters - median matrix size, inter-scanline smoothing, and
+Consider figure~\ref{fig:stereo-pair-depth-maps}. Increasing the three
+smoothness parameters - median matrix size, inter-scan line smoothing, and
 diagonal preference / disparity penalty - often results in less noise, but loss
 of definition. This can sometimes translate to poorer performance on the
 formal tests, even when it makes the images more human-readable.
+\clearpage
