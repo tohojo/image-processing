@@ -47,7 +47,7 @@ void StereoProcessor::run()
 	}
 	setMatrixLength(3);
 	max_expected_disparity_bounds = 30;
-	weight_porcupine = 1.25;
+	weight_porcupine = 1.01;
 	for (int i = 4071; i <= 4114; i++){
 		std::string left = "norm_0.25_1.2/DSCF";
 		std::string right = "norm_0.25_1.2/DSCF";
@@ -63,11 +63,11 @@ void StereoProcessor::run()
 		rightout << "rec_r.normalD_smth.png";
 		left.append("rec_l.normal.png");
 		right.append("rec_r.normal.png");
-		testProgram(false, 0.7, 5, leftout.str().c_str(), rightout.str().c_str(), left.c_str(), right.c_str());
+		testProgram(false, 0.7, 7, leftout.str().c_str(), rightout.str().c_str(), left.c_str(), right.c_str());
 	}
 	setMatrixLength(5);
 	max_expected_disparity_bounds = 30;
-	weight_porcupine = 1.5;
+	weight_porcupine = 1.015;
 	for (int i = 4071; i <= 4114; i++){
 		std::string left = "norm_0.25_1.2/DSCF";
 		std::string right = "norm_0.25_1.2/DSCF";
@@ -83,7 +83,7 @@ void StereoProcessor::run()
 		rightout << "rec_r.normalD_xtr_smth.png";
 		left.append("rec_l.normal.png");
 		right.append("rec_r.normal.png");
-		testProgram(false, 0.8, 5, leftout.str().c_str(), rightout.str().c_str(), left.c_str(), right.c_str());
+		testProgram(false, 0.8, 7, leftout.str().c_str(), rightout.str().c_str(), left.c_str(), right.c_str());
 	}*/
 
 	forever {
@@ -585,10 +585,10 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 			int left = 10000000;
 			int up_left = 10000000;
 			if (ii > 0) {
-				up = A.at<int>(ii - 1, jj) * weight_porcupine;
+				up = (int) (A.at<int>(ii - 1, jj) * weight_porcupine);
 			}
 			if (jj > 0) {
-				left = A.at<int>(ii, jj - 1) * weight_porcupine;
+				left = (int) (A.at<int>(ii, jj - 1) * weight_porcupine);
 				if (ii > 0)// && (jj > 0))
 					up_left = A.at<int>(ii - 1, jj - 1);
 			}
@@ -676,9 +676,9 @@ bool StereoProcessor::dynamicProgramming(const char * leftName, const char * rig
 			int down = 10000000;
 			int right = 10000000;
 			int down_right = 10000000;
-			if (ii < numColsLeft-1) down = A_b.at<int>(ii + 1, jj) * weight_porcupine;
+			if (ii < numColsLeft-1) down = (int) (A_b.at<int>(ii + 1, jj) * weight_porcupine);
 			if (jj < numColsLeft-1){
-				right = A_b.at<int>(ii, jj + 1) * weight_porcupine;
+				right = (int) (A_b.at<int>(ii, jj + 1) * weight_porcupine);
 				if (ii < numColsLeft-1) //&& (jj < numColsLeft-1))
 					down_right = A_b.at<int>(ii + 1, jj + 1);
 			}

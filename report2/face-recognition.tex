@@ -63,21 +63,91 @@ user-configurable), to speed up the processing.
 Finally, we apply our stereo matching implementation to the processed images to
 yield the depth map that can optionally be used in the PCA matching. The last channels - Hue and Saturation values - are extracted from each pixel by a function during the processing.
 
-\subsubsection{Testing results}
+\subsubsection{Testing face recognition}
 \label{sec:pcaresults}
 
-1. sample results of error between the original image and the reconstructed image from TRAINING EXAMPLES
+Methodology: for each test, use whatever number of components means keeping at least 80\% image information (in terms of fraction of the total eigenvalues). Set error threshold to a relatively strict $1.0$, i.e. only identify test images as belonging to a class if the variation between them and the class mean is less than or equal to the maximum variation within the training images for that class.
 
-2. number of correct classifications between images size 128 vs 256
+Consider Table~\ref{tbl:face-rec-1}. The amount of image information being retained when a certain number of components are kept is not heavily dependent on the image size. There is little difference between sizes. In all cases, 12 or 13 components are required for the 80\% information threshold we use in our other experiments.
 
-3. number of correct classifications, RGB
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{c c c c c}
+    \toprule
+    \textbf{ } & \textbf{} & \textbf{Image size} & \textbf{} & \textbf{}\\
+    \textbf{ } & \textbf{ 32x49 } & \textbf{ 64x99 } & \textbf{128x198} & \textbf{256x396}\\
+    \midrule
+    \textbf{2 components} & 39.6\% & 39.9\% & 38.8\% & 37.8\% \\
+    \textbf{4 components} & 55.6\% & 56.0\% & 55.5\% & 53.2\% \\
+    \textbf{6 components} & 64.8\% & 65.2\% & 64.0\% & 62.2\% \\
+    \textbf{8 components} & 71.9\% & 72.4\% & 70.5\% & 69.3\% \\
+    \textbf{10 components} & 77.2\% & 77.6\% & 76.1\% & 74.6\% \\
+    \textbf{12 components} & 80.8\% & 81.3\% & 79.8\% & 78.4\% \\
+    \textbf{14 components} & 83.8\% & 84.4\% & 82.3\% & 81.6\% \\
+    \textbf{16 components} & 86.3\% & 86.8\% & 85.7\% & 84.2\% \\
+    \bottomrule
+  \end{tabular}
+  \caption[Information retained in face recognition tests for different-sized images]{Information retained in face recognition tests for different-sized images. Each row is a case where a different number of components were kept. Each column is a different image dimensionality. Results are presented as percentage of total summed eigenvalues. In each case, PCA was performed on all six possible channels, on a training set of 44 images.}
+  \label{tbl:face-rec-1}
+\end{table}
 
-4. number of correct classifications, RGB + HS
+Consider Table~\ref{tbl:face-rec-2}. As expected, we have better reconstruction when we keep more principal components. The total improvement when we go from 4 components to 10 is 41695. The total improvement when we go from 10 components to 16 is 12489. This apparent diminishing returns is because we start including more `important' (in terms of their associated eigenvalue) eigenvectors, and then start adding ones which lend less to the PCA.
 
-5. number of correct classifications, RGB  + depth map
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{c c c c}
+    \toprule
+    \textbf{ } & \textbf{4 components} & \textbf{10 components} & \textbf{16 components} \\
+    \textbf{ } & \textbf{(53.2\% image data retained)} & \textbf{(74.6\% image data retained)} & \textbf{(84.2\% image data retained)} \\
+    \midrule
+    \textbf{Class A} & 9848 & 9018 & 6670\\
+    \textbf{Class B} & 11238 & 7853 & 6170\\ 
+    \textbf{Class C} & 11719 & 7811 & 7376\\ 
+    \textbf{Class D} & 12061 & 7736 & 6560\\
+    \textbf{Class E} & 10268 & 7873 & 6383\\
+    \textbf{Class F} & 13339 & 8683 & 7001\\ 
+    \textbf{Class G} & 10252 & 9022 & 6516\\ 
+    \textbf{Class H} & 14167 & 7331 & 5709\\
+    \textbf{Class I} & 11945 & 10223 & 7379\\
+    \textbf{Class J} & 11196 & 9187 & 6075\\ 
+    \textbf{Class K} & 11586 & 8267 & 7596\\
+    \bottomrule
+  \end{tabular}
+  \caption[Sample reconstruction error for the 256x396 size images]{Sample reconstruction error for the 256x396 size images, with PCA performed on all six possible channels. A training set of 44 images was used. Each column is the error for one class (person) in the training set. Error is measured in absolute difference between the original training example image vector and the reconstructed vector projected back out of the PCA space. Each row is a case where a different number of components were kept, with the quantity of information retained (as a percentage of total summed eigenvalues) in brackets.}
+  \label{tbl:face-rec-2}
+\end{table}
 
-6. number of correct classifications, RGB + HS + depth map
+Consider Table~\ref{tbl:face-rec-3}. Note that most often, PCA failed on the classes or test images for the person whose hand was over his face, the person who had the most different positions and expressions, the person who had only two training images, or the person wearing a hat. These are classes F, C, H, K respectively in Table~\ref{tbl:face-rec-2}. Very few test images outside of these unexpected cases were misclassified or unclassified. Note that classes F and H have the highest reconstruction error when only a few components are kept: PCA is unable to reconstruct the considerable variance \emph{within} the class at a lower dimensionality.
 
-7. trying to predict classes other than (person's face): spectacles, facial hair, showing teeth, neutral vs other expression, ethnicity
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{c c c c c}
+    \toprule
+    \textbf{ } & \textbf{} & \textbf{Image size} & \textbf{} & \textbf{}\\
+    \textbf{ } & \textbf{ 32x49 } & \textbf{ 64x99 } & \textbf{128x198} & \textbf{256x396}\\
+    \midrule
+    \textbf{Number} & {} & {} & {} & {} \\
+    \textbf{successfully} & 30 & 32 & 33 & 34\\
+    \textbf{classified} & {} & {} & {} & {} \\
+    \midrule
+    \textbf{Number} & {} & {} & {} & {} \\
+    \textbf{failed to} & 14 & 9 & 7 & 4\\
+    \textbf{classify} & {} & {} & {} & {} \\
+    \midrule
+    \textbf{Number} & {} & {} & {} & {} \\
+    \textbf{partially} & 0 & 2 & 3 & 4\\
+    \textbf{misclassified} & {} & {} & {} & {} \\
+    \midrule
+    \textbf{Number} & {} & {} & {} & {} \\
+    \textbf{completely} & 0 & 1 & 1 & 2\\
+    \textbf{misclassified} & {} & {} & {} & {} \\
+    \bottomrule
+  \end{tabular}
+  \caption[Results of classification testing for different-sized images]{Results of using PCA for face recognition of new images (classification testing). Four different image sizes are tested. A training set of 44 images was used, and in all cases, PCA was performed on all six possible channels. Each column is ... Each row is...}
+  \label{tbl:face-rec-3}
+\end{table}
+
+Note in Table~\ref{tbl:face-rec-3} that as we increase image size, we see better classification, and also transference of complete failures to classify into misclassifications. By the biggest size, more images are misclassified than unable to classify.
+
 
 

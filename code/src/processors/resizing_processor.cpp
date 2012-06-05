@@ -19,6 +19,48 @@ ResizingProcessor::~ResizingProcessor()
 void ResizingProcessor::run()
 {
 
+	// Please ignore this terrible hack :P
+	/*
+	factor = 0.25;
+	for (int i = 4071; i <= 4114; i++){
+		std::string left = "norm_0.25_1.2/DSCF";
+		std::string right = "norm_0.25_1.2/DSCF";
+		std::stringstream ss;
+		ss << i;
+		left.append(ss.str());
+		right.append(ss.str());
+		std::stringstream leftout;
+		leftout << left;
+		leftout << "rec_l.normal_smallD_smth.png";
+		std::stringstream rightout;
+		rightout << right;
+		rightout << "rec_r.normal_smallD_smth.png";
+		left.append("rec_l.normalD_smth.png");
+		right.append("rec_r.normalD_smth.png");
+		{
+			Mat img = imread(left.c_str());
+			Mat resized;
+			double colsX = (img.cols * factor);
+			if ((colsX - (int)(colsX)) > 0.5) colsX += 0.5;
+			double rowsX = (img.rows * factor);
+			if ((rowsX - (int)(rowsX)) > 0.5) rowsX += 0.5;
+			Size sizeFactor = Size((int)colsX, (int)rowsX); // Width, height
+			cv::resize(img, resized, sizeFactor);
+			imwrite(leftout.str().c_str(), resized);
+		}
+		{
+			Mat img = imread(right.c_str());
+			Mat resized;
+			double colsX = (img.cols * factor);
+			if ((colsX - (int)(colsX)) > 0.5) colsX += 0.5;
+			double rowsX = (img.rows * factor);
+			if ((rowsX - (int)(rowsX)) > 0.5) rowsX += 0.5;
+			Size sizeFactor = Size((int)colsX, (int)rowsX); // Width, height
+			cv::resize(img, resized, sizeFactor);
+			imwrite(rightout.str().c_str(), resized);
+		}
+	}*/
+
 	forever {
 		if(abort) return;
 		emit progress(0);
