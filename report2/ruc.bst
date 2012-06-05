@@ -981,12 +981,12 @@ FUNCTION {article}
       format.pages output
     }
   if$
-  format.issn output
-  format.doi output
+%  format.issn output
+%  format.doi output
   new.block
   format.note output
   fin.entry
-  write.url
+%  write.url
 }
 FUNCTION {book}
 { output.bibitem
@@ -1102,7 +1102,7 @@ FUNCTION {incollection}
       new.sentence
       format.publisher.address output
       format.edition output
-      format.isbn output
+%      format.isbn output
     }
     { format.incoll.inproc.crossref output.nonnull
       format.chapter.pages output
@@ -1112,7 +1112,7 @@ FUNCTION {incollection}
   new.block
   format.note output
   fin.entry
-  write.url
+%  write.url
 }
 FUNCTION {inproceedings}
 { output.bibitem
@@ -1142,11 +1142,11 @@ FUNCTION {inproceedings}
       format.pages output
     }
   if$
-  format.doi output
+%  format.doi output
   new.block
   format.note output
   fin.entry
-  write.url
+%  write.url
 }
 FUNCTION {conference} { inproceedings }
 FUNCTION {manual}
