@@ -1,7 +1,7 @@
 INSTALLATION INSTRUCTIONS
 
-Requirements: A c++ compiler, the Qt and OpenCV library + development
-headers.
+Requirements: A c++ compiler, the Qt and OpenCV library (version 2.4) +
+development headers.
 
 This project uses CMake as a build system. On *nix, running the
 build.sh script should take care of most things (tested on Arch
