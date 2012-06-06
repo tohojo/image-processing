@@ -1,0 +1,13 @@
+773-calib-stats export-ignore
+report export-ignore
+report2 export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore
+*.tif export-ignore
+*.png export-ignore
+*.JPG export-ignore
+*.jpg export-ignore
+*.xls export-ignore
+*.ods export-ignore
+*.csv export-ignore
+
